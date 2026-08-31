@@ -35,6 +35,19 @@ export function getAccessToken() {
   return readSession().accessToken;
 }
 
+export function getRefreshToken() {
+  return readSession().refreshToken;
+}
+
+export function updateAccessToken(accessToken: string) {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  writeValue(ACCESS_TOKEN_KEY, accessToken);
+  notifySessionChanged();
+}
+
 export function saveSession(session: Session) {
   if (typeof window === 'undefined') {
     return;
