@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useSession } from '../auth/session';
 import { getRoleHomePath, appRoutes } from '../config/routes';
 import { AdminWorkspaceScreen } from '../screens/admin/AdminWorkspaceScreen';
-import { LoginScreen } from '../screens/auth/LoginScreen';
+import { AuthScreen } from '../screens/auth/AuthScreen';
 import { MemberWorkspaceScreen } from '../screens/member/MemberWorkspaceScreen';
 import { StaffWorkspaceScreen } from '../screens/staff/StaffWorkspaceScreen';
 import { UiKitScreen } from '../screens/dev/UiKitScreen';
@@ -12,7 +12,7 @@ export function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<HomeRedirect />} />
-      <Route path={appRoutes.login} element={<LoginScreen />} />
+      <Route path={appRoutes.login} element={<AuthScreen />} />
 
       <Route element={<ProtectedRoute allowedRoles={['MEMBER']} />}>
         <Route
