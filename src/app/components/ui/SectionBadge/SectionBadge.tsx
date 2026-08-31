@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import './section-badge.css';
 
 type SectionBadgeProps = {
   children: ReactNode;

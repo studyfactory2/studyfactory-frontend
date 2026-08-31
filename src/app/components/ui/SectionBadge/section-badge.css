@@ -1,0 +1,10 @@
+.section-badge {
+  width: fit-content;
+  padding: 0.42rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--positive-soft);
+  color: var(--positive-deep);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}

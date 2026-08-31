@@ -1,4 +1,4 @@
-import { SectionBadge } from '../../components/ui/SectionBadge';
+import { SectionBadge } from '../../components/ui';
 import { AppShell } from '../../layouts/AppShell';
 
 export function LoginScreen() {

@@ -1,0 +1,80 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field__label {
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.field__required {
+  margin-left: 2px;
+  color: var(--danger);
+}
+
+.field__message {
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.field__message--error {
+  color: var(--danger-deep);
+}
+
+.control {
+  width: 100%;
+  height: var(--control-height);
+  padding: 0 var(--space-4);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--card);
+  color: var(--ink);
+  font-size: var(--text-md);
+  font-family: inherit;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.control::placeholder {
+  color: var(--muted);
+}
+
+.control:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+
+.control:disabled {
+  background: var(--card-2);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.field--error .control {
+  border-color: var(--danger);
+}
+
+.field--error .control:focus {
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.control--textarea {
+  height: auto;
+  min-height: 108px;
+  padding: var(--space-3) var(--space-4);
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.control--select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2375837c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-3) center;
+  padding-right: var(--space-7);
+}

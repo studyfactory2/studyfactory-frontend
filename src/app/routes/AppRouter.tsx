@@ -5,6 +5,7 @@ import { AdminWorkspaceScreen } from '../screens/admin/AdminWorkspaceScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { MemberWorkspaceScreen } from '../screens/member/MemberWorkspaceScreen';
 import { StaffWorkspaceScreen } from '../screens/staff/StaffWorkspaceScreen';
+import { UiKitScreen } from '../screens/dev/UiKitScreen';
 import { ProtectedRoute } from './ProtectedRoute';
 
 export function AppRouter() {
@@ -33,6 +34,10 @@ export function AppRouter() {
           element={<AdminWorkspaceScreen />}
         />
       </Route>
+
+      {import.meta.env.DEV && (
+        <Route path="/dev/kit" element={<UiKitScreen />} />
+      )}
 
       <Route path="*" element={<HomeRedirect />} />
     </Routes>

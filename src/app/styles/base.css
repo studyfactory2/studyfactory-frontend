@@ -1,0 +1,49 @@
+/* Element defaults on top of reset + tokens. Screens style via their own scoped classes. */
+html {
+  background: var(--wash);
+}
+
+body {
+  background: var(--wash);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: 1.55;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent-deep);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}

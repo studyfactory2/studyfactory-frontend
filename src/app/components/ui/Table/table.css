@@ -1,0 +1,36 @@
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--card);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table th {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  background: var(--card-2);
+  color: var(--ink-soft);
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tbody tr:hover td {
+  background: var(--wash);
+}
