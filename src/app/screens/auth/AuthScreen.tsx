@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom';
 import { Factory } from 'lucide-react';
 import type { PreRegistrationVerifyResponse } from '../../auth/auth-api';
 import { useSession } from '../../auth/session';
-import { FactoryScene } from '../../components/illustrations/FactoryScene';
 import { useToast } from '../../components/ui';
 import { getRoleHomePath } from '../../config/routes';
 import { cx } from '../../lib/cx';
@@ -126,9 +125,63 @@ export function AuthScreen() {
               )}
             </div>
 
-            <FactoryScene />
+            <div className="auth-overlay__character">
+              <img alt="" src="/brand/studyfactory-character.png" />
+            </div>
           </div>
         </aside>
+
+        <div aria-hidden="true" className="auth-blob">
+          <span className="auth-blob__bubbles">
+            <i className="auth-blob__bubble auth-blob__bubble--1" />
+            <i className="auth-blob__bubble auth-blob__bubble--2" />
+          </span>
+
+          <p className="auth-blob__brand">
+            <Factory size={15} />
+            STUDY FACTORY
+          </p>
+
+          <div className="auth-blob__copy">
+            <h2>
+              {isRegister ? (
+                <>
+                  처음 오셨나요?
+                  <br />
+                  환영합니다!
+                </>
+              ) : (
+                <>
+                  다시 만나
+                  <br />
+                  반가워요!
+                </>
+              )}
+            </h2>
+            <p>오늘도 집중하는 하루를 시작해요</p>
+          </div>
+
+          <div className="auth-blob__char">
+            <img alt="" src="/brand/studyfactory-character.png" />
+          </div>
+
+          <svg
+            className="auth-blob__wave"
+            preserveAspectRatio="none"
+            viewBox="0 0 360 74"
+          >
+            <path
+              d="M0 26C50 64 120 74 190 56 260 38 320 44 360 66V74H0Z"
+              fill="var(--wash)"
+            />
+            <path
+              d="M0 26C50 64 120 74 190 56 260 38 320 44 360 66"
+              fill="none"
+              stroke="rgb(255 253 248 / 35%)"
+              strokeWidth="3"
+            />
+          </svg>
+        </div>
       </div>
     </main>
   );

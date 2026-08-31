@@ -6,6 +6,7 @@ import { ApiRequestError } from '../../../api/api-client';
 import { login } from '../../../auth/auth-api';
 import { decodeAccessToken } from '../../../auth/jwt';
 import { saveSession } from '../../../auth/session';
+import { InstallPrompt } from '../../../components/pwa/InstallPrompt';
 import { Button, Field, Input } from '../../../components/ui';
 import { getRoleHomePath } from '../../../config/routes';
 
@@ -67,10 +68,8 @@ export function LoginPane({
 
   return (
     <form className="auth-pane" onSubmit={handleSubmit}>
-      <h2 className="auth-pane__title">로그인</h2>
-      <p className="auth-pane__subtitle">
-        오늘도 차분하게, 집중하는 하루를 시작해요.
-      </p>
+      <h2 className="auth-pane__title">오늘도 반가워요!</h2>
+      <p className="auth-pane__subtitle">차분하게, 집중하는 하루를 시작해요.</p>
 
       <Field label="이름" required>
         {(id) => (
@@ -116,6 +115,8 @@ export function LoginPane({
       >
         처음이신가요? <strong>사원등록</strong>
       </button>
+
+      <InstallPrompt />
     </form>
   );
 }
