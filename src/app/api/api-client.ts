@@ -4,7 +4,22 @@ import {
   getRefreshToken,
   updateAccessToken,
 } from '../auth/session';
+import { decodeAccessToken } from '../auth/jwt';
 import { appConfig } from '../config/environment';
+
+type ApiRequestOptions = RequestInit & {
+  expectedMemberId?: number | null;
+};
+
+type SessionSnapshot = {
+  accessToken: string | null;
+  memberId: number | null;
+  refreshToken: string | null;
+};
+
+type ReissueResult =
+  | { accessToken: string; status: 'reissued' }
+  | { status: 'failed' | 'session-changed' };
 
 export class ApiRequestError extends Error {
   readonly status: number;
@@ -18,22 +33,40 @@ export class ApiRequestError extends Error {
 
 export async function apiRequest<TResponse>(
   path: string,
-  options: RequestInit = {},
+  options: ApiRequestOptions = {},
 ): Promise<TResponse> {
-  const hadAccessToken = Boolean(getAccessToken());
-  let response = await performRequest(path, options);
+  const { expectedMemberId = null, ...requestOptions } = options;
+  const session = snapshotSession();
+
+  assertExpectedMember(session, expectedMemberId);
+
+  let response = await performRequest(
+    path,
+    requestOptions,
+    session.accessToken,
+  );
 
   // Expired access token: reissue silently once, then retry the request.
   if (
     response.status === 401 &&
-    hadAccessToken &&
+    session.accessToken &&
     !path.startsWith('/api/auth/')
   ) {
-    const reissuedToken = await requestReissue();
+    const reissueResult = await requestReissue(session, expectedMemberId);
 
-    if (reissuedToken) {
-      response = await performRequest(path, options);
-    } else {
+    if (reissueResult.status === 'reissued') {
+      if (!sessionMatchesReissuedToken(session, reissueResult.accessToken)) {
+        throw sessionChangedError();
+      }
+
+      response = await performRequest(
+        path,
+        requestOptions,
+        reissueResult.accessToken,
+      );
+    } else if (reissueResult.status === 'session-changed') {
+      throw sessionChangedError();
+    } else if (sessionMatchesSnapshot(session)) {
       clearSession();
     }
   }
@@ -52,9 +85,12 @@ export async function apiRequest<TResponse>(
   return response.json() as Promise<TResponse>;
 }
 
-function performRequest(path: string, options: RequestInit) {
+function performRequest(
+  path: string,
+  options: RequestInit,
+  accessToken: string | null,
+) {
   const headers = new Headers(options.headers);
-  const accessToken = getAccessToken();
 
   if (!headers.has('Accept')) {
     headers.set('Accept', 'application/json');
@@ -75,27 +111,44 @@ function performRequest(path: string, options: RequestInit) {
   });
 }
 
-// One shared reissue promise so concurrent 401s trigger a single reissue call.
-let reissuePromise: Promise<string | null> | null = null;
+// Concurrent 401s from the same token pair share one identity-bound reissue.
+const reissuePromises = new Map<string, Promise<ReissueResult>>();
 
-function requestReissue() {
-  reissuePromise ??= reissueAccessToken().finally(() => {
-    reissuePromise = null;
+function requestReissue(
+  session: SessionSnapshot,
+  expectedMemberId: number | null,
+) {
+  const promiseKey = `${session.accessToken ?? ''}\u0000${session.refreshToken ?? ''}`;
+  const existingPromise = reissuePromises.get(promiseKey);
+
+  if (existingPromise) {
+    return existingPromise;
+  }
+
+  const promise = reissueAccessToken(session, expectedMemberId).finally(() => {
+    if (reissuePromises.get(promiseKey) === promise) {
+      reissuePromises.delete(promiseKey);
+    }
   });
-
-  return reissuePromise;
+  reissuePromises.set(promiseKey, promise);
+  return promise;
 }
 
-async function reissueAccessToken(): Promise<string | null> {
-  const refreshToken = getRefreshToken();
+async function reissueAccessToken(
+  session: SessionSnapshot,
+  expectedMemberId: number | null,
+): Promise<ReissueResult> {
+  if (!session.refreshToken) {
+    return { status: 'failed' };
+  }
 
-  if (!refreshToken) {
-    return null;
+  if (!sessionMatchesSnapshot(session)) {
+    return { status: 'session-changed' };
   }
 
   try {
     const response = await fetch(toApiUrl('/api/auth/token/reissue'), {
-      body: JSON.stringify({ refreshToken }),
+      body: JSON.stringify({ refreshToken: session.refreshToken }),
       cache: 'no-store',
       headers: {
         Accept: 'application/json',
@@ -104,21 +157,81 @@ async function reissueAccessToken(): Promise<string | null> {
       method: 'POST',
     });
 
+    if (!sessionMatchesSnapshot(session)) {
+      return { status: 'session-changed' };
+    }
+
     if (!response.ok) {
-      return null;
+      return { status: 'failed' };
     }
 
     const data = (await response.json()) as { accessToken?: string };
 
     if (!data.accessToken) {
-      return null;
+      return { status: 'failed' };
+    }
+
+    const reissuedMemberId = decodeAccessToken(data.accessToken).memberId;
+    const boundMemberId = expectedMemberId ?? session.memberId;
+
+    if (boundMemberId !== null && reissuedMemberId !== boundMemberId) {
+      return { status: 'failed' };
+    }
+
+    if (!sessionMatchesSnapshot(session)) {
+      return { status: 'session-changed' };
     }
 
     updateAccessToken(data.accessToken);
-    return data.accessToken;
+    return { accessToken: data.accessToken, status: 'reissued' };
   } catch {
-    return null;
+    return {
+      status: sessionMatchesSnapshot(session) ? 'failed' : 'session-changed',
+    };
   }
+}
+
+function snapshotSession(): SessionSnapshot {
+  const accessToken = getAccessToken();
+
+  return {
+    accessToken,
+    memberId: accessToken ? decodeAccessToken(accessToken).memberId : null,
+    refreshToken: getRefreshToken(),
+  };
+}
+
+function assertExpectedMember(
+  session: SessionSnapshot,
+  expectedMemberId: number | null,
+) {
+  if (expectedMemberId !== null && session.memberId !== expectedMemberId) {
+    throw sessionChangedError();
+  }
+}
+
+function sessionMatchesSnapshot(session: SessionSnapshot) {
+  return (
+    getAccessToken() === session.accessToken &&
+    getRefreshToken() === session.refreshToken
+  );
+}
+
+function sessionMatchesReissuedToken(
+  session: SessionSnapshot,
+  reissuedToken: string,
+) {
+  return (
+    getAccessToken() === reissuedToken &&
+    getRefreshToken() === session.refreshToken
+  );
+}
+
+function sessionChangedError() {
+  return new ApiRequestError(
+    '로그인 정보가 변경되어 요청을 안전하게 중단했습니다.',
+    409,
+  );
 }
 
 function toApiUrl(path: string) {

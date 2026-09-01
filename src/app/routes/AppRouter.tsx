@@ -5,6 +5,7 @@ import { AdminHomeScreen } from '../screens/admin/AdminHomeScreen';
 import { AdminWorkspaceScreen } from '../screens/admin/AdminWorkspaceScreen';
 import { AuthScreen } from '../screens/auth/AuthScreen';
 import { MemberHomeScreen } from '../screens/member/MemberHomeScreen';
+import { MemberPlans } from '../screens/member/plans';
 import { MemberWorkspaceScreen } from '../screens/member/MemberWorkspaceScreen';
 import { WorkspacePlaceholderScreen } from '../screens/shared/WorkspacePlaceholderScreen';
 import { StaffHomeScreen } from '../screens/staff/StaffHomeScreen';
@@ -21,16 +22,7 @@ export function AppRouter() {
       <Route element={<ProtectedRoute allowedRoles={['MEMBER']} />}>
         <Route path={appRoutes.member} element={<MemberWorkspaceScreen />}>
           <Route index element={<MemberHomeScreen />} />
-          <Route
-            path="plans"
-            element={
-              <WorkspacePlaceholderScreen
-                description="주간 계획과 일별 작업 항목을 작성하고 진행 상황을 확인합니다."
-                eyebrow="MEMBER · PLAN"
-                title="작업 계획"
-              />
-            }
-          />
+          <Route path="plans" element={<MemberPlans />} />
           <Route
             path="study"
             element={
