@@ -17,17 +17,18 @@
   /* ---- text ---- */
   --ink: #1e3d32;
   --ink-soft: #3c5a4e;
-  --muted: #75837c;
+  --muted: #64736b;
 
-  /* ---- Study Factory brand ---- */
+  /* ---- 자격증공장 brand ---- */
   --brand-ink: #17211d;
   --brand-forest: #234c3d;
   --brand-forest-light: #316451;
   --brand-paper: #f6f2e9;
   --brand-ivory: #fffcf7;
   --brand-gold: #b08a4a;
+  --brand-gold-text: #765a2a;
   --brand-line: #d9d3c7;
-  --brand-muted: #6d746f;
+  --brand-muted: #626a65;
 
   /* ---- accent (apricot) ---- */
   --accent: #e5934a;

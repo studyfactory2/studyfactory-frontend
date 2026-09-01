@@ -3,7 +3,7 @@
   display: grid;
   min-height: 100svh;
   place-items: center;
-  overflow: hidden;
+  overflow: auto;
   padding: clamp(16px, 3vw, 40px);
   background:
     radial-gradient(circle at 8% 10%, rgb(176 138 74 / 14%), transparent 28%),
@@ -159,9 +159,15 @@
   margin-top: clamp(44px, 7vh, 78px);
 }
 
-.auth-story__eyebrow,
-.auth-pane__eyebrow {
+.auth-story__eyebrow {
   color: var(--brand-gold);
+  font-size: var(--text-xs);
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+.auth-pane__eyebrow {
+  color: var(--brand-gold-text);
   font-size: var(--text-xs);
   font-weight: 800;
   letter-spacing: 0.18em;
@@ -278,47 +284,6 @@
   background: var(--brand-gold);
 }
 
-.auth-story__mascot {
-  position: absolute;
-  right: 26px;
-  bottom: 18px;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 15px 10px 10px;
-  border: 1px solid rgb(23 33 29 / 9%);
-  border-radius: 19px;
-  background: var(--brand-ivory);
-  color: var(--brand-ink);
-  box-shadow: 0 18px 46px rgb(9 24 19 / 24%);
-  animation: auth-mascot-drift 16s ease-in-out infinite;
-}
-
-.auth-story__mascot img {
-  width: 72px;
-  height: 72px;
-  border-radius: 13px;
-  object-fit: cover;
-}
-
-.auth-story__mascot span {
-  display: flex;
-  flex-direction: column;
-}
-
-.auth-story__mascot small {
-  color: var(--brand-gold);
-  font-size: 0.64rem;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-}
-
-.auth-story__mascot strong {
-  margin-top: 3px;
-  font-size: var(--text-sm);
-}
-
 .auth-story__footer {
   position: relative;
   z-index: 3;
@@ -346,6 +311,7 @@
   flex-direction: column;
   justify-content: center;
   min-width: 0;
+  min-height: 0;
   overflow-y: auto;
   padding: clamp(38px, 5vw, 72px);
   background: var(--brand-ivory);
@@ -619,17 +585,6 @@
   }
 }
 
-@keyframes auth-mascot-drift {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-7px);
-  }
-}
-
 /* ---------- tablet portrait ---------- */
 @media (max-width: 900px) {
   .auth-screen {
@@ -684,11 +639,6 @@
     width: 190px;
   }
 
-  .auth-story__mascot {
-    right: 12px;
-    bottom: 8px;
-  }
-
   .auth-story__footer {
     display: none;
   }
@@ -720,8 +670,8 @@
   }
 
   .auth-story {
-    min-height: 224px;
-    padding: max(20px, env(safe-area-inset-top)) 20px 42px;
+    min-height: 116px;
+    padding: max(20px, env(safe-area-inset-top)) 20px 32px;
   }
 
   .auth-brand__mark {
@@ -731,54 +681,15 @@
   }
 
   .auth-brand__name strong {
-    font-size: 0.72rem;
+    font-size: 0.86rem;
   }
 
   .auth-brand__name small {
     display: none;
   }
 
-  .auth-story__copy {
-    width: 70%;
-    margin-top: 27px;
-  }
-
-  .auth-story__eyebrow {
-    font-size: 0.61rem;
-  }
-
-  .auth-story__copy h1 {
-    margin-top: 8px;
-    font-size: clamp(1.75rem, 8vw, 2.15rem);
-  }
-
+  .auth-story__copy,
   .auth-story__scene {
-    right: 8px;
-    bottom: 20px;
-    width: 40%;
-    min-height: 130px;
-  }
-
-  .auth-story__scene-grid,
-  .auth-story__factory,
-  .auth-story__rhythm {
-    display: none;
-  }
-
-  .auth-story__mascot {
-    right: 0;
-    bottom: 0;
-    gap: 0;
-    padding: 7px;
-    border-radius: 18px;
-  }
-
-  .auth-story__mascot img {
-    width: 88px;
-    height: 88px;
-  }
-
-  .auth-story__mascot span {
     display: none;
   }
 
@@ -786,10 +697,10 @@
     position: relative;
     z-index: 4;
     justify-content: flex-start;
-    min-height: calc(100svh - 202px);
-    margin-top: -22px;
+    min-height: calc(100svh - 96px);
+    margin-top: -20px;
     overflow: visible;
-    padding: 40px 20px max(24px, env(safe-area-inset-bottom));
+    padding: 36px 20px max(24px, env(safe-area-inset-bottom));
     border-radius: 24px 24px 0 0;
   }
 
@@ -816,6 +727,10 @@
 }
 
 @media (max-height: 720px) and (min-width: 901px) {
+  .auth-screen {
+    place-items: start center;
+  }
+
   .auth-screen__stage {
     min-height: 620px;
   }
@@ -841,7 +756,7 @@
   }
 
   .auth-screen__stage {
-    grid-template-columns: minmax(220px, 0.8fr) minmax(340px, 1.2fr);
+    grid-template-columns: minmax(180px, 0.55fr) minmax(340px, 1.45fr);
     width: 100%;
     min-height: 100svh;
     max-height: none;
@@ -855,47 +770,9 @@
     padding: 22px 24px;
   }
 
-  .auth-story__copy {
-    width: 100%;
-    margin-top: 30px;
-  }
-
-  .auth-story__copy h1 {
-    font-size: clamp(1.7rem, 4.8vw, 2.25rem);
-  }
-
-  .auth-story__description,
-  .auth-story__rhythm,
-  .auth-story__factory,
+  .auth-story__copy,
+  .auth-story__scene,
   .auth-story__footer {
-    display: none;
-  }
-
-  .auth-story__scene {
-    position: absolute;
-    right: 16px;
-    bottom: 14px;
-    width: 100px;
-    min-height: 98px;
-  }
-
-  .auth-story__scene-grid {
-    display: none;
-  }
-
-  .auth-story__mascot {
-    right: 0;
-    bottom: 0;
-    gap: 0;
-    padding: 7px;
-  }
-
-  .auth-story__mascot img {
-    width: 84px;
-    height: 84px;
-  }
-
-  .auth-story__mascot span {
     display: none;
   }
 
@@ -948,8 +825,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .auth-screen__stage,
-  .auth-panel__content,
-  .auth-story__mascot {
+  .auth-panel__content {
     animation: none;
   }
 }

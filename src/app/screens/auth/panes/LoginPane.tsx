@@ -61,6 +61,7 @@ export function LoginPane({
 
       saveSession({
         accessToken: tokens.accessToken,
+        branchId: payload.branchId,
         memberName: payload.name,
         refreshToken: tokens.refreshToken,
         role: payload.role,
@@ -73,7 +74,7 @@ export function LoginPane({
     onError: (error) => {
       setFormError(
         error instanceof ApiRequestError && error.status === 401
-          ? '지점, 등록 이름 또는 비밀번호를 확인해 주세요.'
+          ? '지점, 이름 또는 비밀번호를 확인해 주세요.'
           : error instanceof ApiRequestError
             ? error.message
             : '로그인에 실패했습니다. 잠시 후 다시 시도해 주세요.',
@@ -85,7 +86,7 @@ export function LoginPane({
     event.preventDefault();
 
     if (!resolvedBranchId || !name.trim() || !password) {
-      setFormError('지점, 등록 이름과 비밀번호를 모두 입력해 주세요.');
+      setFormError('지점, 이름과 비밀번호를 모두 입력해 주세요.');
       return;
     }
 
@@ -98,13 +99,10 @@ export function LoginPane({
   };
 
   return (
-    <form className="auth-pane" onSubmit={handleSubmit}>
+    <form className="auth-pane" noValidate onSubmit={handleSubmit}>
       <header className="auth-pane__header">
         <p className="auth-pane__eyebrow">WELCOME BACK</p>
         <h2 className="auth-pane__title">오늘도 반가워요.</h2>
-        <p className="auth-pane__subtitle">
-          스터디팩토리에서 오늘의 집중을 시작해요.
-        </p>
       </header>
 
       <Field label="지점" required>
@@ -115,6 +113,7 @@ export function LoginPane({
               disabled={branchesQuery.isPending || branchesQuery.isError}
               id={id}
               onChange={(event) => setBranchId(event.target.value)}
+              required
               value={resolvedBranchId}
             >
               <option disabled value="">
@@ -134,11 +133,7 @@ export function LoginPane({
         )}
       </Field>
 
-      <Field
-        hint="동명이인은 안내받은 숫자까지 함께 입력해 주세요."
-        label="등록 이름"
-        required
-      >
+      <Field label="이름" required>
         {(id) => (
           <div className="auth-control-wrap">
             <UserRound aria-hidden="true" size={19} />
@@ -146,7 +141,8 @@ export function LoginPane({
               autoComplete="username"
               id={id}
               onChange={(event) => setName(event.target.value)}
-              placeholder="예: 김민서2"
+              placeholder="이름을 입력해 주세요"
+              required
               value={name}
             />
           </div>
@@ -164,6 +160,7 @@ export function LoginPane({
               maxLength={4}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="숫자 4자리"
+              required
               type={passwordVisible ? 'text' : 'password'}
               value={password}
             />

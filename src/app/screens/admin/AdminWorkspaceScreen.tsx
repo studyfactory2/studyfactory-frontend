@@ -1,10 +1,11 @@
-import { WorkspacePlaceholderScreen } from '../shared/WorkspacePlaceholderScreen';
+import { Outlet } from 'react-router-dom';
+import { AppShell } from '../../layouts/AppShell';
+import { adminNavigation } from '../../navigation/admin-navigation';
 
 export function AdminWorkspaceScreen() {
   return (
-    <WorkspacePlaceholderScreen
-      role="Admin"
-      description="Member and operations management will live in this separate workspace."
-    />
+    <AppShell navigation={adminNavigation} workspaceLabel="지점 관리자">
+      <Outlet />
+    </AppShell>
   );
 }

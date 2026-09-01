@@ -11,14 +11,10 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         devOptions: { enabled: false },
-        includeAssets: [
-          'favicon.png',
-          'icons/apple-touch-icon.png',
-          'brand/studyfactory-character.png',
-        ],
+        includeAssets: ['favicon.svg', 'icons/apple-touch-icon.png'],
         manifest: {
           background_color: '#f6f2e9',
-          description: '스터디팩토리 회원 관리 앱',
+          description: '자격증공장 회원 관리 앱',
           display: 'standalone',
           icons: [
             {
@@ -40,10 +36,10 @@ export default defineConfig(({ mode }) => {
           ],
           id: '/',
           lang: 'ko',
-          name: '스터디팩토리',
+          name: '자격증공장',
           orientation: 'any',
           scope: '/',
-          short_name: '스터디팩토리',
+          short_name: '자격증공장',
           start_url: '/',
           theme_color: '#234c3d',
         },

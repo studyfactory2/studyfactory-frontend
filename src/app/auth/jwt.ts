@@ -1,12 +1,14 @@
 import { MEMBER_ROLES, type MemberRole } from './types';
 
 export type AccessTokenPayload = {
+  branchId: number | null;
   memberId: number | null;
   name: string | null;
   role: MemberRole | null;
 };
 
 const emptyPayload: AccessTokenPayload = {
+  branchId: null,
   memberId: null,
   name: null,
   role: null,
@@ -21,12 +23,14 @@ export function decodeAccessToken(token: string): AccessTokenPayload {
     }
 
     const claims = JSON.parse(decodeBase64Url(rawPayload)) as {
+      branchId?: unknown;
       name?: unknown;
       role?: unknown;
       sub?: unknown;
     };
 
     return {
+      branchId: toMemberId(claims.branchId),
       memberId: toMemberId(claims.sub),
       name: typeof claims.name === 'string' ? claims.name : null,
       role: toMemberRole(claims.role),

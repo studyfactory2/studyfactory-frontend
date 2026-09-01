@@ -1,40 +1,39 @@
-import { useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
-import { clearSession, useSession } from '../../auth/session';
-import { Button, SectionBadge } from '../../components/ui';
-import { appRoutes } from '../../config/routes';
-import { AppShell } from '../../layouts/AppShell';
+import { Construction } from 'lucide-react';
+import { SectionBadge } from '../../components/ui';
+import './workspace-screen.css';
 
 type WorkspacePlaceholderScreenProps = {
   description: string;
-  role: string;
+  eyebrow: string;
+  title: string;
 };
 
 export function WorkspacePlaceholderScreen({
   description,
-  role,
+  eyebrow,
+  title,
 }: WorkspacePlaceholderScreenProps) {
-  const navigate = useNavigate();
-  const session = useSession();
-
-  const handleLogout = () => {
-    clearSession();
-    navigate(appRoutes.login, { replace: true });
-  };
-
   return (
-    <AppShell
-      eyebrow={`${role.toUpperCase()} WORKSPACE`}
-      title={`${session.memberName ?? role}님, 환영합니다.`}
-    >
-      <section className="foundation-card">
-        <SectionBadge>Next feature area</SectionBadge>
+    <section className="workspace-page">
+      <header className="workspace-page__header">
+        <p className="workspace-page__eyebrow">{eyebrow}</p>
+        <h2>{title}</h2>
         <p>{description}</p>
-        <Button onClick={handleLogout} size="sm" variant="ghost">
-          <LogOut size={15} />
-          로그아웃
-        </Button>
-      </section>
-    </AppShell>
+      </header>
+
+      <div className="workspace-placeholder">
+        <span aria-hidden="true" className="workspace-placeholder__icon">
+          <Construction size={24} />
+        </span>
+        <div>
+          <SectionBadge>다음 개발 화면</SectionBadge>
+          <h3>화면의 자리를 먼저 준비했어요.</h3>
+          <p>
+            다음 기능 슬라이스에서 실제 자격증공장 데이터와 작업 흐름을
+            연결합니다.
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }

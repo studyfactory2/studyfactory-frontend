@@ -1,10 +1,11 @@
-import { WorkspacePlaceholderScreen } from '../shared/WorkspacePlaceholderScreen';
+import { Outlet } from 'react-router-dom';
+import { AppShell } from '../../layouts/AppShell';
+import { staffNavigation } from '../../navigation/staff-navigation';
 
 export function StaffWorkspaceScreen() {
   return (
-    <WorkspacePlaceholderScreen
-      role="Staff"
-      description="Beverage, attendance, and floor operations will live in this separate workspace."
-    />
+    <AppShell navigation={staffNavigation} workspaceLabel="스텝">
+      <Outlet />
+    </AppShell>
   );
 }

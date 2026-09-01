@@ -4,6 +4,7 @@ export type MemberRole = (typeof MEMBER_ROLES)[number];
 
 export type Session = {
   accessToken: string | null;
+  branchId: number | null;
   memberName: string | null;
   refreshToken: string | null;
   role: MemberRole | null;

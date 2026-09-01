@@ -30,12 +30,17 @@ export function InstallPrompt() {
     );
   }, []);
 
-  const isIos = useMemo(
-    () =>
-      typeof window !== 'undefined' &&
-      /iphone|ipad|ipod/i.test(window.navigator.userAgent),
-    [],
-  );
+  const isIos = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    return (
+      /iphone|ipad|ipod/i.test(window.navigator.userAgent) ||
+      (window.navigator.platform === 'MacIntel' &&
+        window.navigator.maxTouchPoints > 1)
+    );
+  }, []);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: Event) => {
@@ -122,7 +127,8 @@ export function InstallPrompt() {
       >
         <ol className="install-prompt__steps">
           <li>
-            Safari 하단의 <Share className="install-prompt__icon" size={15} />{' '}
+            Safari에서 이 페이지를 열고, 도구 막대의{' '}
+            <Share className="install-prompt__icon" size={15} />{' '}
             <strong>공유</strong> 버튼을 눌러 주세요.
           </li>
           <li>

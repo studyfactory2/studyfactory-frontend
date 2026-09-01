@@ -1,10 +1,11 @@
-import { WorkspacePlaceholderScreen } from '../shared/WorkspacePlaceholderScreen';
+import { Outlet } from 'react-router-dom';
+import { AppShell } from '../../layouts/AppShell';
+import { memberNavigation } from '../../navigation/member-navigation';
 
 export function MemberWorkspaceScreen() {
   return (
-    <WorkspacePlaceholderScreen
-      role="Member"
-      description="Today’s timetable, study time, and weekly plan will begin here."
-    />
+    <AppShell navigation={memberNavigation} workspaceLabel="회원">
+      <Outlet />
+    </AppShell>
   );
 }

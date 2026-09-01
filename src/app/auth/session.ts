@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { decodeAccessToken } from './jwt';
 import { MEMBER_ROLES, type MemberRole, type Session } from './types';
 
 const ACCESS_TOKEN_KEY = 'studyfactory.accessToken';
+const BRANCH_ID_KEY = 'studyfactory.branchId';
 const MEMBER_NAME_KEY = 'studyfactory.memberName';
 const MEMBER_ROLE_KEY = 'studyfactory.memberRole';
 const REFRESH_TOKEN_KEY = 'studyfactory.refreshToken';
@@ -9,6 +11,7 @@ const SESSION_CHANGED_EVENT = 'studyfactory:session-changed';
 
 const emptySession: Session = {
   accessToken: null,
+  branchId: null,
   memberName: null,
   refreshToken: null,
   role: null,
@@ -44,7 +47,22 @@ export function updateAccessToken(accessToken: string) {
     return;
   }
 
+  const payload = decodeAccessToken(accessToken);
+
   writeValue(ACCESS_TOKEN_KEY, accessToken);
+
+  if (payload.branchId !== null) {
+    writeValue(BRANCH_ID_KEY, payload.branchId.toString());
+  }
+
+  if (payload.name !== null) {
+    writeValue(MEMBER_NAME_KEY, payload.name);
+  }
+
+  if (payload.role !== null) {
+    writeValue(MEMBER_ROLE_KEY, payload.role);
+  }
+
   notifySessionChanged();
 }
 
@@ -54,6 +72,7 @@ export function saveSession(session: Session) {
   }
 
   writeValue(ACCESS_TOKEN_KEY, session.accessToken);
+  writeValue(BRANCH_ID_KEY, session.branchId?.toString() ?? null);
   writeValue(REFRESH_TOKEN_KEY, session.refreshToken);
   writeValue(MEMBER_NAME_KEY, session.memberName);
   writeValue(MEMBER_ROLE_KEY, session.role);
@@ -69,13 +88,21 @@ function readSession(): Session {
     return emptySession;
   }
 
+  const accessToken = window.localStorage.getItem(ACCESS_TOKEN_KEY);
+  const payload = accessToken ? decodeAccessToken(accessToken) : null;
   const role = window.localStorage.getItem(MEMBER_ROLE_KEY);
+  const branchId = Number(window.localStorage.getItem(BRANCH_ID_KEY));
 
   return {
-    accessToken: window.localStorage.getItem(ACCESS_TOKEN_KEY),
-    memberName: window.localStorage.getItem(MEMBER_NAME_KEY),
+    accessToken,
+    branchId:
+      Number.isInteger(branchId) && branchId > 0
+        ? branchId
+        : (payload?.branchId ?? null),
+    memberName:
+      window.localStorage.getItem(MEMBER_NAME_KEY) ?? payload?.name ?? null,
     refreshToken: window.localStorage.getItem(REFRESH_TOKEN_KEY),
-    role: isMemberRole(role) ? role : null,
+    role: isMemberRole(role) ? role : (payload?.role ?? null),
   };
 }
 

@@ -66,10 +66,10 @@ export function AuthScreen() {
 
           <div className="auth-brand auth-brand--light">
             <span className="auth-brand__mark">
-              <img alt="" src="/favicon.png" />
+              <img alt="" src="/favicon.svg" />
             </span>
             <span className="auth-brand__name">
-              <strong>STUDY FACTORY</strong>
+              <strong>자격증공장</strong>
               <small>학습 운영 시스템</small>
             </span>
           </div>
@@ -81,7 +81,7 @@ export function AuthScreen() {
               <span>집중의 자리로.</span>
             </h1>
             <p className="auth-story__description">
-              출석부터 학습 계획과 운영 기록까지. 스터디팩토리의 하루를 한곳에서
+              출석부터 학습 계획과 운영 기록까지. 자격증공장의 하루를 한곳에서
               이어가세요.
             </p>
           </div>
@@ -104,18 +104,10 @@ export function AuthScreen() {
             <div className="auth-story__factory">
               <FactoryScene />
             </div>
-
-            <div className="auth-story__mascot">
-              <img alt="" src="/brand/studyfactory-character.png" />
-              <span>
-                <small>READY</small>
-                <strong>오늘도 준비 완료</strong>
-              </span>
-            </div>
           </div>
 
           <footer className="auth-story__footer">
-            <span>BUSAN · STUDY FACTORY</span>
+            <span>BUSAN · 자격증공장</span>
             <span>
               <ShieldCheck size={15} /> 회원 전용 서비스
             </span>
@@ -148,7 +140,7 @@ export function AuthScreen() {
           </div>
 
           <p className="auth-panel__privacy">
-            본 서비스는 스터디팩토리 등록 회원 전용입니다.
+            본 서비스는 자격증공장 등록 회원 전용입니다.
           </p>
         </section>
       </div>
