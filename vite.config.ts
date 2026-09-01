@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
           'brand/studyfactory-character.png',
         ],
         manifest: {
-          background_color: '#f7f6ee',
+          background_color: '#f6f2e9',
           description: '스터디팩토리 회원 관리 앱',
           display: 'standalone',
           icons: [
@@ -41,11 +41,11 @@ export default defineConfig(({ mode }) => {
           id: '/',
           lang: 'ko',
           name: '스터디팩토리',
-          orientation: 'portrait',
+          orientation: 'any',
           scope: '/',
           short_name: '스터디팩토리',
           start_url: '/',
-          theme_color: '#1e3d32',
+          theme_color: '#234c3d',
         },
         registerType: 'autoUpdate',
         workbox: {

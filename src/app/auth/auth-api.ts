@@ -1,6 +1,7 @@
 import { apiRequest } from '../api/api-client';
 
 export type LoginRequest = {
+  branchId: number;
   name: string;
   password: string;
 };

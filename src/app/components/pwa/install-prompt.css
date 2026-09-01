@@ -1,13 +1,94 @@
 .install-prompt {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
+  align-items: stretch;
+  gap: 10px;
   margin-top: var(--space-1);
 }
 
+.install-prompt__button {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) 20px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 12px;
+  border: 1px solid var(--brand-line);
+  border-radius: 14px;
+  background:
+    linear-gradient(120deg, rgb(35 76 61 / 5%), transparent 62%),
+    #fffefa;
+  color: var(--brand-ink);
+  text-align: left;
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.install-prompt__button:hover {
+  border-color: color-mix(
+    in srgb,
+    var(--brand-forest) 42%,
+    var(--brand-line)
+  );
+  background-color: var(--brand-paper);
+  box-shadow: 0 9px 22px rgb(35 76 61 / 9%);
+  transform: translateY(-1px);
+}
+
+.install-prompt__button:active {
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+.install-prompt__button:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 3px;
+}
+
+.install-prompt__button-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgb(35 76 61 / 9%);
+  color: var(--brand-forest);
+  place-items: center;
+}
+
+.install-prompt__button-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.install-prompt__button-copy strong {
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: 750;
+}
+
+.install-prompt__button-copy small {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+}
+
+.install-prompt__button-arrow {
+  color: var(--brand-muted);
+  transition: transform 0.16s ease;
+}
+
+.install-prompt__button:hover .install-prompt__button-arrow {
+  color: var(--brand-forest);
+  transform: translateX(2px);
+}
+
 .install-prompt__message {
-  color: var(--muted);
+  color: var(--brand-muted);
   font-size: var(--text-xs);
   text-align: center;
 }
@@ -30,4 +111,11 @@
   display: inline-block;
   vertical-align: -2px;
   color: var(--accent-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .install-prompt__button,
+  .install-prompt__button-arrow {
+    transition: none;
+  }
 }

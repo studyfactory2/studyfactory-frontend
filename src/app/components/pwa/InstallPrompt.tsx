@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { MonitorDown, Share } from 'lucide-react';
-import { Button, Modal } from '../ui';
+import { ChevronRight, MonitorDown, Share } from 'lucide-react';
+import { Modal } from '../ui';
 import './install-prompt.css';
 
 type BeforeInstallPromptEvent = Event & {
@@ -63,7 +63,9 @@ export function InstallPrompt() {
 
   if (isStandalone || installed) {
     return message ? (
-      <p className="install-prompt__message">{message}</p>
+      <p className="install-prompt__message" role="status">
+        {message}
+      </p>
     ) : null;
   }
 
@@ -88,10 +90,29 @@ export function InstallPrompt() {
 
   return (
     <div className="install-prompt">
-      <Button onClick={handleClick} size="sm" variant="ghost">
-        <MonitorDown size={15} />앱 설치하기
-      </Button>
-      {message && <p className="install-prompt__message">{message}</p>}
+      <button
+        className="install-prompt__button"
+        onClick={handleClick}
+        type="button"
+      >
+        <span className="install-prompt__button-icon">
+          <MonitorDown aria-hidden="true" size={19} />
+        </span>
+        <span className="install-prompt__button-copy">
+          <strong>앱으로 더 편하게</strong>
+          <small>홈 화면에 설치하기</small>
+        </span>
+        <ChevronRight
+          aria-hidden="true"
+          className="install-prompt__button-arrow"
+          size={18}
+        />
+      </button>
+      {message && (
+        <p className="install-prompt__message" role="status">
+          {message}
+        </p>
+      )}
 
       <Modal
         onClose={() => setIosGuideOpen(false)}

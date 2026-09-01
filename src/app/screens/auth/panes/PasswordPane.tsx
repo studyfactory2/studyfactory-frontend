@@ -12,7 +12,7 @@ import { Button, Field, Input } from '../../../components/ui';
 type PasswordPaneProps = {
   member: PreRegistrationVerifyResponse;
   onBackClick: () => void;
-  onSignupComplete: (memberName: string) => void;
+  onSignupComplete: (memberName: string, branchId: number) => void;
 };
 
 export function PasswordPane({
@@ -36,7 +36,7 @@ export function PasswordPane({
   const signupMutation = useMutation({
     mutationFn: signup,
     onSuccess: (response) => {
-      onSignupComplete(response.name);
+      onSignupComplete(response.name, response.branchId);
     },
     onError: (error) => {
       setFormError(
