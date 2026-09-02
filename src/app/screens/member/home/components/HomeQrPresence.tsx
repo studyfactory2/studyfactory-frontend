@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Camera, ImageUp, QrCode, RotateCcw } from 'lucide-react';
-import { Button, Modal } from '../../../../shared/ui';
-import { extractStudyPresenceQrToken } from '../model/home.qr';
+import {
+  AlertCircle,
+  QrCode,
+  RotateCcw,
+  ScanLine,
+  ShieldCheck,
+  VideoOff,
+} from 'lucide-react';
+import { Button, Modal, Spinner } from '../../../../shared/ui';
+import { cx } from '../../../../shared/lib/cx';
+import { parseStudyPresenceQrToken } from '../model/home.qr';
 import '../styles/HomeQrPresence.css';
 
 type HomeQrPresenceProps = {
@@ -21,7 +29,9 @@ export function HomeQrPresence({
 }: HomeQrPresenceProps) {
   const [open, setOpen] = useState(false);
   const [scannerAttempt, setScannerAttempt] = useState(0);
-  const [scannerError, setScannerError] = useState<string | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+
+  const isCheckIn = action === 'checkIn';
 
   const close = useCallback(() => {
     if (!loading) {
@@ -29,36 +39,33 @@ export function HomeQrPresence({
     }
   }, [loading]);
 
-  const openScanner = () => {
+  const restartScanner = useCallback(() => {
     onReset();
-    setScannerError(null);
+    setCameraError(null);
     setScannerAttempt((attempt) => attempt + 1);
+  }, [onReset]);
+
+  const openScanner = () => {
+    restartScanner();
     setOpen(true);
   };
 
-  const submitResult = useCallback(
-    async (rawValue: string) => {
+  const submitToken = useCallback(
+    async (qrToken: string) => {
       try {
-        const qrToken = extractStudyPresenceQrToken(rawValue);
-        setScannerError(null);
         await onSubmit(qrToken);
         setOpen(false);
-      } catch (error) {
-        if (error instanceof Error && !errorMessage) {
-          setScannerError(error.message);
-        }
+      } catch {
+        /*
+         * The parent surfaces the failure through `errorMessage`. The camera
+         * stays stopped so the member can read it before retrying.
+         */
       }
     },
-    [errorMessage, onSubmit],
+    [onSubmit],
   );
 
-  const retryScanner = () => {
-    onReset();
-    setScannerError(null);
-    setScannerAttempt((attempt) => attempt + 1);
-  };
-
-  const isCheckIn = action === 'checkIn';
+  const stateMessage = cameraError ?? errorMessage;
 
   return (
     <>
@@ -68,48 +75,85 @@ export function HomeQrPresence({
         size="sm"
         variant="ghost"
       >
-        <QrCode aria-hidden="true" size={17} />
-        {isCheckIn ? 'QR로 입실하기' : 'QR로 퇴실하기'}
+        <span className="member-home__qr-trigger-icon" aria-hidden="true">
+          <QrCode size={14} />
+        </span>
+        <span>{isCheckIn ? 'QR로 입실하기' : 'QR로 퇴실하기'}</span>
       </Button>
 
       <Modal
         onClose={close}
         open={open}
         size="sm"
-        title={isCheckIn ? 'QR 입실 체크' : 'QR 퇴실 체크'}
+        title={isCheckIn ? '입실 체크' : '퇴실 체크'}
       >
-        <div className="member-home__qr-modal">
-          <p className="member-home__qr-guide">
-            출입구에 있는 자격증공장 QR을 화면 안에 맞춰 주세요.
-          </p>
+        <div
+          className={cx(
+            'member-home__qr',
+            isCheckIn ? 'member-home__qr--in' : 'member-home__qr--out',
+          )}
+        >
+          <div
+            className={cx(
+              'member-home__qr-stage',
+              cameraError !== null && 'is-blocked',
+            )}
+          >
+            <span className="member-home__qr-mode">
+              {isCheckIn ? '입실' : '퇴실'}
+            </span>
 
-          <QrCamera
-            key={scannerAttempt}
-            onDetected={submitResult}
-            onError={setScannerError}
-          />
+            {cameraError === null ? (
+              <QrCamera
+                key={scannerAttempt}
+                onDetected={submitToken}
+                onError={setCameraError}
+              />
+            ) : (
+              <div className="member-home__qr-stage-fallback">
+                <VideoOff aria-hidden="true" size={26} />
+                <p>카메라를 사용할 수 없어요</p>
+              </div>
+            )}
 
-          {(scannerError ?? errorMessage) && (
+            {loading && (
+              <div aria-live="polite" className="member-home__qr-stage-busy">
+                <Spinner size="sm" />
+                <p>QR을 확인하고 있어요…</p>
+              </div>
+            )}
+          </div>
+
+          {cameraError === null && (
+            <div className="member-home__qr-copy">
+              <p className="member-home__qr-instruction">
+                출입문 QR을 사각형 안에 맞춰 주세요
+              </p>
+              <p className="member-home__qr-helper">
+                {isCheckIn
+                  ? '입실한 뒤부터 학습 시간이 기록돼요.'
+                  : '퇴실한 뒤의 시간은 학습 시간에 포함되지 않아요.'}
+              </p>
+            </div>
+          )}
+
+          {stateMessage !== null && (
             <div className="member-home__qr-error" role="alert">
-              <p>{scannerError ?? errorMessage}</p>
+              <AlertCircle aria-hidden="true" size={16} />
+              <p>{stateMessage}</p>
               {!loading && (
-                <Button onClick={retryScanner} size="sm" variant="ghost">
-                  <RotateCcw aria-hidden="true" size={15} />
-                  카메라 다시 켜기
+                <Button onClick={restartScanner} size="sm" variant="subtle">
+                  <RotateCcw aria-hidden="true" size={14} />
+                  다시 시도
                 </Button>
               )}
             </div>
           )}
 
-          {loading && (
-            <p aria-live="polite" className="member-home__qr-processing">
-              QR을 확인하고 있어요…
-            </p>
-          )}
-
-          <QrImageUpload disabled={loading} onDetected={submitResult} />
-          <p className="member-home__qr-security-note">
-            로그인한 회원과 현재 지점이 서버에서 다시 확인됩니다.
+          <p className="member-home__qr-note">
+            <ShieldCheck aria-hidden="true" size={14} />
+            출입문 QR을 카메라로 직접 스캔해야 인정돼요. 카메라를 쓸 수 없다면
+            데스크에 문의해 주세요.
           </p>
         </div>
       </Modal>
@@ -121,9 +165,10 @@ function QrCamera({
   onDetected,
   onError,
 }: {
-  onDetected: (value: string) => Promise<void>;
+  onDetected: (qrToken: string) => Promise<void>;
   onError: (message: string) => void;
 }) {
+  const [foreignCodeSeen, setForeignCodeSeen] = useState(false);
   const detectedRef = useRef(false);
   const onDetectedRef = useRef(onDetected);
   const onErrorRef = useRef(onError);
@@ -161,9 +206,20 @@ function QrCamera({
               return;
             }
 
+            const qrToken = parseStudyPresenceQrToken(result.getText());
+
+            if (qrToken === null) {
+              /*
+               * Someone else's QR drifted through the viewfinder. Keep the
+               * camera running instead of stopping on a code we cannot use.
+               */
+              setForeignCodeSeen(true);
+              return;
+            }
+
             detectedRef.current = true;
             activeControls.stop();
-            void onDetectedRef.current(result.getText());
+            void onDetectedRef.current(qrToken);
           },
         );
 
@@ -189,91 +245,55 @@ function QrCamera({
   }, []);
 
   return (
-    <div className="member-home__qr-camera">
+    <>
       <video
-        aria-label="출입 QR 카메라 화면"
+        aria-label="출입문 QR 카메라 화면"
+        className="member-home__qr-video"
         muted
         playsInline
         ref={videoRef}
       />
-      <span aria-hidden="true" className="member-home__qr-frame" />
-      <span className="member-home__qr-camera-label">
-        <Camera aria-hidden="true" size={14} />
-        QR 자동 인식 중
+
+      <span aria-hidden="true" className="member-home__qr-overlay">
+        <span className="member-home__qr-frame" />
+        <span className="member-home__qr-scan-line" />
       </span>
-    </div>
-  );
-}
 
-function QrImageUpload({
-  disabled,
-  onDetected,
-}: {
-  disabled: boolean;
-  onDetected: (value: string) => Promise<void>;
-}) {
-  const [decoding, setDecoding] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const decodeFile = async (file: File) => {
-    setDecoding(true);
-    const imageUrl = URL.createObjectURL(file);
-
-    try {
-      const { BrowserQRCodeReader } = await import('@zxing/browser');
-      const reader = new BrowserQRCodeReader();
-      const result = await reader.decodeFromImageUrl(imageUrl);
-      await onDetected(result.getText());
-    } catch {
-      await onDetected('');
-    } finally {
-      URL.revokeObjectURL(imageUrl);
-      setDecoding(false);
-
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-    }
-  };
-
-  return (
-    <div className="member-home__qr-upload">
-      <input
-        accept="image/*"
-        capture="environment"
-        disabled={disabled || decoding}
-        onChange={(event) => {
-          const file = event.currentTarget.files?.[0];
-
-          if (file) {
-            void decodeFile(file);
-          }
-        }}
-        ref={inputRef}
-        type="file"
-      />
-      <Button
-        disabled={disabled || decoding}
-        full
-        onClick={() => inputRef.current?.click()}
-        size="sm"
-        variant="subtle"
+      <span
+        aria-live="polite"
+        className={cx(
+          'member-home__qr-status',
+          foreignCodeSeen && 'is-warning',
+        )}
       >
-        <ImageUp aria-hidden="true" size={16} />
-        {decoding ? '사진 확인 중…' : 'QR 사진으로 확인하기'}
-      </Button>
-    </div>
+        {foreignCodeSeen ? (
+          <AlertCircle aria-hidden="true" size={13} />
+        ) : (
+          <ScanLine aria-hidden="true" size={13} />
+        )}
+        {foreignCodeSeen ? '자격증공장 출입 QR이 아니에요' : 'QR 자동 인식 중'}
+      </span>
+    </>
   );
 }
 
 function getCameraErrorMessage(error: unknown) {
-  if (error instanceof DOMException && error.name === 'NotAllowedError') {
-    return '카메라 권한이 필요해요. 권한을 허용하거나 QR 사진을 선택해 주세요.';
+  if (error instanceof DOMException) {
+    if (error.name === 'NotAllowedError' || error.name === 'SecurityError') {
+      return '카메라 접근이 차단돼 있어요. 브라우저 설정에서 이 사이트의 카메라를 허용한 뒤 다시 시도해 주세요.';
+    }
+
+    if (
+      error.name === 'NotFoundError' ||
+      error.name === 'OverconstrainedError'
+    ) {
+      return '사용할 수 있는 카메라를 찾지 못했어요. 데스크에 문의해 주세요.';
+    }
+
+    if (error.name === 'NotReadableError') {
+      return '다른 앱이 카메라를 사용하고 있어요. 해당 앱을 닫고 다시 시도해 주세요.';
+    }
   }
 
-  if (error instanceof DOMException && error.name === 'NotFoundError') {
-    return '사용할 수 있는 카메라를 찾지 못했어요. QR 사진을 선택해 주세요.';
-  }
-
-  return '카메라를 시작하지 못했어요. QR 사진을 선택하거나 다시 시도해 주세요.';
+  return '카메라를 시작하지 못했어요. 잠시 후 다시 시도하거나 데스크에 문의해 주세요.';
 }

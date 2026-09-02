@@ -1,102 +1,312 @@
+/*
+ * QR presence — the hero trigger and the scan modal.
+ *
+ * The camera stage is a dark surface that the 숲 palette has no token for,
+ * so its four raw values are declared once as custom properties on the root
+ * class and every rule below reads from those or from design tokens.
+ */
+
+/* ---------- hero trigger ---------- */
 .member-home__qr-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
   margin-left: auto;
-  border-color: rgb(255 252 247 / 32%);
-  background: rgb(255 252 247 / 10%);
+  border-color: rgb(255 252 247 / 42%);
+  background: linear-gradient(
+    135deg,
+    rgb(255 252 247 / 24%),
+    rgb(255 252 247 / 10%)
+  );
+  box-shadow: 0 10px 26px rgb(0 0 0 / 10%);
   color: var(--brand-ivory);
+  backdrop-filter: blur(4px);
 }
 
 .member-home__qr-trigger:hover:not(:disabled) {
-  border-color: rgb(255 252 247 / 58%);
-  background: rgb(255 252 247 / 18%);
+  border-color: rgb(255 252 247 / 68%);
+  background: linear-gradient(
+    135deg,
+    rgb(255 252 247 / 34%),
+    rgb(255 252 247 / 16%)
+  );
   color: var(--brand-ivory);
 }
 
-.member-home__qr-modal {
+.member-home__qr-trigger-icon {
+  display: inline-grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  place-items: center;
+  border-radius: 9px;
+  background: rgb(255 252 247 / 26%);
+  color: var(--brand-ivory);
+  box-shadow: inset 0 0 0 1px rgb(255 252 247 / 26%);
+}
+
+/* ---------- modal shell ---------- */
+.member-home__qr {
+  /* stage-only colours — lifted for legibility on dark video */
+  --qr-accent: #7fd6a0;
+  --qr-stage: #101a15;
+  --qr-veil: rgb(9 18 14 / 52%);
+  --qr-chip: rgb(9 18 14 / 78%);
+  --qr-ink: #0d1712;
+
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.member-home__qr-guide {
-  color: var(--ink-soft);
-  font-size: var(--text-sm);
-  line-height: 1.55;
+.member-home__qr--out {
+  --qr-accent: #f0cf86;
 }
 
-.member-home__qr-camera {
+/* ---------- camera stage ---------- */
+.member-home__qr-stage {
   position: relative;
   overflow: hidden;
   aspect-ratio: 1;
-  border-radius: 18px;
-  background: #122019;
+  border: 1px solid rgb(23 33 29 / 10%);
+  border-radius: 20px;
+  background: var(--qr-stage);
+  box-shadow: 0 18px 38px rgb(0 0 0 / 14%);
 }
 
-.member-home__qr-camera video {
+/* nothing to show — collapse the square so the error is not framed by void */
+.member-home__qr-stage.is-blocked {
+  aspect-ratio: auto;
+  min-height: 176px;
+}
+
+.member-home__qr-video {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.member-home__qr-frame {
+.member-home__qr-mode {
   position: absolute;
-  inset: 18%;
-  border: 2px solid rgb(255 252 247 / 88%);
-  border-radius: 18px;
-  box-shadow: 0 0 0 999px rgb(7 20 14 / 28%);
+  z-index: 2;
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  background: var(--qr-accent);
+  color: var(--qr-ink);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.member-home__qr-overlay {
+  position: absolute;
+  inset: 0;
   pointer-events: none;
 }
 
-.member-home__qr-camera-label {
+/*
+ * Corner brackets: eight background slices, two per corner. The veil is a
+ * single outward box-shadow so the area inside the reticle stays the
+ * brightest part of the frame.
+ */
+.member-home__qr-frame {
+  --arm: 26px;
+  --thickness: 3px;
+
   position: absolute;
+  inset: 18%;
+  border-radius: 16px;
+  background:
+    linear-gradient(var(--qr-accent) 0 0) 0 0,
+    linear-gradient(var(--qr-accent) 0 0) 0 0,
+    linear-gradient(var(--qr-accent) 0 0) 100% 0,
+    linear-gradient(var(--qr-accent) 0 0) 100% 0,
+    linear-gradient(var(--qr-accent) 0 0) 0 100%,
+    linear-gradient(var(--qr-accent) 0 0) 0 100%,
+    linear-gradient(var(--qr-accent) 0 0) 100% 100%,
+    linear-gradient(var(--qr-accent) 0 0) 100% 100%;
+  background-repeat: no-repeat;
+  background-size:
+    var(--arm) var(--thickness),
+    var(--thickness) var(--arm),
+    var(--arm) var(--thickness),
+    var(--thickness) var(--arm),
+    var(--arm) var(--thickness),
+    var(--thickness) var(--arm),
+    var(--arm) var(--thickness),
+    var(--thickness) var(--arm);
+  box-shadow: 0 0 0 100vmax var(--qr-veil);
+}
+
+.member-home__qr-scan-line {
+  position: absolute;
+  top: 20%;
+  right: 24%;
+  left: 24%;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--qr-accent),
+    transparent
+  );
+  box-shadow:
+    0 0 10px color-mix(in srgb, var(--qr-accent) 75%, transparent),
+    0 0 26px color-mix(in srgb, var(--qr-accent) 40%, transparent);
+  animation: member-home-qr-scan 2.4s ease-in-out infinite;
+}
+
+@keyframes member-home-qr-scan {
+  0% {
+    top: 20%;
+    opacity: 0;
+  }
+
+  14% {
+    opacity: 1;
+  }
+
+  86% {
+    opacity: 1;
+  }
+
+  100% {
+    top: 78%;
+    opacity: 0;
+  }
+}
+
+.member-home__qr-status {
+  position: absolute;
+  z-index: 2;
   bottom: 12px;
   left: 50%;
   display: inline-flex;
+  max-width: calc(100% - 24px);
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgb(18 32 25 / 78%);
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--qr-chip);
   color: var(--brand-ivory);
   font-size: 0.72rem;
   font-weight: 700;
   transform: translateX(-50%);
   white-space: nowrap;
+  backdrop-filter: blur(6px);
 }
 
+.member-home__qr-status.is-warning {
+  background: color-mix(in srgb, var(--danger-deep) 88%, transparent);
+}
+
+.member-home__qr-status svg {
+  flex: none;
+}
+
+.member-home__qr-stage-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  color: rgb(255 252 247 / 76%);
+  text-align: center;
+}
+
+.member-home__qr-stage-fallback p {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.member-home__qr-stage-busy {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--space-2);
+  background: rgb(9 18 14 / 68%);
+  color: var(--brand-ivory);
+  backdrop-filter: blur(3px);
+}
+
+.member-home__qr-stage-busy p {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+/* ---------- copy ---------- */
+.member-home__qr-copy {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+}
+
+.member-home__qr-instruction {
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: var(--text-md);
+  font-weight: 740;
+  letter-spacing: -0.01em;
+}
+
+.member-home__qr-helper {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+/* ---------- states ---------- */
 .member-home__qr-error {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-2);
   padding: var(--space-3);
   border: 1px solid color-mix(in srgb, var(--danger) 24%, transparent);
-  border-radius: 12px;
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--danger) 8%, var(--paper));
   color: var(--danger-deep);
   font-size: var(--text-xs);
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
-.member-home__qr-processing {
-  color: var(--brand-forest);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  text-align: center;
+.member-home__qr-error p {
+  margin: 0;
 }
 
-.member-home__qr-upload input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
+.member-home__qr-error svg {
+  flex: none;
 }
 
-.member-home__qr-security-note {
+.member-home__qr-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--brand-line);
   color: var(--muted);
   font-size: 0.72rem;
   line-height: 1.5;
-  text-align: center;
+}
+
+.member-home__qr-note svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--brand-forest);
 }
 
 @media (max-width: 560px) {
@@ -106,7 +316,19 @@
   }
 
   .member-home__qr-error {
-    align-items: stretch;
-    flex-direction: column;
+    justify-items: start;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .member-home__qr-error .btn {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-home__qr-scan-line {
+    top: 49%;
+    animation: none;
+    opacity: 0.6;
   }
 }
