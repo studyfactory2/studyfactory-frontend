@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   getCurrentSession,
   type SessionOwnerKey,
@@ -529,12 +529,12 @@ export function useMemberPlans(
     markWeeklyDraftChanged();
   };
 
-  const closeEditor = () => {
+  const closeEditor = useCallback(() => {
     setItems((current) =>
       current.filter((item) => item.id !== null || item.content.trim()),
     );
     setEditorCell(null);
-  };
+  }, []);
 
   const saveWeek = () => {
     weeklySaveMutation.mutate({

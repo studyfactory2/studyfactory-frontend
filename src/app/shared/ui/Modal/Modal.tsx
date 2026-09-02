@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
@@ -8,6 +8,7 @@ import './modal.css';
 type ModalProps = {
   children: ReactNode;
   footer?: ReactNode;
+  initialFocusRef?: RefObject<HTMLElement | null>;
   onClose: () => void;
   open: boolean;
   size?: 'sm' | 'md';
@@ -17,13 +18,21 @@ type ModalProps = {
 export function Modal({
   children,
   footer,
+  initialFocusRef,
   onClose,
   open,
   size = 'md',
   title,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const initialFocusTargetRef = useRef(initialFocusRef);
+  const onCloseRef = useRef(onClose);
   const titleId = useId();
+
+  useEffect(() => {
+    initialFocusTargetRef.current = initialFocusRef;
+    onCloseRef.current = onClose;
+  }, [initialFocusRef, onClose]);
 
   useEffect(() => {
     if (!open) {
@@ -37,9 +46,7 @@ export function Modal({
     const appRoot = document.getElementById('root');
     const previousAriaHidden = appRoot?.getAttribute('aria-hidden') ?? null;
     const previousInert = appRoot?.inert ?? false;
-    const focusableElements = getFocusableElements(panelRef.current);
-
-    (focusableElements[0] ?? panelRef.current)?.focus();
+    (initialFocusTargetRef.current?.current ?? panelRef.current)?.focus();
 
     if (appRoot) {
       appRoot.inert = true;
@@ -48,7 +55,7 @@ export function Modal({
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onClose();
+        onCloseRef.current();
         return;
       }
 
@@ -66,11 +73,18 @@ export function Modal({
 
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
+      const activeElement = document.activeElement;
 
-      if (event.shiftKey && document.activeElement === first) {
+      if (activeElement === panelRef.current) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+        return;
+      }
+
+      if (event.shiftKey && activeElement === first) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
+      } else if (!event.shiftKey && activeElement === last) {
         event.preventDefault();
         first.focus();
       }
@@ -96,7 +110,7 @@ export function Modal({
 
       previousFocus?.focus();
     };
-  }, [open, onClose]);
+  }, [open]);
 
   if (!open) {
     return null;

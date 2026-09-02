@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Check, CirclePlus, ClipboardList, Trash2 } from 'lucide-react';
 import { Button, Modal } from '../../../../shared/ui';
 import type {
@@ -32,6 +33,7 @@ export function PlanEditorModal({
   row,
 }: PlanEditorModalProps) {
   const open = cell !== null && row !== null;
+  const initialFocusRef = useRef<HTMLInputElement>(null);
 
   return (
     <Modal
@@ -40,6 +42,7 @@ export function PlanEditorModal({
           편집 완료
         </Button>
       }
+      initialFocusRef={initialFocusRef}
       onClose={onClose}
       open={open}
       title={open ? `${dayLabel} · ${row.label}` : '계획 편집'}
@@ -88,6 +91,7 @@ export function PlanEditorModal({
                       })
                     }
                     placeholder="예: 회계학 3장 문제풀이"
+                    ref={itemIndex === 0 ? initialFocusRef : undefined}
                     value={item.content}
                   />
                   <button
