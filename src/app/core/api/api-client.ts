@@ -1,10 +1,11 @@
 import {
   clearSession,
-  getAccessToken,
-  getRefreshToken,
+  decodeAccessToken,
+  getCurrentSession,
+  getSessionCredentials,
   updateAccessToken,
-} from '../auth/session';
-import { decodeAccessToken } from '../auth/jwt';
+} from '../session';
+import type { MemberRole } from '../session';
 import { appConfig } from '../config/environment';
 
 type ApiRequestOptions = RequestInit & {
@@ -13,8 +14,10 @@ type ApiRequestOptions = RequestInit & {
 
 type SessionSnapshot = {
   accessToken: string | null;
+  branchId: number | null;
   memberId: number | null;
   refreshToken: string | null;
+  role: MemberRole | null;
 };
 
 type ReissueResult =
@@ -171,10 +174,15 @@ async function reissueAccessToken(
       return { status: 'failed' };
     }
 
-    const reissuedMemberId = decodeAccessToken(data.accessToken).memberId;
+    const reissuedPayload = decodeAccessToken(data.accessToken);
     const boundMemberId = expectedMemberId ?? session.memberId;
 
-    if (boundMemberId !== null && reissuedMemberId !== boundMemberId) {
+    if (
+      (boundMemberId !== null && reissuedPayload.memberId !== boundMemberId) ||
+      (session.branchId !== null &&
+        reissuedPayload.branchId !== session.branchId) ||
+      (session.role !== null && reissuedPayload.role !== session.role)
+    ) {
       return { status: 'failed' };
     }
 
@@ -182,7 +190,17 @@ async function reissueAccessToken(
       return { status: 'session-changed' };
     }
 
-    updateAccessToken(data.accessToken);
+    if (
+      !updateAccessToken(data.accessToken, {
+        accessToken: session.accessToken,
+        refreshToken: session.refreshToken,
+      })
+    ) {
+      return {
+        status: sessionMatchesSnapshot(session) ? 'failed' : 'session-changed',
+      };
+    }
+
     return { accessToken: data.accessToken, status: 'reissued' };
   } catch {
     return {
@@ -192,12 +210,15 @@ async function reissueAccessToken(
 }
 
 function snapshotSession(): SessionSnapshot {
-  const accessToken = getAccessToken();
+  const credentials = getSessionCredentials();
+  const currentSession = getCurrentSession();
 
   return {
-    accessToken,
-    memberId: accessToken ? decodeAccessToken(accessToken).memberId : null,
-    refreshToken: getRefreshToken(),
+    accessToken: credentials.accessToken,
+    branchId: currentSession.branchId,
+    memberId: currentSession.memberId,
+    refreshToken: credentials.refreshToken,
+    role: currentSession.role,
   };
 }
 
@@ -211,9 +232,11 @@ function assertExpectedMember(
 }
 
 function sessionMatchesSnapshot(session: SessionSnapshot) {
+  const credentials = getSessionCredentials();
+
   return (
-    getAccessToken() === session.accessToken &&
-    getRefreshToken() === session.refreshToken
+    credentials.accessToken === session.accessToken &&
+    credentials.refreshToken === session.refreshToken
   );
 }
 
@@ -221,9 +244,11 @@ function sessionMatchesReissuedToken(
   session: SessionSnapshot,
   reissuedToken: string,
 ) {
+  const credentials = getSessionCredentials();
+
   return (
-    getAccessToken() === reissuedToken &&
-    getRefreshToken() === session.refreshToken
+    credentials.accessToken === reissuedToken &&
+    credentials.refreshToken === session.refreshToken
   );
 }
 

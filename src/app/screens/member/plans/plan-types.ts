@@ -5,6 +5,7 @@ import type {
   WeeklyPlanResponse,
   WeeklyPlanSaveRequest,
 } from '../../../api/member-plans-api';
+import type { SessionOwnerKey } from '../../../core/session';
 
 export type PlanRow = {
   duration: string;
@@ -41,15 +42,15 @@ export type StoredMonthlyDraft = {
 
 export type WeeklySaveVariables = {
   draftRevision: string;
-  memberId: number | null;
-  ownerKey: string;
+  memberId: number;
+  ownerKey: SessionOwnerKey;
   request: WeeklyPlanSaveRequest;
 };
 
 export type MonthlySaveVariables = {
   draftRevision: string;
-  memberId: number | null;
-  ownerKey: string;
+  memberId: number;
+  ownerKey: SessionOwnerKey;
   request: MonthlyPlanGoalRequest;
 };
 
@@ -57,12 +58,12 @@ export type MemberPlanSavedDetail =
   | {
       draftRevision: string;
       kind: 'weekly';
-      ownerKey: string;
+      ownerKey: SessionOwnerKey;
       response: WeeklyPlanResponse;
     }
   | {
       draftRevision: string;
       kind: 'monthly';
-      ownerKey: string;
+      ownerKey: SessionOwnerKey;
       response: MonthlyPlanGoalResponse;
     };

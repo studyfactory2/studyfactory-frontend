@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { useSession } from '../auth/session';
+import { useSession } from '../core/session';
 import { getRoleHomePath, appRoutes } from '../config/routes';
 import { AdminHomeScreen } from '../screens/admin/AdminHomeScreen';
 import { AdminWorkspaceScreen } from '../screens/admin/AdminWorkspaceScreen';
@@ -136,7 +136,7 @@ export function AppRouter() {
 function HomeRedirect() {
   const session = useSession();
 
-  if (session.accessToken && session.role) {
+  if (session.isAuthenticated && session.role) {
     return <Navigate replace to={getRoleHomePath(session.role)} />;
   }
 

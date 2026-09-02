@@ -4,10 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { LogOut } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { fetchBranches } from '../api/reference-api';
-import { clearSession, useSession } from '../auth/session';
+import { clearSession, useSession } from '../core/session';
 import { appRoutes } from '../config/routes';
 import { cx } from '../lib/cx';
 import type { WorkspaceNavigationItem } from '../navigation/types';
+import { branchQueryKeys } from '../shared/branches/branch-query-keys';
 
 type AppShellProps = {
   children: ReactNode;
@@ -26,7 +27,7 @@ export function AppShell({
   const session = useSession();
   const branchesQuery = useQuery({
     queryFn: fetchBranches,
-    queryKey: ['branches'],
+    queryKey: branchQueryKeys.all(),
     staleTime: 5 * 60 * 1000,
   });
   const activeItem =

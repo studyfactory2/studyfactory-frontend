@@ -10,14 +10,14 @@ import {
   UserRound,
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ApiRequestError } from '../../../api/api-client';
+import { ApiRequestError } from '../../../core/api/api-client';
 import { fetchBranches } from '../../../api/reference-api';
 import { login } from '../../../auth/auth-api';
-import { decodeAccessToken } from '../../../auth/jwt';
-import { saveSession } from '../../../auth/session';
+import { saveSession } from '../../../core/session';
 import { InstallPrompt } from '../../../components/pwa/InstallPrompt';
 import { Button, Field, Input, Select } from '../../../components/ui';
 import { getRoleHomePath } from '../../../config/routes';
+import { branchQueryKeys } from '../../../shared/branches/branch-query-keys';
 
 type LoginPaneProps = {
   initialBranchId?: number;
@@ -44,7 +44,7 @@ export function LoginPane({
 
   const branchesQuery = useQuery({
     queryFn: fetchBranches,
-    queryKey: ['branches'],
+    queryKey: branchQueryKeys.all(),
     staleTime: 5 * 60 * 1000,
   });
   const resolvedBranchId = resolveBranchId(branchId, branchesQuery.data);
@@ -52,24 +52,17 @@ export function LoginPane({
   const loginMutation = useMutation({
     mutationFn: login,
     onSuccess: (tokens) => {
-      const payload = decodeAccessToken(tokens.accessToken);
+      const nextSession = saveSession(tokens);
 
-      if (!payload.role) {
+      if (!nextSession?.role) {
         setFormError('로그인 정보를 확인하지 못했습니다. 다시 시도해 주세요.');
         return;
       }
 
-      saveSession({
-        accessToken: tokens.accessToken,
-        branchId: payload.branchId,
-        memberName: payload.name,
-        refreshToken: tokens.refreshToken,
-        role: payload.role,
-      });
       window.localStorage.setItem(LAST_BRANCH_ID_KEY, resolvedBranchId);
 
       const from = (location.state as { from?: string } | null)?.from;
-      navigate(from ?? getRoleHomePath(payload.role), { replace: true });
+      navigate(from ?? getRoleHomePath(nextSession.role), { replace: true });
     },
     onError: (error) => {
       setFormError(

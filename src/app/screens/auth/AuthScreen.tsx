@@ -2,7 +2,7 @@ import type { FocusEvent } from 'react';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import type { PreRegistrationVerifyResponse } from '../../auth/auth-api';
-import { useSession } from '../../auth/session';
+import { useSession } from '../../core/session';
 import { useToast } from '../../components/ui';
 import { getRoleHomePath } from '../../config/routes';
 import { LoginPane } from './panes/LoginPane';
@@ -28,7 +28,7 @@ export function AuthScreen() {
   const [prefillBranchId, setPrefillBranchId] = useState<number>();
   const [focusedFieldIndex, setFocusedFieldIndex] = useState(0);
 
-  if (session.accessToken && session.role) {
+  if (session.isAuthenticated && session.role) {
     return <Navigate replace to={getRoleHomePath(session.role)} />;
   }
 

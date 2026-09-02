@@ -1,13 +1,14 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ApiRequestError } from '../../../api/api-client';
+import { ApiRequestError } from '../../../core/api/api-client';
 import {
   signup,
   type PreRegistrationVerifyResponse,
 } from '../../../auth/auth-api';
 import { fetchBranches } from '../../../api/reference-api';
 import { Button, Field, Input } from '../../../components/ui';
+import { branchQueryKeys } from '../../../shared/branches/branch-query-keys';
 
 type PasswordPaneProps = {
   member: PreRegistrationVerifyResponse;
@@ -26,7 +27,7 @@ export function PasswordPane({
 
   const branchesQuery = useQuery({
     queryFn: fetchBranches,
-    queryKey: ['branches'],
+    queryKey: branchQueryKeys.all(),
     staleTime: 5 * 60 * 1000,
   });
   const branchName =

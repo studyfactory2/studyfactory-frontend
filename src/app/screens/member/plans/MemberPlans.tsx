@@ -7,8 +7,11 @@ import {
   saveMonthlyPlanGoal,
   saveWeeklyPlan,
 } from '../../../api/member-plans-api';
-import { decodeAccessToken } from '../../../auth/jwt';
-import { useSession } from '../../../auth/session';
+import {
+  getCurrentSession,
+  useSession,
+  type SessionOwnerKey,
+} from '../../../core/session';
 import { useToast } from '../../../components/ui';
 import { PlanEditorModal } from './components/PlanEditorModal';
 import { PlanGoals } from './components/PlanGoals';
@@ -45,7 +48,6 @@ import {
   toMonthKey,
 } from './plan-date-utils';
 import {
-  getMemberQueryOwnerKey,
   readStoredMonthlyDraft,
   readStoredWeeklyDraft,
   removeStoredMonthlyDraft,
@@ -63,6 +65,7 @@ import {
   hydrateWeeklyDraft,
   toSaveItems,
 } from './plan-item-utils';
+import { memberPlanQueryKeys } from './plan-query-keys';
 import type {
   EditablePlanItem,
   EditorCell,
@@ -73,17 +76,17 @@ import type {
 import './MemberPlans.css';
 
 export function MemberPlans() {
-  const session = useSession();
-  const memberId = session.accessToken
-    ? decodeAccessToken(session.accessToken).memberId
-    : null;
-  const queryOwnerKey = getMemberQueryOwnerKey(memberId, session.accessToken);
+  const { memberId, ownerKey } = useSession();
+
+  if (memberId === null || ownerKey === null) {
+    return null;
+  }
 
   return (
     <MemberPlansWorkspace
-      key={queryOwnerKey}
+      key={ownerKey}
       memberId={memberId}
-      queryOwnerKey={queryOwnerKey}
+      queryOwnerKey={ownerKey}
     />
   );
 }
@@ -92,8 +95,8 @@ function MemberPlansWorkspace({
   memberId,
   queryOwnerKey,
 }: {
-  memberId: number | null;
-  queryOwnerKey: string;
+  memberId: number;
+  queryOwnerKey: SessionOwnerKey;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -151,11 +154,11 @@ function MemberPlansWorkspace({
 
   const weeklyPlanQuery = useQuery({
     queryFn: () => fetchWeeklyPlan(weekStartKey, memberId),
-    queryKey: ['member', queryOwnerKey, 'weekly-plan', weekStartKey],
+    queryKey: memberPlanQueryKeys.week(queryOwnerKey, weekStartKey),
   });
   const monthlyGoalQuery = useQuery({
     queryFn: () => fetchMonthlyPlanGoal(monthKey, memberId),
-    queryKey: ['member', queryOwnerKey, 'monthly-plan-goal', monthKey],
+    queryKey: memberPlanQueryKeys.month(queryOwnerKey, monthKey),
   });
 
   useEffect(() => {
@@ -387,32 +390,31 @@ function MemberPlansWorkspace({
     mutationFn: ({ memberId, request }: WeeklySaveVariables) =>
       saveWeeklyPlan(request, memberId),
     onError: (error: Error, variables) => {
-      if (variables.ownerKey === queryOwnerKey) {
+      if (isCurrentOwner(variables.ownerKey)) {
         toast(error.message || '주간 계획을 저장하지 못했습니다.', 'error');
       }
     },
     onSuccess: (response, variables) => {
-      if (
-        variables.memberId !== null &&
-        response.memberId !== variables.memberId
-      ) {
-        if (variables.ownerKey === queryOwnerKey) {
+      if (response.memberId !== variables.memberId) {
+        if (isCurrentOwner(variables.ownerKey)) {
           toast('저장된 회원 정보를 확인하지 못했습니다.', 'error');
         }
         return;
       }
 
       if (response.weekStartDate !== variables.request.weekStartDate) {
-        if (variables.ownerKey === queryOwnerKey) {
+        if (isCurrentOwner(variables.ownerKey)) {
           toast('저장된 주간 계획의 날짜를 확인하지 못했습니다.', 'error');
         }
         return;
       }
 
-      queryClient.setQueryData(
-        ['member', variables.ownerKey, 'weekly-plan', response.weekStartDate],
-        response,
-      );
+      if (isCurrentOwner(variables.ownerKey)) {
+        queryClient.setQueryData(
+          memberPlanQueryKeys.week(variables.ownerKey, response.weekStartDate),
+          response,
+        );
+      }
 
       removeStoredWeeklyDraftIfRevision(
         variables.memberId,
@@ -430,7 +432,7 @@ function MemberPlansWorkspace({
         }),
       );
 
-      if (variables.ownerKey === queryOwnerKey) {
+      if (isCurrentOwner(variables.ownerKey)) {
         toast('이번 주 계획을 저장했어요.', 'success');
       }
     },
@@ -439,32 +441,31 @@ function MemberPlansWorkspace({
     mutationFn: ({ memberId, request }: MonthlySaveVariables) =>
       saveMonthlyPlanGoal(request, memberId),
     onError: (error: Error, variables) => {
-      if (variables.ownerKey === queryOwnerKey) {
+      if (isCurrentOwner(variables.ownerKey)) {
         toast(error.message || '월간 목표를 저장하지 못했습니다.', 'error');
       }
     },
     onSuccess: (response, variables) => {
-      if (
-        variables.memberId !== null &&
-        response.memberId !== variables.memberId
-      ) {
-        if (variables.ownerKey === queryOwnerKey) {
+      if (response.memberId !== variables.memberId) {
+        if (isCurrentOwner(variables.ownerKey)) {
           toast('저장된 회원 정보를 확인하지 못했습니다.', 'error');
         }
         return;
       }
 
       if (response.month !== variables.request.month) {
-        if (variables.ownerKey === queryOwnerKey) {
+        if (isCurrentOwner(variables.ownerKey)) {
           toast('저장된 월간 목표의 날짜를 확인하지 못했습니다.', 'error');
         }
         return;
       }
 
-      queryClient.setQueryData(
-        ['member', variables.ownerKey, 'monthly-plan-goal', response.month],
-        response,
-      );
+      if (isCurrentOwner(variables.ownerKey)) {
+        queryClient.setQueryData(
+          memberPlanQueryKeys.month(variables.ownerKey, response.month),
+          response,
+        );
+      }
 
       removeStoredMonthlyDraftIfRevision(
         variables.memberId,
@@ -482,7 +483,7 @@ function MemberPlansWorkspace({
         }),
       );
 
-      if (variables.ownerKey === queryOwnerKey) {
+      if (isCurrentOwner(variables.ownerKey)) {
         toast(
           `${formatMonthLabel(response.month)} 목표를 저장했어요.`,
           'success',
@@ -892,4 +893,8 @@ function MemberPlansWorkspace({
       />
     </section>
   );
+}
+
+function isCurrentOwner(ownerKey: SessionOwnerKey) {
+  return getCurrentSession().ownerKey === ownerKey;
 }

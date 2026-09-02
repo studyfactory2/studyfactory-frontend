@@ -1,4 +1,4 @@
-import { apiRequest } from '../api/api-client';
+import { apiRequest } from '../core/api/api-client';
 
 export type LoginRequest = {
   branchId: number;

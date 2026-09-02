@@ -1,4 +1,4 @@
-import { apiRequest } from './api-client';
+import { apiRequest } from '../core/api/api-client';
 
 export type BranchResponse = {
   id: number;

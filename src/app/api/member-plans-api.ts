@@ -1,4 +1,4 @@
-import { apiRequest, ApiRequestError } from './api-client';
+import { apiRequest, ApiRequestError } from '../core/api/api-client';
 
 export type WeeklyPlanItemResponse = {
   id: number;
@@ -47,7 +47,7 @@ export type MonthlyPlanGoalRequest = {
 
 export async function fetchWeeklyPlan(
   weekStartDate: string,
-  expectedMemberId: number | null,
+  expectedMemberId: number,
 ) {
   const query = new URLSearchParams({ weekStartDate });
   const response = await apiRequest<WeeklyPlanResponse>(
@@ -60,7 +60,7 @@ export async function fetchWeeklyPlan(
 
 export async function saveWeeklyPlan(
   request: WeeklyPlanSaveRequest,
-  expectedMemberId: number | null,
+  expectedMemberId: number,
 ) {
   const response = await apiRequest<WeeklyPlanResponse>(
     '/api/weekly-plans/me',
@@ -80,7 +80,7 @@ export async function saveWeeklyPlan(
 
 export async function fetchMonthlyPlanGoal(
   month: string,
-  expectedMemberId: number | null,
+  expectedMemberId: number,
 ) {
   const query = new URLSearchParams({ month });
   const response = await apiRequest<MonthlyPlanGoalResponse>(
@@ -93,7 +93,7 @@ export async function fetchMonthlyPlanGoal(
 
 export async function saveMonthlyPlanGoal(
   request: MonthlyPlanGoalRequest,
-  expectedMemberId: number | null,
+  expectedMemberId: number,
 ) {
   const response = await apiRequest<MonthlyPlanGoalResponse>(
     '/api/weekly-plans/monthly-goal/me',
@@ -109,11 +109,11 @@ export async function saveMonthlyPlanGoal(
 
 function validateWeeklyPlanResponse(
   response: WeeklyPlanResponse,
-  expectedMemberId: number | null,
+  expectedMemberId: number,
   expectedWeekStartDate: string,
 ) {
   if (
-    (expectedMemberId !== null && response.memberId !== expectedMemberId) ||
+    response.memberId !== expectedMemberId ||
     response.weekStartDate !== expectedWeekStartDate
   ) {
     throw invalidPlanResponseError();
@@ -124,11 +124,11 @@ function validateWeeklyPlanResponse(
 
 function validateMonthlyGoalResponse(
   response: MonthlyPlanGoalResponse,
-  expectedMemberId: number | null,
+  expectedMemberId: number,
   expectedMonth: string,
 ) {
   if (
-    (expectedMemberId !== null && response.memberId !== expectedMemberId) ||
+    response.memberId !== expectedMemberId ||
     response.month !== expectedMonth
   ) {
     throw invalidPlanResponseError();

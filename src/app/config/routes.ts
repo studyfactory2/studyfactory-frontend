@@ -1,4 +1,4 @@
-import type { MemberRole } from '../auth/types';
+import type { MemberRole } from '../core/session';
 
 export const appRoutes = {
   admin: '/admin',

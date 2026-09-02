@@ -1,13 +1,14 @@
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ApiRequestError } from '../../../api/api-client';
+import { ApiRequestError } from '../../../core/api/api-client';
 import {
   verifyPreRegistration,
   type PreRegistrationVerifyResponse,
 } from '../../../auth/auth-api';
 import { fetchBranches } from '../../../api/reference-api';
 import { Button, Field, Input, Select } from '../../../components/ui';
+import { branchQueryKeys } from '../../../shared/branches/branch-query-keys';
 
 type VerifyPaneProps = {
   onLoginClick: () => void;
@@ -24,7 +25,7 @@ export function VerifyPane({ onLoginClick, onVerified }: VerifyPaneProps) {
 
   const branchesQuery = useQuery({
     queryFn: fetchBranches,
-    queryKey: ['branches'],
+    queryKey: branchQueryKeys.all(),
     staleTime: 5 * 60 * 1000,
   });
 

@@ -1,7 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useSession } from '../auth/session';
+import { useSession, type MemberRole } from '../core/session';
 import { appRoutes, getRoleHomePath } from '../config/routes';
-import type { MemberRole } from '../auth/types';
 
 type ProtectedRouteProps = {
   allowedRoles: MemberRole[];
@@ -11,7 +10,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   const location = useLocation();
   const session = useSession();
 
-  if (!session.accessToken || !session.role) {
+  if (!session.isAuthenticated || !session.role) {
     return (
       <Navigate
         replace

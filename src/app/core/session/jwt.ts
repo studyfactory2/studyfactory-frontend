@@ -30,8 +30,8 @@ export function decodeAccessToken(token: string): AccessTokenPayload {
     };
 
     return {
-      branchId: toMemberId(claims.branchId),
-      memberId: toMemberId(claims.sub),
+      branchId: toPositiveId(claims.branchId),
+      memberId: toPositiveId(claims.sub),
       name: typeof claims.name === 'string' ? claims.name : null,
       role: toMemberRole(claims.role),
     };
@@ -49,10 +49,14 @@ function decodeBase64Url(value: string) {
   return new TextDecoder().decode(bytes);
 }
 
-function toMemberId(value: unknown): number | null {
+function toPositiveId(value: unknown): number | null {
   const parsed = typeof value === 'string' ? Number(value) : value;
 
-  return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : null;
+  return typeof parsed === 'number' &&
+    Number.isSafeInteger(parsed) &&
+    parsed > 0
+    ? parsed
+    : null;
 }
 
 function toMemberRole(value: unknown): MemberRole | null {

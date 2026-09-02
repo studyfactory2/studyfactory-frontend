@@ -173,15 +173,6 @@ export function getDraftStorageKey(baseKey: string, memberId: number) {
   return `${baseKey}.${memberId}`;
 }
 
-export function getMemberQueryOwnerKey(
-  memberId: number | null,
-  accessToken: string | null,
-) {
-  return memberId !== null
-    ? `member:${memberId}`
-    : `token:${accessToken ?? ''}`;
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
