@@ -6,6 +6,7 @@ import { AuthScreen } from '../../screens/auth/AuthScreen';
 import { UiKitScreen } from '../../screens/dev/UiKitScreen';
 import { MemberHomeScreen } from '../../screens/member/home';
 import { MemberPlans } from '../../screens/member/plans';
+import { MemberStudyScreen } from '../../screens/member/study';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
 import { WorkspacePlaceholderScreen } from '../../screens/workspace/WorkspacePlaceholderScreen';
 import { StaffHomeScreen } from '../../screens/staff/StaffHomeScreen';
@@ -23,16 +24,7 @@ export function AppRouter() {
         <Route path={appRoutes.member} element={<MemberWorkspaceScreen />}>
           <Route index element={<MemberHomeScreen />} />
           <Route path="plans" element={<MemberPlans />} />
-          <Route
-            path="study"
-            element={
-              <WorkspacePlaceholderScreen
-                description="입실부터 퇴실까지 인정된 학습 시간을 일·주·월 단위로 확인합니다."
-                eyebrow="MEMBER · STUDY"
-                title="학습 기록"
-              />
-            }
-          />
+          <Route path="study" element={<MemberStudyScreen />} />
           <Route
             path="more"
             element={

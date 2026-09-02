@@ -1,0 +1,213 @@
+/*
+ * One record set, two presentations: a table on wide screens and a vertical
+ * card list everywhere else. The table is never squeezed onto a phone.
+ */
+.member-study__table-scroll {
+  display: none;
+}
+
+.member-study__list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 8px;
+  list-style: none;
+}
+
+/* ---------- mobile / tablet record list ---------- */
+.member-study__list-card {
+  display: grid;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--brand-line);
+  border-radius: 15px;
+  background: var(--brand-ivory);
+  color: var(--brand-ink);
+  cursor: pointer;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  text-align: left;
+}
+
+.member-study__list-card:hover {
+  border-color: rgb(35 76 61 / 24%);
+}
+
+.member-study__list-card.is-selected {
+  border-color: var(--brand-forest);
+  box-shadow: 0 0 0 1px var(--brand-forest);
+}
+
+.member-study__list-card.is-future {
+  background: rgb(253 250 244 / 60%);
+  opacity: 0.72;
+}
+
+.member-study__list-day {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+
+.member-study__list-day strong {
+  color: var(--brand-ink);
+  font-size: var(--text-md);
+  font-weight: 760;
+}
+
+.member-study__list-day small,
+.member-study__list-head em {
+  color: var(--brand-muted);
+  font-size: 0.66rem;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.member-study__list-card.is-today .member-study__list-day strong {
+  color: var(--brand-forest);
+}
+
+.member-study__list-body {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.member-study__list-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-study__list-split {
+  color: var(--brand-muted);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.member-study__list-total {
+  color: var(--brand-ink);
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
+  font-weight: 760;
+  letter-spacing: -0.02em;
+}
+
+.member-study__list-card.is-future .member-study__list-total,
+.member-study__list-dash {
+  color: var(--brand-muted);
+  font-weight: 640;
+}
+
+/* ---------- desktop record table ---------- */
+@media (min-width: 1200px) {
+  .member-study__list {
+    display: none;
+  }
+
+  .member-study__table-scroll {
+    display: block;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+
+  .member-study__table {
+    width: 100%;
+    min-width: 620px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .member-study__table thead th {
+    padding: 0 10px 10px;
+    border-bottom: 1px solid var(--brand-line);
+    color: var(--brand-muted);
+    font-size: var(--text-xs);
+    font-weight: 640;
+    text-align: left;
+  }
+
+  .member-study__table tbody tr {
+    cursor: pointer;
+  }
+
+  .member-study__table tbody tr:hover td,
+  .member-study__table tbody tr:hover th {
+    background: rgb(35 76 61 / 4%);
+  }
+
+  .member-study__table tbody tr.is-selected td,
+  .member-study__table tbody tr.is-selected th {
+    background: rgb(35 76 61 / 7%);
+  }
+
+  .member-study__table tbody th,
+  .member-study__table tbody td {
+    padding: 5px 10px;
+    border-bottom: 1px solid rgb(23 33 29 / 6%);
+    color: var(--brand-ink);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  .member-study__table tbody tr.is-future td {
+    color: var(--brand-muted);
+    font-weight: 560;
+  }
+
+  .member-study__table-date {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 7px;
+    padding: 0 6px;
+    margin-left: -6px;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .member-study__table-date strong {
+    font-size: var(--text-sm);
+    font-weight: 760;
+  }
+
+  .member-study__table-date span {
+    color: var(--brand-muted);
+    font-size: 0.68rem;
+  }
+
+  .member-study__table-date small {
+    padding: 2px 6px;
+    border-radius: var(--radius-pill);
+    background: var(--positive-soft);
+    color: var(--positive-deep);
+    font-size: 0.58rem;
+    font-weight: 800;
+  }
+
+  .member-study__table-total {
+    color: var(--brand-ink);
+    font-weight: 780;
+  }
+
+  .member-study__table-sessions {
+    margin-left: 5px;
+    color: var(--brand-gold-text);
+    font-size: 0.62rem;
+    font-style: normal;
+    font-weight: 720;
+  }
+
+  .member-study__table-dash {
+    color: var(--brand-muted);
+  }
+}

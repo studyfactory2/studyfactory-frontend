@@ -8,6 +8,38 @@ export type StudyTimeDurationResponse = {
   formatted: string;
 };
 
+/** Mirrors the backend StudyPeriod enum (7 periods, 09:00 – 22:00). */
+export type StudyPeriodName =
+  'FIRST' | 'SECOND' | 'THIRD' | 'FOURTH' | 'FIFTH' | 'SIXTH' | 'SEVENTH';
+
+/** Mirrors the backend StudyBreak enum (the six gaps between periods). */
+export type StudyTimeBreakName =
+  | 'AFTER_FIRST'
+  | 'LUNCH'
+  | 'AFTER_THIRD'
+  | 'AFTER_FOURTH'
+  | 'DINNER'
+  | 'AFTER_SIXTH';
+
+export type StudyTimePeriodReportResponse = {
+  period: StudyPeriodName;
+  periodNumber: number;
+  weeklyPlanIndex: number;
+  /** LocalTime, serialized as HH:mm or HH:mm:ss. */
+  startsAt: string;
+  endsAt: string;
+  excludedByLeave: boolean;
+  recognizedDuration: StudyTimeDurationResponse;
+};
+
+export type StudyTimeBreakReportResponse = {
+  studyBreak: StudyTimeBreakName;
+  startsAt: string;
+  endsAt: string;
+  excludedByLeave: boolean;
+  recognizedDuration: StudyTimeDurationResponse;
+};
+
 export type StudyTimeReportTotalsResponse = {
   presenceDuration: StudyTimeDurationResponse;
   recognizedPeriodDuration: StudyTimeDurationResponse;
@@ -17,10 +49,13 @@ export type StudyTimeReportTotalsResponse = {
 
 export type StudyTimeDailyReportResponse = {
   studyDate: string;
+  excludedPeriods: StudyPeriodName[];
   presenceDuration: StudyTimeDurationResponse;
   recognizedPeriodDuration: StudyTimeDurationResponse;
   recognizedBreakDuration: StudyTimeDurationResponse;
   totalRecognizedStudyDuration: StudyTimeDurationResponse;
+  periods: StudyTimePeriodReportResponse[];
+  breaks: StudyTimeBreakReportResponse[];
 };
 
 export type StudyTimeReportResponse = {

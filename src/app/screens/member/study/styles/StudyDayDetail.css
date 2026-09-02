@@ -1,0 +1,125 @@
+.member-study__detail {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.member-study__detail-date {
+  color: var(--brand-ink);
+  font-size: var(--text-md);
+  font-weight: 760;
+  letter-spacing: -0.01em;
+}
+
+.member-study__detail-totals {
+  display: grid;
+  margin: 0;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.member-study__detail-totals > div {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--brand-paper);
+  text-align: center;
+}
+
+.member-study__detail-totals .is-total {
+  background: var(--positive-soft);
+}
+
+.member-study__detail-totals dt {
+  color: var(--brand-muted);
+  font-size: 0.66rem;
+  font-weight: 640;
+}
+
+.member-study__detail-totals dd {
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: 760;
+}
+
+.member-study__detail-periods,
+.member-study__detail-breaks ul {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 2px;
+  list-style: none;
+}
+
+.member-study__detail-periods li,
+.member-study__detail-breaks li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 40px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgb(23 33 29 / 6%);
+}
+
+.member-study__detail-periods li:last-child,
+.member-study__detail-breaks li:last-child {
+  border-bottom: 0;
+}
+
+.member-study__detail-periods li.is-excluded {
+  opacity: 0.72;
+}
+
+.member-study__detail-period-name {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.member-study__detail-period-name strong {
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: 720;
+  white-space: nowrap;
+}
+
+.member-study__detail-period-name small {
+  color: var(--brand-muted);
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.member-study__detail-period-value {
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: 740;
+  white-space: nowrap;
+}
+
+.member-study__detail-breaks {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--brand-line);
+}
+
+.member-study__detail-breaks h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--brand-gold-text);
+  font-size: var(--text-xs);
+  font-weight: 780;
+}
+
+.member-study__detail-breaks-empty {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}

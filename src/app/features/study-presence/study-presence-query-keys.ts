@@ -1,6 +1,15 @@
 import type { SessionOwnerKey } from '../../core/session';
 
+const root = (ownerKey: SessionOwnerKey) =>
+  ['private', ownerKey, 'studyPresence'] as const;
+
 export const studyPresenceQueryKeys = {
-  me: (ownerKey: SessionOwnerKey) =>
-    ['private', ownerKey, 'studyPresence', 'me'] as const,
+  /** Every presence query for this owner. */
+  all: root,
+  /** Prefix covering every requested history range for this owner. */
+  histories: (ownerKey: SessionOwnerKey) =>
+    [...root(ownerKey), 'history'] as const,
+  history: (ownerKey: SessionOwnerKey, from: string, to: string) =>
+    [...root(ownerKey), 'history', from, to] as const,
+  me: (ownerKey: SessionOwnerKey) => [...root(ownerKey), 'me'] as const,
 };

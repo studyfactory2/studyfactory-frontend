@@ -1,0 +1,50 @@
+.member-study__tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-pill);
+  background: var(--brand-paper);
+}
+
+.member-study__tabs button {
+  min-width: 68px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--brand-muted);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 720;
+  transition: color 0.15s ease;
+}
+
+.member-study__tabs button:hover:not(.is-active) {
+  color: var(--brand-forest);
+}
+
+.member-study__tabs button.is-active {
+  background: var(--brand-ivory);
+  color: var(--brand-forest);
+  box-shadow: 0 6px 16px rgb(23 33 29 / 8%);
+}
+
+@media (max-width: 560px) {
+  .member-study__tabs {
+    width: 100%;
+  }
+
+  .member-study__tabs button {
+    flex: 1;
+    min-width: 0;
+    padding: 0 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-study__tabs button {
+    transition: none;
+  }
+}

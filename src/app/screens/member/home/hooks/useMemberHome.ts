@@ -190,19 +190,23 @@ export function useMemberHome(
         'success',
       );
 
+      /*
+       * Prefix keys: a check-in or checkout invalidates every presence-history
+       * and study-time range this owner has cached — today, week and month —
+       * without needing to know which ranges the study screen requested.
+       */
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: studyPresenceQueryKeys.me(ownerKey),
         }),
         queryClient.invalidateQueries({
+          queryKey: studyPresenceQueryKeys.histories(ownerKey),
+        }),
+        queryClient.invalidateQueries({
           queryKey: studyBreakQueryKeys.me(ownerKey),
         }),
         queryClient.invalidateQueries({
-          queryKey: studyTimeQueryKeys.report(
-            ownerKey,
-            today.dateKey,
-            today.dateKey,
-          ),
+          queryKey: studyTimeQueryKeys.reports(ownerKey),
         }),
       ]);
     },
@@ -226,11 +230,7 @@ export function useMemberHome(
         'success',
       );
       await queryClient.invalidateQueries({
-        queryKey: studyTimeQueryKeys.report(
-          ownerKey,
-          today.dateKey,
-          today.dateKey,
-        ),
+        queryKey: studyTimeQueryKeys.reports(ownerKey),
       });
     },
   });
