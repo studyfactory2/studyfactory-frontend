@@ -4,7 +4,7 @@ import type {
   WeeklyPlanItemRequest,
   WeeklyPlanResponse,
   WeeklyPlanSaveRequest,
-} from '../../../api/member-plans-api';
+} from '../../../features/plans/plans-api';
 import type { SessionOwnerKey } from '../../../core/session';
 
 export type PlanRow = {

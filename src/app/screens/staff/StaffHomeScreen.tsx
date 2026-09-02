@@ -1,5 +1,5 @@
-import { staffNavigation } from '../../navigation/staff-navigation';
-import { WorkspaceHomeScreen } from '../shared/WorkspaceHomeScreen';
+import { staffNavigation } from './staff-navigation';
+import { WorkspaceHomeScreen } from '../workspace/WorkspaceHomeScreen';
 
 const descriptions = [
   '회원의 입실과 퇴실 상태를 확인해요.',

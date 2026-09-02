@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import { AppShell } from '../../layouts/AppShell';
-import { adminNavigation } from '../../navigation/admin-navigation';
+import { AppShell } from '../../shared/layout/AppShell/AppShell';
+import { adminNavigation } from './admin-navigation';
 
 export function AdminWorkspaceScreen() {
   return (

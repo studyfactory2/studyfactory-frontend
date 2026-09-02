@@ -7,7 +7,7 @@ import {
   PencilLine,
 } from 'lucide-react';
 import type { Ref } from 'react';
-import { Badge } from '../../../../components/ui';
+import { Badge } from '../../../../shared/ui';
 import { getCellItems } from '../plan-item-utils';
 import {
   CellItems,

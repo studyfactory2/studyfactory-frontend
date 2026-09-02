@@ -5,10 +5,10 @@ import { ApiRequestError } from '../../../core/api/api-client';
 import {
   signup,
   type PreRegistrationVerifyResponse,
-} from '../../../auth/auth-api';
-import { fetchBranches } from '../../../api/reference-api';
-import { Button, Field, Input } from '../../../components/ui';
-import { branchQueryKeys } from '../../../shared/branches/branch-query-keys';
+} from '../../../features/auth/auth-api';
+import { fetchBranches } from '../../../features/branches/branches-api';
+import { Button, Field, Input } from '../../../shared/ui';
+import { branchQueryKeys } from '../../../features/branches/branch-query-keys';
 
 type PasswordPaneProps = {
   member: PreRegistrationVerifyResponse;

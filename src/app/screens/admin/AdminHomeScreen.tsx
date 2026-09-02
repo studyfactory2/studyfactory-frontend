@@ -1,5 +1,5 @@
-import { adminNavigation } from '../../navigation/admin-navigation';
-import { WorkspaceHomeScreen } from '../shared/WorkspaceHomeScreen';
+import { adminNavigation } from './admin-navigation';
+import { WorkspaceHomeScreen } from '../workspace/WorkspaceHomeScreen';
 
 const descriptions = [
   '사전등록과 현재 사원 현황을 관리해요.',

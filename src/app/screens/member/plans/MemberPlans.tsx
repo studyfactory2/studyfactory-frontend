@@ -6,13 +6,13 @@ import {
   fetchWeeklyPlan,
   saveMonthlyPlanGoal,
   saveWeeklyPlan,
-} from '../../../api/member-plans-api';
+} from '../../../features/plans/plans-api';
 import {
   getCurrentSession,
   useSession,
   type SessionOwnerKey,
 } from '../../../core/session';
-import { useToast } from '../../../components/ui';
+import { useToast } from '../../../shared/ui';
 import { PlanEditorModal } from './components/PlanEditorModal';
 import { PlanGoals } from './components/PlanGoals';
 import {
@@ -65,7 +65,7 @@ import {
   hydrateWeeklyDraft,
   toSaveItems,
 } from './plan-item-utils';
-import { memberPlanQueryKeys } from './plan-query-keys';
+import { memberPlanQueryKeys } from '../../../features/plans/plan-query-keys';
 import type {
   EditablePlanItem,
   EditorCell,

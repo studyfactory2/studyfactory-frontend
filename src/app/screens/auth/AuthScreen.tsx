@@ -1,10 +1,10 @@
 import type { FocusEvent } from 'react';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import type { PreRegistrationVerifyResponse } from '../../auth/auth-api';
+import type { PreRegistrationVerifyResponse } from '../../features/auth/auth-api';
 import { useSession } from '../../core/session';
-import { useToast } from '../../components/ui';
-import { getRoleHomePath } from '../../config/routes';
+import { useToast } from '../../shared/ui';
+import { getRoleHomePath } from '../../core/router/routes';
 import { LoginPane } from './panes/LoginPane';
 import { PasswordPane } from './panes/PasswordPane';
 import { VerifyPane } from './panes/VerifyPane';

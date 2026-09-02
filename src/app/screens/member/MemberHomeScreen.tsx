@@ -1,5 +1,5 @@
-import { memberNavigation } from '../../navigation/member-navigation';
-import { WorkspaceHomeScreen } from '../shared/WorkspaceHomeScreen';
+import { memberNavigation } from './member-navigation';
+import { WorkspaceHomeScreen } from '../workspace/WorkspaceHomeScreen';
 
 const descriptions = [
   '이번 주 작업 계획과 오늘 할 일을 확인해요.',

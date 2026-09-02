@@ -1,11 +1,5 @@
 import { Sparkles, Target } from 'lucide-react';
-import {
-  Badge,
-  Button,
-  Field,
-  Spinner,
-  Textarea,
-} from '../../../../components/ui';
+import { Badge, Button, Field, Spinner, Textarea } from '../../../../shared/ui';
 
 export type PlanGoalsProps = {
   completedCount: number;

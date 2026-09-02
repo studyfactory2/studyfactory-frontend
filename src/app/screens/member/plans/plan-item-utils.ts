@@ -3,7 +3,7 @@ import type {
   WeeklyPlanItemRequest,
   WeeklyPlanItemResponse,
   WeeklyPlanResponse,
-} from '../../../api/member-plans-api';
+} from '../../../features/plans/plans-api';
 import type { EditablePlanItem } from './plan-types';
 
 let draftSequence = 0;

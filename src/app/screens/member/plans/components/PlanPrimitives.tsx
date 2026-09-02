@@ -1,6 +1,6 @@
 import { CalendarDays, Check, CirclePlus, RotateCcw, Save } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Badge, Button, Spinner } from '../../../../components/ui';
+import { Badge, Button, Spinner } from '../../../../shared/ui';
 import type {
   EditablePlanItem,
   EditorCell,

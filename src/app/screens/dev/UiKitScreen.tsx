@@ -14,7 +14,7 @@ import {
   Table,
   Textarea,
   useToast,
-} from '../../components/ui';
+} from '../../shared/ui';
 import './ui-kit-screen.css';
 
 const swatches = [

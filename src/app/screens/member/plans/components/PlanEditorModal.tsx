@@ -1,5 +1,5 @@
 import { Check, CirclePlus, ClipboardList, Trash2 } from 'lucide-react';
-import { Button, Modal } from '../../../../components/ui';
+import { Button, Modal } from '../../../../shared/ui';
 import type {
   PlanCell,
   PlanItem,

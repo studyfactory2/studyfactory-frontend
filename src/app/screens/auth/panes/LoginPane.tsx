@@ -11,13 +11,13 @@ import {
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApiRequestError } from '../../../core/api/api-client';
-import { fetchBranches } from '../../../api/reference-api';
-import { login } from '../../../auth/auth-api';
+import { fetchBranches } from '../../../features/branches/branches-api';
+import { login } from '../../../features/auth/auth-api';
 import { saveSession } from '../../../core/session';
-import { InstallPrompt } from '../../../components/pwa/InstallPrompt';
-import { Button, Field, Input, Select } from '../../../components/ui';
-import { getRoleHomePath } from '../../../config/routes';
-import { branchQueryKeys } from '../../../shared/branches/branch-query-keys';
+import { InstallPrompt } from '../../../core/pwa/InstallPrompt';
+import { Button, Field, Input, Select } from '../../../shared/ui';
+import { getRoleHomePath } from '../../../core/router/routes';
+import { branchQueryKeys } from '../../../features/branches/branch-query-keys';
 
 type LoginPaneProps = {
   initialBranchId?: number;
