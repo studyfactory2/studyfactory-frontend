@@ -40,6 +40,7 @@
   margin-top: 4px;
   color: var(--brand-muted);
   font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
 }
 
 .member-plans__week-controls {
@@ -134,6 +135,7 @@
 .member-plans__summary-item strong {
   color: var(--brand-ink);
   font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
 }
 
 .member-plans__cell-empty {

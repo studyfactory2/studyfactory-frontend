@@ -1,5 +1,6 @@
 import { CirclePlus } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { getPlanPeriodStatus } from '../model/plan.status';
 import type {
   EditablePlanItem,
   PlanCell,
@@ -69,11 +70,16 @@ export function DesktopPlanBoard({
                     row.periodIndex,
                     day.dayIndex,
                   );
+                  const status = getPlanPeriodStatus(row, cellItems);
+
                   return (
-                    <td key={`${row.periodIndex}-${day.dayIndex}`}>
+                    <td
+                      className={day.isToday ? 'is-today' : ''}
+                      key={`${row.periodIndex}-${day.dayIndex}`}
+                    >
                       <button
                         aria-label={`${day.longLabel} ${row.label} 계획 편집`}
-                        className="member-plans__cell"
+                        className={`member-plans__cell is-${status}`}
                         disabled={editingDisabled}
                         onClick={() =>
                           onOpenEditor({

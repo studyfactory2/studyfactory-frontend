@@ -1,4 +1,5 @@
-import { CalendarDays, Sparkles, Target } from 'lucide-react';
+import { CalendarDays, PencilLine, Sparkles, Target } from 'lucide-react';
+import { useState } from 'react';
 import { Badge, Button, Field, Spinner, Textarea } from '../../../../shared/ui';
 import '../styles/PlanOverview.css';
 
@@ -41,6 +42,11 @@ export function PlanOverview({
   weeklyGoal,
   weeklySaving,
 }: PlanOverviewProps) {
+  const [monthlyEditorOpen, setMonthlyEditorOpen] = useState(false);
+  const [weeklyEditorOpen, setWeeklyEditorOpen] = useState(false);
+  const monthlyExpanded =
+    monthlyEditorOpen || monthlyLoading || monthlyLoadError;
+
   return (
     <>
       <header className="member-plans__hero">
@@ -61,7 +67,11 @@ export function PlanOverview({
       </header>
 
       <div className="member-plans__goal-grid">
-        <article className="member-plans__goal-card member-plans__goal-card--monthly">
+        <article
+          className={`member-plans__goal-card member-plans__goal-card--monthly${
+            monthlyExpanded ? ' is-editor-open' : ''
+          }`}
+        >
           <div className="member-plans__goal-heading">
             <span className="member-plans__goal-icon">
               <Target aria-hidden="true" size={20} />
@@ -70,50 +80,76 @@ export function PlanOverview({
               <p>{monthlyLabel}</p>
               <h3>이번 달 목표</h3>
             </div>
-            {monthlyDirty && <Badge tone="accent">수정됨</Badge>}
-          </div>
-
-          {monthlyLoading ? (
-            <div className="member-plans__goal-loading">
-              <Spinner size="sm" /> 목표를 불러오는 중이에요.
-            </div>
-          ) : monthlyLoadError ? (
-            <div className="member-plans__inline-error" role="alert">
-              <span>월간 목표를 불러오지 못했어요.</span>
-              <button onClick={onMonthlyRetry} type="button">
-                다시 시도
+            <div className="member-plans__goal-actions">
+              {monthlyDirty && <Badge tone="accent">수정됨</Badge>}
+              <button
+                aria-controls="member-plans-monthly-editor"
+                aria-expanded={monthlyExpanded}
+                className="member-plans__goal-toggle"
+                disabled={monthlyLoading}
+                onClick={() => setMonthlyEditorOpen((open) => !open)}
+                type="button"
+              >
+                <PencilLine aria-hidden="true" size={15} />
+                {monthlyExpanded ? '닫기' : '편집'}
               </button>
             </div>
-          ) : (
-            <>
-              <Field label="월간 목표">
-                {(id) => (
-                  <Textarea
-                    disabled={monthlySaving}
-                    id={id}
-                    onChange={(event) =>
-                      onMonthlyGoalChange(event.target.value)
-                    }
-                    placeholder="이번 달에 꼭 이루고 싶은 목표를 적어보세요."
-                    rows={3}
-                    value={monthlyGoal}
-                  />
-                )}
-              </Field>
-              <Button
-                disabled={!monthlyDirty}
-                loading={monthlySaving}
-                onClick={onMonthlySave}
-                size="sm"
-                variant="ghost"
-              >
-                월간 목표 저장
-              </Button>
-            </>
-          )}
+          </div>
+
+          <p className="member-plans__goal-preview">
+            {monthlyGoal.trim() || '아직 월간 목표가 없어요.'}
+          </p>
+
+          <div
+            className="member-plans__goal-editor"
+            id="member-plans-monthly-editor"
+          >
+            {monthlyLoading ? (
+              <div className="member-plans__goal-loading">
+                <Spinner size="sm" /> 목표를 불러오는 중이에요.
+              </div>
+            ) : monthlyLoadError ? (
+              <div className="member-plans__inline-error" role="alert">
+                <span>월간 목표를 불러오지 못했어요.</span>
+                <button onClick={onMonthlyRetry} type="button">
+                  다시 시도
+                </button>
+              </div>
+            ) : (
+              <>
+                <Field label="월간 목표">
+                  {(id) => (
+                    <Textarea
+                      disabled={monthlySaving}
+                      id={id}
+                      onChange={(event) =>
+                        onMonthlyGoalChange(event.target.value)
+                      }
+                      placeholder="이번 달에 꼭 이루고 싶은 목표를 적어보세요."
+                      rows={3}
+                      value={monthlyGoal}
+                    />
+                  )}
+                </Field>
+                <Button
+                  disabled={!monthlyDirty}
+                  loading={monthlySaving}
+                  onClick={onMonthlySave}
+                  size="sm"
+                  variant="ghost"
+                >
+                  월간 목표 저장
+                </Button>
+              </>
+            )}
+          </div>
         </article>
 
-        <article className="member-plans__goal-card member-plans__goal-card--weekly">
+        <article
+          className={`member-plans__goal-card member-plans__goal-card--weekly${
+            weeklyEditorOpen ? ' is-editor-open' : ''
+          }`}
+        >
           <div className="member-plans__goal-heading">
             <span className="member-plans__goal-icon">
               <Sparkles aria-hidden="true" size={20} />
@@ -122,20 +158,42 @@ export function PlanOverview({
               <p>{weekRangeLabel}</p>
               <h3>이번 주 목표</h3>
             </div>
-            {weeklyDirty && <Badge tone="accent">저장 전</Badge>}
+            <div className="member-plans__goal-actions">
+              {weeklyDirty && <Badge tone="accent">저장 전</Badge>}
+              <button
+                aria-controls="member-plans-weekly-editor"
+                aria-expanded={weeklyEditorOpen}
+                className="member-plans__goal-toggle"
+                onClick={() => setWeeklyEditorOpen((open) => !open)}
+                type="button"
+              >
+                <PencilLine aria-hidden="true" size={15} />
+                {weeklyEditorOpen ? '닫기' : '편집'}
+              </button>
+            </div>
           </div>
-          <Field label="주간 목표">
-            {(id) => (
-              <Textarea
-                disabled={weeklySaving}
-                id={id}
-                onChange={(event) => onWeeklyGoalChange(event.target.value)}
-                placeholder="이번 주의 가장 중요한 목표를 적어보세요."
-                rows={3}
-                value={weeklyGoal}
-              />
-            )}
-          </Field>
+
+          <p className="member-plans__goal-preview">
+            {weeklyGoal.trim() || '아직 주간 목표가 없어요.'}
+          </p>
+
+          <div
+            className="member-plans__goal-editor"
+            id="member-plans-weekly-editor"
+          >
+            <Field label="주간 목표">
+              {(id) => (
+                <Textarea
+                  disabled={weeklySaving}
+                  id={id}
+                  onChange={(event) => onWeeklyGoalChange(event.target.value)}
+                  placeholder="이번 주의 가장 중요한 목표를 적어보세요."
+                  rows={3}
+                  value={weeklyGoal}
+                />
+              )}
+            </Field>
+          </div>
           <div className="member-plans__weekly-progress">
             <div>
               <span>완료율</span>

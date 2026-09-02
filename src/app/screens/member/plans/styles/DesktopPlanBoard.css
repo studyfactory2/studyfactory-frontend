@@ -12,9 +12,10 @@
 
 .member-plans__board {
   width: 100%;
-  min-width: 1040px;
+  min-width: 940px;
   border-spacing: 0;
   border-collapse: separate;
+  font-variant-numeric: tabular-nums;
   table-layout: fixed;
 }
 
@@ -36,7 +37,7 @@
   position: sticky;
   left: 0;
   z-index: 3;
-  width: 122px;
+  width: 104px;
   border-top-left-radius: 14px;
 }
 
@@ -60,7 +61,7 @@
 
 .member-plans__board thead th {
   position: relative;
-  height: 70px;
+  height: 64px;
   background: #f4f0e7;
   color: var(--brand-muted);
   font-size: var(--text-xs);
@@ -94,7 +95,7 @@
 }
 
 .member-plans__board tbody th {
-  padding: 14px 12px;
+  padding: 12px;
   background: #faf7f0;
   text-align: left;
   vertical-align: top;
@@ -118,10 +119,14 @@
 }
 
 .member-plans__board tbody td {
-  height: 116px;
+  height: 92px;
   padding: 0;
   background: var(--brand-ivory);
   vertical-align: top;
+}
+
+.member-plans__board tbody td.is-today {
+  background: rgb(233 239 233 / 42%);
 }
 
 .member-plans__board tbody tr.is-break th,
@@ -130,17 +135,18 @@
 }
 
 .member-plans__board tbody tr.is-break td {
-  height: 94px;
+  height: 60px;
 }
 
 .member-plans__cell {
   display: flex;
   width: 100%;
-  min-height: 115px;
+  min-height: 91px;
   flex-direction: column;
-  gap: 8px;
-  padding: 11px;
+  gap: 6px;
+  padding: 10px;
   border: 0;
+  border-left: 3px solid transparent;
   background: transparent;
   color: var(--brand-ink);
   text-align: left;
@@ -148,11 +154,34 @@
 }
 
 .member-plans__board tr.is-break .member-plans__cell {
-  min-height: 93px;
+  min-height: 59px;
 }
 
-.member-plans__cell:hover {
+.member-plans__cell:hover:not(:disabled) {
   background: rgb(35 76 61 / 4%);
+}
+
+.member-plans__cell:disabled {
+  cursor: not-allowed;
+}
+
+/* status is carried by colour, the item text, and the edit affordance */
+.member-plans__cell.is-done {
+  border-left-color: var(--positive);
+  background: rgb(231 243 236 / 52%);
+}
+
+.member-plans__cell.is-progress {
+  border-left-color: var(--brand-gold);
+  background: rgb(176 138 74 / 8%);
+}
+
+.member-plans__cell.is-planned {
+  border-left-color: rgb(35 76 61 / 26%);
+}
+
+.member-plans__cell.is-empty .member-plans__cell-empty {
+  opacity: 0.75;
 }
 
 .member-plans__cell-edit {
@@ -170,6 +199,16 @@
 .member-plans__cell:hover .member-plans__cell-edit,
 .member-plans__cell:focus-visible .member-plans__cell-edit {
   opacity: 1;
+}
+
+@media (max-width: 1279px) {
+  .member-plans__board-scroll {
+    padding: 0 22px 24px;
+  }
+
+  .member-plans__board {
+    min-width: 880px;
+  }
 }
 
 @media (max-width: 1279px) {
