@@ -1,17 +1,18 @@
 import { Check, CirclePlus, ClipboardList, Trash2 } from 'lucide-react';
 import { Button, Modal } from '../../../../shared/ui';
 import type {
+  EditablePlanItem,
   PlanCell,
-  PlanItem,
   PlanItemUpdate,
   PlanRow,
-} from './PlanPrimitives';
+} from '../model/plan.types';
+import '../styles/PlanEditorModal.css';
 
 export type PlanEditorModalProps = {
   cell: PlanCell | null;
   dateLabel: string;
   dayLabel: string;
-  items: readonly PlanItem[];
+  items: readonly EditablePlanItem[];
   onAdd: (cell: PlanCell) => void;
   onClose: () => void;
   onDelete: (draftId: string) => void;

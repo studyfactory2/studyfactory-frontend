@@ -4,8 +4,19 @@ import type {
   WeeklyPlanItemRequest,
   WeeklyPlanResponse,
   WeeklyPlanSaveRequest,
-} from '../../../features/plans/plans-api';
-import type { SessionOwnerKey } from '../../../core/session';
+} from '../../../../features/plans/plans-api';
+import type { SessionOwnerKey } from '../../../../core/session';
+
+export type PlanDay = {
+  dayIndex: number;
+  dayOfMonth: number;
+  fullDateLabel: string;
+  isToday: boolean;
+  key: string;
+  label: string;
+  longLabel: string;
+  shortDateLabel: string;
+};
 
 export type PlanRow = {
   duration: string;
@@ -24,6 +35,12 @@ export type EditorCell = {
   dayIndex: number;
   periodIndex: number;
 } | null;
+
+export type PlanCell = Exclude<EditorCell, null>;
+
+export type PlanItemUpdate = Partial<
+  Pick<EditablePlanItem, 'content' | 'done'>
+>;
 
 export type StoredWeeklyDraft = {
   goal: string;

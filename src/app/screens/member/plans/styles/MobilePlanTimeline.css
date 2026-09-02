@@ -1,0 +1,208 @@
+.member-plans__mobile-board {
+  display: none;
+}
+
+@media (max-width: 1279px) {
+  .member-plans__mobile-board {
+    display: block;
+    padding: 0 22px 24px;
+  }
+
+  .member-plans__day-tabs {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(44px, 1fr));
+    gap: 5px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .member-plans__day-tabs button {
+    position: relative;
+    display: flex;
+    min-width: 44px;
+    min-height: 66px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    background: transparent;
+    color: var(--brand-muted);
+    cursor: pointer;
+  }
+
+  .member-plans__day-tabs button span {
+    font-size: 0.68rem;
+    font-weight: 650;
+  }
+
+  .member-plans__day-tabs button strong {
+    font-size: var(--text-md);
+  }
+
+  .member-plans__day-tabs button i {
+    position: absolute;
+    bottom: 5px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--brand-gold);
+  }
+
+  .member-plans__day-tabs button.is-active {
+    border-color: rgb(35 76 61 / 12%);
+    background: var(--brand-forest);
+    color: var(--brand-ivory);
+    box-shadow: 0 8px 20px rgb(35 76 61 / 16%);
+  }
+
+  .member-plans__day-tabs button.is-active i {
+    background: #f3ddaf;
+  }
+
+  .member-plans__day-tabs button:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+  }
+
+  .member-plans__day-timeline {
+    margin-top: 20px;
+  }
+
+  .member-plans__day-timeline > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: 12px;
+  }
+
+  .member-plans__day-timeline > header p {
+    color: var(--brand-muted);
+    font-size: var(--text-xs);
+  }
+
+  .member-plans__day-timeline > header h4 {
+    margin-top: 2px;
+    color: var(--brand-ink);
+    font-size: var(--text-lg);
+  }
+
+  .member-plans__day-timeline > button {
+    position: relative;
+    display: grid;
+    width: 100%;
+    min-height: 84px;
+    grid-template-columns: 118px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    margin-top: 8px;
+    padding: 13px 14px;
+    border: 1px solid rgb(23 33 29 / 8%);
+    border-radius: 15px;
+    background: #fdfaf4;
+    color: var(--brand-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .member-plans__day-timeline > button:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+  }
+
+  .member-plans__day-timeline > button::before {
+    position: absolute;
+    top: 14px;
+    bottom: 14px;
+    left: 0;
+    width: 3px;
+    border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+    background: var(--brand-forest);
+    content: '';
+  }
+
+  .member-plans__day-timeline > button.is-break {
+    background: #f7f1e4;
+  }
+
+  .member-plans__day-timeline > button.is-break::before {
+    background: var(--brand-gold);
+  }
+
+  .member-plans__day-timeline > button:hover {
+    border-color: rgb(35 76 61 / 22%);
+  }
+
+  .member-plans__timeline-time {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .member-plans__timeline-time strong {
+    color: var(--brand-ink);
+    font-size: var(--text-sm);
+  }
+
+  .member-plans__timeline-time small {
+    margin-top: 3px;
+    color: var(--brand-muted);
+    font-size: 0.63rem;
+  }
+
+  .member-plans__timeline-content {
+    min-width: 0;
+  }
+
+  .member-plans__cell-items.is-compact li {
+    font-size: var(--text-xs);
+  }
+
+  .member-plans__day-timeline > button > svg {
+    color: var(--brand-muted);
+  }
+}
+
+@media (max-width: 768px) {
+  .member-plans__mobile-board {
+    padding: 0 20px 22px;
+  }
+}
+
+@media (max-width: 560px) {
+  .member-plans__mobile-board {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .member-plans__day-tabs {
+    margin-right: -2px;
+    margin-left: -2px;
+  }
+
+  .member-plans__day-timeline > button {
+    grid-template-columns: 90px minmax(0, 1fr) auto;
+    gap: 9px;
+    padding-right: 11px;
+    padding-left: 12px;
+  }
+
+  .member-plans__timeline-time small {
+    font-size: 0.59rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .member-plans__day-tabs {
+    grid-template-columns: repeat(7, 44px);
+  }
+
+  .member-plans__day-timeline > button {
+    grid-template-columns: 82px minmax(0, 1fr);
+  }
+
+  .member-plans__day-timeline > button > svg {
+    display: none;
+  }
+}

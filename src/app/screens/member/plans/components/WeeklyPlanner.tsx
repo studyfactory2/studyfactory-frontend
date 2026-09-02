@@ -4,28 +4,28 @@ import {
   ChevronLeft,
   ChevronRight,
   ClipboardList,
-  PencilLine,
 } from 'lucide-react';
-import type { Ref } from 'react';
-import { Badge } from '../../../../shared/ui';
-import { getCellItems } from '../plan-item-utils';
-import {
-  CellItems,
-  PlanCellButton,
-  PlanSummary,
-  type PlanCell,
-  type PlanDay,
-  type PlanItem,
-  type PlanRow,
-} from './PlanPrimitives';
+import type { ReactNode, Ref } from 'react';
+import type {
+  EditablePlanItem,
+  PlanCell,
+  PlanDay,
+  PlanRow,
+} from '../model/plan.types';
+import '../styles/WeeklyPlanner.css';
+import { DesktopPlanBoard } from './DesktopPlanBoard';
+import { MobilePlanTimeline } from './MobilePlanTimeline';
 
 export type WeeklyPlannerProps = {
   completedCount: number;
   days: readonly PlanDay[];
   daySelectionDisabled: boolean;
   editingDisabled: boolean;
+  getItemsForCell: (
+    periodIndex: number,
+    dayIndex: number,
+  ) => readonly EditablePlanItem[];
   headingRef: Ref<HTMLHeadingElement>;
-  items: PlanItem[];
   navigationDisabled: boolean;
   onMoveToToday: () => void;
   onMoveWeek: (amount: -1 | 1) => void;
@@ -45,8 +45,8 @@ export function WeeklyPlanner({
   days,
   daySelectionDisabled,
   editingDisabled,
+  getItemsForCell,
   headingRef,
-  items,
   navigationDisabled,
   onMoveToToday,
   onMoveWeek,
@@ -129,125 +129,85 @@ export function WeeklyPlanner({
         />
       </div>
 
-      <div className="member-plans__desktop-board">
-        <div className="member-plans__board-scroll">
-          <table className="member-plans__board">
-            <caption className="member-plans__sr-only">
-              월요일부터 일요일까지 교시별 주간 계획
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">시간</th>
-                {days.map((day) => (
-                  <th
-                    className={day.isToday ? 'is-today' : ''}
-                    key={day.key}
-                    scope="col"
-                  >
-                    <span>{day.label}</span>
-                    <strong>{day.shortDateLabel}</strong>
-                    {day.isToday && <small>오늘</small>}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr
-                  className={row.isBreak ? 'is-break' : ''}
-                  key={row.periodIndex}
-                >
-                  <th scope="row">
-                    <strong>{row.label}</strong>
-                    <span>{row.time}</span>
-                  </th>
-                  {days.map((day) => (
-                    <td key={`${row.periodIndex}-${day.dayIndex}`}>
-                      <PlanCellButton
-                        ariaLabel={`${day.longLabel} ${row.label} 계획 편집`}
-                        disabled={editingDisabled}
-                        items={getCellItems(
-                          items,
-                          row.periodIndex,
-                          day.dayIndex,
-                        )}
-                        onClick={() =>
-                          onOpenEditor({
-                            dayIndex: day.dayIndex,
-                            periodIndex: row.periodIndex,
-                          })
-                        }
-                      />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DesktopPlanBoard
+        days={days}
+        editingDisabled={editingDisabled}
+        getItemsForCell={getItemsForCell}
+        onOpenEditor={onOpenEditor}
+        renderItems={renderPlanItems}
+        rows={rows}
+      />
 
-      <div className="member-plans__mobile-board">
-        <div className="member-plans__day-tabs" aria-label="요일 선택">
-          {days.map((day) => (
-            <button
-              aria-current={day.isToday ? 'date' : undefined}
-              aria-label={`${day.fullDateLabel} ${day.longLabel}`}
-              aria-pressed={selectedDayIndex === day.dayIndex}
-              className={selectedDayIndex === day.dayIndex ? 'is-active' : ''}
-              disabled={daySelectionDisabled}
-              key={day.key}
-              onClick={() => onSelectDay(day.dayIndex)}
-              type="button"
-            >
-              <span>{day.label}</span>
-              <strong>{day.dayOfMonth}</strong>
-              {day.isToday && <i aria-label="오늘" />}
-            </button>
-          ))}
-        </div>
-
-        <div
-          aria-label={`${selectedDateLabel} 계획`}
-          className="member-plans__day-timeline"
-        >
-          <header>
-            <div>
-              <p>{selectedDateLabel}</p>
-              <h4>{selectedDay?.longLabel ?? '선택한 요일'}의 계획</h4>
-            </div>
-            <Badge tone={selectedDayTotal ? 'positive' : 'neutral'}>
-              {selectedDayCompleted}/{selectedDayTotal} 완료
-            </Badge>
-          </header>
-          {rows.map((row) => (
-            <button
-              className={row.isBreak ? 'is-break' : ''}
-              disabled={editingDisabled}
-              key={row.periodIndex}
-              onClick={() =>
-                onOpenEditor({
-                  dayIndex: selectedDayIndex,
-                  periodIndex: row.periodIndex,
-                })
-              }
-              type="button"
-            >
-              <span className="member-plans__timeline-time">
-                <strong>{row.label}</strong>
-                <small>{row.time}</small>
-              </span>
-              <span className="member-plans__timeline-content">
-                <CellItems
-                  compact
-                  items={getCellItems(items, row.periodIndex, selectedDayIndex)}
-                />
-              </span>
-              <PencilLine aria-hidden="true" size={17} />
-            </button>
-          ))}
-        </div>
-      </div>
+      <MobilePlanTimeline
+        days={days}
+        daySelectionDisabled={daySelectionDisabled}
+        editingDisabled={editingDisabled}
+        getItemsForCell={getItemsForCell}
+        onOpenEditor={onOpenEditor}
+        onSelectDay={onSelectDay}
+        renderItems={renderPlanItems}
+        rows={rows}
+        selectedDateLabel={selectedDateLabel}
+        selectedDayCompleted={selectedDayCompleted}
+        selectedDayIndex={selectedDayIndex}
+        selectedDayTotal={selectedDayTotal}
+      />
     </section>
+  );
+}
+
+type PlanSummaryProps = {
+  icon: ReactNode;
+  label: string;
+  tone?: 'positive';
+  value: string;
+};
+
+function PlanSummary({ icon, label, tone, value }: PlanSummaryProps) {
+  return (
+    <div
+      className={
+        tone
+          ? `member-plans__summary-item is-${tone}`
+          : 'member-plans__summary-item'
+      }
+    >
+      <span aria-hidden="true">{icon}</span>
+      <div>
+        <small>{label}</small>
+        <strong>{value}</strong>
+      </div>
+    </div>
+  );
+}
+
+function renderPlanItems(items: readonly EditablePlanItem[], compact = false) {
+  const populatedItems = items.filter((item) => item.content.trim());
+  const visibleCount = compact ? 2 : 3;
+
+  if (!populatedItems.length) {
+    return <span className="member-plans__cell-empty">비어 있음</span>;
+  }
+
+  return (
+    <ul
+      className={
+        compact
+          ? 'member-plans__cell-items is-compact'
+          : 'member-plans__cell-items'
+      }
+    >
+      {populatedItems.slice(0, visibleCount).map((item) => (
+        <li className={item.done ? 'is-done' : ''} key={item.draftId}>
+          <i aria-hidden="true">
+            {item.done && <Check size={10} strokeWidth={3} />}
+          </i>
+          <span>{item.content}</span>
+        </li>
+      ))}
+      {populatedItems.length > visibleCount && (
+        <li className="is-more">+{populatedItems.length - visibleCount}개</li>
+      )}
+    </ul>
   );
 }

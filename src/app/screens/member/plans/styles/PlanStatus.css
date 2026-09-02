@@ -1,0 +1,124 @@
+.member-plans__save-bar {
+  position: sticky;
+  z-index: 15;
+  bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: 14px 16px 14px 20px;
+  border: 1px solid rgb(255 252 247 / 12%);
+  border-radius: 18px;
+  background: rgb(30 70 56 / 96%);
+  box-shadow: 0 18px 48px rgb(23 33 29 / 22%);
+  color: var(--brand-ivory);
+  backdrop-filter: blur(14px);
+}
+
+.member-plans__save-bar > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.member-plans__save-bar span {
+  font-size: var(--text-sm);
+  font-weight: 720;
+}
+
+.member-plans__save-bar span.is-dirty {
+  color: #f3ddaf;
+}
+
+.member-plans__save-bar small {
+  margin-top: 2px;
+  color: rgb(255 252 247 / 66%);
+  font-size: 0.66rem;
+}
+
+.member-plans__save-bar .btn {
+  flex: 0 0 auto;
+  background: #f3ddaf;
+  color: #173329;
+}
+
+.member-plans__save-bar .btn:hover:not(:disabled) {
+  background: #ffe9b9;
+  color: #10271f;
+}
+
+.member-plans__state {
+  min-height: 420px;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  border: 1px solid var(--brand-line);
+  border-radius: 24px;
+  background: var(--brand-ivory);
+  text-align: center;
+}
+
+.member-plans__state > div {
+  max-width: 420px;
+}
+
+.member-plans__state h2 {
+  color: var(--brand-ink);
+  font-size: var(--text-xl);
+}
+
+.member-plans__state h2:focus-visible {
+  border-radius: 6px;
+  outline: 3px solid rgb(176 138 74 / 42%);
+  outline-offset: 4px;
+}
+
+.member-plans__state p {
+  margin-top: 6px;
+  color: var(--brand-muted);
+}
+
+.member-plans__state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.member-plans__state-actions .btn--primary {
+  background: var(--brand-forest);
+  color: var(--brand-ivory);
+}
+
+.member-plans__state-actions .btn--primary:hover:not(:disabled) {
+  background: var(--brand-forest-light);
+}
+
+.member-plans__state-icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--danger-soft);
+  color: var(--danger-deep);
+  place-items: center;
+}
+
+@media (max-width: 768px) {
+  .member-plans__save-bar {
+    bottom: calc(78px + env(safe-area-inset-bottom));
+    align-items: stretch;
+    flex-direction: column;
+    gap: 11px;
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .member-plans__save-bar small {
+    display: none;
+  }
+
+  .member-plans__save-bar .btn {
+    width: 100%;
+  }
+}

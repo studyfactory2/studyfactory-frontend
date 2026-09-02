@@ -1,10 +1,13 @@
 import {
   MONTHLY_DRAFT_STORAGE_KEY,
   WEEKLY_DRAFT_STORAGE_KEY,
-} from './plan-constants';
-import { isCanonicalMondayKey, isMonthKey } from './plan-date-utils';
-import { isEditablePlanItem } from './plan-item-utils';
-import type { StoredMonthlyDraft, StoredWeeklyDraft } from './plan-types';
+} from './plan.constants';
+import { isCanonicalMondayKey, isMonthKey } from './plan.dates';
+import type {
+  EditablePlanItem,
+  StoredMonthlyDraft,
+  StoredWeeklyDraft,
+} from './plan.types';
 
 export function readStoredWeeklyDraft(
   memberId: number | null,
@@ -175,4 +178,24 @@ export function getDraftStorageKey(baseKey: string, memberId: number) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isEditablePlanItem(value: unknown): value is EditablePlanItem {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  return (
+    typeof value.draftId === 'string' &&
+    (value.id === null ||
+      (typeof value.id === 'number' && Number.isInteger(value.id))) &&
+    typeof value.periodIndex === 'number' &&
+    Number.isInteger(value.periodIndex) &&
+    typeof value.dayIndex === 'number' &&
+    Number.isInteger(value.dayIndex) &&
+    typeof value.content === 'string' &&
+    typeof value.done === 'boolean' &&
+    typeof value.sortOrder === 'number' &&
+    Number.isInteger(value.sortOrder)
+  );
 }

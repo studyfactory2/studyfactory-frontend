@@ -1,4 +1,4 @@
-import type { PlanRow } from './plan-types';
+import type { PlanRow } from './plan.types';
 
 export const DAY_LABELS = ['월', '화', '수', '목', '금', '토', '일'] as const;
 
