@@ -1,0 +1,104 @@
+.member-home__today-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.member-home__today-list > li {
+  display: grid;
+  align-items: start;
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid rgb(23 33 29 / 8%);
+  border-left: 3px solid var(--brand-forest);
+  border-radius: 14px;
+  background: #fdfaf4;
+}
+
+.member-home__today-list > li.is-break {
+  border-left-color: var(--brand-gold);
+  background: #f7f1e4;
+}
+
+.member-home__today-period {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.member-home__today-period strong {
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: 750;
+}
+
+.member-home__today-period small {
+  color: var(--brand-muted);
+  font-size: 0.64rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.member-home__today-items {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.member-home__today-items li {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.member-home__today-items li i {
+  display: grid;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin-top: 2px;
+  border: 1px solid rgb(35 76 61 / 26%);
+  border-radius: 5px;
+  color: var(--positive-deep);
+  place-items: center;
+}
+
+.member-home__today-items li span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.member-home__today-items li.is-done {
+  color: var(--brand-muted);
+  text-decoration: line-through;
+}
+
+.member-home__today-items li.is-done i {
+  border-color: var(--positive);
+  background: var(--positive-soft);
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .member-home__today-list > li {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .member-home__today-period {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+  }
+}

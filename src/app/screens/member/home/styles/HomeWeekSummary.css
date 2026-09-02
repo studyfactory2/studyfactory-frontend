@@ -1,0 +1,60 @@
+.member-home__week-goal {
+  color: var(--brand-ink);
+  font-size: var(--text-md);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.member-home__week-goal.is-empty {
+  color: var(--brand-muted);
+  font-size: var(--text-sm);
+}
+
+.member-home__week-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.member-home__week-progress p {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.member-home__week-progress strong {
+  color: var(--brand-gold-text);
+  font-size: var(--text-2xl);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.member-home__week-progress span {
+  color: var(--brand-muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+.member-home__week-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: rgb(35 76 61 / 10%);
+}
+
+.member-home__week-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--brand-gold), #c9a463);
+  transition: width 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-home__week-track span {
+    transition: none;
+  }
+}

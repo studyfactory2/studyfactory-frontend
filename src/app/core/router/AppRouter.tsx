@@ -4,7 +4,7 @@ import { AdminHomeScreen } from '../../screens/admin/AdminHomeScreen';
 import { AdminWorkspaceScreen } from '../../screens/admin/AdminWorkspaceScreen';
 import { AuthScreen } from '../../screens/auth/AuthScreen';
 import { UiKitScreen } from '../../screens/dev/UiKitScreen';
-import { MemberHomeScreen } from '../../screens/member/MemberHomeScreen';
+import { MemberHomeScreen } from '../../screens/member/home';
 import { MemberPlans } from '../../screens/member/plans';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
 import { WorkspacePlaceholderScreen } from '../../screens/workspace/WorkspacePlaceholderScreen';

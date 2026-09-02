@@ -1,0 +1,65 @@
+.member-home__aside-card {
+  gap: var(--space-3);
+}
+
+.member-home__beverage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.member-home__beverage-list li {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgb(23 33 29 / 8%);
+  border-radius: 12px;
+  background: #fdfaf4;
+}
+
+.member-home__beverage-list strong {
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: 740;
+}
+
+.member-home__beverage-list span {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  overflow-wrap: anywhere;
+}
+
+.member-home__leave {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4);
+  border: 1px solid rgb(176 138 74 / 26%);
+  border-radius: 14px;
+  background: rgb(176 138 74 / 8%);
+}
+
+.member-home__leave-date {
+  color: var(--brand-ink);
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+}
+
+.member-home__leave-label {
+  color: var(--brand-gold-text);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.member-home__leave-slots {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
