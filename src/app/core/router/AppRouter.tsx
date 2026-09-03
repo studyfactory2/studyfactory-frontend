@@ -5,6 +5,8 @@ import { AdminWorkspaceScreen } from '../../screens/admin/AdminWorkspaceScreen';
 import { AuthScreen } from '../../screens/auth/AuthScreen';
 import { UiKitScreen } from '../../screens/dev/UiKitScreen';
 import { MemberHomeScreen } from '../../screens/member/home';
+import { MemberLeavesScreen } from '../../screens/member/more/leaves';
+import { MemberMoreScreen } from '../../screens/member/more';
 import { MemberPlans } from '../../screens/member/plans';
 import { MemberStudyScreen } from '../../screens/member/study';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
@@ -25,16 +27,10 @@ export function AppRouter() {
           <Route index element={<MemberHomeScreen />} />
           <Route path="plans" element={<MemberPlans />} />
           <Route path="study" element={<MemberStudyScreen />} />
-          <Route
-            path="more"
-            element={
-              <WorkspacePlaceholderScreen
-                description="휴무 신청, 요청 내역과 내 정보를 관리합니다."
-                eyebrow="MEMBER · MORE"
-                title="더보기"
-              />
-            }
-          />
+          <Route path="more">
+            <Route index element={<MemberMoreScreen />} />
+            <Route path="leaves" element={<MemberLeavesScreen />} />
+          </Route>
           <Route
             path="*"
             element={<Navigate replace to={appRoutes.member} />}

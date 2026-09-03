@@ -1,0 +1,123 @@
+/*
+ * Member "더보기" menu: a single vertical list on every width. The rows are
+ * full-width touch targets rather than a card grid, because this screen is
+ * reached from the mobile bottom bar far more often than from a desktop.
+ */
+.member-more {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: var(--brand-ink);
+}
+
+.member-more__eyebrow {
+  color: var(--brand-gold-text);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.member-more__title {
+  margin-top: 2px;
+  color: var(--brand-ink);
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  letter-spacing: -0.03em;
+}
+
+.member-more__subtitle {
+  margin-top: 4px;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+}
+
+.member-more__menu {
+  display: grid;
+  max-width: 44rem;
+  margin: 0;
+  padding: 0;
+  gap: 8px;
+  list-style: none;
+}
+
+.member-more__menu-row {
+  display: grid;
+  min-height: 68px;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 16px;
+  border: 1px solid var(--brand-line);
+  border-radius: 16px;
+  background: var(--brand-ivory);
+  box-shadow: 0 10px 26px rgb(23 33 29 / 4%);
+  color: var(--brand-ink);
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  text-decoration: none;
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+a.member-more__menu-row:hover {
+  border-color: rgb(35 76 61 / 30%);
+  box-shadow: 0 16px 32px rgb(23 33 29 / 8%);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.member-more__menu-row.is-pending {
+  background: rgb(253 250 244 / 62%);
+  box-shadow: none;
+}
+
+.member-more__menu-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  background: rgb(35 76 61 / 9%);
+  color: var(--brand-forest);
+  place-items: center;
+}
+
+.member-more__menu-row.is-pending .member-more__menu-icon {
+  background: rgb(23 33 29 / 5%);
+  color: var(--brand-muted);
+}
+
+.member-more__menu-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.member-more__menu-copy strong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-md);
+  font-weight: 750;
+}
+
+.member-more__menu-row.is-pending .member-more__menu-copy strong {
+  color: var(--brand-muted);
+}
+
+.member-more__menu-copy small {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.member-more__menu-arrow {
+  color: var(--brand-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-more__menu-row,
+  a.member-more__menu-row:hover {
+    transition: none;
+    transform: none;
+  }
+}

@@ -1,0 +1,123 @@
+.member-leaves__day-modal {
+  display: grid;
+  gap: 14px;
+}
+
+.member-leaves__day-modal-lead {
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.member-leaves__day-modal-options {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.member-leaves__day-modal-option {
+  display: grid;
+  min-height: 66px;
+  align-content: center;
+  gap: 3px;
+  padding: 10px 8px;
+  border: 1px solid var(--brand-line);
+  border-radius: 13px;
+  background: var(--paper);
+  color: var(--brand-ink);
+  cursor: pointer;
+  text-align: center;
+}
+
+.member-leaves__day-modal-option:hover {
+  border-color: rgb(35 76 61 / 30%);
+}
+
+.member-leaves__day-modal-option.is-selected {
+  border-color: var(--brand-forest);
+  background: rgb(35 76 61 / 6%);
+  box-shadow: 0 0 0 1px var(--brand-forest);
+}
+
+.member-leaves__day-modal-option strong {
+  font-size: var(--text-sm);
+  font-weight: 760;
+}
+
+.member-leaves__day-modal-option small {
+  color: var(--brand-muted);
+  font-size: 0.64rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.member-leaves__day-modal-entries {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 8px;
+  list-style: none;
+}
+
+.member-leaves__day-modal-entries li {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--brand-line);
+  border-radius: 13px;
+  background: var(--brand-ivory);
+}
+
+.member-leaves__day-modal-entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-leaves__day-modal-entry-head strong {
+  color: var(--brand-ink);
+  font-size: var(--text-md);
+  font-weight: 760;
+}
+
+.member-leaves__day-modal-entries small {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.member-leaves__day-modal-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  line-height: 1.55;
+}
+
+.member-leaves__day-modal-note svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.member-leaves__day-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 380px) {
+  .member-leaves__day-modal-options {
+    grid-template-columns: 1fr;
+  }
+
+  .member-leaves__day-modal-option {
+    min-height: 52px;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+  }
+}

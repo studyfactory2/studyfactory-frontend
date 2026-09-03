@@ -36,7 +36,7 @@ export function HomeUpcomingLeave({
           <CalendarClock aria-hidden="true" size={18} />
         </span>
         <h3 id="member-home-leave-title">다가오는 휴무</h3>
-        <Link to={memberRoutes.more}>
+        <Link to={memberRoutes.moreLeaves}>
           휴무 <ChevronRight aria-hidden="true" size={14} />
         </Link>
       </header>
