@@ -1,0 +1,28 @@
+import { apiRequest, ApiRequestError } from '../../core/api/api-client';
+import type { MemberRole } from '../../core/session';
+
+export type MemberResponse = {
+  id: number;
+  branchId: number;
+  name: string;
+  role: MemberRole;
+  /** Assigned by an operator, and cleared when a member has no desk. */
+  seatNumber: number | null;
+  joinDate: string | null;
+  certificationId: number | null;
+  preparingCertifications: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
+export async function fetchMe(expectedMemberId: number) {
+  const response = await apiRequest<MemberResponse>('/api/members/me', {
+    expectedMemberId,
+  });
+
+  if (response.id !== expectedMemberId) {
+    throw new ApiRequestError('다른 회원의 정보를 받았습니다.', 409);
+  }
+
+  return response;
+}

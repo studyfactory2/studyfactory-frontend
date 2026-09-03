@@ -7,6 +7,7 @@ import { UiKitScreen } from '../../screens/dev/UiKitScreen';
 import { MemberHomeScreen } from '../../screens/member/home';
 import { MemberLeavesScreen } from '../../screens/member/more/leaves';
 import { MemberMoreScreen } from '../../screens/member/more';
+import { MemberProfileScreen } from '../../screens/member/more/profile';
 import { MemberPlans } from '../../screens/member/plans';
 import { MemberStudyScreen } from '../../screens/member/study';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
@@ -30,6 +31,7 @@ export function AppRouter() {
           <Route path="more">
             <Route index element={<MemberMoreScreen />} />
             <Route path="leaves" element={<MemberLeavesScreen />} />
+            <Route path="profile" element={<MemberProfileScreen />} />
           </Route>
           <Route
             path="*"

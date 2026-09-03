@@ -1,12 +1,15 @@
 /*
- * Member "더보기" menu: a single vertical list on every width. The rows are
- * full-width touch targets rather than a card grid, because this screen is
- * reached from the mobile bottom bar far more often than from a desktop.
+ * Member 더보기 — a 마이페이지 rather than a bare menu: who you are, this
+ * month in three numbers, then the grouped menu.
+ *
+ * The page is capped at a readable width instead of stretching, and the menu
+ * becomes a multi-column grid on wide screens so a desktop does not show a
+ * phone-shaped column of whitespace.
  */
 .member-more {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  display: grid;
+  max-width: 64rem;
+  gap: 16px;
   color: var(--brand-ink);
 }
 
@@ -30,94 +33,50 @@
   font-size: var(--text-xs);
 }
 
-.member-more__menu {
-  display: grid;
-  max-width: 44rem;
-  margin: 0;
-  padding: 0;
-  gap: 8px;
-  list-style: none;
-}
-
-.member-more__menu-row {
-  display: grid;
-  min-height: 68px;
-  align-items: center;
-  gap: 13px;
-  padding: 14px 16px;
-  border: 1px solid var(--brand-line);
-  border-radius: 16px;
-  background: var(--brand-ivory);
-  box-shadow: 0 10px 26px rgb(23 33 29 / 4%);
-  color: var(--brand-ink);
-  grid-template-columns: 40px minmax(0, 1fr) auto;
-  text-decoration: none;
-  transition:
-    border-color 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease;
-}
-
-a.member-more__menu-row:hover {
-  border-color: rgb(35 76 61 / 30%);
-  box-shadow: 0 16px 32px rgb(23 33 29 / 8%);
-  text-decoration: none;
-  transform: translateY(-2px);
-}
-
-.member-more__menu-row.is-pending {
-  background: rgb(253 250 244 / 62%);
-  box-shadow: none;
-}
-
-.member-more__menu-icon {
-  display: grid;
-  width: 40px;
-  height: 40px;
-  border-radius: 13px;
-  background: rgb(35 76 61 / 9%);
-  color: var(--brand-forest);
-  place-items: center;
-}
-
-.member-more__menu-row.is-pending .member-more__menu-icon {
-  background: rgb(23 33 29 / 5%);
-  color: var(--brand-muted);
-}
-
-.member-more__menu-copy {
-  display: grid;
+/* Shared shell for the profile card and the stat strip. */
+.member-more__profile,
+.member-more__stats {
   min-width: 0;
-  gap: 3px;
+  padding: clamp(16px, 2.4vw, 22px);
+  border: 1px solid var(--brand-line);
+  border-radius: 20px;
+  background: var(--brand-ivory);
+  box-shadow: 0 14px 34px rgb(23 33 29 / 5%);
 }
 
-.member-more__menu-copy strong {
+.member-more__profile.is-plain,
+.member-more__stats.is-plain {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  font-size: var(--text-md);
-  font-weight: 750;
-}
-
-.member-more__menu-row.is-pending .member-more__menu-copy strong {
-  color: var(--brand-muted);
-}
-
-.member-more__menu-copy small {
+  gap: var(--space-2);
   color: var(--brand-muted);
   font-size: var(--text-xs);
+}
+
+.member-more__profile.is-error,
+.member-more__stats.is-error {
+  border-color: color-mix(in srgb, var(--danger) 24%, transparent);
+  background: color-mix(in srgb, var(--danger) 8%, var(--paper));
+  color: var(--danger-deep);
   line-height: 1.5;
 }
 
-.member-more__menu-arrow {
-  color: var(--brand-muted);
+.member-more__profile.is-error span,
+.member-more__stats.is-error span {
+  flex: 1 1 12ch;
+  min-width: 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .member-more__menu-row,
-  a.member-more__menu-row:hover {
-    transition: none;
-    transform: none;
-  }
+.member-more__profile.is-error button,
+.member-more__stats.is-error button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  border-radius: var(--radius-control);
+  background: var(--paper);
+  color: var(--danger-deep);
+  cursor: pointer;
+  font-size: var(--text-xs);
+  font-weight: 740;
 }

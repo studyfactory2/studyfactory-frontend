@@ -1,0 +1,65 @@
+.member-more__stats {
+  display: grid;
+  margin: 0;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.member-more__stats > div {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.member-more__stats > div + div {
+  padding-left: 12px;
+  border-left: 1px solid var(--brand-line);
+}
+
+/*
+ * Korean wraps between 어절, not inside them: without keep-all the browser
+ * splits 휴무 across two lines. The same applies to "12시간 34분".
+ */
+.member-more__stats dt,
+.member-more__stats dd {
+  word-break: keep-all;
+}
+
+.member-more__stats dt {
+  color: var(--brand-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.member-more__stats dd {
+  display: flex;
+  align-items: baseline;
+  margin: 0;
+  gap: 2px;
+  color: var(--brand-ink);
+  font-size: clamp(1.05rem, 2.6vw, 1.35rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 780;
+  letter-spacing: -0.02em;
+}
+
+.member-more__stats dd small {
+  color: var(--brand-muted);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+@media (max-width: 420px) {
+  .member-more__stats {
+    gap: 8px;
+  }
+
+  .member-more__stats > div + div {
+    padding-left: 8px;
+  }
+
+  .member-more__stats dt {
+    font-size: 0.62rem;
+  }
+}
