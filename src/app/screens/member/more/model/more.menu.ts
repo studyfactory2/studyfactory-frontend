@@ -46,8 +46,9 @@ export const MORE_MENU_GROUPS: readonly MoreMenuGroup[] = [
       {
         description: '마시는 음료를 직접 등록하고 바꿔요.',
         icon: CupSoda,
-        kind: 'pending',
+        kind: 'link',
         label: '음료',
+        to: memberRoutes.moreBeverages,
       },
     ],
     title: '생활',

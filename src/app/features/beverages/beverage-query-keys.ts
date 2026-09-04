@@ -1,6 +1,10 @@
 import type { SessionOwnerKey } from '../../core/session';
 
+const root = (ownerKey: SessionOwnerKey) =>
+  ['private', ownerKey, 'beverages'] as const;
+
 export const beverageQueryKeys = {
-  me: (ownerKey: SessionOwnerKey) =>
-    ['private', ownerKey, 'beverages', 'me'] as const,
+  /** Every beverage query for this owner. */
+  all: root,
+  me: (ownerKey: SessionOwnerKey) => [...root(ownerKey), 'me'] as const,
 };

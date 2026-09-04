@@ -5,6 +5,7 @@ import { AdminWorkspaceScreen } from '../../screens/admin/AdminWorkspaceScreen';
 import { AuthScreen } from '../../screens/auth/AuthScreen';
 import { UiKitScreen } from '../../screens/dev/UiKitScreen';
 import { MemberHomeScreen } from '../../screens/member/home';
+import { MemberBeveragesScreen } from '../../screens/member/more/beverages';
 import { MemberLeavesScreen } from '../../screens/member/more/leaves';
 import { MemberMoreScreen } from '../../screens/member/more';
 import { MemberProfileScreen } from '../../screens/member/more/profile';
@@ -31,6 +32,7 @@ export function AppRouter() {
           <Route path="study" element={<MemberStudyScreen />} />
           <Route path="more">
             <Route index element={<MemberMoreScreen />} />
+            <Route path="beverages" element={<MemberBeveragesScreen />} />
             <Route path="leaves" element={<MemberLeavesScreen />} />
             <Route path="profile" element={<MemberProfileScreen />} />
             <Route path="suggestions" element={<MemberSuggestionsScreen />} />

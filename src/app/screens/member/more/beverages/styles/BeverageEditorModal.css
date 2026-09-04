@@ -1,0 +1,16 @@
+.member-beverages__editor {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.member-beverages__editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Destructive action sits apart from 닫기 and 저장. */
+.member-beverages__editor-delete {
+  margin-right: auto;
+}

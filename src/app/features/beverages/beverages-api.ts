@@ -17,15 +17,71 @@ export type BeveragePreferenceResponse = {
   updatedAt: string | null;
 };
 
+/**
+ * The request record accepts four overlapping shapes — `items`, `drinkSetting`,
+ * `drinkNotes` and `drinkNote`. The service prefers `items` whenever it is
+ * present and only falls back to the older text forms otherwise, so this client
+ * always sends `items` and never the legacy fields.
+ */
+export type BeverageItemInput = {
+  name: string;
+  note: string | null;
+};
+
+function assertOwnPreference(
+  response: BeveragePreferenceResponse,
+  expectedMemberId: number,
+) {
+  if (response.memberId !== expectedMemberId) {
+    throw new ApiRequestError('다른 회원의 음료 정보를 받았습니다.', 409);
+  }
+
+  return response;
+}
+
 export async function fetchMyBeveragePreference(expectedMemberId: number) {
   const response = await apiRequest<BeveragePreferenceResponse>(
     '/api/beverages/me',
     { expectedMemberId },
   );
 
-  if (response.memberId !== expectedMemberId) {
-    throw new ApiRequestError('다른 회원의 음료 정보를 받았습니다.', 409);
-  }
+  return assertOwnPreference(response, expectedMemberId);
+}
 
-  return response;
+/** Appends to the existing list; the backend keeps duplicates on purpose. */
+export async function addMyBeverageItems(
+  items: readonly BeverageItemInput[],
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<BeveragePreferenceResponse>(
+    '/api/beverages/me',
+    {
+      body: JSON.stringify({ items }),
+      expectedMemberId,
+      method: 'POST',
+    },
+  );
+
+  return assertOwnPreference(response, expectedMemberId);
+}
+
+/**
+ * Replaces the whole list. Used for editing and for removing a single drink,
+ * because `DELETE /api/beverages/me/items` matches by name and would remove
+ * every row sharing it — and the same drink may legitimately appear twice.
+ */
+export async function replaceMyBeverageItems(
+  items: readonly BeverageItemInput[],
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<BeveragePreferenceResponse>(
+    '/api/beverages/me',
+    {
+      body: JSON.stringify({ items }),
+      expectedMemberId,
+      method: 'PATCH',
+    },
+  );
+
+  return assertOwnPreference(response, expectedMemberId);
 }
