@@ -16,15 +16,6 @@
   border-left: 1px solid var(--brand-line);
 }
 
-/*
- * Korean wraps between 어절, not inside them: without keep-all the browser
- * splits 휴무 across two lines. The same applies to "12시간 34분".
- */
-.member-more__stats dt,
-.member-more__stats dd {
-  word-break: keep-all;
-}
-
 .member-more__stats dt {
   color: var(--brand-muted);
   font-size: 0.68rem;

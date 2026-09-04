@@ -10,47 +10,6 @@
   color: var(--brand-ink);
 }
 
-.member-suggestions__back {
-  display: inline-flex;
-  min-height: 36px;
-  align-items: center;
-  gap: 2px;
-  margin-left: -6px;
-  padding: 0 6px;
-  border-radius: var(--radius-control);
-  color: var(--brand-muted);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.member-suggestions__back:hover {
-  color: var(--brand-forest);
-  text-decoration: none;
-}
-
-.member-suggestions__eyebrow {
-  margin-top: 2px;
-  color: var(--brand-gold-text);
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-}
-
-.member-suggestions__title {
-  margin-top: 2px;
-  color: var(--brand-ink);
-  font-size: clamp(1.35rem, 3vw, 1.75rem);
-  letter-spacing: -0.03em;
-}
-
-.member-suggestions__subtitle {
-  margin-top: 4px;
-  color: var(--brand-muted);
-  font-size: var(--text-xs);
-  word-break: keep-all;
-}
-
 .member-suggestions__card {
   display: flex;
   min-width: 0;

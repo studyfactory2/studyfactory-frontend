@@ -1,4 +1,4 @@
-.member-suggestions__state {
+.ui-section-state {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -8,7 +8,7 @@
   font-size: var(--text-xs);
 }
 
-.member-suggestions__state.is-error {
+.ui-section-state.is-error {
   padding: var(--space-3);
   border: 1px solid color-mix(in srgb, var(--danger) 24%, transparent);
   border-radius: var(--radius-control);
@@ -17,12 +17,12 @@
   line-height: 1.5;
 }
 
-.member-suggestions__state.is-error span {
+.ui-section-state.is-error span {
   flex: 1 1 12ch;
   min-width: 0;
 }
 
-.member-suggestions__state.is-error button {
+.ui-section-state.is-error button {
   min-height: 44px;
   padding: 0 12px;
   border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
@@ -34,7 +34,7 @@
   font-weight: 740;
 }
 
-.member-suggestions__state.is-empty {
+.ui-section-state.is-empty {
   display: grid;
   gap: 4px;
   padding: var(--space-5) var(--space-3);
@@ -44,13 +44,13 @@
   text-align: center;
 }
 
-.member-suggestions__state.is-empty strong {
+.ui-section-state.is-empty strong {
   color: var(--brand-ink);
   font-size: var(--text-sm);
   font-weight: 740;
 }
 
-.member-suggestions__state.is-empty p {
+.ui-section-state.is-empty p {
   margin: 0;
   color: var(--brand-muted);
   font-size: var(--text-xs);

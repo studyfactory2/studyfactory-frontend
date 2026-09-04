@@ -1,14 +1,15 @@
 import { useSession, type SessionOwnerKey } from '../../../core/session';
+import {
+  ScreenHeader,
+  SectionEmpty,
+  SectionError,
+  SectionLoading,
+} from '../../../shared/ui';
 import { StudyDayDetail } from './components/StudyDayDetail';
 import { StudyHero } from './components/StudyHero';
 import { StudyRangeTabs } from './components/StudyRangeTabs';
 import { StudyRecordList } from './components/StudyRecordList';
 import { StudyRecordTable } from './components/StudyRecordTable';
-import {
-  StudySectionEmpty,
-  StudySectionError,
-  StudySectionLoading,
-} from './components/StudySectionState';
 import { StudySummary } from './components/StudySummary';
 import { useMemberStudy } from './hooks/useMemberStudy';
 import { formatDateRange } from './model/study.dates';
@@ -55,16 +56,14 @@ function MemberStudyReport({
 
   return (
     <div className="member-study">
-      <header className="member-study__header">
-        <div className="member-study__heading">
-          <p className="member-study__eyebrow">MEMBER · STUDY</p>
-          <h2 className="member-study__title">공부 시간 리포트</h2>
-          <p className="member-study__subtitle">
-            {formatDateRange(dateRange.from, dateRange.to)} · 서울 기준
-          </p>
-        </div>
-        <StudyRangeTabs onSelect={study.onSetRange} value={study.range} />
-      </header>
+      <ScreenHeader
+        actions={
+          <StudyRangeTabs onSelect={study.onSetRange} value={study.range} />
+        }
+        eyebrow="MEMBER · STUDY"
+        subtitle={`${formatDateRange(dateRange.from, dateRange.to)} · 서울 기준`}
+        title="공부 시간 리포트"
+      />
 
       <div className="member-study__primary">
         <StudyHero
@@ -105,13 +104,13 @@ function MemberStudyReport({
           </header>
 
           {recordsLoading ? (
-            <StudySectionLoading label="기록을 불러오는 중이에요." />
+            <SectionLoading label="기록을 불러오는 중이에요." />
           ) : recordsError !== null ? (
-            <StudySectionError message={recordsError} onRetry={retryRecords} />
+            <SectionError message={recordsError} onRetry={retryRecords} />
           ) : recordsEmpty ? (
-            <StudySectionEmpty title="아직 기록이 없어요">
+            <SectionEmpty title="아직 기록이 없어요">
               <p>출입문 QR로 입실하면 이곳에 학습 시간이 쌓여요.</p>
-            </StudySectionEmpty>
+            </SectionEmpty>
           ) : (
             <>
               <StudyRecordTable
@@ -139,9 +138,9 @@ function MemberStudyReport({
           </header>
 
           {report.loading ? (
-            <StudySectionLoading label="상세 내역을 불러오는 중이에요." />
+            <SectionLoading label="상세 내역을 불러오는 중이에요." />
           ) : report.errorMessage !== null ? (
-            <StudySectionError
+            <SectionError
               message={report.errorMessage}
               onRetry={report.onRetry}
             />

@@ -1,8 +1,7 @@
-import { ChevronLeft, Info, RotateCcw } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Info, RotateCcw } from 'lucide-react';
 import { memberRoutes } from '../../../../core/router/routes';
 import { useSession, type SessionOwnerKey } from '../../../../core/session';
-import { Spinner } from '../../../../shared/ui';
+import { ScreenHeader, Spinner } from '../../../../shared/ui';
 import { useMemberMore } from '../hooks/useMemberMore';
 import './styles/MemberProfileScreen.css';
 
@@ -40,15 +39,12 @@ function MemberProfile({
 
   return (
     <section className="member-profile">
-      <header className="member-profile__header">
-        <Link className="member-profile__back" to={memberRoutes.more}>
-          <ChevronLeft aria-hidden="true" size={16} />
-          더보기
-        </Link>
-        <p className="member-profile__eyebrow">MEMBER · PROFILE</p>
-        <h2 className="member-profile__title">내 정보</h2>
-        <p className="member-profile__subtitle">지점에 등록된 내 정보예요.</p>
-      </header>
+      <ScreenHeader
+        backTo={memberRoutes.more}
+        eyebrow="MEMBER · PROFILE"
+        subtitle="지점에 등록된 내 정보예요."
+        title="내 정보"
+      />
 
       <div className="member-profile__card">
         {profile.loading ? (

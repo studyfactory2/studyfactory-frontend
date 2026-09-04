@@ -11,6 +11,8 @@ body {
   line-height: 1.55;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  /* Korean wraps between 어절, never inside one: 휴무 must not split in two. */
+  word-break: keep-all;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

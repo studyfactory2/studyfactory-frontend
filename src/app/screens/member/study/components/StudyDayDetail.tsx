@@ -1,10 +1,9 @@
 import { CalendarClock, CalendarOff, Coffee } from 'lucide-react';
-import { Badge } from '../../../../shared/ui';
+import { Badge, SectionEmpty } from '../../../../shared/ui';
 import { formatKoreanDate } from '../model/study.dates';
 import { formatDurationClock, formatTimeSpan } from '../model/study.format';
 import { getBreakLabel, getPeriodLabel } from '../model/study.labels';
 import type { StudyDayRow } from '../model/study.types';
-import { StudySectionEmpty } from './StudySectionState';
 import '../styles/StudyDayDetail.css';
 
 export type StudyDayDetailProps = {
@@ -14,9 +13,9 @@ export type StudyDayDetailProps = {
 export function StudyDayDetail({ row }: StudyDayDetailProps) {
   if (row === null) {
     return (
-      <StudySectionEmpty title="날짜를 선택해 주세요">
+      <SectionEmpty title="날짜를 선택해 주세요">
         <p>기록에서 날짜를 고르면 교시별 인정 시간을 볼 수 있어요.</p>
-      </StudySectionEmpty>
+      </SectionEmpty>
     );
   }
 
@@ -32,12 +31,12 @@ export function StudyDayDetail({ row }: StudyDayDetailProps) {
     return (
       <div className="member-study__detail">
         {dateLabel}
-        <StudySectionEmpty title="아직 오지 않은 날짜예요">
+        <SectionEmpty title="아직 오지 않은 날짜예요">
           <p>
             <CalendarClock aria-hidden="true" size={14} />
             입실하면 그날의 교시별 인정 시간이 여기에 표시돼요.
           </p>
-        </StudySectionEmpty>
+        </SectionEmpty>
       </div>
     );
   }
@@ -46,13 +45,13 @@ export function StudyDayDetail({ row }: StudyDayDetailProps) {
     return (
       <div className="member-study__detail">
         {dateLabel}
-        <StudySectionEmpty title="이 날은 입실 기록이 없어요">
+        <SectionEmpty title="이 날은 입실 기록이 없어요">
           <p>
             {row.excludedPeriodCount > 0
               ? `휴가로 ${row.excludedPeriodCount}개 교시가 인정 대상에서 제외된 날이에요.`
               : '입실 기록이 있는 날에는 교시별 인정 시간이 표시돼요.'}
           </p>
-        </StudySectionEmpty>
+        </SectionEmpty>
       </div>
     );
   }

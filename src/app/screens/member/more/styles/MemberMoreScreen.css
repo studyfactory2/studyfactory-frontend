@@ -13,26 +13,6 @@
   color: var(--brand-ink);
 }
 
-.member-more__eyebrow {
-  color: var(--brand-gold-text);
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-}
-
-.member-more__title {
-  margin-top: 2px;
-  color: var(--brand-ink);
-  font-size: clamp(1.35rem, 3vw, 1.75rem);
-  letter-spacing: -0.03em;
-}
-
-.member-more__subtitle {
-  margin-top: 4px;
-  color: var(--brand-muted);
-  font-size: var(--text-xs);
-}
-
 /* Shared shell for the profile card and the stat strip. */
 .member-more__profile,
 .member-more__stats {

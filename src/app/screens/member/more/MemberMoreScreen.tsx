@@ -1,5 +1,6 @@
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import { formatKoreanMonth } from '../../../shared/lib/seoul-date';
+import { ScreenHeader } from '../../../shared/ui';
 import { MoreMenu } from './components/MoreMenu';
 import { MoreProfileCard } from './components/MoreProfileCard';
 import { MoreStatStrip } from './components/MoreStatStrip';
@@ -31,13 +32,11 @@ function MemberMore({
 
   return (
     <section className="member-more">
-      <header className="member-more__header">
-        <p className="member-more__eyebrow">MEMBER · MORE</p>
-        <h2 className="member-more__title">더보기</h2>
-        <p className="member-more__subtitle">
-          내 정보와 생활 기능을 한곳에서 관리해요.
-        </p>
-      </header>
+      <ScreenHeader
+        eyebrow="MEMBER · MORE"
+        subtitle="내 정보와 생활 기능을 한곳에서 관리해요."
+        title="더보기"
+      />
 
       <MoreProfileCard
         branchName={profile.branchName}

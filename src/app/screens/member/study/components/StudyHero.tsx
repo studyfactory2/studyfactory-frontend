@@ -1,4 +1,5 @@
 import { Radio } from 'lucide-react';
+import { SectionError, SectionLoading } from '../../../../shared/ui';
 import {
   formatDurationClock,
   formatDurationKorean,
@@ -6,7 +7,6 @@ import {
 } from '../model/study.format';
 import { formatKoreanDate, formatShortDate } from '../model/study.dates';
 import type { StudyDayRow, StudyRangeKey } from '../model/study.types';
-import { StudySectionError, StudySectionLoading } from './StudySectionState';
 import '../styles/StudyHero.css';
 
 export type StudyHeroProps = {
@@ -66,9 +66,9 @@ export function StudyHero({
       </header>
 
       {loading ? (
-        <StudySectionLoading label="학습 시간을 불러오는 중이에요." />
+        <SectionLoading label="학습 시간을 불러오는 중이에요." />
       ) : errorMessage !== null ? (
-        <StudySectionError message={errorMessage} onRetry={onRetry} />
+        <SectionError message={errorMessage} onRetry={onRetry} />
       ) : (
         <>
           <p className="member-study__hero-total">

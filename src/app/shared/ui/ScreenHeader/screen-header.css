@@ -1,0 +1,56 @@
+/*
+ * The eyebrow / title / subtitle block every member screen opens with, plus an
+ * optional back link and an optional actions slot beside the heading.
+ */
+.ui-screen-header--split {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.ui-screen-header__back {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  gap: 2px;
+  margin-left: -6px;
+  padding: 0 6px;
+  border-radius: var(--radius-control);
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ui-screen-header__back:hover {
+  color: var(--brand-forest);
+  text-decoration: none;
+}
+
+.ui-screen-header__eyebrow {
+  color: var(--brand-gold-text);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+/* Only nudged down when it sits under a back link. */
+.ui-screen-header__back + .ui-screen-header__eyebrow {
+  margin-top: 2px;
+}
+
+.ui-screen-header__title {
+  margin-top: 2px;
+  color: var(--brand-ink);
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  letter-spacing: -0.03em;
+}
+
+.ui-screen-header__subtitle {
+  margin-top: 4px;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}

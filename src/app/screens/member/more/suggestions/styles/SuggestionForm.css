@@ -22,7 +22,6 @@
   color: var(--brand-ink);
   cursor: pointer;
   text-align: center;
-  word-break: keep-all;
 }
 
 .member-suggestions__category:hover {
@@ -86,7 +85,6 @@
   color: var(--brand-muted);
   font-size: var(--text-xs);
   line-height: 1.55;
-  word-break: keep-all;
 }
 
 .member-suggestions__note svg {
