@@ -1,0 +1,101 @@
+.member-suggestions__form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.member-suggestions__categories {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.member-suggestions__category {
+  display: grid;
+  min-height: 92px;
+  align-content: start;
+  justify-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border: 1px solid var(--brand-line);
+  border-radius: 14px;
+  background: var(--paper);
+  color: var(--brand-ink);
+  cursor: pointer;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.member-suggestions__category:hover {
+  border-color: rgb(35 76 61 / 30%);
+}
+
+.member-suggestions__category.is-selected {
+  border-color: var(--brand-forest);
+  background: rgb(35 76 61 / 6%);
+  box-shadow: 0 0 0 1px var(--brand-forest);
+}
+
+.member-suggestions__category-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: rgb(35 76 61 / 9%);
+  color: var(--brand-forest);
+  place-items: center;
+}
+
+.member-suggestions__category.is-selected .member-suggestions__category-icon {
+  background: var(--brand-forest);
+  color: var(--brand-ivory);
+}
+
+.member-suggestions__category strong {
+  margin-top: 2px;
+  font-size: var(--text-sm);
+  font-weight: 760;
+}
+
+.member-suggestions__category small {
+  color: var(--brand-muted);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.member-suggestions__form-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.member-suggestions__counter {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.member-suggestions__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--brand-line);
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.member-suggestions__note svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+@media (max-width: 560px) {
+  .member-suggestions__categories {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

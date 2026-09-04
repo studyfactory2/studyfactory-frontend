@@ -57,8 +57,9 @@ export const MORE_MENU_GROUPS: readonly MoreMenuGroup[] = [
       {
         description: '비품·학습·상담 요청을 보내고 처리 상태를 확인해요.',
         icon: MessageSquareText,
-        kind: 'pending',
+        kind: 'link',
         label: '요청',
+        to: memberRoutes.moreSuggestions,
       },
     ],
     title: '문의',

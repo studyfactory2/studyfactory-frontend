@@ -8,6 +8,7 @@ import { MemberHomeScreen } from '../../screens/member/home';
 import { MemberLeavesScreen } from '../../screens/member/more/leaves';
 import { MemberMoreScreen } from '../../screens/member/more';
 import { MemberProfileScreen } from '../../screens/member/more/profile';
+import { MemberSuggestionsScreen } from '../../screens/member/more/suggestions';
 import { MemberPlans } from '../../screens/member/plans';
 import { MemberStudyScreen } from '../../screens/member/study';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
@@ -32,6 +33,7 @@ export function AppRouter() {
             <Route index element={<MemberMoreScreen />} />
             <Route path="leaves" element={<MemberLeavesScreen />} />
             <Route path="profile" element={<MemberProfileScreen />} />
+            <Route path="suggestions" element={<MemberSuggestionsScreen />} />
           </Route>
           <Route
             path="*"

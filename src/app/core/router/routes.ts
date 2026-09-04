@@ -12,6 +12,7 @@ export const memberRoutes = {
   more: `${appRoutes.member}/more`,
   moreLeaves: `${appRoutes.member}/more/leaves`,
   moreProfile: `${appRoutes.member}/more/profile`,
+  moreSuggestions: `${appRoutes.member}/more/suggestions`,
   plans: `${appRoutes.member}/plans`,
   study: `${appRoutes.member}/study`,
 } as const;
