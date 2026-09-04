@@ -58,8 +58,8 @@
 
 .btn--ghost {
   background: var(--card);
-  border-color: var(--line);
-  color: var(--ink);
+  border-color: var(--brand-line);
+  color: var(--brand-ink);
 }
 
 .btn--ghost:hover:not(:disabled) {
@@ -69,11 +69,11 @@
 
 .btn--subtle {
   background: var(--card-2);
-  color: var(--ink-soft);
+  color: var(--brand-ink-soft);
 }
 
 .btn--subtle:hover:not(:disabled) {
-  background: var(--line);
+  background: var(--brand-line);
 }
 
 /* --danger itself is only 4.0:1 against white, so the button starts a step down. */

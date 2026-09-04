@@ -1,0 +1,46 @@
+.ui-bars {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  gap: 6px;
+}
+
+.ui-bars__caption {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ui-bars__plot {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.ui-bars__bar {
+  flex: 1;
+  border-radius: 3px 3px 1px 1px;
+  background: var(--brand-muted);
+  opacity: 0.62;
+}
+
+.ui-bars__bar.is-emphasis {
+  background: var(--brand-gold-text);
+  opacity: 1;
+}
+
+.ui-bars__axis {
+  display: flex;
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-variant-numeric: tabular-nums;
+  gap: 6px;
+}
+
+.ui-bars__axis span {
+  flex: 1;
+  text-align: center;
+}

@@ -1,62 +1,82 @@
 /*
- * Member 더보기 — a 마이페이지 rather than a bare menu: who you are, this
- * month in three numbers, then the grouped menu.
- *
- * The page is capped at a readable width instead of stretching, and the menu
- * becomes a multi-column grid on wide screens so a desktop does not show a
- * phone-shaped column of whitespace.
+ * 더보기: an identity panel and a month instrument side by side, a row of
+ * stat tiles, then a flat tile field. Cards are lifted off the ground with
+ * elevation rather than outlined, so the page has a foreground and a back.
  */
 .member-more {
-  display: grid;
-  max-width: 64rem;
-  gap: 16px;
+  display: flex;
+  max-width: 72rem;
+  flex-direction: column;
+  gap: var(--space-4);
   color: var(--brand-ink);
 }
 
-/* Shared shell for the profile card and the stat strip. */
-.member-more__profile,
-.member-more__stats {
-  min-width: 0;
-  padding: clamp(16px, 2.4vw, 22px);
-  border: 1px solid var(--brand-line);
-  border-radius: 20px;
-  background: var(--brand-ivory);
-  box-shadow: 0 14px 34px rgb(var(--brand-ink-rgb) / 5%);
+.member-more__top {
+  display: grid;
+  align-items: stretch;
+  gap: var(--space-4);
 }
 
-.member-more__profile.is-plain,
-.member-more__stats.is-plain {
+@media (min-width: 900px) {
+  .member-more__top {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+
+/* Shared surface for every lifted block on this screen. */
+.member-more__profile,
+.member-more__tile-stat,
+.member-more__tile {
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--elev-1);
+}
+
+.member-more__section-head {
   display: flex;
-  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+}
+
+.member-more__section-head h3 {
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+/* Loading and error states keep the card shape so the row does not jump. */
+.member-more__profile.is-plain,
+.member-more__month.is-plain {
+  display: flex;
+  min-height: 108px;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: center;
+  padding: var(--space-5);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--elev-1);
   color: var(--brand-muted);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
+  gap: var(--space-2);
 }
 
 .member-more__profile.is-error,
-.member-more__stats.is-error {
-  border-color: color-mix(in srgb, var(--danger) 24%, transparent);
-  background: color-mix(in srgb, var(--danger) 8%, var(--paper));
+.member-more__month.is-error {
   color: var(--danger-deep);
-  line-height: var(--leading-normal);
 }
 
-.member-more__profile.is-error span,
-.member-more__stats.is-error span {
-  flex: 1 1 12ch;
-  min-width: 0;
-}
-
-.member-more__profile.is-error button,
-.member-more__stats.is-error button {
-  min-height: 44px;
-  padding: 0 12px;
-  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+.member-more__profile.is-plain button,
+.member-more__month.is-plain button {
+  min-height: var(--control-height-sm);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--brand-line);
   border-radius: var(--radius-control);
-  background: var(--paper);
-  color: var(--danger-deep);
+  background: transparent;
+  color: inherit;
   cursor: pointer;
+  font-family: inherit;
   font-size: var(--text-xs);
   font-weight: var(--weight-bold);
 }

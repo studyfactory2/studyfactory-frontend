@@ -14,19 +14,16 @@
    * edit a palette change needs.
    */
 
-  /* ---- surfaces ---- */
+  /*
+   * ---- surfaces ----
+   * The ground sits deeper than the cards on purpose: a lifted surface only
+   * reads as lifted if there is something below it to lift away from.
+   */
   --paper: #ffffff;
-  --wash: #f7f6ee;
+  --wash: #f4efe4;
   --card-rgb: 255 253 248;
   --card: rgb(var(--card-rgb));
   --card-2: #f0efe4;
-  --line: #e2e2d4;
-
-  /* ---- text ---- */
-  --ink-rgb: 30 61 50;
-  --ink: rgb(var(--ink-rgb));
-  --ink-soft: #3c5a4e;
-  --muted: #64736b;
 
   /* ---- 자격증공장 brand ---- */
   --brand-ink-rgb: 23 33 29;
@@ -42,9 +39,25 @@
   --brand-gold-rgb: 176 138 74;
   --brand-gold: rgb(var(--brand-gold-rgb));
   --brand-gold-text: #765a2a;
+  --brand-ink-soft: #3c5a4e;
   --brand-line: #d9d3c7;
   --brand-muted-rgb: 98 106 101;
   --brand-muted: rgb(var(--brand-muted-rgb));
+
+  /*
+   * ---- instrument ----
+   * The dark surface every piece of data sits on. Applying `.instrument`
+   * rebinds --brand-ink / --brand-muted / --brand-line to these, so ordinary
+   * components render correctly inside one without knowing they are on dark.
+   * Every value clears 4.5:1 against the LIGHT end of the gradient, which is
+   * the worst case.
+   */
+  --inst-bg: linear-gradient(152deg, #244c3e 0%, #16342a 100%);
+  --inst-ink: #f3f8f4;
+  --inst-muted: #9cbfad;
+  --inst-line: rgb(255 255 255 / 12%);
+  --inst-accent: #d8b46b;
+  --inst-good: #74c894;
 
   /*
    * ---- accent (apricot) ----
@@ -143,9 +156,22 @@
   --radius-card: 16px;
   --radius-pill: 999px;
 
-  /* ---- elevation ---- */
-  --shadow-card: 0 16px 42px rgb(42 55 60 / 8%);
-  --shadow-pop: 0 24px 60px rgb(42 55 60 / 18%);
+  /*
+   * ---- elevation ----
+   * Cards are lifted, not outlined. A 1px line says "form field"; two layers
+   * of soft shadow say "object". --elev-0 is for surfaces that must stay flush
+   * with the ground, such as inset panels inside a card.
+   */
+  --elev-0: none;
+  --elev-1:
+    0 1px 2px rgb(var(--brand-ink-rgb) / 5%),
+    0 8px 20px rgb(var(--brand-ink-rgb) / 5%);
+  --elev-2:
+    0 2px 4px rgb(var(--brand-ink-rgb) / 5%),
+    0 14px 34px rgb(var(--brand-ink-rgb) / 8%);
+  --elev-3: 0 24px 60px rgb(var(--brand-ink-rgb) / 18%);
+  --shadow-card: var(--elev-1);
+  --shadow-pop: var(--elev-3);
 
   /* ---- controls ---- */
   --control-height: 44px;

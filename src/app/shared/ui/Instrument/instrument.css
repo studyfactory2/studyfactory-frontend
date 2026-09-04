@@ -1,0 +1,79 @@
+/*
+ * The dark data surface. Rebinding the semantic tokens here is the whole
+ * mechanism: any component rendered inside picks up dark-appropriate ink,
+ * muted and line colours through normal custom-property inheritance, so
+ * nothing needs a separate dark variant.
+ *
+ * Badges are the deliberate exception — their soft pastel backgrounds are
+ * built for light surfaces, so instruments state their status in plain
+ * coloured text instead.
+ */
+.instrument {
+  --brand-ink: var(--inst-ink);
+  --brand-muted: var(--inst-muted);
+  --brand-line: var(--inst-line);
+  --brand-gold-text: var(--inst-accent);
+  --positive-deep: var(--inst-good);
+
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--inst-bg);
+  box-shadow: var(--elev-2);
+  color: var(--inst-ink);
+  gap: var(--space-3);
+}
+
+.instrument__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.instrument__label {
+  color: var(--inst-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.instrument__note {
+  color: var(--inst-accent);
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.instrument__body {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.instrument__readout {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.instrument__value {
+  color: var(--inst-ink);
+  font-size: clamp(1.9rem, 4.4vw, 2.4rem);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-none);
+}
+
+.instrument__caption {
+  color: var(--inst-muted);
+  font-size: var(--text-2xs);
+}
+
+.instrument__footer {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--inst-line);
+}

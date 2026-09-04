@@ -1,44 +1,41 @@
+/*
+ * The section is the grid cell, not the button — `display: contents` would
+ * promote the status message to a cell of its own the moment it appeared.
+ */
 .install-prompt {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  gap: 8px;
-}
-
-.install-prompt__title {
-  color: var(--brand-muted);
-  font-size: var(--text-2xs);
-  font-weight: var(--weight-extrabold);
-  letter-spacing: var(--tracking-wide);
+  gap: var(--space-2);
 }
 
 .install-prompt__button {
-  display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) 20px;
-  align-items: center;
-  gap: 12px;
+  flex: 1;
+}
+
+/* Shaped to match .member-more__tile so it sits in that grid as a peer. */
+.install-prompt__button {
+  position: relative;
+  display: flex;
   width: 100%;
-  min-height: 64px;
-  padding: 10px 12px;
-  border: 1px solid var(--brand-line);
-  border-radius: 16px;
-  background:
-    linear-gradient(120deg, rgb(var(--brand-forest-rgb) / 5%), transparent 62%),
-    #fffefa;
+  min-height: 104px;
+  flex-direction: column;
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--elev-1);
   color: var(--brand-ink);
+  cursor: pointer;
+  gap: var(--space-3);
   text-align: left;
   transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background-color 0.16s ease,
-    box-shadow 0.16s ease;
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .install-prompt__button:hover {
-  border-color: color-mix(in srgb, var(--brand-forest) 42%, var(--brand-line));
-  background-color: var(--brand-paper);
-  box-shadow: 0 9px 22px rgb(var(--brand-forest-rgb) / 9%);
-  transform: translateY(-1px);
+  box-shadow: var(--elev-2);
+  transform: translateY(-2px);
 }
 
 .install-prompt__button:active {
@@ -51,12 +48,27 @@
   outline-offset: 3px;
 }
 
+.install-prompt__button-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.install-prompt__group {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
 .install-prompt__button-icon {
   display: grid;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: rgb(var(--brand-forest-rgb) / 9%);
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: rgb(var(--brand-forest-rgb) / 8%);
   color: var(--brand-forest);
   place-items: center;
 }
@@ -70,7 +82,7 @@
 
 .install-prompt__button-copy strong {
   color: var(--brand-ink);
-  font-size: var(--text-sm);
+  font-size: var(--text-md);
   font-weight: var(--weight-bold);
 }
 
@@ -80,13 +92,17 @@
 }
 
 .install-prompt__button-arrow {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
   color: var(--brand-muted);
-  transition: transform 0.16s ease;
+  opacity: 0;
+  transition: opacity 0.18s ease;
 }
 
 .install-prompt__button:hover .install-prompt__button-arrow {
   color: var(--brand-forest);
-  transform: translateX(2px);
+  opacity: 1;
 }
 
 .install-prompt__message {
@@ -106,7 +122,7 @@
 }
 
 .install-prompt__steps strong {
-  color: var(--ink);
+  color: var(--brand-ink);
 }
 
 .install-prompt__icon {
@@ -119,5 +135,30 @@
   .install-prompt__button,
   .install-prompt__button-arrow {
     transition: none;
+  }
+}
+
+/* Matches .member-more__tile's row form so the last cell keeps its shape. */
+@media (max-width: 559px) {
+  .install-prompt__button {
+    display: grid;
+    min-height: 66px;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .install-prompt__button-top {
+    display: contents;
+  }
+
+  .install-prompt__group {
+    display: none;
+  }
+
+  .install-prompt__button-arrow {
+    position: static;
+    opacity: 1;
   }
 }

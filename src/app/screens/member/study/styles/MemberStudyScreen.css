@@ -51,7 +51,7 @@
 
 .member-study__rule p {
   margin: 0;
-  color: var(--ink-soft);
+  color: var(--brand-ink-soft);
   font-size: var(--text-xs);
   line-height: var(--leading-relaxed);
 }

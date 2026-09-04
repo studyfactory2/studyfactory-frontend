@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
-  background: rgb(var(--ink-rgb) / 40%);
+  background: rgb(var(--brand-ink-rgb) / 40%);
   animation: modal-fade 0.15s ease;
 }
 
@@ -50,18 +50,18 @@
   border: 0;
   border-radius: var(--radius-control);
   background: transparent;
-  color: var(--muted);
+  color: var(--brand-muted);
 }
 
 .modal__close:hover {
   background: var(--card-2);
-  color: var(--ink);
+  color: var(--brand-ink);
 }
 
 .modal__body {
   overflow-y: auto;
   padding: var(--space-4) var(--space-5);
-  color: var(--ink-soft);
+  color: var(--brand-ink-soft);
 }
 
 .modal__footer {

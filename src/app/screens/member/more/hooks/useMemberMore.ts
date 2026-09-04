@@ -13,8 +13,10 @@ import { studyTimeQueryKeys } from '../../../../features/study-time/study-time-q
 import { fetchMyStudyTimeReport } from '../../../../features/study-time/study-time-api';
 import { useSeoulToday } from '../../../../shared/hooks/useSeoulToday';
 import {
+  addDays,
   getMonthEndKey,
   getMonthStartKey,
+  getWeekdayLabel,
 } from '../../../../shared/lib/seoul-date';
 import {
   formatJoinDate,
@@ -107,6 +109,36 @@ export function useMemberMore(memberId: number, ownerKey: SessionOwnerKey) {
     [leavePlanQuery.data, monthEnd, monthStart],
   );
 
+  /**
+   * The last seven calendar days, not the last seven reported days: a day the
+   * member never attended is a real zero and has to keep its slot, otherwise
+   * the bars silently close the gap and a patchy week reads as a full one.
+   */
+  const weekPoints = useMemo(() => {
+    const byDate = new Map(
+      (reportQuery.data?.days ?? []).map((day) => [
+        day.studyDate,
+        day.totalRecognizedStudyDuration.totalSeconds,
+      ]),
+    );
+
+    return Array.from({ length: 7 }, (_, index) => {
+      const dateKey = addDays(today.dateKey, index - 6);
+
+      return {
+        emphasis: dateKey === today.dateKey,
+        label: getWeekdayLabel(dateKey),
+        value: byDate.get(dateKey) ?? 0,
+      };
+    });
+  }, [reportQuery.data, today.dateKey]);
+
+  /** Days of this month that have actually happened, today included. */
+  const elapsedDayCount = Number(today.dateKey.slice(8, 10));
+  const attendedDayCount = reportQuery.data?.attendedDayCount ?? 0;
+  const studySeconds =
+    reportQuery.data?.totals.totalRecognizedStudyDuration.totalSeconds ?? 0;
+
   return {
     member: meQuery.data ?? null,
     profile: {
@@ -124,7 +156,11 @@ export function useMemberMore(memberId: number, ownerKey: SessionOwnerKey) {
       },
     },
     stats: {
-      attendedDayCount: reportQuery.data?.attendedDayCount ?? 0,
+      attendedDayCount,
+      /** Mean over days actually attended, so a rest day does not dilute it. */
+      averageSeconds:
+        attendedDayCount > 0 ? Math.round(studySeconds / attendedDayCount) : 0,
+      elapsedDayCount,
       errorMessage: reportQuery.isError
         ? reportQuery.error.message
         : leavePlanQuery.isError
@@ -136,8 +172,8 @@ export function useMemberMore(memberId: number, ownerKey: SessionOwnerKey) {
         void reportQuery.refetch();
         void leavePlanQuery.refetch();
       },
-      studySeconds:
-        reportQuery.data?.totals.totalRecognizedStudyDuration.totalSeconds ?? 0,
+      studySeconds,
+      weekPoints,
     },
     today,
   };

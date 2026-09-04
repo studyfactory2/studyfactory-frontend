@@ -1,0 +1,78 @@
+.member-more__tiles {
+  display: grid;
+  margin: 0;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+.member-more__tile-stat {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4) var(--space-5);
+  gap: var(--space-2);
+}
+
+.member-more__tile-stat dt {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.member-more__tile-stat dd {
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-none);
+}
+
+.member-more__tile-stat dd i {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-style: normal;
+  font-weight: var(--weight-semibold);
+}
+
+/*
+ * Three separate cards stack into three tall blocks on a phone. Below 560px
+ * they become one card banded into three columns, which is the same
+ * information in a third of the height.
+ */
+@media (max-width: 559px) {
+  .member-more__tiles {
+    border-radius: var(--radius-card);
+    background: var(--card);
+    box-shadow: var(--elev-1);
+    gap: 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .member-more__tile-stat {
+    padding: var(--space-4) var(--space-3);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    gap: 6px;
+  }
+
+  .member-more__tile-stat + .member-more__tile-stat {
+    border-left: 1px solid var(--brand-line);
+  }
+
+  .member-more__tile-stat dt {
+    letter-spacing: var(--tracking-slight);
+  }
+
+  .member-more__tile-stat dd {
+    font-size: var(--text-xl);
+  }
+
+  /* The sparkline is the first tile's alone and would unbalance the band. */
+  .member-more__tile-stat .ui-spark {
+    display: none;
+  }
+}

@@ -48,17 +48,18 @@ export function InstallPrompt({ title }: InstallPromptProps) {
 
   return (
     <section aria-label={title ?? '앱 설치'} className="install-prompt">
-      {title !== undefined && (
-        <h3 className="install-prompt__title">{title}</h3>
-      )}
-
       <button
         className="install-prompt__button"
         onClick={handleClick}
         type="button"
       >
-        <span className="install-prompt__button-icon">
-          <MonitorDown aria-hidden="true" size={19} />
+        <span className="install-prompt__button-top">
+          <span aria-hidden="true" className="install-prompt__button-icon">
+            <MonitorDown size={17} />
+          </span>
+          {title !== undefined && (
+            <span className="install-prompt__group">{title}</span>
+          )}
         </span>
         <span className="install-prompt__button-copy">
           <strong>앱으로 더 편하게</strong>
@@ -67,7 +68,7 @@ export function InstallPrompt({ title }: InstallPromptProps) {
         <ChevronRight
           aria-hidden="true"
           className="install-prompt__button-arrow"
-          size={18}
+          size={16}
         />
       </button>
       {message && (

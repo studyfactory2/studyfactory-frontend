@@ -1,6 +1,6 @@
 .table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--line);
+  border: 1px solid var(--brand-line);
   border-radius: var(--radius-card);
   background: var(--card);
 }
@@ -13,9 +13,9 @@
 
 .table th {
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--brand-line);
   background: var(--card-2);
-  color: var(--ink-soft);
+  color: var(--brand-ink-soft);
   font-weight: var(--weight-bold);
   text-align: left;
   white-space: nowrap;
@@ -23,8 +23,8 @@
 
 .table td {
   padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--line);
-  color: var(--ink);
+  border-bottom: 1px solid var(--brand-line);
+  color: var(--brand-ink);
 }
 
 .table tbody tr:last-child td {

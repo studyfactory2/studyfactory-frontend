@@ -1,0 +1,17 @@
+/*
+ * The month panel is an Instrument, so its colours come from the --inst-*
+ * tokens through the .instrument scope. Only its proportions live here.
+ */
+.member-more__month {
+  justify-content: space-between;
+  min-height: 100%;
+}
+
+.member-more__month .ui-dial__track {
+  stroke: rgb(255 255 255 / 14%);
+}
+
+.member-more__month .ui-dial__caption {
+  color: var(--inst-ink);
+  font-size: var(--text-md);
+}

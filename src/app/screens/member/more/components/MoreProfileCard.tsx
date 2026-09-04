@@ -62,18 +62,26 @@ export function MoreProfileCard({
         </div>
       </div>
 
+      {/*
+       * Chips rather than a label/value table: three short facts stretched
+       * across a wide card left most of it empty, and the eye had to travel
+       * the full width to pair a label with its value.
+       */}
       <dl className="member-more__facts">
         <div>
           <dt>준비 중인 자격증</dt>
           <dd>{certificationLabel ?? '미등록'}</dd>
         </div>
         <div>
-          <dt>가입일</dt>
-          <dd>
-            {joinDateLabel}
-            {joinedDayCount !== null && <em>{joinedDayCount}일째</em>}
-          </dd>
+          <dt>가입</dt>
+          <dd>{joinDateLabel}</dd>
         </div>
+        {joinedDayCount !== null && (
+          <div>
+            <dt>함께한 지</dt>
+            <dd>{joinedDayCount}일째</dd>
+          </div>
+        )}
       </dl>
     </section>
   );

@@ -1,0 +1,30 @@
+.ui-spark {
+  margin: 0;
+}
+
+.ui-spark__caption {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.ui-spark__plot {
+  display: flex;
+  align-items: flex-end;
+  height: 16px;
+  gap: 3px;
+}
+
+.ui-spark__bar {
+  flex: 1;
+  border-radius: 2px;
+  background: var(--brand-forest);
+  opacity: 0.26;
+}
+
+.ui-spark__bar:last-child {
+  opacity: 0.85;
+}

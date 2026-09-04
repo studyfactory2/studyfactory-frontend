@@ -16,18 +16,18 @@
   margin-bottom: var(--space-1);
   border-radius: 50%;
   background: var(--card-2);
-  color: var(--muted);
+  color: var(--brand-muted);
 }
 
 .empty-state__title {
-  color: var(--ink);
+  color: var(--brand-ink);
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
 }
 
 .empty-state__description {
   max-width: 34ch;
-  color: var(--muted);
+  color: var(--brand-muted);
   font-size: var(--text-sm);
 }
 

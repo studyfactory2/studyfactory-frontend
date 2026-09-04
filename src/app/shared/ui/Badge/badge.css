@@ -18,7 +18,7 @@
 
 .ui-badge--neutral {
   background: var(--card-2);
-  color: var(--ink-soft);
+  color: var(--brand-ink-soft);
 }
 
 .ui-badge--accent {

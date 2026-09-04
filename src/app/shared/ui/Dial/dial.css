@@ -1,0 +1,35 @@
+.ui-dial {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+}
+
+/* Rotated so the ring starts at twelve o'clock rather than three. */
+.ui-dial svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.ui-dial__track {
+  fill: none;
+  stroke: var(--brand-line);
+  stroke-width: 9;
+}
+
+.ui-dial__value {
+  fill: none;
+  stroke: var(--brand-gold-text);
+  stroke-linecap: round;
+  stroke-width: 9;
+}
+
+.ui-dial__caption {
+  position: absolute;
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}

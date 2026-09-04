@@ -263,7 +263,7 @@
 
 .member-home__qr-helper {
   margin: 0;
-  color: var(--ink-soft);
+  color: var(--brand-ink-soft);
   font-size: var(--text-xs);
   line-height: var(--leading-normal);
 }
@@ -298,7 +298,7 @@
   margin: 0;
   padding-top: var(--space-3);
   border-top: 1px solid var(--brand-line);
-  color: var(--muted);
+  color: var(--brand-muted);
   font-size: var(--text-2xs);
   line-height: var(--leading-normal);
 }

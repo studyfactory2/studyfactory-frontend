@@ -5,7 +5,7 @@
 }
 
 .field__label {
-  color: var(--ink);
+  color: var(--brand-ink);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
 }
@@ -16,7 +16,7 @@
 }
 
 .field__message {
-  color: var(--muted);
+  color: var(--brand-muted);
   font-size: var(--text-xs);
 }
 
@@ -28,10 +28,10 @@
   width: 100%;
   height: var(--control-height);
   padding: 0 var(--space-4);
-  border: 1.5px solid var(--line);
+  border: 1.5px solid var(--brand-line);
   border-radius: var(--radius-control);
   background: var(--card);
-  color: var(--ink);
+  color: var(--brand-ink);
   font-size: var(--text-control);
   font-family: inherit;
   transition:
@@ -40,7 +40,7 @@
 }
 
 .control::placeholder {
-  color: var(--muted);
+  color: var(--brand-muted);
 }
 
 .control:focus {
@@ -51,7 +51,7 @@
 
 .control:disabled {
   background: var(--card-2);
-  color: var(--muted);
+  color: var(--brand-muted);
   cursor: not-allowed;
 }
 
