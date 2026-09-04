@@ -1,72 +1,25 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ChevronRight, MonitorDown, Share } from 'lucide-react';
 import { Modal } from '../../shared/ui';
+import {
+  consumeInstallEvent,
+  isIosDevice,
+  isStandaloneDisplay,
+  useInstallState,
+} from './install-store';
 import './install-prompt.css';
 
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+export type InstallPromptProps = {
+  /** Renders a group heading above the button, to sit inside a menu list. */
+  title?: string;
 };
 
-export function InstallPrompt() {
-  const [installEvent, setInstallEvent] =
-    useState<BeforeInstallPromptEvent | null>(null);
-  const [installed, setInstalled] = useState(false);
+export function InstallPrompt({ title }: InstallPromptProps) {
+  const { installEvent, installed } = useInstallState();
   const [iosGuideOpen, setIosGuideOpen] = useState(false);
   const [message, setMessage] = useState('');
 
-  const isStandalone = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
-
-    const iosNavigator = window.navigator as Navigator & {
-      standalone?: boolean;
-    };
-
-    return (
-      window.matchMedia('(display-mode: standalone)').matches ||
-      iosNavigator.standalone === true
-    );
-  }, []);
-
-  const isIos = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
-
-    return (
-      /iphone|ipad|ipod/i.test(window.navigator.userAgent) ||
-      (window.navigator.platform === 'MacIntel' &&
-        window.navigator.maxTouchPoints > 1)
-    );
-  }, []);
-
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (event: Event) => {
-      event.preventDefault();
-      setInstallEvent(event as BeforeInstallPromptEvent);
-    };
-
-    const handleInstalled = () => {
-      setInstalled(true);
-      setInstallEvent(null);
-      setMessage('홈 화면에 앱이 추가되었습니다.');
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    window.addEventListener('appinstalled', handleInstalled);
-
-    return () => {
-      window.removeEventListener(
-        'beforeinstallprompt',
-        handleBeforeInstallPrompt,
-      );
-      window.removeEventListener('appinstalled', handleInstalled);
-    };
-  }, []);
-
-  if (isStandalone || installed) {
+  if (isStandaloneDisplay() || installed) {
     return message ? (
       <p className="install-prompt__message" role="status">
         {message}
@@ -75,7 +28,7 @@ export function InstallPrompt() {
   }
 
   const handleClick = async () => {
-    if (isIos) {
+    if (isIosDevice()) {
       setIosGuideOpen(true);
       return;
     }
@@ -89,12 +42,16 @@ export function InstallPrompt() {
     const choice = await installEvent.userChoice;
 
     if (choice.outcome === 'accepted') {
-      setInstallEvent(null);
+      consumeInstallEvent();
     }
   };
 
   return (
-    <div className="install-prompt">
+    <section aria-label={title ?? '앱 설치'} className="install-prompt">
+      {title !== undefined && (
+        <h3 className="install-prompt__title">{title}</h3>
+      )}
+
       <button
         className="install-prompt__button"
         onClick={handleClick}
@@ -139,6 +96,6 @@ export function InstallPrompt() {
           </li>
         </ol>
       </Modal>
-    </div>
+    </section>
   );
 }

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Badge } from '../../../../shared/ui';
@@ -5,10 +6,12 @@ import type { MoreMenuEntry, MoreMenuGroup } from '../model/more.menu';
 import '../styles/MoreMenu.css';
 
 export type MoreMenuProps = {
+  /** Rendered as a final grid cell, so it sizes like a group column. */
+  footer?: ReactNode;
   groups: readonly MoreMenuGroup[];
 };
 
-export function MoreMenu({ groups }: MoreMenuProps) {
+export function MoreMenu({ footer, groups }: MoreMenuProps) {
   return (
     <div className="member-more__menu">
       {groups.map((group) => (
@@ -27,6 +30,7 @@ export function MoreMenu({ groups }: MoreMenuProps) {
           </ul>
         </section>
       ))}
+      {footer}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { InstallPrompt } from '../../../core/pwa/InstallPrompt';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import { formatKoreanMonth } from '../../../shared/lib/seoul-date';
 import { ScreenHeader } from '../../../shared/ui';
@@ -60,7 +61,10 @@ function MemberMore({
         studySeconds={stats.studySeconds}
       />
 
-      <MoreMenu groups={MORE_MENU_GROUPS} />
+      <MoreMenu
+        footer={<InstallPrompt title="앱" />}
+        groups={MORE_MENU_GROUPS}
+      />
     </section>
   );
 }
