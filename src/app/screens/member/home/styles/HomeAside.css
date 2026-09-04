@@ -17,7 +17,7 @@
   flex-direction: column;
   gap: 2px;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid rgb(23 33 29 / 8%);
+  border: 1px solid rgb(var(--brand-ink-rgb) / 8%);
   border-radius: 12px;
   background: #fdfaf4;
 }
@@ -39,9 +39,9 @@
   flex-direction: column;
   gap: 4px;
   padding: var(--space-4);
-  border: 1px solid rgb(176 138 74 / 26%);
+  border: 1px solid rgb(var(--brand-gold-rgb) / 26%);
   border-radius: 14px;
-  background: rgb(176 138 74 / 8%);
+  background: rgb(var(--brand-gold-rgb) / 8%);
 }
 
 .member-home__leave-date {

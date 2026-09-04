@@ -53,10 +53,10 @@
   }
 
   .member-plans__day-tabs button.is-active {
-    border-color: rgb(35 76 61 / 12%);
+    border-color: rgb(var(--brand-forest-rgb) / 12%);
     background: var(--brand-forest);
     color: var(--brand-ivory);
-    box-shadow: 0 8px 20px rgb(35 76 61 / 16%);
+    box-shadow: 0 8px 20px rgb(var(--brand-forest-rgb) / 16%);
   }
 
   .member-plans__day-tabs button.is-active i {
@@ -125,7 +125,7 @@
   }
 
   .member-plans__timeline-clock small {
-    color: rgb(98 106 101 / 72%);
+    color: rgb(var(--brand-muted-rgb) / 72%);
     font-size: var(--text-3xs);
   }
 
@@ -142,7 +142,7 @@
     left: 50%;
     width: 2px;
     border-radius: var(--radius-pill);
-    background: rgb(35 76 61 / 14%);
+    background: rgb(var(--brand-forest-rgb) / 14%);
     content: '';
     transform: translateX(-50%);
   }
@@ -161,7 +161,7 @@
     left: 50%;
     width: 12px;
     height: 12px;
-    border: 2px solid rgb(35 76 61 / 26%);
+    border: 2px solid rgb(var(--brand-forest-rgb) / 26%);
     border-radius: 50%;
     background: var(--brand-ivory);
     transform: translate(-50%, -50%);
@@ -177,18 +177,18 @@
     height: 14px;
     border-color: var(--brand-gold);
     background: var(--brand-ivory);
-    box-shadow: 0 0 0 3px rgb(176 138 74 / 20%);
+    box-shadow: 0 0 0 3px rgb(var(--brand-gold-rgb) / 20%);
   }
 
   .member-plans__timeline-row.is-break .member-plans__timeline-rail i {
     width: 8px;
     height: 8px;
     border-color: transparent;
-    background: rgb(176 138 74 / 55%);
+    background: rgb(var(--brand-gold-rgb) / 55%);
   }
 
   .member-plans__timeline-row.is-empty .member-plans__timeline-rail i {
-    border-color: rgb(35 76 61 / 16%);
+    border-color: rgb(var(--brand-forest-rgb) / 16%);
   }
 
   /* card */
@@ -201,7 +201,7 @@
     gap: 8px;
     margin-bottom: 10px;
     padding: 12px 40px 12px 14px;
-    border: 1px solid rgb(23 33 29 / 9%);
+    border: 1px solid rgb(var(--brand-ink-rgb) / 9%);
     border-radius: 15px;
     background: #fdfaf4;
     color: var(--brand-ink);
@@ -210,7 +210,7 @@
   }
 
   .member-plans__timeline-card:hover:not(:disabled) {
-    border-color: rgb(35 76 61 / 24%);
+    border-color: rgb(var(--brand-forest-rgb) / 24%);
     background: #fffdf8;
   }
 
@@ -220,22 +220,22 @@
   }
 
   .member-plans__timeline-row.is-done .member-plans__timeline-card {
-    border-color: rgb(79 157 107 / 34%);
+    border-color: rgb(var(--positive-rgb) / 34%);
     background: linear-gradient(
       180deg,
-      rgb(231 243 236 / 70%),
+      rgb(var(--positive-soft-rgb) / 70%),
       rgb(253 250 244 / 92%)
     );
   }
 
   .member-plans__timeline-row.is-progress .member-plans__timeline-card {
-    border-color: rgb(176 138 74 / 42%);
+    border-color: rgb(var(--brand-gold-rgb) / 42%);
     background: linear-gradient(
       180deg,
-      rgb(176 138 74 / 10%),
+      rgb(var(--brand-gold-rgb) / 10%),
       rgb(253 250 244 / 94%)
     );
-    box-shadow: 0 8px 22px rgb(176 138 74 / 12%);
+    box-shadow: 0 8px 22px rgb(var(--brand-gold-rgb) / 12%);
   }
 
   .member-plans__timeline-row.is-break .member-plans__timeline-card {
@@ -279,7 +279,7 @@
     position: absolute;
     top: 13px;
     right: 13px;
-    color: rgb(98 106 101 / 70%);
+    color: rgb(var(--brand-muted-rgb) / 70%);
   }
 
   .member-plans__cell-items.is-compact li {

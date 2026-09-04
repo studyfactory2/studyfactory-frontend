@@ -28,7 +28,7 @@
 .member-study__tabs button.is-active {
   background: var(--brand-ivory);
   color: var(--brand-forest);
-  box-shadow: 0 6px 16px rgb(23 33 29 / 8%);
+  box-shadow: 0 6px 16px rgb(var(--brand-ink-rgb) / 8%);
 }
 
 @media (max-width: 560px) {

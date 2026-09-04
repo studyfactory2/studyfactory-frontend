@@ -31,7 +31,7 @@
 }
 
 .member-leaves__calendar-step:hover {
-  border-color: rgb(35 76 61 / 32%);
+  border-color: rgb(var(--brand-forest-rgb) / 32%);
 }
 
 .member-leaves__calendar-month {
@@ -57,7 +57,7 @@
 }
 
 .member-leaves__calendar-today:disabled {
-  border-color: rgb(23 33 29 / 7%);
+  border-color: rgb(var(--brand-ink-rgb) / 7%);
   background: transparent;
   color: var(--brand-muted);
   cursor: default;
@@ -104,8 +104,8 @@
 }
 
 .member-leaves__day:hover:not(:disabled) {
-  border-color: rgb(35 76 61 / 22%);
-  background: rgb(35 76 61 / 4%);
+  border-color: rgb(var(--brand-forest-rgb) / 22%);
+  background: rgb(var(--brand-forest-rgb) / 4%);
 }
 
 .member-leaves__day:disabled {
@@ -128,7 +128,7 @@
 
 .member-leaves__day.is-selected {
   border-color: var(--brand-forest);
-  background: rgb(35 76 61 / 6%);
+  background: rgb(var(--brand-forest-rgb) / 6%);
   box-shadow: 0 0 0 1px var(--brand-forest);
 }
 

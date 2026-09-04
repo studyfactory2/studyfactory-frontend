@@ -7,9 +7,13 @@
   border: 1px solid color-mix(in srgb, var(--brand-gold) 38%, var(--brand-line));
   border-radius: 18px;
   background:
-    radial-gradient(circle at 100% 0%, rgb(176 138 74 / 12%), transparent 36%),
+    radial-gradient(
+      circle at 100% 0%,
+      rgb(var(--brand-gold-rgb) / 12%),
+      transparent 36%
+    ),
     var(--brand-ivory);
-  box-shadow: 0 14px 32px rgb(23 33 29 / 6%);
+  box-shadow: 0 14px 32px rgb(var(--brand-ink-rgb) / 6%);
 }
 
 .member-home__break-icon {

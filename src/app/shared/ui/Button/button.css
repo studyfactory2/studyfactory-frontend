@@ -39,17 +39,21 @@
   font-size: var(--text-lg);
 }
 
+/*
+ * Forest, not apricot: white on the apricot accent is 2.44:1, and no shade of
+ * that hue clears 4.5:1. White on forest is 9.67:1.
+ */
 .btn--primary {
-  background: var(--accent);
-  color: #fff;
+  background: var(--brand-forest);
+  color: var(--paper);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--accent-strong);
+  background: var(--brand-forest-light);
 }
 
 .btn--primary:active:not(:disabled) {
-  background: var(--accent-deep);
+  background: var(--brand-forest-deep);
 }
 
 .btn--ghost {
@@ -72,13 +76,14 @@
   background: var(--line);
 }
 
+/* --danger itself is only 4.0:1 against white, so the button starts a step down. */
 .btn--danger {
-  background: var(--danger);
-  color: #fff;
+  background: var(--danger-deep);
+  color: var(--paper);
 }
 
 .btn--danger:hover:not(:disabled) {
-  background: var(--danger-deep);
+  background: var(--danger-deeper);
 }
 
 .btn--loading .btn__label {

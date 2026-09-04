@@ -32,7 +32,7 @@
 }
 
 .member-study__list-card:hover {
-  border-color: rgb(35 76 61 / 24%);
+  border-color: rgb(var(--brand-forest-rgb) / 24%);
 }
 
 .member-study__list-card.is-selected {
@@ -137,18 +137,18 @@
 
   .member-study__table tbody tr:hover td,
   .member-study__table tbody tr:hover th {
-    background: rgb(35 76 61 / 4%);
+    background: rgb(var(--brand-forest-rgb) / 4%);
   }
 
   .member-study__table tbody tr.is-selected td,
   .member-study__table tbody tr.is-selected th {
-    background: rgb(35 76 61 / 7%);
+    background: rgb(var(--brand-forest-rgb) / 7%);
   }
 
   .member-study__table tbody th,
   .member-study__table tbody td {
     padding: 5px 10px;
-    border-bottom: 1px solid rgb(23 33 29 / 6%);
+    border-bottom: 1px solid rgb(var(--brand-ink-rgb) / 6%);
     color: var(--brand-ink);
     font-size: var(--text-sm);
     font-weight: var(--weight-semibold);

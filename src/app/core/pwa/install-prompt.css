@@ -23,7 +23,8 @@
   border: 1px solid var(--brand-line);
   border-radius: 16px;
   background:
-    linear-gradient(120deg, rgb(35 76 61 / 5%), transparent 62%), #fffefa;
+    linear-gradient(120deg, rgb(var(--brand-forest-rgb) / 5%), transparent 62%),
+    #fffefa;
   color: var(--brand-ink);
   text-align: left;
   transition:
@@ -36,7 +37,7 @@
 .install-prompt__button:hover {
   border-color: color-mix(in srgb, var(--brand-forest) 42%, var(--brand-line));
   background-color: var(--brand-paper);
-  box-shadow: 0 9px 22px rgb(35 76 61 / 9%);
+  box-shadow: 0 9px 22px rgb(var(--brand-forest-rgb) / 9%);
   transform: translateY(-1px);
 }
 
@@ -55,7 +56,7 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: rgb(35 76 61 / 9%);
+  background: rgb(var(--brand-forest-rgb) / 9%);
   color: var(--brand-forest);
   place-items: center;
 }

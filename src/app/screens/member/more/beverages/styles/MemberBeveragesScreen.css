@@ -19,7 +19,7 @@
   border: 1px solid var(--brand-line);
   border-radius: 20px;
   background: var(--brand-ivory);
-  box-shadow: 0 14px 34px rgb(23 33 29 / 5%);
+  box-shadow: 0 14px 34px rgb(var(--brand-ink-rgb) / 5%);
 }
 
 .member-beverages__card-header {

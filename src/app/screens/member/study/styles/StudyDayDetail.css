@@ -61,7 +61,7 @@
   gap: var(--space-3);
   min-height: 40px;
   padding: 6px 0;
-  border-bottom: 1px solid rgb(23 33 29 / 6%);
+  border-bottom: 1px solid rgb(var(--brand-ink-rgb) / 6%);
 }
 
 .member-study__detail-periods li:last-child,

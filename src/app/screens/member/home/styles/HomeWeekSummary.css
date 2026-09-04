@@ -42,7 +42,7 @@
   height: 8px;
   overflow: hidden;
   border-radius: var(--radius-pill);
-  background: rgb(35 76 61 / 10%);
+  background: rgb(var(--brand-forest-rgb) / 10%);
 }
 
 .member-home__week-track span {

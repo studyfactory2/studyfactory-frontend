@@ -7,48 +7,76 @@
 :root {
   color-scheme: light;
 
+  /*
+   * Colours that are also used at partial opacity are declared as channels
+   * first and the solid colour derived from them, so `rgb(var(--x-rgb) / 9%)`
+   * and `var(--x)` can never drift apart. Editing the channel line is the only
+   * edit a palette change needs.
+   */
+
   /* ---- surfaces ---- */
   --paper: #ffffff;
   --wash: #f7f6ee;
-  --card: #fffdf8;
+  --card-rgb: 255 253 248;
+  --card: rgb(var(--card-rgb));
   --card-2: #f0efe4;
   --line: #e2e2d4;
 
   /* ---- text ---- */
-  --ink: #1e3d32;
+  --ink-rgb: 30 61 50;
+  --ink: rgb(var(--ink-rgb));
   --ink-soft: #3c5a4e;
   --muted: #64736b;
 
   /* ---- 자격증공장 brand ---- */
-  --brand-ink: #17211d;
-  --brand-forest: #234c3d;
+  --brand-ink-rgb: 23 33 29;
+  --brand-ink: rgb(var(--brand-ink-rgb));
+  --brand-forest-rgb: 35 76 61;
+  --brand-forest: rgb(var(--brand-forest-rgb));
   --brand-forest-light: #316451;
-  --brand-paper: #f6f2e9;
-  --brand-ivory: #fffcf7;
-  --brand-gold: #b08a4a;
+  --brand-forest-deep: #1a3a2e;
+  --brand-paper-rgb: 246 242 233;
+  --brand-paper: rgb(var(--brand-paper-rgb));
+  --brand-ivory-rgb: 255 252 247;
+  --brand-ivory: rgb(var(--brand-ivory-rgb));
+  --brand-gold-rgb: 176 138 74;
+  --brand-gold: rgb(var(--brand-gold-rgb));
   --brand-gold-text: #765a2a;
   --brand-line: #d9d3c7;
-  --brand-muted: #626a65;
+  --brand-muted-rgb: 98 106 101;
+  --brand-muted: rgb(var(--brand-muted-rgb));
 
-  /* ---- accent (apricot) ---- */
+  /*
+   * ---- accent (apricot) ----
+   * Highlight, never a button surface: no shade of this hue reaches 4.5:1
+   * against white text, so actions use --brand-forest instead. --accent-deep
+   * is the text-safe shade, at 5.1:1 or better on every surface it lands on.
+   */
   --accent: #e5934a;
-  --accent-strong: #d97f2e;
-  --accent-deep: #c9741f;
+  --accent-deep: #9a5410;
   --accent-soft: #fdf0e2;
 
   /* ---- positive (garden green) ---- */
-  --positive: #4f9d6b;
+  --positive-rgb: 79 157 107;
+  --positive: rgb(var(--positive-rgb));
   --positive-deep: #33754c;
-  --positive-soft: #e7f3ec;
+  --positive-soft-rgb: 231 243 236;
+  --positive-soft: rgb(var(--positive-soft-rgb));
 
   /* ---- danger ---- */
   --danger: #cf5b4c;
   --danger-deep: #a83f33;
+  --danger-deeper: #8a3329;
   --danger-soft: #fbece9;
 
-  /* ---- special (gold) — reserved: special leave / exam highlights ---- */
+  /*
+   * ---- special (gold) ----
+   * In practice this reads as "flagged, not yet settled": 특별휴무, 검토 중,
+   * 지점 등록 휴무, 이번 달 목표, 제외. --special-deep is the text shade and is
+   * darker than the swatch, to clear 4.5:1 on --special-soft.
+   */
   --special: #e9cd7c;
-  --special-deep: #96762a;
+  --special-deep: #7a5f22;
   --special-soft: #f8f0d9;
 
   /* ---- typography ---- */

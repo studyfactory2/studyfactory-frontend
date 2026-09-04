@@ -21,9 +21,9 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  border: 1px dashed rgb(35 76 61 / 20%);
+  border: 1px dashed rgb(var(--brand-forest-rgb) / 20%);
   border-radius: 15px;
-  background: rgb(35 76 61 / 3%);
+  background: rgb(var(--brand-forest-rgb) / 3%);
   color: var(--brand-muted);
   text-align: center;
 }
@@ -115,7 +115,7 @@
   display: grid;
   width: 24px;
   height: 24px;
-  border: 1.5px solid rgb(35 76 61 / 28%);
+  border: 1.5px solid rgb(var(--brand-forest-rgb) / 28%);
   border-radius: 7px;
   background: var(--brand-ivory);
   color: transparent;
@@ -136,7 +136,7 @@
 .member-plans__editor-note {
   padding: 11px 13px;
   border-radius: 11px;
-  background: rgb(176 138 74 / 9%);
+  background: rgb(var(--brand-gold-rgb) / 9%);
   color: var(--brand-muted);
   font-size: var(--text-xs);
   line-height: var(--leading-normal);

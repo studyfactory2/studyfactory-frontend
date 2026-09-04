@@ -13,7 +13,7 @@
   border: 1px solid var(--brand-line);
   border-radius: 16px;
   background: var(--brand-ivory);
-  box-shadow: 0 10px 26px rgb(23 33 29 / 4%);
+  box-shadow: 0 10px 26px rgb(var(--brand-ink-rgb) / 4%);
 }
 
 .member-study__summary dt {

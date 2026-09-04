@@ -23,7 +23,7 @@
 }
 
 .member-leaves__upcoming-row:hover {
-  border-color: rgb(35 76 61 / 26%);
+  border-color: rgb(var(--brand-forest-rgb) / 26%);
 }
 
 .member-leaves__upcoming-date {

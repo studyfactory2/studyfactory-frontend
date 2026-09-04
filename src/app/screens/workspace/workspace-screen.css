@@ -45,7 +45,7 @@
   border: 1px solid var(--brand-line);
   border-radius: 20px;
   background: var(--brand-ivory);
-  box-shadow: 0 12px 32px rgb(23 33 29 / 5%);
+  box-shadow: 0 12px 32px rgb(var(--brand-ink-rgb) / 5%);
   color: var(--brand-ink);
   text-decoration: none;
   transition:
@@ -55,8 +55,8 @@
 }
 
 .workspace-home__card:hover {
-  border-color: rgb(35 76 61 / 35%);
-  box-shadow: 0 18px 38px rgb(23 33 29 / 9%);
+  border-color: rgb(var(--brand-forest-rgb) / 35%);
+  box-shadow: 0 18px 38px rgb(var(--brand-ink-rgb) / 9%);
   text-decoration: none;
   transform: translateY(-3px);
 }
@@ -67,7 +67,7 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: rgb(35 76 61 / 9%);
+  background: rgb(var(--brand-forest-rgb) / 9%);
   color: var(--brand-forest);
   place-items: center;
 }
@@ -103,9 +103,9 @@
   gap: var(--space-4);
   min-height: 220px;
   padding: clamp(24px, 4vw, 36px);
-  border: 1px dashed rgb(35 76 61 / 24%);
+  border: 1px dashed rgb(var(--brand-forest-rgb) / 24%);
   border-radius: 22px;
-  background: rgb(255 252 247 / 72%);
+  background: rgb(var(--brand-ivory-rgb) / 72%);
 }
 
 .workspace-placeholder > div {

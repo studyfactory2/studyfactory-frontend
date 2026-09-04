@@ -1,5 +1,15 @@
 import { useSyncExternalStore } from 'react';
 
+/**
+ * The browser fires `beforeinstallprompt` once, early, and often before React
+ * has mounted anything. A component that registers the listener inside an
+ * effect misses it on every load where that component is not rendered — which
+ * is every visit by a signed-in member, since the prompt used to live only on
+ * the login screen. So the listeners are attached here at startup instead, and
+ * the deferred event is kept module-side for whichever screen wants to offer
+ * the install.
+ */
+
 export type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;

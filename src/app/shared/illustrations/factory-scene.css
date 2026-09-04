@@ -7,12 +7,12 @@
 
 .factory-scene .fs-line,
 .factory-scene .fs-tree {
-  stroke: rgb(255 253 248 / 88%);
+  stroke: rgb(var(--card-rgb) / 88%);
 }
 
 .factory-scene .fs-window {
-  fill: rgb(255 253 248 / 22%);
-  stroke: rgb(255 253 248 / 88%);
+  fill: rgb(var(--card-rgb) / 22%);
+  stroke: rgb(var(--card-rgb) / 88%);
   stroke-width: 2;
 }
 
@@ -25,7 +25,7 @@
 }
 
 .factory-scene .fs-puff {
-  fill: rgb(255 253 248 / 30%);
+  fill: rgb(var(--card-rgb) / 30%);
   animation: fs-puff-rise 4s ease-in-out infinite;
 }
 

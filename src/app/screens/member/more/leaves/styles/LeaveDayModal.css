@@ -31,12 +31,12 @@
 }
 
 .member-leaves__day-modal-option:hover {
-  border-color: rgb(35 76 61 / 30%);
+  border-color: rgb(var(--brand-forest-rgb) / 30%);
 }
 
 .member-leaves__day-modal-option.is-selected {
   border-color: var(--brand-forest);
-  background: rgb(35 76 61 / 6%);
+  background: rgb(var(--brand-forest-rgb) / 6%);
   box-shadow: 0 0 0 1px var(--brand-forest);
 }
 

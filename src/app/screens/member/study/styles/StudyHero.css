@@ -8,7 +8,7 @@
 .member-study__hero {
   --hero-period: #8fd8ac;
   --hero-break: #f0cf86;
-  --hero-track: rgb(255 252 247 / 16%);
+  --hero-track: rgb(var(--brand-ivory-rgb) / 16%);
 
   display: flex;
   min-width: 0;
@@ -18,7 +18,7 @@
   border-radius: 22px;
   background: linear-gradient(150deg, #2b5c49, #1c4335 62%, #17362b);
   color: var(--brand-ivory);
-  box-shadow: 0 20px 44px rgb(23 33 29 / 14%);
+  box-shadow: 0 20px 44px rgb(var(--brand-ink-rgb) / 14%);
 }
 
 .member-study__hero-head {
@@ -29,7 +29,7 @@
 }
 
 .member-study__hero-eyebrow {
-  color: rgb(255 252 247 / 68%);
+  color: rgb(var(--brand-ivory-rgb) / 68%);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
 }
@@ -67,7 +67,7 @@
 .member-study__hero-total span {
   display: block;
   margin-top: 6px;
-  color: rgb(255 252 247 / 66%);
+  color: rgb(var(--brand-ivory-rgb) / 66%);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
 }
@@ -113,7 +113,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: rgb(255 252 247 / 68%);
+  color: rgb(var(--brand-ivory-rgb) / 68%);
   font-size: var(--text-xs);
 }
 
@@ -183,7 +183,7 @@
 }
 
 .member-study__hero-day-label {
-  color: rgb(255 252 247 / 60%);
+  color: rgb(var(--brand-ivory-rgb) / 60%);
   font-size: var(--text-2xs);
   font-variant-numeric: tabular-nums;
   font-weight: var(--weight-semibold);
@@ -204,7 +204,7 @@
 }
 
 .member-study__hero-day.is-selected .member-study__hero-day-track {
-  box-shadow: 0 0 0 2px rgb(255 252 247 / 42%);
+  box-shadow: 0 0 0 2px rgb(var(--brand-ivory-rgb) / 42%);
 }
 
 .member-study__hero-days.is-month .member-study__hero-day-track {
