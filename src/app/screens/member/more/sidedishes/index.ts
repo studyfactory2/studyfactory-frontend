@@ -1,0 +1,1 @@
+export { MemberSideDishesScreen } from './MemberSideDishesScreen';

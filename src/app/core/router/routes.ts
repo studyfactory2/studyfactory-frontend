@@ -13,6 +13,7 @@ export const memberRoutes = {
   moreBeverages: `${appRoutes.member}/more/beverages`,
   moreLeaves: `${appRoutes.member}/more/leaves`,
   moreProfile: `${appRoutes.member}/more/profile`,
+  moreSideDishes: `${appRoutes.member}/more/side-dishes`,
   moreSuggestions: `${appRoutes.member}/more/suggestions`,
   plans: `${appRoutes.member}/plans`,
   study: `${appRoutes.member}/study`,

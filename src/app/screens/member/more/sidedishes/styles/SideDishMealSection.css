@@ -1,0 +1,88 @@
+.member-sidedishes__meal {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid var(--brand-line);
+  border-radius: 16px;
+  background: var(--paper);
+}
+
+.member-sidedishes__meal header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.member-sidedishes__meal header h3 {
+  color: var(--brand-ink);
+  font-size: var(--text-md);
+  font-weight: 760;
+}
+
+.member-sidedishes__meal header span {
+  margin-left: auto;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.member-sidedishes__meal-empty {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+}
+
+.member-sidedishes__meal-orders {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
+  list-style: none;
+}
+
+.member-sidedishes__meal-orders li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 6px 8px 6px 11px;
+  border-radius: 12px;
+  background: rgb(35 76 61 / 5%);
+}
+
+/*
+ * Cancelling is destructive, so the control keeps a full 44px touch target
+ * even at the small button size; the row padding shrinks to compensate.
+ */
+.member-sidedishes__meal-orders li > .btn {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.member-sidedishes__meal-order {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.member-sidedishes__meal-order strong {
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: 740;
+}
+
+.member-sidedishes__meal-order em {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The reset makes svg display:block, so the icon needs an inline row. */
+.member-sidedishes__meal-add .btn__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

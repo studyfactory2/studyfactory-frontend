@@ -9,6 +9,7 @@ import { MemberBeveragesScreen } from '../../screens/member/more/beverages';
 import { MemberLeavesScreen } from '../../screens/member/more/leaves';
 import { MemberMoreScreen } from '../../screens/member/more';
 import { MemberProfileScreen } from '../../screens/member/more/profile';
+import { MemberSideDishesScreen } from '../../screens/member/more/sidedishes';
 import { MemberSuggestionsScreen } from '../../screens/member/more/suggestions';
 import { MemberPlans } from '../../screens/member/plans';
 import { MemberStudyScreen } from '../../screens/member/study';
@@ -35,6 +36,7 @@ export function AppRouter() {
             <Route path="beverages" element={<MemberBeveragesScreen />} />
             <Route path="leaves" element={<MemberLeavesScreen />} />
             <Route path="profile" element={<MemberProfileScreen />} />
+            <Route path="side-dishes" element={<MemberSideDishesScreen />} />
             <Route path="suggestions" element={<MemberSuggestionsScreen />} />
           </Route>
           <Route

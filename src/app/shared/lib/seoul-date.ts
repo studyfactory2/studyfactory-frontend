@@ -72,6 +72,22 @@ export function formatTimeOfDayFromEpochMs(epochMs: number) {
   return timeOfDayFormatter.format(new Date(epochMs));
 }
 
+/**
+ * Seconds elapsed since midnight in Asia/Seoul.
+ *
+ * Second resolution rather than minutes because the backend compares a
+ * LocalTime: an order placed at 10:45:30 is already past a 10:45 deadline, and
+ * a minute-resolution check here would wrongly show the form as still open.
+ */
+export function getSeoulSecondsOfDay(now: Date = new Date()) {
+  const [hour, minute, second] = timeOfDayWithSecondsFormatter
+    .format(now)
+    .split(':')
+    .map(Number);
+
+  return ((hour % 24) * 60 + minute) * 60 + second;
+}
+
 /** Milliseconds remaining until the next Asia/Seoul midnight, plus a cushion. */
 export function getMillisecondsUntilNextSeoulDay(now: Date = new Date()) {
   const [hour, minute, second] = timeOfDayWithSecondsFormatter

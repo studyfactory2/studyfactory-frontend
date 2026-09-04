@@ -40,8 +40,9 @@ export const MORE_MENU_GROUPS: readonly MoreMenuGroup[] = [
       {
         description: '점심·저녁 반찬을 신청하고 확인해요.',
         icon: UtensilsCrossed,
-        kind: 'pending',
+        kind: 'link',
         label: '반찬',
+        to: memberRoutes.moreSideDishes,
       },
       {
         description: '마시는 음료를 직접 등록하고 바꿔요.',
