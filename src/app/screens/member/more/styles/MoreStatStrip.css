@@ -18,9 +18,9 @@
 
 .member-more__stats dt {
   color: var(--brand-muted);
-  font-size: 0.68rem;
-  font-weight: 700;
-  line-height: 1.35;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
 }
 
 .member-more__stats dd {
@@ -31,14 +31,14 @@
   color: var(--brand-ink);
   font-size: clamp(1.05rem, 2.6vw, 1.35rem);
   font-variant-numeric: tabular-nums;
-  font-weight: 780;
-  letter-spacing: -0.02em;
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .member-more__stats dd small {
   color: var(--brand-muted);
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 @media (max-width: 420px) {
@@ -51,6 +51,6 @@
   }
 
   .member-more__stats dt {
-    font-size: 0.62rem;
+    font-size: var(--text-3xs);
   }
 }

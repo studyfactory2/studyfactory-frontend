@@ -64,7 +64,7 @@
 .install-prompt__button-copy strong {
   color: var(--brand-ink);
   font-size: var(--text-sm);
-  font-weight: 750;
+  font-weight: var(--weight-bold);
 }
 
 .install-prompt__button-copy small {
@@ -95,7 +95,7 @@
   margin: 0;
   padding-left: var(--space-5);
   font-size: var(--text-sm);
-  line-height: 1.6;
+  line-height: var(--leading-normal);
 }
 
 .install-prompt__steps strong {

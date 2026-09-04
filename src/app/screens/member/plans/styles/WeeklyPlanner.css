@@ -17,16 +17,16 @@
 
 .member-plans__section-label {
   color: var(--brand-gold-text);
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-caps);
 }
 
 .member-plans__planner-header h3 {
   margin-top: 3px;
   color: var(--brand-ink);
   font-size: 1.45rem;
-  letter-spacing: -0.035em;
+  letter-spacing: var(--tracking-tighter);
 }
 
 .member-plans__planner-header h3:focus-visible {
@@ -66,7 +66,7 @@
   min-width: 64px;
   padding: 0 13px;
   font-size: var(--text-sm);
-  font-weight: 740;
+  font-weight: var(--weight-bold);
 }
 
 .member-plans__icon-button:hover,
@@ -126,8 +126,8 @@
 .member-plans__summary-item small {
   overflow: hidden;
   color: var(--brand-muted);
-  font-size: 0.7rem;
-  font-weight: 650;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -140,7 +140,7 @@
 
 .member-plans__cell-empty {
   color: rgb(98 106 101 / 68%);
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
 }
 
 .member-plans__cell-items {
@@ -159,9 +159,9 @@
   align-items: flex-start;
   gap: 6px;
   color: var(--brand-ink);
-  font-size: 0.71rem;
-  font-weight: 630;
-  line-height: 1.4;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
 }
 
 .member-plans__cell-items li i {
@@ -196,7 +196,7 @@
 
 .member-plans__cell-items li.is-more {
   color: var(--brand-gold-text);
-  font-size: 0.65rem;
+  font-size: var(--text-3xs);
 }
 
 @media (max-width: 768px) {

@@ -9,7 +9,7 @@
   border: 1.5px solid transparent;
   border-radius: var(--radius-control);
   font-size: var(--text-md);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   font-family: inherit;
   transition:
     background-color 0.15s ease,

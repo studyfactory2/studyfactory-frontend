@@ -35,8 +35,8 @@
   }
 
   .member-plans__day-tabs button span {
-    font-size: 0.68rem;
-    font-weight: 650;
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-semibold);
   }
 
   .member-plans__day-tabs button strong {
@@ -113,20 +113,20 @@
     align-items: flex-end;
     padding-top: 13px;
     color: var(--brand-muted);
-    font-size: 0.72rem;
+    font-size: var(--text-2xs);
     font-variant-numeric: tabular-nums;
-    line-height: 1.35;
+    line-height: var(--leading-tight);
     text-align: right;
   }
 
   .member-plans__timeline-clock strong {
     color: var(--brand-ink);
-    font-weight: 700;
+    font-weight: var(--weight-bold);
   }
 
   .member-plans__timeline-clock small {
     color: rgb(98 106 101 / 72%);
-    font-size: 0.64rem;
+    font-size: var(--text-3xs);
   }
 
   /* rail: connector line + status dot */
@@ -258,12 +258,12 @@
   .member-plans__timeline-head strong {
     color: var(--brand-ink);
     font-size: var(--text-sm);
-    font-weight: 750;
+    font-weight: var(--weight-bold);
   }
 
   .member-plans__timeline-head small {
     color: var(--brand-muted);
-    font-size: 0.64rem;
+    font-size: var(--text-3xs);
     font-variant-numeric: tabular-nums;
   }
 
@@ -310,7 +310,7 @@
   }
 
   .member-plans__timeline-clock {
-    font-size: 0.68rem;
+    font-size: var(--text-2xs);
   }
 }
 

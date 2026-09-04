@@ -23,7 +23,7 @@
 
 .member-plans__save-bar span {
   font-size: var(--text-sm);
-  font-weight: 720;
+  font-weight: var(--weight-bold);
 }
 
 .member-plans__save-bar span.is-dirty {
@@ -33,7 +33,7 @@
 .member-plans__save-bar small {
   margin-top: 2px;
   color: rgb(255 252 247 / 66%);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
 }
 
 .member-plans__save-bar .btn {

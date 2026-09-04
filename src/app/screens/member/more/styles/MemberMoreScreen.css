@@ -39,7 +39,7 @@
   border-color: color-mix(in srgb, var(--danger) 24%, transparent);
   background: color-mix(in srgb, var(--danger) 8%, var(--paper));
   color: var(--danger-deep);
-  line-height: 1.5;
+  line-height: var(--leading-normal);
 }
 
 .member-more__profile.is-error span,
@@ -58,5 +58,5 @@
   color: var(--danger-deep);
   cursor: pointer;
   font-size: var(--text-xs);
-  font-weight: 740;
+  font-weight: var(--weight-bold);
 }

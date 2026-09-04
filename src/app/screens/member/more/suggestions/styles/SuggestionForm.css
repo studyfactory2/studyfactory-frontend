@@ -52,13 +52,13 @@
 .member-suggestions__category strong {
   margin-top: 2px;
   font-size: var(--text-sm);
-  font-weight: 760;
+  font-weight: var(--weight-extrabold);
 }
 
 .member-suggestions__category small {
   color: var(--brand-muted);
-  font-size: 0.62rem;
-  line-height: 1.4;
+  font-size: var(--text-3xs);
+  line-height: var(--leading-snug);
 }
 
 .member-suggestions__form-footer {
@@ -84,7 +84,7 @@
   border-top: 1px solid var(--brand-line);
   color: var(--brand-muted);
   font-size: var(--text-xs);
-  line-height: 1.55;
+  line-height: var(--leading-normal);
 }
 
 .member-suggestions__note svg {

@@ -18,15 +18,15 @@
   color: rgb(255 252 247 / 68%);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
-  font-weight: 650;
+  font-weight: var(--weight-semibold);
 }
 
 .member-home__hero-title {
   margin-top: 6px;
   color: var(--brand-ivory);
   font-size: clamp(1.35rem, 3vw, 1.85rem);
-  font-weight: 780;
-  letter-spacing: -0.035em;
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tighter);
 }
 
 .member-home__hero-metric-label {
@@ -35,7 +35,7 @@
   gap: 6px;
   color: rgb(255 252 247 / 70%);
   font-size: var(--text-xs);
-  font-weight: 680;
+  font-weight: var(--weight-bold);
 }
 
 .member-home__hero-metric-value {
@@ -50,15 +50,15 @@
   color: var(--brand-ivory);
   font-size: clamp(2.1rem, 6vw, 2.9rem);
   font-variant-numeric: tabular-nums;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-none);
 }
 
 .member-home__hero-metric-value span {
   color: #f3ddaf;
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .member-home__hero-presence {
@@ -79,8 +79,8 @@
 
 .member-home__hero-facts dt {
   color: rgb(255 252 247 / 62%);
-  font-size: 0.66rem;
-  font-weight: 650;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
 }
 
 .member-home__hero-facts dd {
@@ -88,7 +88,7 @@
   color: var(--brand-ivory);
   font-size: var(--text-md);
   font-variant-numeric: tabular-nums;
-  font-weight: 750;
+  font-weight: var(--weight-bold);
 }
 
 .member-home__hero-note {

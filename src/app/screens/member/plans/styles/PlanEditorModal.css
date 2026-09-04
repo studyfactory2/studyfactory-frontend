@@ -139,7 +139,7 @@
   background: rgb(176 138 74 / 9%);
   color: var(--brand-muted);
   font-size: var(--text-xs);
-  line-height: 1.55;
+  line-height: var(--leading-normal);
 }
 
 .member-plans__editor-note strong {

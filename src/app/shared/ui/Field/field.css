@@ -7,7 +7,7 @@
 .field__label {
   color: var(--ink);
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .field__required {
@@ -32,7 +32,7 @@
   border-radius: var(--radius-control);
   background: var(--card);
   color: var(--ink);
-  font-size: var(--text-md);
+  font-size: var(--text-control);
   font-family: inherit;
   transition:
     border-color 0.15s ease,
@@ -68,7 +68,7 @@
   min-height: 108px;
   padding: var(--space-3) var(--space-4);
   resize: vertical;
-  line-height: 1.55;
+  line-height: var(--leading-normal);
 }
 
 .control--select {

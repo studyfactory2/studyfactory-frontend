@@ -22,7 +22,7 @@
   background: transparent;
   color: inherit;
   cursor: pointer;
-  font-weight: 750;
+  font-weight: var(--weight-bold);
 }
 
 .member-home__section-state.is-empty {
@@ -51,5 +51,5 @@
   align-items: center;
   color: var(--brand-forest);
   font-size: var(--text-xs);
-  font-weight: 750;
+  font-weight: var(--weight-bold);
 }

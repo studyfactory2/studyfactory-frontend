@@ -89,8 +89,8 @@
   top: 5px;
   left: 50%;
   color: var(--positive-deep);
-  font-size: 0.58rem;
-  font-weight: 800;
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-extrabold);
   transform: translateX(-50%);
 }
 
@@ -114,8 +114,8 @@
 .member-plans__board tbody th span {
   margin-top: 4px;
   color: var(--brand-muted);
-  font-size: 0.63rem;
-  font-weight: 560;
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-semibold);
 }
 
 .member-plans__board tbody td {
@@ -190,8 +190,8 @@
   gap: 4px;
   margin-top: auto;
   color: var(--brand-gold-text);
-  font-size: 0.65rem;
-  font-weight: 720;
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
   opacity: 0;
   transition: opacity 0.15s ease;
 }

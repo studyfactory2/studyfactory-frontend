@@ -15,9 +15,9 @@
 
 .member-more__menu-group h3 {
   color: var(--brand-muted);
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-wide);
 }
 
 .member-more__menu-group ul {
@@ -93,7 +93,7 @@ a.member-more__row:hover {
   align-items: center;
   gap: 8px;
   font-size: var(--text-md);
-  font-weight: 750;
+  font-weight: var(--weight-bold);
 }
 
 .member-more__row.is-pending .member-more__row-copy strong {
@@ -103,7 +103,7 @@ a.member-more__row:hover {
 .member-more__row-copy small {
   color: var(--brand-muted);
   font-size: var(--text-xs);
-  line-height: 1.5;
+  line-height: var(--leading-normal);
 }
 
 .member-more__row-arrow {

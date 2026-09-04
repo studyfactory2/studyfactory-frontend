@@ -55,15 +55,50 @@
   --font-sans:
     'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', 'Noto Sans KR',
     system-ui, -apple-system, sans-serif;
-  --font-serif: 'Gowun Batang', 'Noto Serif KR', serif;
 
+  /*
+   * --text-3xs is the floor. A hangul syllable packs two or three strokes into
+   * the box a latin letter fills with one, so below 10px it stops being
+   * readable on a phone rather than merely looking small.
+   */
+  --text-3xs: 0.625rem; /* 10 */
+  --text-2xs: 0.6875rem; /* 11 */
   --text-xs: 0.75rem; /* 12 */
   --text-sm: 0.8125rem; /* 13 */
   --text-md: 0.9375rem; /* 15 */
   --text-lg: 1.0625rem; /* 17 */
   --text-xl: 1.25rem; /* 20 */
   --text-2xl: 1.5rem; /* 24 */
-  --text-3xl: 1.875rem; /* 30 */
+
+  /*
+   * Form controls only. iOS Safari zooms the page in when a focused input is
+   * under 16px and never zooms back out, leaving the member on a zoomed page
+   * that scrolls sideways. Controls must use this, never --text-md.
+   */
+  --text-control: 1rem; /* 16 */
+
+  /*
+   * Pretendard Variable resolves these exactly. When it fails to load, the
+   * system Korean fallbacks ship only Regular and Bold, so all three land on
+   * one of those: the hierarchy thins out, but nothing is faked (base.css
+   * turns font-synthesis off) and nothing lands at the wrong end of the scale.
+   */
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  --leading-none: 1;
+  --leading-tight: 1.3;
+  --leading-snug: 1.4;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.65;
+
+  /* Negative tightens headings; positive opens up the uppercase eyebrows. */
+  --tracking-tighter: -0.04em;
+  --tracking-tight: -0.02em;
+  --tracking-slight: 0.03em;
+  --tracking-wide: 0.1em;
+  --tracking-caps: 0.16em;
 
   /* ---- spacing (4px scale) ---- */
   --space-1: 0.25rem;

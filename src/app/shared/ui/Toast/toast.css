@@ -23,7 +23,7 @@
   background: var(--paper);
   box-shadow: var(--shadow-pop);
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
   color: var(--ink);
   animation: toast-rise 0.2s ease;
 }

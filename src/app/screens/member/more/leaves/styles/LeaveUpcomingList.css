@@ -33,7 +33,7 @@
   gap: 7px;
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
-  font-weight: 740;
+  font-weight: var(--weight-bold);
 }
 
 .member-leaves__upcoming-date small {
@@ -41,8 +41,8 @@
   border-radius: var(--radius-pill);
   background: var(--positive-soft);
   color: var(--positive-deep);
-  font-size: 0.58rem;
-  font-weight: 800;
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-extrabold);
 }
 
 .member-leaves__upcoming-body {
@@ -55,7 +55,7 @@
 
 .member-leaves__upcoming-body em {
   color: var(--brand-muted);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
   font-style: normal;
   font-variant-numeric: tabular-nums;
 }

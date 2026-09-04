@@ -42,7 +42,7 @@
 .member-home__quick-copy strong {
   color: var(--brand-ink);
   font-size: var(--text-md);
-  font-weight: 740;
+  font-weight: var(--weight-bold);
 }
 
 .member-home__quick-copy small {

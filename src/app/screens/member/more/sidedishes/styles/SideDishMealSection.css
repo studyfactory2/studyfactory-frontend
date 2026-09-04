@@ -18,7 +18,7 @@
 .member-sidedishes__meal header h3 {
   color: var(--brand-ink);
   font-size: var(--text-md);
-  font-weight: 760;
+  font-weight: var(--weight-extrabold);
 }
 
 .member-sidedishes__meal header span {
@@ -70,7 +70,7 @@
 .member-sidedishes__meal-order strong {
   color: var(--brand-ink);
   font-size: var(--text-sm);
-  font-weight: 740;
+  font-weight: var(--weight-bold);
 }
 
 .member-sidedishes__meal-order em {

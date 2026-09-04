@@ -14,7 +14,7 @@
 
 .ui-kit__title {
   font-size: var(--text-2xl);
-  font-weight: 800;
+  font-weight: var(--weight-extrabold);
 }
 
 .ui-kit__subtitle {

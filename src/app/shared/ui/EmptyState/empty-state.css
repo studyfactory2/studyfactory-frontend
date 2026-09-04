@@ -22,7 +22,7 @@
 .empty-state__title {
   color: var(--ink);
   font-size: var(--text-md);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .empty-state__description {

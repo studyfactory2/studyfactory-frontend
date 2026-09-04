@@ -33,12 +33,12 @@
 .member-home__today-period strong {
   color: var(--brand-ink);
   font-size: var(--text-sm);
-  font-weight: 750;
+  font-weight: var(--weight-bold);
 }
 
 .member-home__today-period small {
   color: var(--brand-muted);
-  font-size: 0.64rem;
+  font-size: var(--text-3xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -59,7 +59,7 @@
   gap: 8px;
   color: var(--brand-ink);
   font-size: var(--text-sm);
-  line-height: 1.5;
+  line-height: var(--leading-normal);
 }
 
 .member-home__today-items li i {

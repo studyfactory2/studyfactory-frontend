@@ -7,7 +7,7 @@
   margin: 0;
   color: var(--brand-ink);
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .member-leaves__day-modal-options {
@@ -42,12 +42,12 @@
 
 .member-leaves__day-modal-option strong {
   font-size: var(--text-sm);
-  font-weight: 760;
+  font-weight: var(--weight-extrabold);
 }
 
 .member-leaves__day-modal-option small {
   color: var(--brand-muted);
-  font-size: 0.64rem;
+  font-size: var(--text-3xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -78,7 +78,7 @@
 .member-leaves__day-modal-entry-head strong {
   color: var(--brand-ink);
   font-size: var(--text-md);
-  font-weight: 760;
+  font-weight: var(--weight-extrabold);
 }
 
 .member-leaves__day-modal-entries small {
@@ -94,7 +94,7 @@
   margin: 0;
   color: var(--brand-muted);
   font-size: var(--text-xs);
-  line-height: 1.55;
+  line-height: var(--leading-normal);
 }
 
 .member-leaves__day-modal-note svg {

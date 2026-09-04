@@ -71,14 +71,14 @@
 }
 
 .workspace-shell__brand-copy strong {
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: -0.015em;
+  font-size: var(--text-md);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .workspace-shell__brand-copy small {
   color: rgb(255 252 247 / 72%);
-  font-size: 0.66rem;
+  font-size: var(--text-2xs);
 }
 
 .workspace-shell__navigation {
@@ -99,7 +99,7 @@
   border-radius: 13px;
   color: rgb(255 252 247 / 63%);
   font-size: var(--text-sm);
-  font-weight: 680;
+  font-weight: var(--weight-bold);
   text-decoration: none;
   transition:
     background-color 0.16s ease,
@@ -138,7 +138,7 @@
   background: #f3ddaf;
   color: var(--brand-forest);
   font-size: var(--text-sm);
-  font-weight: 850;
+  font-weight: var(--weight-extrabold);
   place-items: center;
 }
 
@@ -154,7 +154,7 @@
   overflow: hidden;
   margin-top: 2px;
   color: rgb(255 252 247 / 70%);
-  font-size: 0.64rem;
+  font-size: var(--text-3xs);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -201,7 +201,7 @@
 .workspace-shell__topbar p {
   color: var(--brand-muted);
   font-size: var(--text-xs);
-  font-weight: 650;
+  font-weight: var(--weight-semibold);
 }
 
 .workspace-shell__topbar p span {
@@ -213,8 +213,8 @@
   margin-top: 3px;
   color: var(--brand-ink);
   font-size: 1.35rem;
-  font-weight: 760;
-  letter-spacing: -0.035em;
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tighter);
 }
 
 .workspace-shell__topbar-account {
@@ -226,7 +226,7 @@
 
 .workspace-shell__topbar-account small {
   color: var(--brand-muted);
-  font-size: 0.68rem;
+  font-size: var(--text-2xs);
 }
 
 .workspace-shell__topbar-account .workspace-shell__logout:hover {
@@ -340,8 +340,8 @@
     gap: 4px;
     border-radius: 12px;
     color: var(--brand-muted);
-    font-size: 0.66rem;
-    font-weight: 700;
+    font-size: var(--text-2xs);
+    font-weight: var(--weight-bold);
     text-decoration: none;
   }
 

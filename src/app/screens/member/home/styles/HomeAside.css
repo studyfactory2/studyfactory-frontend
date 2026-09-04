@@ -25,7 +25,7 @@
 .member-home__beverage-list strong {
   color: var(--brand-ink);
   font-size: var(--text-sm);
-  font-weight: 740;
+  font-weight: var(--weight-bold);
 }
 
 .member-home__beverage-list span {
@@ -48,14 +48,14 @@
   color: var(--brand-ink);
   font-size: var(--text-lg);
   font-variant-numeric: tabular-nums;
-  font-weight: 780;
-  letter-spacing: -0.02em;
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .member-home__leave-label {
   color: var(--brand-gold-text);
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .member-home__leave-slots {

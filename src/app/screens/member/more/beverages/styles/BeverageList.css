@@ -44,13 +44,13 @@
 
 .member-beverages__row-copy strong {
   font-size: var(--text-md);
-  font-weight: 750;
+  font-weight: var(--weight-bold);
 }
 
 .member-beverages__row-copy small {
   color: var(--brand-muted);
   font-size: var(--text-xs);
-  line-height: 1.5;
+  line-height: var(--leading-normal);
 }
 
 .member-beverages__row-arrow {

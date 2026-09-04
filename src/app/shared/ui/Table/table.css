@@ -16,7 +16,7 @@
   border-bottom: 1px solid var(--line);
   background: var(--card-2);
   color: var(--ink-soft);
-  font-weight: 700;
+  font-weight: var(--weight-bold);
   text-align: left;
   white-space: nowrap;
 }

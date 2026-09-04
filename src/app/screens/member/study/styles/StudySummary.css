@@ -22,7 +22,7 @@
   gap: 6px;
   color: var(--brand-muted);
   font-size: var(--text-xs);
-  font-weight: 640;
+  font-weight: var(--weight-semibold);
 }
 
 .member-study__summary .is-period dt::before,
@@ -53,8 +53,8 @@
   color: var(--brand-ink);
   font-size: var(--text-xl);
   font-variant-numeric: tabular-nums;
-  font-weight: 760;
-  letter-spacing: -0.02em;
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .member-study__summary dd span {

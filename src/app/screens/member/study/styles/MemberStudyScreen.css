@@ -41,7 +41,7 @@
 .member-study__card-header h3 {
   color: var(--brand-ink);
   font-size: var(--text-lg);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-tight);
 }
 
 .member-study__card-header span {
@@ -53,12 +53,12 @@
   margin: 0;
   color: var(--ink-soft);
   font-size: var(--text-xs);
-  line-height: 1.65;
+  line-height: var(--leading-relaxed);
 }
 
 .member-study__rule b {
   color: var(--brand-forest);
-  font-weight: 760;
+  font-weight: var(--weight-extrabold);
 }
 
 .member-study__sr-only {

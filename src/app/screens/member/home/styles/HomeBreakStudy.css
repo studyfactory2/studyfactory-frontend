@@ -36,22 +36,22 @@
 .member-home__break-eyebrow {
   margin-bottom: 3px;
   color: var(--brand-gold-text);
-  font-size: 0.66rem;
-  font-weight: 760;
-  letter-spacing: 0.11em;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-wide);
 }
 
 .member-home__break-heading h3 {
   color: var(--brand-ink);
   font-size: var(--text-lg);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-tight);
 }
 
 .member-home__break-description {
   margin-top: 7px;
   color: var(--brand-muted);
   font-size: var(--text-xs);
-  line-height: 1.5;
+  line-height: var(--leading-normal);
 }
 
 .member-home__break-timer {

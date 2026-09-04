@@ -33,7 +33,7 @@
 .member-suggestions__card-header h3 {
   color: var(--brand-ink);
   font-size: var(--text-md);
-  font-weight: 760;
+  font-weight: var(--weight-extrabold);
 }
 
 .member-suggestions__card-header span {

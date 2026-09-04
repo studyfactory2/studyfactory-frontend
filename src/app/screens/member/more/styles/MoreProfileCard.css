@@ -18,7 +18,7 @@
   background: var(--brand-forest);
   color: var(--brand-ivory);
   font-size: var(--text-xl);
-  font-weight: 780;
+  font-weight: var(--weight-extrabold);
   place-items: center;
 }
 
@@ -31,8 +31,8 @@
 .member-more__identity strong {
   color: var(--brand-ink);
   font-size: var(--text-xl);
-  font-weight: 780;
-  letter-spacing: -0.02em;
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .member-more__identity small {
@@ -58,8 +58,8 @@
 
 .member-more__facts dt {
   color: var(--brand-muted);
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
 }
 
 .member-more__facts dd {
@@ -71,7 +71,7 @@
   color: var(--brand-ink);
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: var(--weight-bold);
 }
 
 .member-more__facts em {
@@ -79,9 +79,9 @@
   border-radius: var(--radius-pill);
   background: var(--positive-soft);
   color: var(--positive-deep);
-  font-size: 0.62rem;
+  font-size: var(--text-3xs);
   font-style: normal;
-  font-weight: 800;
+  font-weight: var(--weight-extrabold);
 }
 
 @media (max-width: 420px) {
