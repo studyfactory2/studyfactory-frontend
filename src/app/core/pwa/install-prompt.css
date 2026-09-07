@@ -139,25 +139,42 @@
 }
 
 /* Matches .member-more__tile's row form so the last cell keeps its shape. */
+/* Matches .member-more__tile's row form so the last cell keeps its shape. */
 @media (max-width: 559px) {
-  .install-prompt__button {
+  .member-more__menu .install-prompt__button {
     display: grid;
-    min-height: 66px;
+    min-height: 56px;
     align-items: center;
-    padding: var(--space-3) var(--space-4);
+    padding: 9px var(--space-4);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
     gap: var(--space-3);
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
-  .install-prompt__button-top {
+  .member-more__menu .install-prompt__button:hover {
+    background: rgb(var(--brand-forest-rgb) / 4%);
+    box-shadow: none;
+    transform: none;
+  }
+
+  .member-more__menu .install-prompt__button-top {
     display: contents;
   }
 
-  .install-prompt__group {
+  .member-more__menu .install-prompt__group,
+  .member-more__menu .install-prompt__button-copy small {
     display: none;
   }
 
-  .install-prompt__button-arrow {
+  .member-more__menu .install-prompt__button-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .member-more__menu .install-prompt__button-arrow {
     position: static;
     opacity: 1;
   }

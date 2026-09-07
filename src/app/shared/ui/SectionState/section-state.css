@@ -34,14 +34,14 @@
   font-weight: var(--weight-bold);
 }
 
+/* An inset panel, not a dashed box: dashes read as an unfinished wireframe. */
 .ui-section-state.is-empty {
   display: grid;
   gap: 4px;
-  padding: var(--space-5) var(--space-3);
-  border: 1px dashed var(--brand-line);
-  border-radius: var(--radius-card);
-  background: rgb(253 250 244 / 60%);
-  text-align: center;
+  padding: var(--space-5);
+  border-radius: var(--radius-control);
+  background: rgb(var(--brand-forest-rgb) / 4%);
+  box-shadow: inset 2px 0 0 rgb(var(--brand-forest-rgb) / 18%);
 }
 
 .ui-section-state.is-empty strong {

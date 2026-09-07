@@ -87,6 +87,7 @@ function MemberMore({
       <MoreMenu
         entries={MORE_MENU_ENTRIES}
         footer={<InstallPrompt title="앱" />}
+        values={more.menuValues}
       />
     </section>
   );

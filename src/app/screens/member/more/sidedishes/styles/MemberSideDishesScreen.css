@@ -4,7 +4,7 @@
  */
 .member-sidedishes {
   display: flex;
-  max-width: 44rem;
+  max-width: 72rem;
   flex-direction: column;
   gap: 16px;
   color: var(--brand-ink);
@@ -16,10 +16,9 @@
   flex-direction: column;
   gap: var(--space-4);
   padding: clamp(16px, 2.4vw, 22px);
-  border: 1px solid var(--brand-line);
-  border-radius: 20px;
-  background: var(--brand-ivory);
-  box-shadow: 0 14px 34px rgb(var(--brand-ink-rgb) / 5%);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--elev-1);
 }
 
 .member-sidedishes__meals {
@@ -30,5 +29,21 @@
 @media (min-width: 720px) {
   .member-sidedishes__meals {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/*
+ * Two blocks that were stacked. Side by side from 900px they fill the width
+ * the workspace gives them; below that they keep the order they always had.
+ */
+.member-sidedishes__split {
+  display: grid;
+  align-items: start;
+  gap: var(--space-4);
+}
+
+@media (min-width: 900px) {
+  .member-sidedishes__split {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
   }
 }

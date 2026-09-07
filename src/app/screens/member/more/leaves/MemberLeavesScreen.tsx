@@ -45,60 +45,64 @@ function MemberLeaves({
         title="휴무"
       />
 
-      <div className="member-leaves__card">
-        {plan.loading ? (
-          <SectionLoading label="휴무 일정을 불러오는 중이에요." />
-        ) : plan.errorMessage !== null ? (
-          <SectionError message={plan.errorMessage} onRetry={plan.onRetry} />
-        ) : (
-          <LeaveCalendar
-            cells={leaves.cells}
-            isCurrentMonth={leaves.isCurrentMonth}
-            monthLabel={monthLabel}
-            onGoToday={leaves.onGoToday}
-            onNextMonth={leaves.onNextMonth}
-            onPreviousMonth={leaves.onPreviousMonth}
-            onSelectDay={leaves.onSelectDay}
-            selectedDateKey={leaves.selectedCell?.dateKey ?? null}
-          />
-        )}
+      {/* Two cards that were stacked; side by side they fill the width the
+       * workspace actually gives them, and the calendar keeps its cell size. */}
+      <div className="member-leaves__split">
+        <div className="member-leaves__card">
+          {plan.loading ? (
+            <SectionLoading label="휴무 일정을 불러오는 중이에요." />
+          ) : plan.errorMessage !== null ? (
+            <SectionError message={plan.errorMessage} onRetry={plan.onRetry} />
+          ) : (
+            <LeaveCalendar
+              cells={leaves.cells}
+              isCurrentMonth={leaves.isCurrentMonth}
+              monthLabel={monthLabel}
+              onGoToday={leaves.onGoToday}
+              onNextMonth={leaves.onNextMonth}
+              onPreviousMonth={leaves.onPreviousMonth}
+              onSelectDay={leaves.onSelectDay}
+              selectedDateKey={leaves.selectedCell?.dateKey ?? null}
+            />
+          )}
 
-        <ul className="member-leaves__legend">
-          <li>
-            <i className="member-leaves__legend-swatch is-own" />
-            내가 신청한 휴무
-          </li>
-          <li>
-            <i className="member-leaves__legend-swatch is-office" />
-            지점이 등록한 휴무
-          </li>
-        </ul>
+          <ul className="member-leaves__legend">
+            <li>
+              <i className="member-leaves__legend-swatch is-own" />
+              내가 신청한 휴무
+            </li>
+            <li>
+              <i className="member-leaves__legend-swatch is-office" />
+              지점이 등록한 휴무
+            </li>
+          </ul>
+        </div>
+
+        <section
+          aria-labelledby="member-leaves-upcoming-title"
+          className="member-leaves__card"
+        >
+          <header className="member-leaves__card-header">
+            <h3 id="member-leaves-upcoming-title">예정된 휴무</h3>
+            <span>{monthLabel}</span>
+          </header>
+
+          {plan.loading ? (
+            <SectionLoading label="휴무 일정을 불러오는 중이에요." />
+          ) : plan.errorMessage !== null ? (
+            <SectionError message={plan.errorMessage} onRetry={plan.onRetry} />
+          ) : leaves.upcoming.length === 0 ? (
+            <SectionEmpty title="예정된 휴무가 없어요">
+              <p>달력에서 날짜를 눌러 휴무를 신청할 수 있어요.</p>
+            </SectionEmpty>
+          ) : (
+            <LeaveUpcomingList
+              onSelectDay={leaves.onSelectDay}
+              rows={leaves.upcoming}
+            />
+          )}
+        </section>
       </div>
-
-      <section
-        aria-labelledby="member-leaves-upcoming-title"
-        className="member-leaves__card"
-      >
-        <header className="member-leaves__card-header">
-          <h3 id="member-leaves-upcoming-title">예정된 휴무</h3>
-          <span>{monthLabel}</span>
-        </header>
-
-        {plan.loading ? (
-          <SectionLoading label="휴무 일정을 불러오는 중이에요." />
-        ) : plan.errorMessage !== null ? (
-          <SectionError message={plan.errorMessage} onRetry={plan.onRetry} />
-        ) : leaves.upcoming.length === 0 ? (
-          <SectionEmpty title="예정된 휴무가 없어요">
-            <p>달력에서 날짜를 눌러 휴무를 신청할 수 있어요.</p>
-          </SectionEmpty>
-        ) : (
-          <LeaveUpcomingList
-            onSelectDay={leaves.onSelectDay}
-            rows={leaves.upcoming}
-          />
-        )}
-      </section>
 
       <LeaveDayModal
         cell={leaves.selectedCell}

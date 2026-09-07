@@ -11,10 +11,21 @@
   color: var(--brand-ink);
 }
 
+/*
+ * minmax(0, …) on both axes and min-width on the children: a grid or flex
+ * item defaults to min-width:auto, which means one nowrap row inside a card
+ * can widen the card, then the grid, then the page. Every level of the chain
+ * has to be told it may shrink.
+ */
 .member-more__top {
   display: grid;
   align-items: stretch;
   gap: var(--space-4);
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.member-more__top > * {
+  min-width: 0;
 }
 
 @media (min-width: 900px) {

@@ -68,20 +68,22 @@ export function MoreProfileCard({
        * the full width to pair a label with its value.
        */}
       <dl className="member-more__facts">
+        {/* "자격증" rather than "준비 중인 자격증": the full wording cost 55px
+         * and pushed the row into a scroll on a phone. 내 정보 still spells
+         * it out, and the value beside it removes any doubt. */}
         <div>
-          <dt>준비 중인 자격증</dt>
+          <dt>자격증</dt>
           <dd>{certificationLabel ?? '미등록'}</dd>
         </div>
+        {/* One chip, not two: the join date and how long since are the same
+         * fact, and splitting them wrapped the row onto a second line. */}
         <div>
           <dt>가입</dt>
-          <dd>{joinDateLabel}</dd>
+          <dd>
+            {joinDateLabel}
+            {joinedDayCount !== null && <em>{joinedDayCount}일째</em>}
+          </dd>
         </div>
-        {joinedDayCount !== null && (
-          <div>
-            <dt>함께한 지</dt>
-            <dd>{joinedDayCount}일째</dd>
-          </div>
-        )}
       </dl>
     </section>
   );

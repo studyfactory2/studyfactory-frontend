@@ -205,6 +205,13 @@ export function formatKoreanMonth(year: number, month: number) {
   return `${year}년 ${month}월`;
 }
 
+/** Month and day without the weekday, for tight spots like a menu row. */
+export function formatMonthDay(dateKey: string) {
+  const { day, month } = splitDateKey(dateKey);
+
+  return `${month}월 ${day}일`;
+}
+
 export function formatShortDate(dateKey: string) {
   const { day, month } = splitDateKey(dateKey);
 

@@ -4,7 +4,7 @@
  */
 .member-profile {
   display: flex;
-  max-width: 40rem;
+  max-width: 68rem;
   flex-direction: column;
   gap: 16px;
   color: var(--brand-ink);
@@ -14,10 +14,9 @@
   display: grid;
   gap: var(--space-4);
   padding: clamp(16px, 2.4vw, 22px);
-  border: 1px solid var(--brand-line);
-  border-radius: 20px;
-  background: var(--brand-ivory);
-  box-shadow: 0 14px 34px rgb(var(--brand-ink-rgb) / 5%);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--elev-1);
 }
 
 .member-profile__rows {
@@ -123,4 +122,41 @@
   .member-profile__rows > div {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/*
+ * Two blocks that were stacked. Side by side from 900px they fill the width
+ * the workspace gives them; below that they keep the order they always had.
+ */
+.member-profile__split {
+  display: grid;
+  align-items: start;
+  gap: var(--space-4);
+}
+
+@media (min-width: 900px) {
+  .member-profile__split {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  }
+}
+
+.member-profile__rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.member-profile__rail .instrument__value em {
+  margin-left: 4px;
+  font-size: var(--text-md);
+  font-style: normal;
+  font-weight: var(--weight-bold);
+}
+
+.member-profile__rail .ui-bars__bar {
+  background: var(--inst-muted);
+}
+
+.member-profile__rail .ui-bars__bar.is-emphasis {
+  background: var(--inst-accent);
 }
