@@ -128,6 +128,57 @@ export function useMemberHome(
     })).filter((period) => period.items.length > 0);
   }, [today.dayIndex, weeklyPlan]);
 
+  /**
+   * Today as nine blocks: the seven 교시 plus 점심 and 저녁. Each one carries
+   * what the member actually earned in it, whether their leave excluded it,
+   * and whether they wrote a plan for it — the three things that decide what
+   * the block should look like. `duration` on PLAN_ROWS is the authority for
+   * how long a block is, so a partly-earned period fills proportionally.
+   */
+  const dayBlocks = useMemo(() => {
+    const day = studyTimeQuery.data?.days[0];
+    const byPlanIndex = new Map(
+      (day?.periods ?? []).map((period) => [period.weeklyPlanIndex, period]),
+    );
+    // The report names its two long gaps LUNCH and DINNER; PLAN_ROWS numbers
+    // them 100 and 101 so they can share a key space with the periods.
+    const breakByIndex = new Map(
+      (day?.breaks ?? [])
+        .filter(
+          (entry) =>
+            entry.studyBreak === 'LUNCH' || entry.studyBreak === 'DINNER',
+        )
+        .map((entry) => [entry.studyBreak === 'LUNCH' ? 100 : 101, entry]),
+    );
+
+    return PLAN_ROWS.map((row) => {
+      const report = row.isBreak
+        ? breakByIndex.get(row.periodIndex)
+        : byPlanIndex.get(row.periodIndex);
+      const availableSeconds = Number(row.duration.replace(/[^0-9]/g, '')) * 60;
+      const recognizedSeconds = report?.recognizedDuration.totalSeconds ?? 0;
+
+      return {
+        availableSeconds,
+        excludedByLeave: report?.excludedByLeave ?? false,
+        hasPlan: (weeklyPlan?.items ?? []).some(
+          (item) =>
+            item.periodIndex === row.periodIndex &&
+            item.dayIndex === today.dayIndex &&
+            item.content.trim().length > 0,
+        ),
+        isBreak: row.isBreak === true,
+        label: row.label,
+        ratio:
+          availableSeconds > 0
+            ? Math.min(1, recognizedSeconds / availableSeconds)
+            : 0,
+        recognizedSeconds,
+        time: row.time,
+      };
+    });
+  }, [studyTimeQuery.data, today.dayIndex, weeklyPlan]);
+
   const weekSummary = useMemo(() => {
     if (!weeklyPlan) {
       return null;
@@ -295,6 +346,7 @@ export function useMemberHome(
       onRetry: () => void presenceQuery.refetch(),
     },
     studyTime: {
+      dayBlocks,
       errorMessage: studyTimeQuery.isError
         ? studyTimeQuery.error.message
         : null,

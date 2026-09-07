@@ -1,0 +1,95 @@
+.member-home__timeline {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  gap: 6px;
+}
+
+.member-home__timeline figcaption {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.member-home__timeline-track {
+  display: flex;
+  height: 38px;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.member-home__timeline-block {
+  position: relative;
+  display: flex;
+  min-width: 6px;
+  flex-basis: 0;
+  align-items: flex-end;
+  border-radius: 4px;
+  background: var(--inst-line);
+  overflow: hidden;
+}
+
+/* Breaks are shorter so the eye reads them as the gaps that they are. */
+.member-home__timeline-block.is-break {
+  align-self: flex-end;
+  height: 58%;
+  opacity: 0.75;
+}
+
+/*
+ * Excluded by leave: hollow, not empty. Zero earned because the member was off
+ * must not look identical to zero earned because they did not study.
+ */
+.member-home__timeline-block.is-excluded {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--inst-line) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+/* A planned period carries a mark, so the strip also shows intent. */
+.member-home__timeline-block.has-plan::after {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--inst-accent);
+  content: '';
+  transform: translateX(-50%);
+}
+
+.member-home__timeline-fill {
+  width: 100%;
+  border-radius: 3px;
+  background: var(--inst-good);
+  transition: height 0.4s ease;
+}
+
+.member-home__timeline-axis {
+  display: flex;
+  color: var(--inst-muted);
+  font-size: var(--text-3xs);
+  font-variant-numeric: tabular-nums;
+  gap: 4px;
+}
+
+.member-home__timeline-axis span {
+  flex-basis: 0;
+  text-align: center;
+}
+
+.member-home__timeline-axis span.is-break {
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .member-home__timeline-fill {
+    transition: none;
+  }
+}

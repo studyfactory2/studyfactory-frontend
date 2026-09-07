@@ -63,3 +63,14 @@
     display: none;
   }
 }
+
+/*
+ * Hidden from 1024px up: at that width the app shell shows a permanent
+ * sidebar carrying these exact three destinations, so the rail was repeating
+ * the navigation back at the member and eating a third of its own height.
+ */
+@media (min-width: 1024px) {
+  .member-home__quick-nav {
+    display: none;
+  }
+}

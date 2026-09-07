@@ -48,6 +48,7 @@ function MemberHomeDashboard({
           checkedIn={home.presence.checkedIn}
           checkedInAt={home.presence.checkedInAt}
           dateKey={home.today.dateKey}
+          dayBlocks={home.studyTime.dayBlocks}
           memberName={memberName}
           onPresenceRetry={home.presence.onRetry}
           onStudyTimeRetry={home.studyTime.onRetry}

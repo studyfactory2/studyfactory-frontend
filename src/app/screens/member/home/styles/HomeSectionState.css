@@ -30,10 +30,10 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
-  padding: var(--space-4);
-  border: 1px dashed var(--brand-line);
+  padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-control);
-  background: rgb(var(--brand-paper-rgb) / 55%);
+  background: rgb(var(--brand-forest-rgb) / 4%);
+  box-shadow: inset 2px 0 0 rgb(var(--brand-forest-rgb) / 18%);
 }
 
 .member-home__section-state.is-empty strong {
