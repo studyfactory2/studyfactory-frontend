@@ -6,6 +6,8 @@ const root = (ownerKey: SessionOwnerKey) =>
 export const sideDishQueryKeys = {
   /** Every side-dish query for this owner. */
   all: root,
+  daily: (ownerKey: SessionOwnerKey, branchId: number, date: string) =>
+    [...root(ownerKey), 'daily', branchId, date] as const,
   mine: (ownerKey: SessionOwnerKey, date: string) =>
     [...root(ownerKey), 'mine', date] as const,
   orderDates: (ownerKey: SessionOwnerKey, from: string, to: string) =>

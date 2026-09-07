@@ -1,0 +1,478 @@
+/*
+ * Staff home. Every rule is scoped under .staff-home so nothing here can reach
+ * a shared component, and every breakpoint block sits at the end of the file —
+ * a media block placed above a base rule of equal specificity loses to it.
+ */
+.staff-home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* ---------- hero ---------- */
+
+.staff-home__hero {
+  display: grid;
+  align-items: center;
+  gap: var(--space-6);
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  margin-top: var(--space-4);
+}
+
+.staff-home__figure {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.staff-home__figure-key {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.staff-home__figure strong {
+  font-size: 2.125rem;
+  font-weight: var(--weight-extrabold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tighter);
+  line-height: var(--leading-none);
+}
+
+.staff-home__figure strong small {
+  margin-left: 3px;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  opacity: 0.72;
+}
+
+.staff-home__figure-facts {
+  display: flex;
+  flex-wrap: wrap;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  gap: 3px var(--space-3);
+  margin-top: 4px;
+}
+
+.staff-home__figure-facts b {
+  color: var(--brand-ink);
+  font-weight: var(--weight-bold);
+}
+
+.staff-home__shift {
+  display: flex;
+  min-width: 10.5rem;
+  flex-direction: column;
+  gap: 5px;
+  padding-left: var(--space-6);
+  border-left: 1px solid var(--brand-line);
+}
+
+.staff-home__shift-now {
+  color: var(--brand-gold-text);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.staff-home__shift-quiet {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+}
+
+/* ---------- job tiles ---------- */
+
+.staff-home__jobs-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.staff-home__jobs {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.staff-home__job {
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px;
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--elev-1);
+  color: var(--brand-ink);
+  gap: var(--space-3);
+  text-decoration: none;
+  transition:
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.staff-home__job:hover {
+  box-shadow: var(--elev-2);
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+.staff-home__job-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.staff-home__job-icon {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: rgb(var(--brand-forest-rgb) / 9%);
+  color: var(--brand-forest);
+  place-items: center;
+}
+
+.staff-home__job-label {
+  flex: 1;
+  font-size: var(--text-md);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.staff-home__job-arrow {
+  color: var(--brand-muted);
+}
+
+.staff-home__job-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.staff-home__job-figure b {
+  font-size: 1.875rem;
+  font-weight: var(--weight-extrabold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tighter);
+  line-height: var(--leading-none);
+}
+
+.staff-home__job-figure span {
+  color: var(--brand-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+/* Only a figure that means "still to do" and is not yet zero. */
+.staff-home__job.is-alert .staff-home__job-figure b {
+  color: var(--danger-deep);
+}
+
+.staff-home__job-facts {
+  display: flex;
+  flex-direction: column;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  gap: 3px;
+}
+
+/* ---------- body ---------- */
+
+.staff-home__body {
+  display: grid;
+  align-items: start;
+  gap: var(--space-5);
+  grid-template-columns: minmax(0, 1fr) 21.25rem;
+}
+
+.staff-home__aside {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.staff-home__card-link {
+  color: var(--brand-gold-text);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+}
+
+/* ---------- todo preview ---------- */
+
+.staff-home__todos {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.staff-home__todo {
+  display: flex;
+  align-items: center;
+  padding: 11px 0;
+  border-top: 1px solid var(--brand-line);
+  gap: var(--space-2);
+}
+
+.staff-home__todo:first-child {
+  border-top: 0;
+}
+
+/*
+ * A read-only marker, not a checkbox: completing a todo happens on 운영, where
+ * the reply thread and the rest of the row are also there.
+ */
+.staff-home__todo-box {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  border: 1.5px solid var(--brand-line);
+  border-radius: 6px;
+  color: transparent;
+  place-items: center;
+}
+
+.staff-home__todo-text {
+  min-width: 0;
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+.staff-home__todo-tags {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 5px;
+}
+
+.staff-home__tag {
+  border-radius: var(--radius-pill);
+  background: var(--card-2);
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.staff-home__tag.is-urgent {
+  background: var(--danger-soft);
+  color: var(--danger-deep);
+}
+
+.staff-home__tag.is-source {
+  background: var(--special-soft);
+  color: var(--special-deep);
+}
+
+/* ---------- meals + week ---------- */
+
+.staff-home__meals {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.staff-home__meal {
+  display: flex;
+  flex-direction: column;
+  padding: 13px;
+  border-radius: 12px;
+  background: var(--card-2);
+  gap: 2px;
+}
+
+.staff-home__meal-key {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.staff-home__meal strong {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-extrabold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tight);
+}
+
+.staff-home__meal strong small {
+  margin-left: 2px;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  opacity: 0.65;
+}
+
+.staff-home__meal-sum {
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.staff-home__week {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.staff-home__week-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-top: 1px solid var(--brand-line);
+  color: var(--brand-muted);
+  font-size: var(--text-sm);
+  gap: var(--space-2);
+}
+
+.staff-home__week-row:first-child {
+  border-top: 0;
+}
+
+.staff-home__week-row.is-today {
+  color: var(--brand-ink);
+  font-weight: var(--weight-bold);
+}
+
+/* ============================================================
+   Breakpoints. Kept last on purpose — see the note at the top.
+   ============================================================ */
+
+@media (max-width: 1023px) {
+  .staff-home__body {
+    grid-template-columns: minmax(0, 1fr) 17.5rem;
+  }
+
+  .staff-home__jobs {
+    gap: var(--space-3);
+  }
+
+  .staff-home__job {
+    padding: 18px;
+  }
+
+  .staff-home__job-figure b {
+    font-size: 1.625rem;
+  }
+
+  .staff-home__shift {
+    min-width: 9rem;
+    padding-left: var(--space-5);
+  }
+}
+
+@media (max-width: 767px) {
+  .staff-home {
+    gap: var(--space-5);
+  }
+
+  .staff-home__hero {
+    gap: var(--space-4);
+    grid-template-columns: auto minmax(0, 1fr);
+    margin-top: var(--space-2);
+  }
+
+  .staff-home__figure strong {
+    font-size: 1.75rem;
+  }
+
+  /* The shift stops being a third column and becomes a strip under the row. */
+  .staff-home__shift {
+    min-width: 0;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: var(--space-3) 0 0;
+    border-top: 1px solid var(--brand-line);
+    border-left: 0;
+    grid-column: 1 / -1;
+    gap: var(--space-3);
+  }
+
+  .staff-home__shift-now {
+    font-size: var(--text-md);
+  }
+
+  .staff-home__shift-quiet {
+    display: none;
+  }
+
+  .staff-home__jobs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /*
+   * One row per tile: icon, then name over its facts, then the figure held
+   * against the right edge so the three numbers line up down the column.
+   */
+  /*
+   * The figure column is a fixed width rather than auto: each tile is its own
+   * grid, so an auto column sizes to that tile's own unit text and the three
+   * numbers land at three different x positions. Fixing the track is what makes
+   * them read as one column down the screen.
+   */
+  .staff-home__job {
+    display: grid;
+    padding: 15px 16px;
+    gap: 3px var(--space-3);
+    grid-template-columns: 38px minmax(0, 1fr) 5.25rem;
+    grid-template-rows: auto auto;
+  }
+
+  .staff-home__job-top {
+    display: contents;
+  }
+
+  .staff-home__job-icon {
+    align-self: center;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .staff-home__job-label {
+    align-self: end;
+    font-size: var(--text-sm);
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .staff-home__job-arrow {
+    display: none;
+  }
+
+  .staff-home__job-facts {
+    flex-direction: row;
+    flex-wrap: wrap;
+    grid-column: 2;
+    grid-row: 2;
+    gap: 2px var(--space-3);
+  }
+
+  .staff-home__job-figure {
+    align-items: flex-end;
+    align-self: center;
+    flex-direction: column;
+    gap: 0;
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    text-align: right;
+  }
+
+  .staff-home__job-figure b {
+    font-size: 1.5rem;
+  }
+
+  .staff-home__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

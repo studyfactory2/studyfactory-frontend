@@ -35,11 +35,23 @@ const timeOfDayWithSecondsFormatter = new Intl.DateTimeFormat('en-GB', {
 
 const WEEKDAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 
+const WEEKDAY_NAMES = [
+  'SUNDAY',
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY',
+] as const;
+
 const MILLISECONDS_PER_DAY = 86_400_000;
 
 export const SEOUL_DAY_MS = MILLISECONDS_PER_DAY;
 
 export const SEOUL_WEEKDAY_LABELS = WEEKDAY_LABELS;
+
+export type WeekdayName = (typeof WEEKDAY_NAMES)[number];
 
 export type SeoulToday = {
   dateKey: string;
@@ -189,6 +201,15 @@ export function listDateKeys(from: string, to: string) {
 
 export function getWeekdayLabel(dateKey: string) {
   return WEEKDAY_LABELS[new Date(toTimestamp(dateKey)).getUTCDay()];
+}
+
+/**
+ * The weekday in the form the backend's DayOfWeek enum uses, for matching
+ * against rows that carry a day rather than a date — the staff schedule, which
+ * is a weekly grid with no calendar attached.
+ */
+export function getWeekdayName(dateKey: string): WeekdayName {
+  return WEEKDAY_NAMES[new Date(toTimestamp(dateKey)).getUTCDay()];
 }
 
 export function getDayOfMonth(dateKey: string) {

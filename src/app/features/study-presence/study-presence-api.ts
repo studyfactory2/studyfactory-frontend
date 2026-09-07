@@ -118,3 +118,41 @@ export async function submitStudyPresenceQr(
 
   return response;
 }
+
+export type StudyPresenceCheckInMethod = 'MANAGER' | 'QR';
+
+export type StudyPresenceManagerSessionResponse = {
+  sessionId: number;
+  memberId: number;
+  /** Null when the session belongs to another branch than the member row. */
+  memberName: string | null;
+  memberRole: 'ADMIN' | 'MEMBER' | 'STAFF' | null;
+  seatNumber: number | null;
+  branchId: number;
+  checkedInAt: string;
+  checkInMethod: StudyPresenceCheckInMethod;
+  checkedInByMemberId: number | null;
+  manualCheckInReason: string | null;
+  checkedOutAt: string | null;
+  currentlyActive: boolean;
+  presenceDuration: StudyPresenceDurationResponse;
+};
+
+export type StudyPresenceLiveResponse = {
+  branchId: number;
+  zoneId: string;
+  asOf: string;
+  memberCount: number;
+  sessions: StudyPresenceManagerSessionResponse[];
+};
+
+/**
+ * Who is sitting in the branch at this moment. Unlike the other manager reads
+ * this one takes no branchId at all — the backend pins it to the caller's own
+ * branch — so there is nothing to widen here.
+ */
+export function fetchLiveStudyPresence(expectedMemberId: number) {
+  return apiRequest<StudyPresenceLiveResponse>('/api/study-presence/live', {
+    expectedMemberId,
+  });
+}

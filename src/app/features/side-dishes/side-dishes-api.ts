@@ -94,3 +94,45 @@ export function deleteMySideDish(sideDishId: number, expectedMemberId: number) {
     method: 'DELETE',
   });
 }
+
+export type DailySideDishResponse = {
+  id: number;
+  memberId: number;
+  branchId: number;
+  memberName: string;
+  seatNumber: number | null;
+  mealDate: string;
+  mealType: MealType;
+  items: string;
+  totalPrice: number;
+};
+
+/**
+ * Everyone's orders for one day. Like the other manager reads, the backend
+ * takes branchId on trust, so the session's own branch is sent and verified on
+ * the way back rather than left to a fallback.
+ */
+export async function fetchDailySideDishes(
+  date: string,
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({ branchId: String(branchId), date });
+  const response = await apiRequest<DailySideDishResponse[]>(
+    `/api/side-dishes/daily?${query}`,
+    { expectedMemberId },
+  );
+
+  if (
+    response.some(
+      (order) => order.branchId !== branchId || order.mealDate !== date,
+    )
+  ) {
+    throw new ApiRequestError(
+      '다른 지점 또는 날짜의 반찬 내역을 받았습니다.',
+      409,
+    );
+  }
+
+  return response;
+}

@@ -42,3 +42,14 @@ export async function fetchMySuggestions(expectedMemberId: number) {
 
   return response;
 }
+
+/**
+ * Every suggestion raised in the caller's own branch. This one the backend
+ * scopes itself — findByBranchId(currentMember.branchId), no parameter to pass
+ * — so there is nothing for the caller to widen and nothing to re-check.
+ */
+export function fetchBranchSuggestions(expectedMemberId: number) {
+  return apiRequest<SuggestionResponse[]>('/api/suggestions', {
+    expectedMemberId,
+  });
+}

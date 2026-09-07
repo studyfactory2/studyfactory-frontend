@@ -85,3 +85,45 @@ export async function replaceMyBeverageItems(
 
   return assertOwnPreference(response, expectedMemberId);
 }
+
+export type MemberBeverageResponse = {
+  memberId: number;
+  branchId: number;
+  memberName: string;
+  role: 'ADMIN' | 'MEMBER' | 'STAFF';
+  seatNumber: number | null;
+  joinDate: string | null;
+  /**
+   * The same names as `items`, newline-joined for display. Never parse it —
+   * items is the data, and two identical drinks are two separate items on
+   * purpose so a member can order the same thing twice.
+   */
+  drinks: string;
+  drinkNotes: Record<string, string>;
+  items: BeverageItemResponse[];
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
+/**
+ * Every member's drink setup, for the making list. Omitting branchId here would
+ * return every branch in the company — the backend checks the caller's role but
+ * not their branch — so the session's own branch is always sent and the result
+ * is checked against it.
+ */
+export async function fetchMemberBeverages(
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({ branchId: String(branchId) });
+  const response = await apiRequest<MemberBeverageResponse[]>(
+    `/api/beverages/members?${query}`,
+    { expectedMemberId },
+  );
+
+  if (response.some((member) => member.branchId !== branchId)) {
+    throw new ApiRequestError('다른 지점의 음료 목록을 받았습니다.', 409);
+  }
+
+  return response;
+}

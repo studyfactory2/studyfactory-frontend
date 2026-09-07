@@ -15,7 +15,7 @@ import { MemberPlans } from '../../screens/member/plans';
 import { MemberStudyScreen } from '../../screens/member/study';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
 import { WorkspacePlaceholderScreen } from '../../screens/workspace/WorkspacePlaceholderScreen';
-import { StaffHomeScreen } from '../../screens/staff/StaffHomeScreen';
+import { StaffHomeScreen } from '../../screens/staff/home';
 import { StaffWorkspaceScreen } from '../../screens/staff/StaffWorkspaceScreen';
 import { getRoleHomePath, appRoutes } from './routes';
 import { ProtectedRoute } from './ProtectedRoute';

@@ -7,4 +7,6 @@ export const beverageQueryKeys = {
   /** Every beverage query for this owner. */
   all: root,
   me: (ownerKey: SessionOwnerKey) => [...root(ownerKey), 'me'] as const,
+  members: (ownerKey: SessionOwnerKey, branchId: number) =>
+    [...root(ownerKey), 'members', branchId] as const,
 };
