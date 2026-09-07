@@ -239,8 +239,7 @@
   list-style: none;
 }
 
-.staff-bev__alert-list li,
-.staff-bev__unseated li {
+.staff-bev__alert-list li {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -250,8 +249,7 @@
   gap: var(--space-2);
 }
 
-.staff-bev__alert-list li:first-child,
-.staff-bev__unseated li:first-child {
+.staff-bev__alert-list li:first-child {
   border-top: 0;
 }
 
@@ -283,6 +281,36 @@
   border-color: transparent;
   background: rgb(var(--brand-forest-rgb) / 10%);
   color: var(--brand-forest);
+}
+
+/* The active room is filled in its own colour; the floor below matches it. */
+.staff-bev__room-tabs button.is-forest.is-active {
+  background: var(--brand-forest);
+  color: var(--brand-ivory);
+}
+
+.staff-bev__room-tabs button.is-gold.is-active {
+  background: var(--brand-gold-text);
+  color: var(--brand-ivory);
+}
+
+/* The floor: a rounded, faintly coloured slab the seats sit on. */
+.staff-bev__floor {
+  padding: 6px;
+  border-radius: 14px;
+  background: rgb(var(--brand-forest-rgb) / 5%);
+}
+
+.staff-bev__floor.is-gold {
+  background: rgb(var(--brand-gold-rgb) / 8%);
+}
+
+.staff-bev__floor.is-forest .staff-bev__cell.is-door {
+  color: var(--brand-forest);
+}
+
+.staff-bev__floor.is-gold .staff-bev__cell.is-door {
+  color: var(--brand-gold-text);
 }
 
 /*
@@ -383,7 +411,8 @@
 
 /* A cell with no item at all is floor, and never rendered. These four are. */
 .staff-bev__cell.is-vacant {
-  background: rgb(var(--brand-ink-rgb) / 4%);
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px rgb(var(--brand-ink-rgb) / 7%);
 }
 
 .staff-bev__cell.is-vacant .staff-bev__cell-seat {
@@ -395,7 +424,7 @@
 }
 
 .staff-bev__cell.is-drink {
-  background: rgb(var(--brand-forest-rgb) / 9%);
+  background: rgb(var(--brand-forest-rgb) / 13%);
   color: var(--brand-forest);
 }
 
@@ -405,7 +434,7 @@
 }
 
 .staff-bev__cell.is-away {
-  background: transparent;
+  background: var(--card);
   box-shadow: inset 0 0 0 1px var(--brand-line);
   color: var(--brand-muted);
 }
@@ -425,6 +454,71 @@
   color: var(--brand-muted);
   font-size: var(--text-3xs);
   font-weight: var(--weight-bold);
+  gap: 2px;
+}
+
+/*
+ * The pencil: a seat is a button, and where there is a pointer the corner
+ * says so on hover. On touch the hint line under the header does that job.
+ * Shelf cells have the room to show it all the time.
+ */
+.staff-bev__cell-pen {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+  button.staff-bev__cell:hover .staff-bev__cell-pen {
+    opacity: 0.8;
+  }
+}
+
+.staff-bev__cell-top .staff-bev__cell-pen {
+  position: static;
+  opacity: 0.75;
+}
+
+/* ---------- shelf: drinkers with no seat ---------- */
+
+.staff-bev__shelf {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0 0 var(--space-3);
+  padding: 8px 10px;
+  border: 1px dashed var(--brand-line);
+  border-radius: 12px;
+  gap: 8px 12px;
+}
+
+.staff-bev__shelf-label {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.staff-bev__shelf-cells {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
+  list-style: none;
+}
+
+.staff-bev__cell.is-shelf {
+  min-width: 96px;
+  min-height: 54px;
+  padding: 4px 12px 6px;
+}
+
+.staff-bev__cell.is-shelf .staff-bev__cell-tumbler {
+  position: static;
 }
 
 .staff-bev__legend {
@@ -455,6 +549,7 @@
 }
 
 .staff-bev__legend i.is-away {
+  background: var(--card);
   box-shadow: inset 0 0 0 1px var(--brand-line);
 }
 
@@ -463,42 +558,8 @@
 }
 
 .staff-bev__legend i.is-vacant {
-  background: rgb(var(--brand-ink-rgb) / 8%);
-}
-
-/* Drinkers the map cannot place: one line each, above the room. */
-.staff-bev__unseated {
-  margin: 0 0 var(--space-3);
-  padding: 0;
-  border-bottom: 1px solid var(--brand-line);
-  list-style: none;
-}
-
-.staff-bev__unseated-name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  font-weight: var(--weight-bold);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.staff-bev__unseated li.is-away {
-  color: var(--brand-muted);
-}
-
-.staff-bev__unseated li.is-away .staff-bev__unseated-name {
-  text-decoration: line-through;
-}
-
-.staff-bev__tag {
-  flex: 0 0 auto;
-  padding: 2px 6px;
-  border-radius: 6px;
-  background: var(--card-2);
-  color: var(--brand-muted);
-  font-size: var(--text-3xs);
-  font-weight: var(--weight-bold);
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px rgb(var(--brand-ink-rgb) / 12%);
 }
 
 .staff-bev__role {
@@ -577,12 +638,12 @@ button.staff-bev__cell:hover {
 
 button.staff-bev__seat:active,
 button.staff-bev__cell:active {
+  filter: brightness(0.96);
   transform: scale(0.98);
 }
 
 button.staff-bev__seat:focus-visible,
 button.staff-bev__cell:focus-visible,
-.staff-bev__unseated-open:focus-visible,
 .staff-bev__refresh:focus-visible,
 .staff-bev__editor-pick:focus-visible,
 .staff-bev__editor-remove:focus-visible {
@@ -595,21 +656,6 @@ button.staff-bev__seat.is-away:hover {
   box-shadow:
     inset 0 0 0 1px var(--brand-line),
     0 0 0 2px rgb(var(--brand-forest-rgb) / 22%);
-}
-
-.staff-bev__unseated-open {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  gap: var(--space-2);
-  cursor: pointer;
-  text-align: left;
 }
 
 /* ---------- member editor ---------- */
@@ -780,8 +826,19 @@ button.staff-bev__seat.is-away:hover {
     margin: 0 2px var(--space-3);
   }
 
-  .staff-bev__unseated {
-    margin: 0 2px var(--space-3);
+  .staff-bev__floor {
+    padding: 4px;
+    border-radius: 12px;
+  }
+
+  .staff-bev__shelf {
+    padding: 6px 8px;
+    gap: 6px 10px;
+  }
+
+  .staff-bev__cell.is-shelf {
+    min-width: 84px;
+    padding: 4px 10px 5px;
   }
 
   .staff-bev__legend {

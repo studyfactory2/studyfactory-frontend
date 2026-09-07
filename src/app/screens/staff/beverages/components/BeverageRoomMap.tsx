@@ -1,3 +1,4 @@
+import { DoorOpen, Pencil } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -23,6 +24,7 @@ type BeverageRoomMapProps = {
     memberId: number;
     memberName: string;
     staff: boolean;
+    tumbler: boolean;
   }>;
 };
 
@@ -45,7 +47,10 @@ export function BeverageRoomMap({
               {rooms.map((room) => (
                 <button
                   aria-selected={room.id === selected?.id}
-                  className={cx(room.id === selected?.id && 'is-active')}
+                  className={cx(
+                    `is-${room.tone}`,
+                    room.id === selected?.id && 'is-active',
+                  )}
                   key={room.id}
                   onClick={() => onSelect(room.id)}
                   role="tab"
@@ -59,37 +64,63 @@ export function BeverageRoomMap({
         }
         title="서빙 좌석표"
       />
+      <p className="staff-bev__section-note">
+        좌석을 누르면 음료를 바로 고칠 수 있어요.
+      </p>
 
       {/*
-        Above the grid, not below it: the real room is fourteen rows tall, and
-        a drinker with no seat must not be the thing you find after a scroll.
+        Drinkers with no seat get a seat anyway — the same cell as everyone
+        else, on a shelf above the room. Above, not below: the real room is
+        fourteen rows tall, and they must not be the thing you find after a
+        scroll.
       */}
       {unseated.length > 0 && (
-        <ul className="staff-bev__unseated">
-          {unseated.map((member) => (
-            <li className={cx(member.away && 'is-away')} key={member.memberId}>
-              <button
-                className="staff-bev__unseated-open"
-                onClick={() => onOpenEditor(member.memberId)}
-                type="button"
-              >
-                <span className="staff-bev__tag">좌석 없음</span>
-                <span className="staff-bev__unseated-name">
-                  {member.memberName}
-                  {member.staff && (
-                    <>
-                      {' '}
-                      <span className="staff-bev__role">스텝</span>
-                    </>
+        <div className="staff-bev__shelf">
+          <span className="staff-bev__shelf-label">좌석 없음</span>
+          <ul className="staff-bev__shelf-cells">
+            {unseated.map((member) => (
+              <li key={member.memberId}>
+                <button
+                  aria-label={`${member.memberName} 음료 편집`}
+                  className={cx(
+                    'staff-bev__cell is-shelf',
+                    member.away ? 'is-away' : 'is-drink',
                   )}
-                </span>
-                <span className="staff-bev__alert-detail">
-                  {member.away ? '오전 휴무' : formatDrinkList(member.drinks)}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
+                  onClick={() => onOpenEditor(member.memberId)}
+                  type="button"
+                >
+                  <span className="staff-bev__cell-top">
+                    <Pencil
+                      aria-hidden="true"
+                      className="staff-bev__cell-pen"
+                      size={11}
+                    />
+                    {member.tumbler && (
+                      <span
+                        aria-label="텀블러"
+                        className="staff-bev__tumbler-badge staff-bev__cell-tumbler"
+                      >
+                        텀
+                      </span>
+                    )}
+                  </span>
+                  <span className="staff-bev__cell-name">
+                    {member.memberName}
+                    {member.staff && (
+                      <>
+                        {' '}
+                        <span className="staff-bev__role">스텝</span>
+                      </>
+                    )}
+                  </span>
+                  <span className="staff-bev__cell-drinks">
+                    {member.away ? '오전 휴무' : formatDrinkList(member.drinks)}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {loading ? (
@@ -124,23 +155,26 @@ export function BeverageRoomMap({
           </ul>
 
           {/*
-            Rows with no seat in them are aisles. They collapse to the aisle
-            height so the room keeps its shape without stretching the map.
+            The floor carries the room's colour, so flipping rooms changes the
+            whole card and nobody serves 2작업실 from the 1작업실 sheet. Rows
+            with no seat in them are aisles and collapse to the aisle height.
           */}
-          <div
-            className="staff-bev__grid"
-            style={{
-              gridTemplateColumns: `repeat(${selected.cols}, minmax(0, 1fr))`,
-              gridTemplateRows: `repeat(${selected.rows}, minmax(var(--staff-bev-aisle), auto))`,
-            }}
-          >
-            {selected.cells.map((cell) => (
-              <RoomCellView
-                cell={cell}
-                key={cell.key}
-                onOpenEditor={onOpenEditor}
-              />
-            ))}
+          <div className={cx('staff-bev__floor', `is-${selected.tone}`)}>
+            <div
+              className="staff-bev__grid"
+              style={{
+                gridTemplateColumns: `repeat(${selected.cols}, minmax(0, 1fr))`,
+                gridTemplateRows: `repeat(${selected.rows}, minmax(var(--staff-bev-aisle), auto))`,
+              }}
+            >
+              {selected.cells.map((cell) => (
+                <RoomCellView
+                  cell={cell}
+                  key={cell.key}
+                  onOpenEditor={onOpenEditor}
+                />
+              ))}
+            </div>
           </div>
         </>
       )}
@@ -161,7 +195,8 @@ function RoomCellView({
   if (item.type === 'DOOR') {
     return (
       <div className="staff-bev__cell is-door" style={position}>
-        문
+        <DoorOpen aria-hidden="true" size={14} />
+        <span>문</span>
       </div>
     );
   }
@@ -225,6 +260,8 @@ function RoomCellView({
       type="button"
     >
       {content}
+      {/* Shown on hover where there is a pointer; the hint line covers touch. */}
+      <Pencil aria-hidden="true" className="staff-bev__cell-pen" size={11} />
     </button>
   );
 }

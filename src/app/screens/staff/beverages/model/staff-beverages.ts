@@ -140,12 +140,19 @@ export type RoomCell = {
   tumbler: boolean;
 };
 
+/** The colour a room is drawn in. Rooms alternate, so two rooms never match. */
+export type RoomTone = 'forest' | 'gold';
+
+const ROOM_TONES: readonly RoomTone[] = ['forest', 'gold'];
+
 export type RoomView = {
   id: number;
   name: string;
   rows: number;
   cols: number;
   cells: RoomCell[];
+  /** Carried by the tab, the floor, and the door, so a room is recognisable at a glance. */
+  tone: RoomTone;
 };
 
 /**
@@ -167,7 +174,7 @@ export function buildRoomViews(
     }
   }
 
-  return (rooms ?? []).map((room) => ({
+  return (rooms ?? []).map((room, index) => ({
     cells: room.items.map((item) => {
       const member = item.number === null ? undefined : bySeat.get(item.number);
       const drinks = (member?.items ?? [])
@@ -191,6 +198,7 @@ export function buildRoomViews(
     id: room.id,
     name: room.name,
     rows: room.rows,
+    tone: ROOM_TONES[index % ROOM_TONES.length] ?? 'forest',
   }));
 }
 
@@ -212,16 +220,21 @@ export function findUnseatedDrinkers(
           (item) => item.name.trim() !== '' && !isExcludedDrink(item.name),
         ),
     )
-    .map((member) => ({
-      away: away.has(member.memberId),
-      drinks: member.items
+    .map((member) => {
+      const drinks = member.items
         .map((item) => item.name.trim())
-        .filter((name) => name !== '' && !isExcludedDrink(name)),
-      memberId: member.memberId,
-      memberName: member.memberName,
-      /* Staff have no seat by design; saying so stops "why no seat?" at a glance. */
-      staff: member.role !== 'MEMBER',
-    }));
+        .filter((name) => name !== '' && !isExcludedDrink(name));
+
+      return {
+        away: away.has(member.memberId),
+        drinks,
+        memberId: member.memberId,
+        memberName: member.memberName,
+        /* Staff have no seat by design; saying so stops "why no seat?" at a glance. */
+        staff: member.role !== 'MEMBER',
+        tumbler: drinks.some(isTumblerDrink),
+      };
+    });
 }
 
 /**
