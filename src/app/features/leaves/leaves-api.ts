@@ -1,4 +1,4 @@
-import { apiRequest } from '../../core/api/api-client';
+import { apiRequest, ApiRequestError } from '../../core/api/api-client';
 
 export type MemberLeavePlanSource = 'FIXED_LEAVE' | 'LEAVE' | 'SPECIAL_LEAVE';
 
@@ -60,4 +60,52 @@ export function deleteMyLeave(leaveId: number, expectedMemberId: number) {
     expectedMemberId,
     method: 'DELETE',
   });
+}
+
+export type DailyLeaveStatusResponse = {
+  memberId: number;
+  branchId: number;
+  seatNumber: number | null;
+  name: string;
+  branch: string | null;
+  leaveDate: string;
+  leaveType: LeaveType | null;
+  /** When the member asked for it. The morning drink count turns on this. */
+  createdAt: string;
+  label: string | null;
+  source: MemberLeavePlanSource | string;
+  /** Set only on manager-assigned special leave; null elsewhere. */
+  requestedAfterEight: boolean | null;
+};
+
+/**
+ * Everyone's leave for one day.
+ *
+ * Worth knowing what this endpoint is: it has no permission check at all on the
+ * backend — any signed-in member can call it, and omitting branchId returns
+ * every branch in the company. Sending the session's own branch and verifying
+ * the rows on the way back is the whole of the protection here, so neither is
+ * optional. It is on the list to gate.
+ */
+export async function fetchDailyLeaveStatuses(
+  date: string,
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({ branchId: String(branchId), date });
+  const response = await apiRequest<DailyLeaveStatusResponse[]>(
+    `/api/leaves/daily-status?${query}`,
+    { expectedMemberId },
+  );
+
+  if (
+    response.some((row) => row.branchId !== branchId || row.leaveDate !== date)
+  ) {
+    throw new ApiRequestError(
+      '다른 지점 또는 날짜의 휴무 목록을 받았습니다.',
+      409,
+    );
+  }
+
+  return response;
 }

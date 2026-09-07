@@ -15,6 +15,7 @@ import { MemberPlans } from '../../screens/member/plans';
 import { MemberStudyScreen } from '../../screens/member/study';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
 import { WorkspacePlaceholderScreen } from '../../screens/workspace/WorkspacePlaceholderScreen';
+import { StaffBeveragesScreen } from '../../screens/staff/beverages';
 import { StaffHomeScreen } from '../../screens/staff/home';
 import { StaffWorkspaceScreen } from '../../screens/staff/StaffWorkspaceScreen';
 import { getRoleHomePath, appRoutes } from './routes';
@@ -59,16 +60,7 @@ export function AppRouter() {
               />
             }
           />
-          <Route
-            path="beverages"
-            element={
-              <WorkspacePlaceholderScreen
-                description="음료 제조 수량과 두 작업실의 서빙 좌석표를 관리합니다."
-                eyebrow="STAFF · BEVERAGE"
-                title="음료"
-              />
-            }
-          />
+          <Route path="beverages" element={<StaffBeveragesScreen />} />
           <Route
             path="operations"
             element={

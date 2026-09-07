@@ -3,7 +3,6 @@ import {
   ATTENDANCE_PRESENT,
   type DailyAttendanceBoard,
 } from '../../../../features/attendances/attendances-api';
-import type { MemberBeverageResponse } from '../../../../features/beverages/beverages-api';
 import type { DailySideDishResponse } from '../../../../features/side-dishes/side-dishes-api';
 import type { StaffScheduleResponse } from '../../../../features/staff-schedules/staff-schedules-api';
 import type { StudyPresenceLiveResponse } from '../../../../features/study-presence/study-presence-api';
@@ -103,30 +102,6 @@ export function summariseRoom(
     ratio: expectedCount > 0 ? seatedCount / expectedCount : null,
     seatedCount,
     unmarkedCount,
-  };
-}
-
-export type BeverageSummary = {
-  cupCount: number;
-  kindCount: number;
-  noteCount: number;
-};
-
-/**
- * Counted from `items`, never from the `drinks` string: two identical drinks are
- * two separate items on purpose, so a member can order the same thing twice,
- * and `drinkNotes` is keyed by drink name and would collapse that pair into one.
- */
-export function summariseBeverages(
-  members: MemberBeverageResponse[] | undefined,
-): BeverageSummary {
-  const items = (members ?? []).flatMap((member) => member.items);
-  const kinds = new Set(items.map((item) => item.name.trim()).filter(Boolean));
-
-  return {
-    cupCount: items.length,
-    kindCount: kinds.size,
-    noteCount: items.filter((item) => (item.note ?? '').trim() !== '').length,
   };
 }
 

@@ -4,6 +4,7 @@ import type { SessionOwnerKey } from '../../../../core/session';
 import { attendanceQueryKeys } from '../../../../features/attendances/attendance-query-keys';
 import { fetchDailyAttendanceBoard } from '../../../../features/attendances/attendances-api';
 import { beverageQueryKeys } from '../../../../features/beverages/beverage-query-keys';
+import { buildMakingBoard } from '../../../../features/beverages/beverage-rules';
 import { fetchMemberBeverages } from '../../../../features/beverages/beverages-api';
 import { sideDishQueryKeys } from '../../../../features/side-dishes/side-dish-query-keys';
 import { fetchDailySideDishes } from '../../../../features/side-dishes/side-dishes-api';
@@ -22,7 +23,6 @@ import {
 } from '../../../../shared/lib/seoul-date';
 import {
   countOpenSuggestions,
-  summariseBeverages,
   summariseMeals,
   summariseRoom,
   summariseShifts,
@@ -111,9 +111,14 @@ export function useStaffHome({
     () => summariseRoom(boardQuery.data, liveQuery.data),
     [boardQuery.data, liveQuery.data],
   );
+  /*
+   * The same rule the beverages screen uses, not a second count of its own.
+   * The drinks list is a standing preference with no date on it, so a plain sum
+   * would include everyone on leave today and read high every morning.
+   */
   const beverages = useMemo(
-    () => summariseBeverages(beverageQuery.data),
-    [beverageQuery.data],
+    () => buildMakingBoard(beverageQuery.data, boardQuery.data),
+    [beverageQuery.data, boardQuery.data],
   );
   const todos = useMemo(() => summariseTodos(todoQuery.data), [todoQuery.data]);
   const meals = useMemo(
@@ -139,7 +144,8 @@ export function useStaffHome({
      */
     jobs: {
       beverages: {
-        cupCount: beverageQuery.isSuccess ? beverages.cupCount : null,
+        /* Null until the board is in too: the deduction depends on it. */
+        cupCount: roomReady ? beverages.toMake : null,
         kindCount: beverages.kindCount,
         noteCount: beverages.noteCount,
       },

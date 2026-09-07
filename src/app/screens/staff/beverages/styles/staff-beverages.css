@@ -1,0 +1,464 @@
+/*
+ * Staff beverages — the morning round. Everything is scoped under .staff-bev,
+ * and every breakpoint block sits at the end of the file: a media block placed
+ * above a base rule of equal specificity loses to it.
+ */
+.staff-bev {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+/* ---------- hero ---------- */
+
+.staff-bev__metrics {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: var(--space-4);
+}
+
+.staff-bev__metric {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.staff-bev__metric-key {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.staff-bev__metric strong {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-extrabold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tighter);
+  line-height: var(--leading-none);
+}
+
+.staff-bev__metric.is-lead strong {
+  color: var(--brand-gold-text);
+  font-size: 2.125rem;
+}
+
+.staff-bev__metric strong small {
+  margin-left: 2px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  opacity: 0.7;
+}
+
+.staff-bev__metric-sub {
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+}
+
+/* ---------- layout ---------- */
+
+.staff-bev__body {
+  display: grid;
+  align-items: start;
+  gap: var(--space-5);
+  grid-template-columns: 22.5rem minmax(0, 1fr);
+}
+
+.staff-bev__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.staff-bev__card {
+  min-width: 0;
+}
+
+.staff-bev__making {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.staff-bev__section-total {
+  color: var(--brand-ink);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.staff-bev__section-total b {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
+  margin-right: 2px;
+}
+
+.staff-bev__section-note {
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  margin-top: -4px;
+  margin-bottom: var(--space-3);
+}
+
+.staff-bev__badge {
+  border-radius: var(--radius-pill);
+  background: var(--card-2);
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  padding: 2px 9px;
+}
+
+.staff-bev__badge.is-warn {
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+}
+
+/* ---------- making list ---------- */
+
+.staff-bev__drinks {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.staff-bev__drink {
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--brand-line);
+}
+
+.staff-bev__drink:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.staff-bev__drink:last-child {
+  padding-bottom: 0;
+}
+
+.staff-bev__drink-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.staff-bev__drink-name {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.staff-bev__drink-count {
+  display: flex;
+  align-items: baseline;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.staff-bev__drink-count b {
+  color: var(--brand-forest);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-extrabold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tighter);
+}
+
+/* The subtraction stays visible: it is why the count differs from the roster. */
+.staff-bev__drink-count em {
+  color: var(--accent-deep);
+  font-size: var(--text-xs);
+  font-style: normal;
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.staff-bev__seats {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: 5px;
+  list-style: none;
+}
+
+.staff-bev__seat {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 4px 9px;
+  border-radius: var(--radius-control);
+  background: var(--card-2);
+  font-size: var(--text-2xs);
+  gap: 5px;
+}
+
+.staff-bev__seat-who {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-bold);
+}
+
+.staff-bev__seat-note {
+  color: var(--accent-deep);
+}
+
+.staff-bev__seat.is-away {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--brand-line);
+  color: var(--brand-muted);
+}
+
+.staff-bev__seat.is-away .staff-bev__seat-who {
+  font-weight: var(--weight-semibold);
+  text-decoration: line-through;
+}
+
+.staff-bev__seat-away {
+  color: var(--brand-muted);
+}
+
+/* ---------- alerts ---------- */
+
+.staff-bev__alerts {
+  display: grid;
+  align-items: start;
+  gap: var(--space-5);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.staff-bev__alert-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.staff-bev__alert-list li,
+.staff-bev__unseated li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px solid var(--brand-line);
+  font-size: var(--text-sm);
+  gap: var(--space-2);
+}
+
+.staff-bev__alert-list li:first-child,
+.staff-bev__unseated li:first-child {
+  border-top: 0;
+}
+
+.staff-bev__alert-detail {
+  color: var(--brand-muted);
+  flex: 0 0 auto;
+  font-size: var(--text-2xs);
+}
+
+/* ---------- room map ---------- */
+
+.staff-bev__room-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.staff-bev__room-tabs button {
+  padding: 6px 12px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--brand-muted);
+  font: inherit;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+}
+
+.staff-bev__room-tabs button.is-active {
+  border-color: transparent;
+  background: rgb(var(--brand-forest-rgb) / 10%);
+  color: var(--brand-forest);
+}
+
+.staff-bev__grid {
+  display: grid;
+  gap: 6px;
+}
+
+.staff-bev__cell {
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 4px;
+  border-radius: var(--radius-control);
+  background: var(--card-2);
+  gap: 1px;
+  text-align: center;
+}
+
+.staff-bev__cell-seat {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.staff-bev__cell-name {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.staff-bev__cell-drinks {
+  font-size: var(--text-3xs);
+  line-height: var(--leading-tight);
+}
+
+.staff-bev__cell-note {
+  color: var(--accent-deep);
+  font-size: var(--text-3xs);
+  line-height: var(--leading-tight);
+}
+
+/* A cell with no item at all is floor, and never rendered. These four are. */
+.staff-bev__cell.is-vacant {
+  background: rgb(var(--brand-ink-rgb) / 4%);
+}
+
+.staff-bev__cell.is-seat {
+  background: var(--card-2);
+}
+
+.staff-bev__cell.is-drink {
+  background: rgb(var(--brand-forest-rgb) / 9%);
+  color: var(--brand-forest);
+}
+
+.staff-bev__cell.is-drink .staff-bev__cell-seat {
+  color: inherit;
+  opacity: 0.7;
+}
+
+.staff-bev__cell.is-away {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--brand-line);
+  color: var(--brand-muted);
+}
+
+.staff-bev__cell.is-away .staff-bev__cell-name {
+  text-decoration: line-through;
+}
+
+.staff-bev__cell.is-door {
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(
+    135deg,
+    rgb(var(--brand-ink-rgb) / 6%) 0 4px,
+    transparent 4px 8px
+  );
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+}
+
+.staff-bev__legend {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  gap: 6px var(--space-4);
+  list-style: none;
+}
+
+.staff-bev__legend li {
+  display: inline-flex;
+  align-items: center;
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  gap: 5px;
+}
+
+.staff-bev__legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.staff-bev__legend i.is-drink {
+  background: rgb(var(--brand-forest-rgb) / 22%);
+}
+
+.staff-bev__legend i.is-away {
+  box-shadow: inset 0 0 0 1px var(--brand-line);
+}
+
+.staff-bev__legend i.is-seat {
+  background: var(--card-2);
+}
+
+.staff-bev__legend i.is-vacant {
+  background: rgb(var(--brand-ink-rgb) / 8%);
+}
+
+.staff-bev__unseated {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--brand-line);
+}
+
+.staff-bev__unseated ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.staff-bev__unseated li.is-away {
+  color: var(--brand-muted);
+}
+
+/* ============================================================
+   Breakpoints. Kept last on purpose — see the note at the top.
+   ============================================================ */
+
+@media (max-width: 1023px) {
+  .staff-bev__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .staff-bev__metrics {
+    gap: var(--space-4);
+  }
+}
+
+@media (max-width: 767px) {
+  .staff-bev {
+    gap: var(--space-5);
+  }
+
+  .staff-bev__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .staff-bev__metric.is-lead strong {
+    font-size: 1.75rem;
+  }
+
+  .staff-bev__alerts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .staff-bev__grid {
+    gap: 4px;
+  }
+
+  .staff-bev__cell {
+    padding: 4px 2px;
+  }
+}
