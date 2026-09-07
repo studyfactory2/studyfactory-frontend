@@ -285,17 +285,32 @@
   color: var(--brand-forest);
 }
 
+/*
+ * The grid is the room: every item sits at its own column/row from the
+ * payload, floor is whatever has no item. Rows without a seat are aisles and
+ * take --staff-bev-aisle; a row with a seat in it takes the seat's height.
+ */
 .staff-bev__grid {
+  --staff-bev-aisle: 20px;
+
   display: grid;
   gap: 6px;
 }
 
+/*
+ * One seat: number on top, name, drink, note — each on its own line, each
+ * clipped with an ellipsis rather than wrapped, so a long order can never
+ * make one seat taller than its row.
+ */
 .staff-bev__cell {
+  position: relative;
   display: flex;
   overflow: hidden;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-width: 0;
+  min-height: 58px;
   padding: 5px 4px;
   border-radius: var(--radius-control);
   background: var(--card-2);
@@ -303,16 +318,36 @@
   text-align: center;
 }
 
+.staff-bev__cell > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Number line. The 텀 mark rides in the corner where there is room, and
+ * sits beside the number on a phone, where a corner would collide with it.
+ */
+.staff-bev__cell-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
 .staff-bev__cell-seat {
   color: var(--brand-muted);
   font-size: var(--text-3xs);
   font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
 }
 
 .staff-bev__cell-name {
   font-size: var(--text-2xs);
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
 }
 
 .staff-bev__cell-drinks {
@@ -326,9 +361,33 @@
   line-height: var(--leading-tight);
 }
 
+/* The 텀 mark, on a seat and in the legend. */
+.staff-bev__tumbler-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 4px;
+  border-radius: 5px;
+  background: var(--special-soft);
+  color: var(--special-deep);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: 0.04em;
+  line-height: var(--leading-tight);
+}
+
+.staff-bev__cell-tumbler {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
 /* A cell with no item at all is floor, and never rendered. These four are. */
 .staff-bev__cell.is-vacant {
   background: rgb(var(--brand-ink-rgb) / 4%);
+}
+
+.staff-bev__cell.is-vacant .staff-bev__cell-seat {
+  opacity: 0.7;
 }
 
 .staff-bev__cell.is-seat {
@@ -371,7 +430,7 @@
 .staff-bev__legend {
   display: flex;
   flex-wrap: wrap;
-  margin: var(--space-4) 0 0;
+  margin: 0 0 var(--space-3);
   padding: 0;
   gap: 6px var(--space-4);
   list-style: none;
@@ -407,20 +466,259 @@
   background: rgb(var(--brand-ink-rgb) / 8%);
 }
 
+/* Drinkers the map cannot place: one line each, above the room. */
 .staff-bev__unseated {
-  margin-top: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--brand-line);
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  border-bottom: 1px solid var(--brand-line);
+  list-style: none;
 }
 
-.staff-bev__unseated ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.staff-bev__unseated-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-weight: var(--weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .staff-bev__unseated li.is-away {
   color: var(--brand-muted);
+}
+
+.staff-bev__unseated li.is-away .staff-bev__unseated-name {
+  text-decoration: line-through;
+}
+
+.staff-bev__tag {
+  flex: 0 0 auto;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: var(--card-2);
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+}
+
+.staff-bev__role {
+  margin-left: 1px;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--card-2);
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  vertical-align: 1px;
+}
+
+/* ---------- as-of + refresh ---------- */
+
+.staff-bev__asof {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.staff-bev__asof-time {
+  color: var(--brand-muted);
+}
+
+.staff-bev__refresh {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--brand-ink);
+  font: inherit;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  gap: 5px;
+  cursor: pointer;
+}
+
+.staff-bev__refresh:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.staff-bev__refresh.is-refreshing svg {
+  animation: staff-bev-spin 0.9s linear infinite;
+}
+
+@keyframes staff-bev-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- tappable chips, cells, rows ---------- */
+
+/* Chips and seats are buttons now; they keep their look and gain a press. */
+button.staff-bev__seat,
+button.staff-bev__cell {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  text-align: inherit;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+button.staff-bev__seat:hover,
+button.staff-bev__cell:hover {
+  box-shadow: 0 0 0 2px rgb(var(--brand-forest-rgb) / 22%);
+}
+
+button.staff-bev__seat:active,
+button.staff-bev__cell:active {
+  transform: scale(0.98);
+}
+
+button.staff-bev__seat:focus-visible,
+button.staff-bev__cell:focus-visible,
+.staff-bev__unseated-open:focus-visible,
+.staff-bev__refresh:focus-visible,
+.staff-bev__editor-pick:focus-visible,
+.staff-bev__editor-remove:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+button.staff-bev__cell.is-away:hover,
+button.staff-bev__seat.is-away:hover {
+  box-shadow:
+    inset 0 0 0 1px var(--brand-line),
+    0 0 0 2px rgb(var(--brand-forest-rgb) / 22%);
+}
+
+.staff-bev__unseated-open {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  gap: var(--space-2);
+  cursor: pointer;
+  text-align: left;
+}
+
+/* ---------- member editor ---------- */
+
+.staff-bev__editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.staff-bev__editor-empty {
+  color: var(--brand-muted);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.staff-bev__editor-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.staff-bev__editor-row {
+  display: grid;
+  align-items: center;
+  gap: var(--space-2);
+  grid-template-columns: 22px minmax(0, 1.1fr) minmax(0, 1fr) 36px;
+}
+
+.staff-bev__editor-index {
+  color: var(--brand-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.staff-bev__editor-remove {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--brand-muted);
+  cursor: pointer;
+  place-items: center;
+}
+
+.staff-bev__editor-remove:hover {
+  background: var(--danger-soft);
+  color: var(--danger-deep);
+}
+
+.staff-bev__editor-add {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--brand-line);
+  gap: var(--space-3);
+}
+
+.staff-bev__editor-label {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.staff-bev__editor-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.staff-bev__editor-pick {
+  min-height: 36px;
+  padding: 0 13px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  color: var(--brand-ink);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+}
+
+.staff-bev__editor-pick:hover {
+  border-color: var(--brand-forest);
+  color: var(--brand-forest);
+}
+
+.staff-bev__editor-custom {
+  display: grid;
+  align-items: center;
+  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.staff-bev__editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-2);
+  gap: var(--space-2);
 }
 
 /* ============================================================
@@ -434,6 +732,19 @@
 
   .staff-bev__metrics {
     gap: var(--space-4);
+  }
+
+  /* The map has the full width here, so a seat can afford a size up. */
+  .staff-bev__cell {
+    min-height: 62px;
+  }
+
+  .staff-bev__cell-name {
+    font-size: var(--text-xs);
+  }
+
+  .staff-bev__cell-drinks {
+    font-size: var(--text-2xs);
   }
 }
 
@@ -454,11 +765,62 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  /*
+   * The real rooms are seven and eight columns wide, and the whole room has
+   * to be in view: a map that scrolls sideways hides the seats along one
+   * wall. So the columns share the width — 45px each for seven, 39px for
+   * eight — the card gives up most of its padding to them, the name and the
+   * drink clip with an ellipsis, and the note waits in the editor.
+   */
+  .staff-bev__map-card {
+    padding: var(--space-3) 10px;
+  }
+
+  .staff-bev__map-card .card__header {
+    margin: 0 2px var(--space-3);
+  }
+
+  .staff-bev__unseated {
+    margin: 0 2px var(--space-3);
+  }
+
+  .staff-bev__legend {
+    margin: 0 2px var(--space-2);
+    gap: 4px 9px;
+  }
+
+  .staff-bev__legend li {
+    font-size: var(--text-3xs);
+  }
+
   .staff-bev__grid {
-    gap: 4px;
+    --staff-bev-aisle: 14px;
+
+    gap: 3px;
   }
 
   .staff-bev__cell {
-    padding: 4px 2px;
+    min-height: 52px;
+    padding: 4px 1px;
+    border-radius: 8px;
+    gap: 0;
+  }
+
+  .staff-bev__cell-note {
+    display: none;
+  }
+
+  .staff-bev__cell-tumbler {
+    position: static;
+    padding: 0 3px;
+  }
+
+  .staff-bev__editor-row {
+    grid-template-columns: 18px minmax(0, 1fr) 36px;
+  }
+
+  /* The note drops under the name on a phone; two inputs abreast is too tight. */
+  .staff-bev__editor-row > .control:nth-of-type(2) {
+    grid-column: 2;
   }
 }

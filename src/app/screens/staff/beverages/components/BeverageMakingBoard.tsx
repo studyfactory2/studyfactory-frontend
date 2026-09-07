@@ -13,6 +13,7 @@ type BeverageMakingBoardProps = {
   cupToMake: number;
   errorMessage: string | null;
   loading: boolean;
+  onOpenEditor: (memberId: number) => void;
   onRetry: () => void;
   ready: boolean;
   tumbler: DrinkCount[];
@@ -24,6 +25,7 @@ export function BeverageMakingBoard({
   cupToMake,
   errorMessage,
   loading,
+  onOpenEditor,
   onRetry,
   ready,
   tumbler,
@@ -61,6 +63,7 @@ export function BeverageMakingBoard({
       <MakingSection
         emptyLabel="컵 음료 없음"
         groups={cup}
+        onOpenEditor={onOpenEditor}
         title="컵"
         toMake={cupToMake}
       />
@@ -68,6 +71,7 @@ export function BeverageMakingBoard({
         emptyLabel="텀블러 음료 없음"
         groups={tumbler}
         note="회원이 가져온 텀블러에 담습니다."
+        onOpenEditor={onOpenEditor}
         title="텀블러"
         toMake={tumblerToMake}
       />
@@ -79,12 +83,14 @@ function MakingSection({
   emptyLabel,
   groups,
   note,
+  onOpenEditor,
   title,
   toMake,
 }: {
   emptyLabel: string;
   groups: DrinkCount[];
   note?: string;
+  onOpenEditor: (memberId: number) => void;
   title: string;
   toMake: number;
 }) {
@@ -105,7 +111,11 @@ function MakingSection({
       ) : (
         <ul className="staff-bev__drinks">
           {groups.map((group) => (
-            <DrinkRow group={group} key={group.name} />
+            <DrinkRow
+              group={group}
+              key={group.name}
+              onOpenEditor={onOpenEditor}
+            />
           ))}
         </ul>
       )}
@@ -113,7 +123,13 @@ function MakingSection({
   );
 }
 
-function DrinkRow({ group }: { group: DrinkCount }) {
+function DrinkRow({
+  group,
+  onOpenEditor,
+}: {
+  group: DrinkCount;
+  onOpenEditor: (memberId: number) => void;
+}) {
   return (
     <li className="staff-bev__drink">
       <div className="staff-bev__drink-head">
@@ -132,20 +148,24 @@ function DrinkRow({ group }: { group: DrinkCount }) {
 
       <ul className="staff-bev__seats">
         {group.servings.map((serving, index) => (
-          <li
-            className={cx('staff-bev__seat', serving.deducted && 'is-away')}
-            key={`${serving.memberId}-${index}`}
-          >
-            <span className="staff-bev__seat-who">
-              {formatMemberLabel(serving.seatNumber, serving.memberName)}
-            </span>
-            {serving.deducted ? (
-              <span className="staff-bev__seat-away">휴무</span>
-            ) : (
-              serving.note && (
-                <span className="staff-bev__seat-note">{serving.note}</span>
-              )
-            )}
+          <li key={`${serving.memberId}-${index}`}>
+            <button
+              aria-label={`${serving.memberName} 음료 편집`}
+              className={cx('staff-bev__seat', serving.deducted && 'is-away')}
+              onClick={() => onOpenEditor(serving.memberId)}
+              type="button"
+            >
+              <span className="staff-bev__seat-who">
+                {formatMemberLabel(serving.seatNumber, serving.memberName)}
+              </span>
+              {serving.deducted ? (
+                <span className="staff-bev__seat-away">휴무</span>
+              ) : (
+                serving.note && (
+                  <span className="staff-bev__seat-note">{serving.note}</span>
+                )
+              )}
+            </button>
           </li>
         ))}
       </ul>

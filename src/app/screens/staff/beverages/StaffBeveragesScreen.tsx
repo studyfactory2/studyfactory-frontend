@@ -1,9 +1,12 @@
+import { RefreshCw } from 'lucide-react';
 import { useSession } from '../../../core/session';
 import type { SessionOwnerKey } from '../../../core/session';
 import { EmptyState, Instrument } from '../../../shared/ui';
+import { cx } from '../../../shared/lib/cx';
 import { formatKoreanDate } from '../../../shared/lib/seoul-date';
 import { BeverageAlerts } from './components/BeverageAlerts';
 import { BeverageMakingBoard } from './components/BeverageMakingBoard';
+import { BeverageMemberEditor } from './components/BeverageMemberEditor';
 import { BeverageRoomMap } from './components/BeverageRoomMap';
 import { useStaffBeverages } from './hooks/useStaffBeverages';
 import './styles/staff-beverages.css';
@@ -42,7 +45,7 @@ function StaffBeveragesContent({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
-  const { alerts, making, room, today } = useStaffBeverages({
+  const { alerts, editor, freshness, making, room, today } = useStaffBeverages({
     branchId,
     memberId,
     ownerKey,
@@ -50,7 +53,37 @@ function StaffBeveragesContent({
 
   return (
     <div className="staff-bev">
-      <Instrument label="오늘 음료" note={formatKoreanDate(today.dateKey)}>
+      <Instrument
+        label="오늘 음료"
+        note={
+          <span className="staff-bev__asof">
+            <span>{formatKoreanDate(today.dateKey)}</span>
+            {freshness.updatedAtLabel && (
+              <span className="staff-bev__asof-time">
+                {freshness.updatedAtLabel} 기준
+              </span>
+            )}
+            {/*
+              A morning screen that can go stale between the lock screen and
+              the counter needs an obvious way to pull fresh numbers, and an
+              honest note of how old the current ones are.
+            */}
+            <button
+              aria-label="음료 목록 새로고침"
+              className={cx(
+                'staff-bev__refresh',
+                freshness.refreshing && 'is-refreshing',
+              )}
+              disabled={freshness.refreshing}
+              onClick={freshness.onRefresh}
+              type="button"
+            >
+              <RefreshCw aria-hidden="true" size={14} />
+              갱신
+            </button>
+          </span>
+        }
+      >
         <div className="staff-bev__metrics">
           <p className="staff-bev__metric is-lead">
             <span className="staff-bev__metric-key">만들 음료</span>
@@ -94,6 +127,7 @@ function StaffBeveragesContent({
             cupToMake={making.cupToMake}
             errorMessage={making.errorMessage}
             loading={making.loading}
+            onOpenEditor={editor.onOpen}
             onRetry={making.onRetry}
             ready={making.ready}
             tumbler={making.tumbler}
@@ -105,6 +139,7 @@ function StaffBeveragesContent({
           <BeverageRoomMap
             errorMessage={room.errorMessage}
             loading={room.loading}
+            onOpenEditor={editor.onOpen}
             onRetry={room.onRetry}
             onSelect={room.onSelect}
             rooms={room.rooms}
@@ -119,6 +154,13 @@ function StaffBeveragesContent({
           />
         </div>
       </div>
+
+      <BeverageMemberEditor
+        onClose={editor.onClose}
+        onSave={editor.onSave}
+        saving={editor.saving}
+        target={editor.target}
+      />
     </div>
   );
 }

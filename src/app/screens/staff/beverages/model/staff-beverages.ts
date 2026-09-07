@@ -2,6 +2,7 @@ import type { DailyAttendanceBoard } from '../../../../features/attendances/atte
 import {
   formatMemberLabel,
   isExcludedDrink,
+  isTumblerDrink,
   morningLeaveMemberIds,
 } from '../../../../features/beverages/beverage-rules';
 import type { MemberBeverageResponse } from '../../../../features/beverages/beverages-api';
@@ -128,11 +129,15 @@ export function findLateLeaves(
 export type RoomCell = {
   key: string;
   item: RoomLayoutItem;
+  /** From the beverage list, so it opens that member's editor. */
+  memberId: number | null;
   memberName: string | null;
   drinks: string[];
   notes: string[];
   /** Off this morning, so this seat gets nothing on the walk. */
   away: boolean;
+  /** At least one drink goes in the member's own tumbler, not a cup. */
+  tumbler: boolean;
 };
 
 export type RoomView = {
@@ -174,10 +179,12 @@ export function buildRoomViews(
         drinks,
         item,
         key: `${room.id}-${item.id}`,
+        memberId: member?.memberId ?? null,
         memberName: member?.memberName ?? null,
         notes: (member?.items ?? [])
           .map((drink) => (drink.note ?? '').trim())
           .filter((note) => note !== ''),
+        tumbler: drinks.some(isTumblerDrink),
       };
     }),
     cols: room.cols,
@@ -212,7 +219,25 @@ export function findUnseatedDrinkers(
         .filter((name) => name !== '' && !isExcludedDrink(name)),
       memberId: member.memberId,
       memberName: member.memberName,
+      /* Staff have no seat by design; saying so stops "why no seat?" at a glance. */
+      staff: member.role !== 'MEMBER',
     }));
+}
+
+/**
+ * Drinks as a seat shows them: repeats folded into a count, so two 아아 read as
+ * "아아 ×2" in a 45px cell instead of "아아, 아아". Order of first appearance.
+ */
+export function formatDrinkList(drinks: readonly string[]) {
+  const counts = new Map<string, number>();
+
+  for (const drink of drinks) {
+    counts.set(drink, (counts.get(drink) ?? 0) + 1);
+  }
+
+  return [...counts]
+    .map(([name, count]) => (count > 1 ? `${name} ×${count}` : name))
+    .join(', ');
 }
 
 function formatLeaveType(leaveType: DailyLeaveStatusResponse['leaveType']) {

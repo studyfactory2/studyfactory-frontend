@@ -127,3 +127,36 @@ export async function fetchMemberBeverages(
 
   return response;
 }
+
+/**
+ * Replaces a member's whole drink list, as staff. This is the only write the
+ * staff screen makes, for the same reason the member screen has only replace:
+ * `DELETE …/items?drinkSetting=` matches by name and would remove every row
+ * sharing it, and the same drink may legitimately appear twice. Removing one
+ * of two is therefore "send the list without it".
+ *
+ * The backend's own check on this endpoint is the role only — it does not
+ * confirm the target is in the caller's branch — so the response's branchId is
+ * verified here rather than trusted.
+ */
+export async function replaceMemberBeverageItems(
+  memberId: number,
+  items: readonly BeverageItemInput[],
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<BeveragePreferenceResponse>(
+    `/api/beverages/members/${memberId}`,
+    {
+      body: JSON.stringify({ items }),
+      expectedMemberId,
+      method: 'PATCH',
+    },
+  );
+
+  if (response.memberId !== memberId || response.branchId !== branchId) {
+    throw new ApiRequestError('다른 회원의 음료 정보를 받았습니다.', 409);
+  }
+
+  return response;
+}

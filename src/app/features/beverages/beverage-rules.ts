@@ -19,6 +19,21 @@ import type { MemberBeverageResponse } from './beverages-api';
  * first thing to drift would be the leave deduction.
  */
 
+/**
+ * The names the branch actually uses, offered as one-tap picks in the staff
+ * editor. Free text is still allowed — but the making list groups by name, so
+ * "아아" typed one way and "아이스 아메리카노" typed another would count as two
+ * drinks, and the picks keep that from happening by default.
+ */
+export const DRINK_QUICK_PICKS = [
+  '아아',
+  '뜨아',
+  '텀아아',
+  '텀뜨아',
+  '선식',
+  '해독',
+] as const;
+
 /** Members type these when they do not want a drink. */
 const EXCLUDED_DRINK_NAMES = new Set(['없음', 'x', '안먹음']);
 
