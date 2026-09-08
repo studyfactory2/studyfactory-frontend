@@ -16,6 +16,7 @@ import { MemberStudyScreen } from '../../screens/member/study';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
 import { WorkspacePlaceholderScreen } from '../../screens/workspace/WorkspacePlaceholderScreen';
 import { StaffBeveragesScreen } from '../../screens/staff/beverages';
+import { StaffAttendanceScreen } from '../../screens/staff/attendance';
 import { StaffHomeScreen } from '../../screens/staff/home';
 import { StaffWorkspaceScreen } from '../../screens/staff/StaffWorkspaceScreen';
 import { getRoleHomePath, appRoutes } from './routes';
@@ -50,16 +51,7 @@ export function AppRouter() {
       <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
         <Route path={appRoutes.staff} element={<StaffWorkspaceScreen />}>
           <Route index element={<StaffHomeScreen />} />
-          <Route
-            path="attendance"
-            element={
-              <WorkspacePlaceholderScreen
-                description="회원 입실·퇴실과 현장 출석 상태를 확인합니다."
-                eyebrow="STAFF · ATTENDANCE"
-                title="출석"
-              />
-            }
-          />
+          <Route path="attendance" element={<StaffAttendanceScreen />} />
           <Route path="beverages" element={<StaffBeveragesScreen />} />
           <Route
             path="operations"

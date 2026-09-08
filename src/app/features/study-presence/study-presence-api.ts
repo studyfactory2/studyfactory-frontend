@@ -151,8 +151,30 @@ export type StudyPresenceLiveResponse = {
  * this one takes no branchId at all — the backend pins it to the caller's own
  * branch — so there is nothing to widen here.
  */
-export function fetchLiveStudyPresence(expectedMemberId: number) {
-  return apiRequest<StudyPresenceLiveResponse>('/api/study-presence/live', {
-    expectedMemberId,
-  });
+export async function fetchLiveStudyPresence(
+  expectedMemberId: number,
+  expectedBranchId: number,
+) {
+  const response = await apiRequest<StudyPresenceLiveResponse>(
+    '/api/study-presence/live',
+    { expectedMemberId },
+  );
+
+  if (response.branchId !== expectedBranchId) {
+    throw new ApiRequestError(
+      '다른 지점의 실시간 입실 정보를 받았습니다.',
+      409,
+    );
+  }
+
+  if (
+    response.sessions.some((session) => session.branchId !== expectedBranchId)
+  ) {
+    throw new ApiRequestError(
+      '다른 지점의 실시간 입실 정보가 포함되어 있습니다.',
+      409,
+    );
+  }
+
+  return response;
 }

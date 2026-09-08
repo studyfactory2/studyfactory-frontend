@@ -2,7 +2,7 @@ import { apiRequest, ApiRequestError } from '../../core/api/api-client';
 
 /**
  * A board cell holds one of three things: "O" for a slot staff have marked
- * present, "X" for one nobody has touched, or a leave label the backend
+ * present, "X" for a slot with no stored status, or a leave label the backend
  * composed from the leave itself ("오전반차", "병원", …). Only the first two are
  * fixed strings, so callers match those and treat everything else as leave
  * rather than trying to enumerate labels the frontend does not own.

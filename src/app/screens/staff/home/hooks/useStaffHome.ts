@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { SessionOwnerKey } from '../../../../core/session';
 import { attendanceQueryKeys } from '../../../../features/attendances/attendance-query-keys';
+import { getOperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import { fetchDailyAttendanceBoard } from '../../../../features/attendances/attendances-api';
 import { beverageQueryKeys } from '../../../../features/beverages/beverage-query-keys';
 import { buildMakingBoard } from '../../../../features/beverages/beverage-rules';
@@ -24,7 +25,6 @@ import {
 } from '../../../../shared/lib/seoul-date';
 import {
   countOpenSuggestions,
-  getOperationalAttendanceSlot,
   summariseMeals,
   summariseRoom,
   summariseShifts,
@@ -62,7 +62,7 @@ export function useStaffHome({
   const currentSlot = getOperationalAttendanceSlot(clock.secondsOfDay);
 
   const liveQuery = useQuery({
-    queryFn: () => fetchLiveStudyPresence(memberId),
+    queryFn: () => fetchLiveStudyPresence(memberId, branchId),
     queryKey: studyPresenceQueryKeys.live(ownerKey),
     refetchInterval: LIVE_REFETCH_MS,
     staleTime: LIVE_STALE_TIME_MS,
