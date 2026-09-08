@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { Search } from 'lucide-react';
+import { MoveHorizontal, Search } from 'lucide-react';
 import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import {
   Badge,
@@ -40,9 +40,7 @@ export function AttendanceBoard({
   const searchId = useId();
   const [filter, setFilter] = useState<AttendanceFilter>('all');
   const [query, setQuery] = useState('');
-  const [selectedSlotOverride, setSelectedSlotOverride] =
-    useState<OperationalAttendanceSlot | null>(null);
-  const selectedSlot = selectedSlotOverride ?? operationalSlot ?? 1;
+  const filterSlot: OperationalAttendanceSlot = operationalSlot ?? 7;
   const effectiveFilter =
     activeSlot === null && filter === 'unmarked' ? 'all' : filter;
 
@@ -57,14 +55,14 @@ export function AttendanceBoard({
       const matchesFilter =
         effectiveFilter === 'all' ||
         (effectiveFilter === 'leave' &&
-          member.slots[selectedSlot - 1]?.state === 'leave') ||
+          member.slots[filterSlot - 1]?.state === 'leave') ||
         (effectiveFilter === 'unmarked' &&
           activeSlot !== null &&
-          member.slots[selectedSlot - 1]?.state === 'unmarked');
+          member.slots[filterSlot - 1]?.state === 'unmarked');
 
       return matchesQuery && matchesFilter;
     });
-  }, [activeSlot, effectiveFilter, members, query, selectedSlot]);
+  }, [activeSlot, effectiveFilter, filterSlot, members, query]);
 
   return (
     <Card className="staff-attendance__board" padding="none">
@@ -108,12 +106,12 @@ export function AttendanceBoard({
               <FilterButton
                 active={effectiveFilter === 'unmarked'}
                 disabled={activeSlot === null}
-                label={`${selectedSlot}교시 미처리`}
+                label={`${filterSlot}교시 미처리`}
                 onClick={() => setFilter('unmarked')}
               />
               <FilterButton
                 active={effectiveFilter === 'leave'}
-                label={`${selectedSlot}교시 휴무`}
+                label={`${filterSlot}교시 휴무`}
                 onClick={() => setFilter('leave')}
               />
             </div>
@@ -150,20 +148,11 @@ export function AttendanceBoard({
               </SectionEmpty>
             </div>
           ) : (
-            <>
-              <DesktopAttendanceTable
-                activeSlot={activeSlot}
-                members={visibleMembers}
-                operationalSlot={operationalSlot}
-              />
-              <MobileAttendanceList
-                activeSlot={activeSlot}
-                members={visibleMembers}
-                onSelectSlot={setSelectedSlotOverride}
-                operationalSlot={operationalSlot}
-                selectedSlot={selectedSlot}
-              />
-            </>
+            <AttendanceTable
+              activeSlot={activeSlot}
+              members={visibleMembers}
+              operationalSlot={operationalSlot}
+            />
           )}
         </>
       )}
@@ -195,7 +184,7 @@ function FilterButton({
   );
 }
 
-function DesktopAttendanceTable({
+function AttendanceTable({
   activeSlot,
   members,
   operationalSlot,
@@ -204,21 +193,89 @@ function DesktopAttendanceTable({
   members: StaffAttendanceMember[];
   operationalSlot: OperationalAttendanceSlot | null;
 }) {
+  const frameRef = useRef<HTMLDivElement>(null);
+  const identityHeaderRef = useRef<HTMLTableCellElement>(null);
+  const operationalHeaderRef = useRef<HTMLTableCellElement>(null);
+
+  useEffect(() => {
+    if (operationalSlot === null) {
+      return;
+    }
+
+    const compactViewport = window.matchMedia('(max-width: 1023px)');
+    let animationFrame = 0;
+
+    const alignOperationalSlot = () => {
+      if (!compactViewport.matches) {
+        return;
+      }
+
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => {
+        const scrollViewport =
+          frameRef.current?.querySelector<HTMLElement>('.table-wrap');
+        const identityHeader = identityHeaderRef.current;
+        const operationalHeader = operationalHeaderRef.current;
+
+        if (!scrollViewport || !identityHeader || !operationalHeader) {
+          return;
+        }
+
+        const contentWidth = Math.max(
+          0,
+          scrollViewport.clientWidth - identityHeader.offsetWidth,
+        );
+        const centeredOffset =
+          operationalHeader.offsetLeft -
+          identityHeader.offsetWidth -
+          (contentWidth - operationalHeader.offsetWidth) / 2;
+        const maximumOffset = Math.max(
+          0,
+          scrollViewport.scrollWidth - scrollViewport.clientWidth,
+        );
+
+        scrollViewport.scrollLeft = Math.min(
+          maximumOffset,
+          Math.max(0, centeredOffset),
+        );
+      });
+    };
+
+    alignOperationalSlot();
+    compactViewport.addEventListener('change', alignOperationalSlot);
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      compactViewport.removeEventListener('change', alignOperationalSlot);
+    };
+  }, [operationalSlot]);
+
   return (
-    <div className="staff-attendance__desktop-table">
+    <div className="staff-attendance__table-frame" ref={frameRef}>
+      <p className="staff-attendance__scroll-hint">
+        <MoveHorizontal aria-hidden="true" size={14} />
+        옆으로 밀어 1–7교시를 확인하세요.
+      </p>
       <Table>
         <caption className="staff-attendance__sr-only">
           좌석 회원별 오늘 1교시부터 7교시까지의 출석 상태
         </caption>
         <thead>
           <tr>
-            <th className="staff-attendance__identity-col" scope="col">
+            <th
+              className="staff-attendance__identity-col"
+              ref={identityHeaderRef}
+              scope="col"
+            >
               회원
             </th>
             {ATTENDANCE_SLOTS.map((slot) => (
               <th
                 className={cx(operationalSlot === slot && 'is-operational')}
                 key={slot}
+                ref={
+                  operationalSlot === slot ? operationalHeaderRef : undefined
+                }
                 scope="col"
               >
                 <span>{slot}교시</span>
@@ -235,105 +292,26 @@ function DesktopAttendanceTable({
               <th className="staff-attendance__identity-col" scope="row">
                 <MemberIdentity member={member} />
               </th>
-              {member.slots.map((cell, index) => (
-                <td
-                  className={cx(
-                    operationalSlot === index + 1 && 'is-operational',
-                  )}
-                  key={index}
-                >
-                  <AttendanceStatus cell={cell} />
-                </td>
-              ))}
+              {member.slots.map((cell, index) => {
+                const slot = (index + 1) as OperationalAttendanceSlot;
+                const future =
+                  cell.state === 'unmarked' &&
+                  operationalSlot !== null &&
+                  (activeSlot === null || slot > activeSlot);
+
+                return (
+                  <td
+                    className={cx(operationalSlot === slot && 'is-operational')}
+                    key={index}
+                  >
+                    <AttendanceStatus cell={cell} future={future} />
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
       </Table>
-    </div>
-  );
-}
-
-function MobileAttendanceList({
-  activeSlot,
-  members,
-  onSelectSlot,
-  operationalSlot,
-  selectedSlot,
-}: {
-  activeSlot: OperationalAttendanceSlot | null;
-  members: StaffAttendanceMember[];
-  onSelectSlot: (slot: OperationalAttendanceSlot) => void;
-  operationalSlot: OperationalAttendanceSlot | null;
-  selectedSlot: OperationalAttendanceSlot;
-}) {
-  const selectedPeriodRef = useRef<HTMLButtonElement>(null);
-  const periodTabsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const selectedPeriod = selectedPeriodRef.current;
-    const periodTabs = periodTabsRef.current;
-
-    if (!selectedPeriod || !periodTabs) {
-      return;
-    }
-
-    periodTabs.scrollLeft = Math.max(
-      0,
-      selectedPeriod.offsetLeft -
-        (periodTabs.clientWidth - selectedPeriod.offsetWidth) / 2,
-    );
-  }, [selectedSlot]);
-
-  return (
-    <div className="staff-attendance__mobile-board">
-      <p className="staff-attendance__period-hint">
-        교시를 옆으로 밀어 1–7교시를 확인하세요.
-      </p>
-      <div
-        aria-label="표시할 교시"
-        className="staff-attendance__period-tabs"
-        ref={periodTabsRef}
-        role="group"
-      >
-        {ATTENDANCE_SLOTS.map((slot) => (
-          <button
-            aria-label={`${slot}교시${
-              operationalSlot === slot
-                ? activeSlot === slot
-                  ? ' 현재'
-                  : ' 예정'
-                : ''
-            }`}
-            aria-pressed={selectedSlot === slot}
-            className={cx(
-              selectedSlot === slot && 'is-active',
-              operationalSlot === slot && 'is-operational',
-            )}
-            key={slot}
-            onClick={() => onSelectSlot(slot)}
-            ref={selectedSlot === slot ? selectedPeriodRef : undefined}
-            type="button"
-          >
-            {slot}
-            <span>
-              {operationalSlot === slot
-                ? activeSlot === slot
-                  ? '현재'
-                  : '예정'
-                : '교시'}
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <ul className="staff-attendance__mobile-list">
-        {members.map((member) => (
-          <li key={member.memberId}>
-            <MemberIdentity member={member} />
-            <AttendanceStatus cell={member.slots[selectedSlot - 1]} />
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
@@ -347,14 +325,21 @@ function MemberIdentity({ member }: { member: StaffAttendanceMember }) {
   );
 }
 
-function AttendanceStatus({ cell }: { cell: StaffAttendanceCell | undefined }) {
+function AttendanceStatus({
+  cell,
+  future = false,
+}: {
+  cell: StaffAttendanceCell | undefined;
+  future?: boolean;
+}) {
   const safeCell = cell ?? {
     label: '미처리',
     source: 'NONE' as const,
     state: 'unmarked' as const,
   };
-  const accessibleLabel =
-    safeCell.state === 'present'
+  const accessibleLabel = future
+    ? '아직 시작 전'
+    : safeCell.state === 'present'
       ? '출석 처리'
       : safeCell.state === 'unmarked'
         ? '미처리'
@@ -363,10 +348,13 @@ function AttendanceStatus({ cell }: { cell: StaffAttendanceCell | undefined }) {
   return (
     <span
       aria-label={accessibleLabel}
-      className={cx('staff-attendance__status', `is-${safeCell.state}`)}
+      className={cx(
+        'staff-attendance__status',
+        future ? 'is-future' : `is-${safeCell.state}`,
+      )}
       title={accessibleLabel}
     >
-      {safeCell.label}
+      {future ? '—' : safeCell.label}
     </span>
   );
 }

@@ -152,6 +152,12 @@
   }
 }
 
+@media (max-width: 1023px) {
+  .staff-attendance__presence {
+    order: initial;
+  }
+}
+
 @media (min-width: 1500px) {
   .staff-attendance__body {
     grid-template-columns: minmax(0, 1fr) 19.5rem;
