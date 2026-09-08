@@ -109,16 +109,16 @@ export type DailySideDishResponse = {
 };
 
 /**
- * Everyone's orders for one day. Like the other manager reads, the backend
- * takes branchId on trust, so the session's own branch is sent and verified on
- * the way back rather than left to a fallback.
+ * Everyone's orders for one day. The backend accepts an arbitrary branchId but
+ * defaults to the authenticated manager's branch when it is omitted, so the
+ * client deliberately omits it and still validates every row on the way back.
  */
 export async function fetchDailySideDishes(
   date: string,
   branchId: number,
   expectedMemberId: number,
 ) {
-  const query = new URLSearchParams({ branchId: String(branchId), date });
+  const query = new URLSearchParams({ date });
   const response = await apiRequest<DailySideDishResponse[]>(
     `/api/side-dishes/daily?${query}`,
     { expectedMemberId },

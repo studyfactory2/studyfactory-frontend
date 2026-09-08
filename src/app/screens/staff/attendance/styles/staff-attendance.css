@@ -1,6 +1,9 @@
 /* Stable screen entrypoint; the attendance board keeps its scoped rules. */
+@import './attendance-operations-cockpit.css';
 @import './attendance-board.css';
 
 .staff-attendance {
+  display: grid;
   min-width: 0;
+  gap: var(--space-5);
 }

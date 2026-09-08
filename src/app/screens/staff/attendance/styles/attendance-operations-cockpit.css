@@ -1,0 +1,504 @@
+.staff-attendance-cockpit {
+  --cockpit-accent: var(--brand-forest);
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgb(var(--brand-ink-rgb) / 7%);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  box-shadow: var(--elev-1);
+  container-name: attendance-cockpit;
+  container-type: inline-size;
+}
+
+.staff-attendance-cockpit__overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.staff-attendance-cockpit__summary {
+  --cockpit-accent: var(--brand-gold-text);
+  --cockpit-accent-soft: var(--special-soft);
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 84px;
+  align-items: center;
+  padding: 13px 17px;
+  border: 0;
+  border-right: 1px solid var(--brand-line);
+  background: transparent;
+  color: var(--brand-ink);
+  cursor: pointer;
+  font: inherit;
+  gap: 10px;
+  grid-template-columns: 36px minmax(0, 1fr) auto 18px;
+  text-align: left;
+  transition:
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.staff-attendance-cockpit__summary.is-member-requests {
+  --cockpit-accent: var(--accent-deep);
+  --cockpit-accent-soft: var(--accent-soft);
+}
+
+.staff-attendance-cockpit__summary.is-side-dish-orders {
+  --cockpit-accent: var(--positive-deep);
+  --cockpit-accent-soft: var(--positive-soft);
+}
+
+.staff-attendance-cockpit__summary:last-child {
+  border-right: 0;
+}
+
+.staff-attendance-cockpit__summary::after {
+  position: absolute;
+  right: 17px;
+  bottom: 0;
+  left: 17px;
+  height: 3px;
+  border-radius: var(--radius-pill) var(--radius-pill) 0 0;
+  background: var(--cockpit-accent);
+  content: '';
+  opacity: 0;
+  transform: scaleX(0.4);
+  transition:
+    opacity 0.16s ease,
+    transform 0.16s ease;
+}
+
+.staff-attendance-cockpit__summary:hover,
+.staff-attendance-cockpit__summary.is-active {
+  background: rgb(var(--brand-forest-rgb) / 4%);
+}
+
+.staff-attendance-cockpit__summary.is-active::after {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.staff-attendance-cockpit__summary:focus-visible,
+.staff-attendance-cockpit__action:focus-visible,
+.staff-attendance-cockpit__state button:focus-visible {
+  z-index: 1;
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.staff-attendance-cockpit__summary-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--cockpit-accent-soft);
+  color: var(--cockpit-accent);
+  place-items: center;
+}
+
+.staff-attendance-cockpit__summary-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.staff-attendance-cockpit__summary-copy strong {
+  overflow: hidden;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-attendance-cockpit__summary-copy small {
+  overflow: hidden;
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-attendance-cockpit__summary.has-error
+  .staff-attendance-cockpit__summary-copy
+  small {
+  color: var(--danger-deep);
+}
+
+.staff-attendance-cockpit__summary-count {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--cockpit-accent);
+  font-variant-numeric: tabular-nums;
+  gap: 3px;
+  white-space: nowrap;
+}
+
+.staff-attendance-cockpit__summary-count b {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tighter);
+}
+
+.staff-attendance-cockpit__summary-count small {
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+}
+
+.staff-attendance-cockpit__summary-chevron {
+  color: var(--brand-muted);
+  transition: transform 0.16s ease;
+}
+
+.staff-attendance-cockpit__summary.is-active
+  .staff-attendance-cockpit__summary-chevron {
+  color: var(--cockpit-accent);
+  transform: rotate(180deg);
+}
+
+.staff-attendance-cockpit__panel {
+  border-top: 1px solid var(--brand-line);
+  background: rgb(var(--brand-forest-rgb) / 2.5%);
+}
+
+.staff-attendance-cockpit__panel-header {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px var(--space-4);
+  border-bottom: 1px solid rgb(var(--brand-ink-rgb) / 7%);
+  gap: var(--space-3);
+}
+
+.staff-attendance-cockpit__panel-header > span {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.staff-attendance-cockpit__panel-header strong {
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-extrabold);
+  white-space: nowrap;
+}
+
+.staff-attendance-cockpit__panel-header small {
+  overflow: hidden;
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-attendance-cockpit__panel-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+}
+
+.staff-attendance-cockpit__action,
+.staff-attendance-cockpit__state button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 11px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-control);
+  background: var(--paper);
+  color: var(--brand-ink-soft);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.staff-attendance-cockpit__action.is-primary {
+  border-color: var(--brand-forest);
+  background: var(--brand-forest);
+  color: var(--brand-ivory);
+}
+
+.staff-attendance-cockpit__action.is-positive {
+  border-color: rgb(var(--positive-rgb) / 28%);
+  background: var(--positive-soft);
+  color: var(--positive-deep);
+}
+
+.staff-attendance-cockpit__action:hover:not(:disabled),
+.staff-attendance-cockpit__state button:hover:not(:disabled) {
+  border-color: rgb(var(--brand-forest-rgb) / 30%);
+  color: var(--brand-forest);
+}
+
+.staff-attendance-cockpit__action.is-primary:hover:not(:disabled) {
+  border-color: var(--brand-forest-light);
+  background: var(--brand-forest-light);
+  color: var(--brand-ivory);
+}
+
+.staff-attendance-cockpit__action:disabled,
+.staff-attendance-cockpit__state button:disabled {
+  cursor: wait;
+  opacity: 0.58;
+}
+
+.staff-attendance-cockpit__panel-body {
+  display: grid;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  gap: 8px;
+}
+
+.staff-attendance-cockpit__preview-list {
+  display: grid;
+  max-height: min(34svh, 16rem);
+  margin: 0;
+  padding: 0 3px 0 0;
+  overflow-y: auto;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  list-style: none;
+  scrollbar-color: rgb(var(--brand-forest-rgb) / 22%) transparent;
+  scrollbar-width: thin;
+}
+
+.staff-attendance-cockpit__preview {
+  --preview-accent: rgb(var(--brand-forest-rgb) / 22%);
+  display: flex;
+  min-width: 0;
+  min-height: 74px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 11px 10px 14px;
+  border: 1px solid var(--brand-line);
+  border-radius: 12px;
+  background: var(--paper);
+  box-shadow: inset 3px 0 0 var(--preview-accent);
+  gap: 9px;
+}
+
+.staff-attendance-cockpit__preview.is-urgent {
+  --preview-accent: var(--danger);
+}
+
+.staff-attendance-cockpit__preview.is-positive {
+  --preview-accent: var(--positive);
+}
+
+.staff-attendance-cockpit__preview.is-special {
+  --preview-accent: var(--brand-gold);
+}
+
+.staff-attendance-cockpit__preview-copy {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.staff-attendance-cockpit__preview-copy > span {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.staff-attendance-cockpit__preview-copy strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--brand-ink);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-extrabold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-attendance-cockpit__preview-copy em {
+  flex: none;
+  padding: 2px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--special-soft);
+  color: var(--special-deep);
+  font-size: var(--text-3xs);
+  font-style: normal;
+  font-weight: var(--weight-extrabold);
+}
+
+.staff-attendance-cockpit__preview-copy p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--brand-ink-soft);
+  font-size: var(--text-2xs);
+  line-height: var(--leading-normal);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.staff-attendance-cockpit__preview-copy small {
+  overflow: hidden;
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-attendance-cockpit__action.is-compact {
+  min-height: 32px;
+  flex: none;
+  padding: 0 9px;
+}
+
+.staff-attendance-cockpit__state {
+  display: flex;
+  min-height: 66px;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  border-radius: 12px;
+  background: rgb(var(--card-rgb) / 72%);
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  gap: 8px;
+  text-align: center;
+}
+
+.staff-attendance-cockpit__state.is-error {
+  background: var(--danger-soft);
+  color: var(--danger-deep);
+}
+
+.staff-attendance-cockpit__state.is-error button {
+  margin-left: 4px;
+  border-color: color-mix(in srgb, var(--danger) 28%, transparent);
+  color: var(--danger-deep);
+}
+
+.staff-attendance-cockpit .is-spinning {
+  animation: staff-attendance-cockpit-spin 0.8s linear infinite;
+}
+
+@keyframes staff-attendance-cockpit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@container attendance-cockpit (max-width: 52rem) {
+  .staff-attendance-cockpit__summary {
+    min-height: 78px;
+    padding: 11px 13px;
+    gap: 8px;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+  }
+
+  .staff-attendance-cockpit__summary-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .staff-attendance-cockpit__summary-chevron {
+    display: none;
+  }
+
+  .staff-attendance-cockpit__preview-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container attendance-cockpit (max-width: 34rem) {
+  .staff-attendance-cockpit__summary {
+    min-height: 76px;
+    justify-items: center;
+    padding: 8px 4px;
+    gap: 3px;
+    grid-template-columns: minmax(0, 1fr);
+    text-align: center;
+  }
+
+  .staff-attendance-cockpit__summary::after {
+    right: 8px;
+    left: 8px;
+  }
+
+  .staff-attendance-cockpit__summary-icon {
+    display: none;
+  }
+
+  .staff-attendance-cockpit__summary-copy {
+    justify-items: center;
+  }
+
+  .staff-attendance-cockpit__summary-copy strong {
+    max-width: 100%;
+    font-size: var(--text-3xs);
+    letter-spacing: 0;
+  }
+
+  .staff-attendance-cockpit__summary-copy small {
+    display: none;
+  }
+
+  .staff-attendance-cockpit__summary-count b {
+    font-size: var(--text-lg);
+  }
+
+  .staff-attendance-cockpit__panel-header {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 9px var(--space-3);
+  }
+
+  .staff-attendance-cockpit__panel-header > span {
+    display: grid;
+    gap: 2px;
+  }
+
+  .staff-attendance-cockpit__panel-actions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .staff-attendance-cockpit__panel-body {
+    padding: 9px var(--space-3) var(--space-3);
+  }
+
+  .staff-attendance-cockpit__preview-list {
+    max-height: min(38svh, 18rem);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .staff-attendance-cockpit__preview {
+    min-height: 66px;
+  }
+
+  .staff-attendance-cockpit__action.is-compact {
+    min-height: 42px;
+  }
+
+  .staff-attendance-cockpit__state {
+    min-height: 58px;
+    padding: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staff-attendance-cockpit__summary::after,
+  .staff-attendance-cockpit__summary-chevron,
+  .staff-attendance-cockpit .is-spinning {
+    animation: none;
+    transition: none;
+  }
+}

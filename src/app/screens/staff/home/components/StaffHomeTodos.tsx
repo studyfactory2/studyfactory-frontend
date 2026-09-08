@@ -37,8 +37,11 @@ export function StaffHomeTodos({
     <Card className="staff-home__card">
       <CardHeader
         aside={
-          <Link className="staff-home__card-link" to={staffRoutes.operations}>
-            운영에서 전체 보기
+          <Link
+            className="staff-home__card-link"
+            to={`${staffRoutes.attendance}?panel=tasks`}
+          >
+            출석에서 바로 보기
           </Link>
         }
         title={

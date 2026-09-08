@@ -11,6 +11,23 @@ type StaffHomeJobsProps = {
 };
 
 export function StaffHomeJobs({ jobs }: StaffHomeJobsProps) {
+  const operationsPendingCount =
+    jobs.operations.remainingCount === null ||
+    jobs.operations.openSuggestionCount === null
+      ? null
+      : jobs.operations.remainingCount + jobs.operations.openSuggestionCount;
+  const operationsPanel =
+    jobs.operations.remainingCount !== null &&
+    jobs.operations.remainingCount > 0
+      ? 'tasks'
+      : jobs.operations.openSuggestionCount !== null &&
+          jobs.operations.openSuggestionCount > 0
+        ? 'member-requests'
+        : null;
+  const operationsTarget = operationsPanel
+    ? `${staffRoutes.attendance}?panel=${operationsPanel}`
+    : staffRoutes.attendance;
+
   return (
     <div className="staff-home__jobs-block">
       <div className="staff-home__jobs">
@@ -46,19 +63,23 @@ export function StaffHomeJobs({ jobs }: StaffHomeJobsProps) {
         <JobTile
           alert
           facts={[
-            jobs.operations.urgentCount > 0
-              ? `그중 긴급 ${jobs.operations.urgentCount}건`
-              : null,
+            jobs.operations.remainingCount === null
+              ? null
+              : `오늘 업무 ${jobs.operations.remainingCount}건${
+                  jobs.operations.urgentCount > 0
+                    ? ` · 긴급 ${jobs.operations.urgentCount}건`
+                    : ''
+                }`,
             jobs.operations.openSuggestionCount === null
               ? null
-              : `미처리 건의 ${jobs.operations.openSuggestionCount}건`,
+              : `회원 요청 ${jobs.operations.openSuggestionCount}건`,
           ]}
           icon={Settings2}
-          label="운영"
+          label="오늘 운영"
           tone="operations"
-          to={staffRoutes.operations}
-          unit="건 남음"
-          value={jobs.operations.remainingCount}
+          to={operationsTarget}
+          unit="건 확인"
+          value={operationsPendingCount}
         />
       </div>
 

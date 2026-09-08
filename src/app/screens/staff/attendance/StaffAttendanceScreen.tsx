@@ -1,8 +1,11 @@
+import { useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../core/session';
 import type { SessionOwnerKey } from '../../../core/session';
 import { EmptyState } from '../../../shared/ui';
 import { AttendanceBoard } from './components/AttendanceBoard';
+import { AttendanceOperationsOverview } from './components/AttendanceOperationsOverview';
 import { useStaffAttendance } from './hooks/useStaffAttendance';
+import { useAttendanceOperations } from './hooks/useAttendanceOperations';
 import './styles/staff-attendance.css';
 
 export function StaffAttendanceScreen() {
@@ -39,17 +42,31 @@ function StaffAttendanceContent({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
+  const [searchParams] = useSearchParams();
   const attendance = useStaffAttendance({ branchId, memberId, ownerKey });
+  const operations = useAttendanceOperations({
+    branchId,
+    dateKey: attendance.today.dateKey,
+    memberId,
+    ownerKey,
+  });
 
   return (
     <div className="staff-attendance">
+      <AttendanceOperationsOverview
+        initialSection={toCockpitSection(searchParams.get('panel'))}
+        operations={operations}
+      />
       <AttendanceBoard
         activeSlot={attendance.period.activeSlot}
         dateKey={attendance.today.dateKey}
         errorMessage={attendance.board.errorMessage}
         loading={attendance.board.loading}
         members={attendance.board.members}
-        onRefresh={attendance.freshness.onRefresh}
+        onRefresh={() => {
+          attendance.freshness.onRefresh();
+          operations.onRefresh();
+        }}
         onRetry={attendance.board.onRetry}
         operationalSlot={attendance.period.operationalSlot}
         periodLabel={attendance.period.label}
@@ -61,4 +78,12 @@ function StaffAttendanceContent({
       />
     </div>
   );
+}
+
+function toCockpitSection(value: string | null) {
+  return value === 'tasks' ||
+    value === 'member-requests' ||
+    value === 'side-dish-orders'
+    ? value
+    : null;
 }

@@ -4,6 +4,8 @@ import {
   SectionError,
   SectionLoading,
 } from '../../../../shared/ui';
+import { Link } from 'react-router-dom';
+import { staffRoutes } from '../../../../core/router/routes';
 import {
   formatPrice,
   formatShiftPeriod,
@@ -46,7 +48,17 @@ export function StaffHomeAside({
   return (
     <div className="staff-home__aside">
       <Card className="staff-home__card">
-        <CardHeader title="오늘 반찬" />
+        <CardHeader
+          aside={
+            <Link
+              className="staff-home__card-link"
+              to={`${staffRoutes.attendance}?panel=side-dish-orders`}
+            >
+              출석에서 확인
+            </Link>
+          }
+          title="오늘 반찬"
+        />
 
         {meals.loading ? (
           <SectionLoading label="반찬 신청을 불러오는 중" />
