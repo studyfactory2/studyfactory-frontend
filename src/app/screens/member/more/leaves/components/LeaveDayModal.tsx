@@ -9,6 +9,7 @@ import '../styles/LeaveDayModal.css';
 
 export type LeaveDayModalProps = {
   cell: LeaveDayCell | null;
+  ownLeaveNote?: string;
   onClose: () => void;
   onCreate: (dateKey: string, leaveType: LeaveType) => void;
   onDelete: (leaveId: number) => void;
@@ -17,6 +18,7 @@ export type LeaveDayModalProps = {
 
 export function LeaveDayModal({
   cell,
+  ownLeaveNote = '내가 신청한 휴무예요. 취소하면 이 날의 학습 시간이 다시 계산돼요.',
   onClose,
   onCreate,
   onDelete,
@@ -33,6 +35,7 @@ export function LeaveDayModal({
         <LeaveDayBody
           cell={cell}
           key={cell.dateKey}
+          ownLeaveNote={ownLeaveNote}
           onClose={onClose}
           onCreate={onCreate}
           onDelete={onDelete}
@@ -45,12 +48,14 @@ export function LeaveDayModal({
 
 function LeaveDayBody({
   cell,
+  ownLeaveNote,
   onClose,
   onCreate,
   onDelete,
   saving,
 }: {
   cell: LeaveDayCell;
+  ownLeaveNote: string;
   onClose: () => void;
   onCreate: (dateKey: string, leaveType: LeaveType) => void;
   onDelete: (leaveId: number) => void;
@@ -133,7 +138,7 @@ function LeaveDayBody({
 
       <p className="member-leaves__day-modal-note">
         <Info aria-hidden="true" size={14} />
-        <span>{toNoteText(cell, ownEntry !== null)}</span>
+        <span>{toNoteText(cell, ownEntry !== null, ownLeaveNote)}</span>
       </p>
 
       <div className="member-leaves__day-modal-actions">
@@ -154,13 +159,17 @@ function LeaveDayBody({
   );
 }
 
-function toNoteText(cell: LeaveDayCell, hasOwnEntry: boolean) {
+function toNoteText(
+  cell: LeaveDayCell,
+  hasOwnEntry: boolean,
+  ownLeaveNote: string,
+) {
   if (cell.isPast) {
     return '지난 날짜의 휴무는 변경할 수 없어요.';
   }
 
   if (hasOwnEntry) {
-    return '내가 신청한 휴무예요. 취소하면 이 날의 학습 시간이 다시 계산돼요.';
+    return ownLeaveNote;
   }
 
   return '지점에서 등록한 휴무예요. 변경이 필요하면 데스크에 문의해 주세요.';

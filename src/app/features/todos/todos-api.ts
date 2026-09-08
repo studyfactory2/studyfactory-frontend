@@ -38,6 +38,25 @@ export type TodoResponse = {
   updatedAt: string;
 };
 
+export type TodoCreateInput = {
+  branchId: number;
+  content: string;
+  priority: TodoPriority;
+  todoDate: string;
+};
+
+function assertTodoScope(
+  todo: TodoResponse,
+  branchId: number,
+  todoDate?: string,
+) {
+  if (todo.branchId !== branchId || (todoDate && todo.todoDate !== todoDate)) {
+    throw new ApiRequestError('다른 지점 또는 날짜의 할 일을 받았습니다.', 409);
+  }
+
+  return todo;
+}
+
 /**
  * Todos are the one manager domain the backend scopes correctly: its
  * resolveBranchId calls validateBranchScope, so a branchId outside the caller's
@@ -56,9 +75,90 @@ export async function fetchDailyTodos(
     { expectedMemberId },
   );
 
-  if (response.some((todo) => todo.branchId !== branchId)) {
-    throw new ApiRequestError('다른 지점의 할 일 목록을 받았습니다.', 409);
+  if (
+    response.some(
+      (todo) => todo.branchId !== branchId || todo.todoDate !== date,
+    )
+  ) {
+    throw new ApiRequestError(
+      '다른 지점 또는 날짜의 할 일 목록을 받았습니다.',
+      409,
+    );
   }
 
   return response;
+}
+
+export async function createTodo(
+  input: TodoCreateInput,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<TodoResponse>('/api/todos', {
+    body: JSON.stringify(input),
+    expectedMemberId,
+    method: 'POST',
+  });
+
+  return assertTodoScope(response, input.branchId, input.todoDate);
+}
+
+export async function updateTodoCompletion(
+  todoId: number,
+  completed: boolean,
+  branchId: number,
+  todoDate: string,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<TodoResponse>(
+    `/api/todos/${todoId}/completion`,
+    {
+      body: JSON.stringify({ completed }),
+      expectedMemberId,
+      method: 'PATCH',
+    },
+  );
+
+  return assertTodoScope(response, branchId, todoDate);
+}
+
+export async function updateTodoContent(
+  todoId: number,
+  content: string,
+  branchId: number,
+  todoDate: string,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<TodoResponse>(`/api/todos/${todoId}`, {
+    body: JSON.stringify({ content }),
+    expectedMemberId,
+    method: 'PATCH',
+  });
+
+  return assertTodoScope(response, branchId, todoDate);
+}
+
+export async function addTodoReply(
+  todoId: number,
+  replyContent: string,
+  branchId: number,
+  todoDate: string,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<TodoResponse>(
+    `/api/todos/${todoId}/reply`,
+    {
+      body: JSON.stringify({ replyContent }),
+      expectedMemberId,
+      method: 'PATCH',
+    },
+  );
+
+  return assertTodoScope(response, branchId, todoDate);
+}
+
+export function deleteTodo(todoId: number, expectedMemberId: number) {
+  return apiRequest<null>(`/api/todos/${todoId}`, {
+    expectedMemberId,
+    method: 'DELETE',
+  });
 }

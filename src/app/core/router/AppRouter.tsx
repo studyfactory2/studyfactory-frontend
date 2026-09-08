@@ -18,6 +18,7 @@ import { WorkspacePlaceholderScreen } from '../../screens/workspace/WorkspacePla
 import { StaffBeveragesScreen } from '../../screens/staff/beverages';
 import { StaffAttendanceScreen } from '../../screens/staff/attendance';
 import { StaffHomeScreen } from '../../screens/staff/home';
+import { StaffOperationsScreen } from '../../screens/staff/operations';
 import { StaffWorkspaceScreen } from '../../screens/staff/StaffWorkspaceScreen';
 import { getRoleHomePath, appRoutes } from './routes';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -53,16 +54,7 @@ export function AppRouter() {
           <Route index element={<StaffHomeScreen />} />
           <Route path="attendance" element={<StaffAttendanceScreen />} />
           <Route path="beverages" element={<StaffBeveragesScreen />} />
-          <Route
-            path="operations"
-            element={
-              <WorkspacePlaceholderScreen
-                description="스텝 휴무와 반찬 신청 등 현장 운영 업무를 관리합니다."
-                eyebrow="STAFF · OPERATIONS"
-                title="운영"
-              />
-            }
-          />
+          <Route path="operations" element={<StaffOperationsScreen />} />
           <Route path="*" element={<Navigate replace to={appRoutes.staff} />} />
         </Route>
       </Route>

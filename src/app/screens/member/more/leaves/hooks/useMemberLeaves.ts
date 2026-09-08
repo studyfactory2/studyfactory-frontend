@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SessionOwnerKey } from '../../../../../core/session';
+import { attendanceQueryKeys } from '../../../../../features/attendances/attendance-query-keys';
 import { leaveQueryKeys } from '../../../../../features/leaves/leave-query-keys';
 import {
   createMyLeave,
@@ -68,7 +69,10 @@ export function useMemberLeaves(memberId: number, ownerKey: SessionOwnerKey) {
   const invalidateAfterWrite = async () => {
     await Promise.all([
       queryClient.invalidateQueries({
-        queryKey: leaveQueryKeys.myPlans(ownerKey),
+        queryKey: leaveQueryKeys.all(ownerKey),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: attendanceQueryKeys.all(ownerKey),
       }),
       queryClient.invalidateQueries({
         queryKey: studyTimeQueryKeys.reports(ownerKey),

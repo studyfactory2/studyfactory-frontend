@@ -53,7 +53,9 @@ function MemberSideDishes({
       <div className="member-sidedishes__split">
         <div className="member-sidedishes__card">
           <SideDishDateBar
-            hasOrders={sideDishes.orderedDates.has(sideDishes.selectedDateKey)}
+            hasOrders={sideDishes.orderDates.values.has(
+              sideDishes.selectedDateKey,
+            )}
             isToday={sideDishes.isToday}
             onGoToday={sideDishes.onGoToday}
             onShiftDate={sideDishes.onShiftDate}
@@ -89,8 +91,8 @@ function MemberSideDishes({
             Number(sideDishes.selectedDateKey.slice(0, 4)),
             Number(sideDishes.selectedDateKey.slice(5, 7)),
           )}
+          orderDates={sideDishes.orderDates}
           onSelectDate={sideDishes.onSelectDate}
-          orderedDates={sideDishes.orderedDates}
           selectedDateKey={sideDishes.selectedDateKey}
         />
       </div>

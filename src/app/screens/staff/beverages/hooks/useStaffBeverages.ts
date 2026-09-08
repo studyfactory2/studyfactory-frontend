@@ -175,7 +175,8 @@ export function useStaffBeverages({
     void beverageQuery.refetch();
     void boardQuery.refetch();
     void leaveQuery.refetch();
-  }, [beverageQuery, boardQuery, leaveQuery]);
+    void roomQuery.refetch();
+  }, [beverageQuery, boardQuery, leaveQuery, roomQuery]);
 
   /* The oldest of the two reads the counts depend on — the honest "as of". */
   const updatedAtMs = Math.min(

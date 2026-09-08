@@ -84,9 +84,10 @@ export function fetchMySideDishOrderDates(
 }
 
 /**
- * The backend checks ownership but, unlike ordering, applies no deadline here,
- * so a member could cancel a lunch the kitchen has already made. The screen
- * enforces the same cutoff the order path uses.
+ * This self-service UI only supplies ids returned by `/me`. The backend lets
+ * STAFF/ADMIN bypass the owner check, so server-side ownership still needs
+ * hardening before this is a complete authorization boundary. The screen also
+ * enforces the ordering cutoff because deletion has no backend deadline.
  */
 export function deleteMySideDish(sideDishId: number, expectedMemberId: number) {
   return apiRequest<null>(`/api/side-dishes/${sideDishId}`, {

@@ -51,9 +51,10 @@ export function createMyLeave(
 }
 
 /**
- * The backend authorises this by owner, so a member can only ever remove a
- * leave they filed themselves. Office-assigned leaves (special and fixed) come
- * back from the plan endpoint with a null id and are never deletable here.
+ * This self-service UI only supplies ids returned by `/me/plan`. The backend
+ * currently lets STAFF/ADMIN bypass the owner check, so server-side ownership
+ * still needs hardening before this is a complete authorization boundary.
+ * Office-assigned leaves return a null id and are never deletable here.
  */
 export function deleteMyLeave(leaveId: number, expectedMemberId: number) {
   return apiRequest<null>(`/api/leaves/${leaveId}`, {

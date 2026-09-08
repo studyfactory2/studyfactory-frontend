@@ -114,7 +114,15 @@ export function useMemberSideDishes(
         price,
       });
     },
-    orderedDates,
+    orderDates: {
+      errorMessage: orderDatesQuery.isError
+        ? orderDatesQuery.error.message
+        : null,
+      loading: orderDatesQuery.isPending,
+      onRetry: () => void orderDatesQuery.refetch(),
+      ready: orderDatesQuery.data !== undefined,
+      values: orderedDates,
+    },
     orders: {
       errorMessage: ordersQuery.isError ? ordersQuery.error.message : null,
       loading: ordersQuery.isPending,

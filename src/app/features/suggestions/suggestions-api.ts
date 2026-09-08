@@ -53,3 +53,25 @@ export function fetchBranchSuggestions(expectedMemberId: number) {
     expectedMemberId,
   });
 }
+
+/**
+ * The backend endpoint toggles in both directions. Callers must disable the
+ * row while this request is pending so a double click cannot immediately
+ * reverse the intended state.
+ */
+export async function toggleSuggestionResolution(
+  suggestionId: number,
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<SuggestionResponse>(
+    `/api/suggestions/${suggestionId}/resolve`,
+    { expectedMemberId, method: 'PATCH' },
+  );
+
+  if (response.branchId !== branchId) {
+    throw new ApiRequestError('다른 지점의 요청을 받았습니다.', 409);
+  }
+
+  return response;
+}
