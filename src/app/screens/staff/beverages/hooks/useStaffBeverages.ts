@@ -121,6 +121,10 @@ export function useStaffBeverages({
     [leaveQuery.data, today.dateKey],
   );
 
+  const actionableKindCount = [...making.cup, ...making.tumbler].filter(
+    (group) => group.toMake > 0,
+  ).length;
+
   const selectedRoom =
     rooms.find((room) => room.id === selectedRoomId) ?? rooms[0] ?? null;
 
@@ -182,9 +186,31 @@ export function useStaffBeverages({
   return {
     alerts: {
       changes,
-      errorMessage: leaveQuery.isError ? leaveQuery.error.message : null,
+      changesErrorMessage: beverageQuery.isError
+        ? beverageQuery.error.message
+        : null,
+      changesLoading: beverageQuery.isPending,
+      changesOnRetry: () => void beverageQuery.refetch(),
+      changesReady: beverageQuery.isSuccess,
       lateLeaves,
-      loading: leaveQuery.isPending,
+      lateLeavesErrorMessage: leaveQuery.isError
+        ? leaveQuery.error.message
+        : null,
+      lateLeavesLoading: leaveQuery.isPending,
+      lateLeavesOnRetry: () => void leaveQuery.refetch(),
+      lateLeavesReady: leaveQuery.isSuccess,
+      unseated,
+      unseatedErrorMessage: beverageQuery.isError
+        ? beverageQuery.error.message
+        : boardQuery.isError
+          ? boardQuery.error.message
+          : null,
+      unseatedLoading: beverageQuery.isPending || boardQuery.isPending,
+      unseatedOnRetry: () => {
+        void beverageQuery.refetch();
+        void boardQuery.refetch();
+      },
+      unseatedReady: beverageQuery.isSuccess && boardQuery.isSuccess,
     },
     editor: {
       onClose: closeEditor,
@@ -201,7 +227,10 @@ export function useStaffBeverages({
     },
     freshness: {
       onRefresh: refresh,
-      refreshing: beverageQuery.isFetching || boardQuery.isFetching,
+      refreshing:
+        beverageQuery.isFetching ||
+        boardQuery.isFetching ||
+        leaveQuery.isFetching,
       updatedAtLabel:
         updatedAtMs === Number.MAX_SAFE_INTEGER
           ? null
@@ -209,6 +238,7 @@ export function useStaffBeverages({
     },
     making: {
       ...making,
+      kindCount: actionableKindCount,
       errorMessage: beverageQuery.isError
         ? beverageQuery.error.message
         : boardQuery.isError
@@ -220,16 +250,23 @@ export function useStaffBeverages({
       ready: beverageQuery.isSuccess && boardQuery.isSuccess,
     },
     room: {
-      errorMessage: roomQuery.isError ? roomQuery.error.message : null,
-      loading: roomQuery.isPending || beverageQuery.isPending,
+      errorMessage: roomQuery.isError
+        ? roomQuery.error.message
+        : beverageQuery.isError
+          ? beverageQuery.error.message
+          : boardQuery.isError
+            ? boardQuery.error.message
+            : null,
+      loading:
+        roomQuery.isPending || beverageQuery.isPending || boardQuery.isPending,
       onRetry: () => {
         void roomQuery.refetch();
         void beverageQuery.refetch();
+        void boardQuery.refetch();
       },
       onSelect: setSelectedRoomId,
       rooms,
       selected: selectedRoom,
-      unseated,
     },
     today,
   };

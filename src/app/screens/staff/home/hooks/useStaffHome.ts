@@ -16,6 +16,7 @@ import { suggestionQueryKeys } from '../../../../features/suggestions/suggestion
 import { fetchBranchSuggestions } from '../../../../features/suggestions/suggestions-api';
 import { todoQueryKeys } from '../../../../features/todos/todo-query-keys';
 import { fetchDailyTodos } from '../../../../features/todos/todos-api';
+import { useSeoulClock } from '../../../../shared/hooks/useSeoulClock';
 import { useSeoulToday } from '../../../../shared/hooks/useSeoulToday';
 import {
   formatTimeOfDayFromEpochMs,
@@ -23,6 +24,7 @@ import {
 } from '../../../../shared/lib/seoul-date';
 import {
   countOpenSuggestions,
+  getOperationalAttendanceSlot,
   summariseMeals,
   summariseRoom,
   summariseShifts,
@@ -55,7 +57,9 @@ export function useStaffHome({
   ownerKey,
 }: UseStaffHomeArgs) {
   const today = useSeoulToday();
+  const clock = useSeoulClock();
   const weekday = getWeekdayName(today.dateKey);
+  const currentSlot = getOperationalAttendanceSlot(clock.secondsOfDay);
 
   const liveQuery = useQuery({
     queryFn: () => fetchLiveStudyPresence(memberId),
@@ -74,6 +78,8 @@ export function useStaffHome({
   const boardQuery = useQuery({
     queryFn: () => fetchDailyAttendanceBoard(today.dateKey, branchId, memberId),
     queryKey: attendanceQueryKeys.dailyBoard(ownerKey, branchId, today.dateKey),
+    refetchInterval: LIVE_REFETCH_MS,
+    refetchOnWindowFocus: 'always',
     staleTime: DAILY_STALE_TIME_MS,
   });
 
@@ -108,8 +114,8 @@ export function useStaffHome({
   });
 
   const room = useMemo(
-    () => summariseRoom(boardQuery.data, liveQuery.data),
-    [boardQuery.data, liveQuery.data],
+    () => summariseRoom(boardQuery.data, liveQuery.data, currentSlot),
+    [boardQuery.data, currentSlot, liveQuery.data],
   );
   /*
    * The same rule the beverages screen uses, not a second count of its own.
@@ -135,6 +141,7 @@ export function useStaffHome({
   );
 
   const roomReady = boardQuery.isSuccess && liveQuery.isSuccess;
+  const beveragesReady = beverageQuery.isSuccess && boardQuery.isSuccess;
 
   return {
     /**
@@ -145,7 +152,7 @@ export function useStaffHome({
     jobs: {
       beverages: {
         /* Null until the board is in too: the deduction depends on it. */
-        cupCount: roomReady ? beverages.toMake : null,
+        cupCount: beveragesReady ? beverages.toMake : null,
         kindCount: beverages.kindCount,
         noteCount: beverages.noteCount,
       },

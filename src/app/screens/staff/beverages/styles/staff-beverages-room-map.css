@@ -1,0 +1,412 @@
+/* Room identity and the serving map. Status fills remain semantic within it. */
+.staff-bev__map-card {
+  box-shadow: var(--elev-2);
+}
+
+.staff-bev__map-card .card__header {
+  margin-bottom: 10px;
+}
+
+.staff-bev__map-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 7px var(--space-4);
+}
+
+.staff-bev__map-hint {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  line-height: var(--leading-normal);
+}
+
+.staff-bev__map-swipe-hint {
+  display: none;
+}
+
+.staff-bev__room-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.staff-bev__room-tabs button {
+  min-height: 36px;
+  padding: 0 13px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--brand-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-bold);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.staff-bev__room-tabs button:hover:not(.is-active) {
+  border-color: rgb(var(--brand-forest-rgb) / 28%);
+  color: var(--brand-forest);
+}
+
+/* The active room is filled in its own colour; the floor below matches it. */
+.staff-bev__room-tabs button.is-forest.is-active {
+  border-color: transparent;
+  background: var(--brand-forest);
+  color: var(--brand-ivory);
+}
+
+.staff-bev__room-tabs button.is-gold.is-active {
+  border-color: transparent;
+  background: var(--brand-gold-text);
+  color: var(--brand-ivory);
+}
+
+.staff-bev__room-tabs button:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+/* A rounded, lightly coloured floor keeps the room geometry easy to read. */
+.staff-bev__floor {
+  padding: 6px;
+  border: 1px solid rgb(var(--brand-forest-rgb) / 9%);
+  border-radius: 14px;
+  background: rgb(var(--brand-forest-rgb) / 5%);
+}
+
+.staff-bev__floor.is-gold {
+  border-color: rgb(var(--brand-gold-rgb) / 13%);
+  background: rgb(var(--brand-gold-rgb) / 8%);
+}
+
+.staff-bev__floor.is-forest .staff-bev__cell.is-door {
+  color: var(--brand-forest);
+}
+
+.staff-bev__floor.is-gold .staff-bev__cell.is-door {
+  color: var(--brand-gold-text);
+}
+
+/* Empty payload rows become aisles; rows containing a seat take seat height. */
+.staff-bev__grid {
+  --staff-bev-aisle: 14px;
+
+  display: grid;
+  gap: 5px;
+}
+
+.staff-bev__cell {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 48px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 4px;
+  border-radius: var(--radius-control);
+  background: var(--card-2);
+  gap: 1px;
+  text-align: center;
+}
+
+.staff-bev__cell > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-bev__cell-top {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+}
+
+.staff-bev__cell-seat {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
+}
+
+.staff-bev__cell-name {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.staff-bev__cell-drinks {
+  font-size: var(--text-2xs);
+  line-height: var(--leading-tight);
+}
+
+.staff-bev__cell-note {
+  color: var(--accent-deep);
+  font-size: var(--text-3xs);
+  line-height: var(--leading-tight);
+}
+
+/* Tumbler is a handling note, not leave: it owns the apricot accent. */
+.staff-bev__tumbler-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 4px;
+  border-radius: 5px;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: 0.04em;
+  line-height: var(--leading-tight);
+}
+
+.staff-bev__cell-tumbler {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+}
+
+/* Vacant is recessive, no-drink is neutral, drink is active, away is special. */
+.staff-bev__cell.is-vacant {
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px rgb(var(--brand-ink-rgb) / 7%);
+}
+
+.staff-bev__cell.is-vacant .staff-bev__cell-seat {
+  opacity: 0.62;
+}
+
+.staff-bev__cell.is-seat {
+  background: var(--card-2);
+  color: var(--brand-ink-soft);
+}
+
+.staff-bev__cell.is-drink {
+  background: rgb(var(--brand-forest-rgb) / 12%);
+  box-shadow:
+    inset 0 0 0 1px rgb(var(--brand-forest-rgb) / 20%),
+    0 4px 10px rgb(var(--brand-forest-rgb) / 8%);
+  color: var(--brand-forest-deep);
+}
+
+.staff-bev__cell.is-drink .staff-bev__cell-seat {
+  color: inherit;
+  opacity: 0.72;
+}
+
+.staff-bev__cell.is-away {
+  background: var(--special-soft);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--special) 58%, transparent);
+  color: var(--special-deep);
+}
+
+.staff-bev__cell.is-away .staff-bev__cell-name {
+  text-decoration: line-through;
+}
+
+.staff-bev__cell.is-away .staff-bev__cell-drinks {
+  color: var(--special-deep);
+  font-weight: var(--weight-bold);
+}
+
+.staff-bev__cell.is-door {
+  align-items: center;
+  justify-content: center;
+  background: repeating-linear-gradient(
+    135deg,
+    rgb(var(--brand-ink-rgb) / 6%) 0 4px,
+    transparent 4px 8px
+  );
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  gap: 2px;
+}
+
+.staff-bev__cell-pen {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+@media (hover: hover) {
+  button.staff-bev__cell:hover .staff-bev__cell-pen {
+    opacity: 0.8;
+  }
+}
+
+.staff-bev__cell-top .staff-bev__cell-pen {
+  position: static;
+  opacity: 0.75;
+}
+
+.staff-bev__legend {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: 6px var(--space-4);
+  list-style: none;
+}
+
+.staff-bev__legend li {
+  display: inline-flex;
+  align-items: center;
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  gap: 5px;
+}
+
+.staff-bev__legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.staff-bev__legend i.is-drink {
+  background: rgb(var(--brand-forest-rgb) / 20%);
+  box-shadow: inset 0 0 0 1px rgb(var(--brand-forest-rgb) / 24%);
+}
+
+.staff-bev__legend i.is-away {
+  background: var(--special-soft);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--special) 58%, transparent);
+}
+
+.staff-bev__legend i.is-seat {
+  background: var(--card-2);
+}
+
+.staff-bev__legend i.is-vacant {
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px rgb(var(--brand-ink-rgb) / 12%);
+}
+
+button.staff-bev__cell {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: inherit;
+  transition:
+    box-shadow 0.15s ease,
+    filter 0.15s ease,
+    transform 0.15s ease;
+}
+
+button.staff-bev__cell:hover {
+  filter: brightness(0.985);
+  transform: translateY(-1px);
+}
+
+button.staff-bev__cell:active {
+  filter: brightness(0.96);
+  transform: scale(0.98);
+}
+
+button.staff-bev__cell:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1319px) {
+  .staff-bev__cell {
+    min-height: 52px;
+  }
+}
+
+@media (max-width: 767px) {
+  .staff-bev__map-card {
+    padding: var(--space-3) 10px;
+  }
+
+  .staff-bev__map-card .card__header {
+    margin: 0 2px var(--space-3);
+  }
+
+  .staff-bev__room-tabs button {
+    min-height: 44px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .staff-bev__floor {
+    overflow-x: auto;
+    padding: 4px;
+    border-radius: 12px;
+    overscroll-behavior-inline: contain;
+  }
+
+  .staff-bev__legend {
+    margin: 0 2px;
+    gap: 4px 9px;
+  }
+
+  .staff-bev__legend li {
+    font-size: var(--text-3xs);
+  }
+
+  .staff-bev__grid {
+    --staff-bev-aisle: 12px;
+
+    gap: 3px;
+    min-width: var(--staff-bev-mobile-min-width);
+  }
+
+  .staff-bev__cell {
+    min-height: 48px;
+    padding: 4px 1px;
+    border-radius: 8px;
+    gap: 0;
+  }
+
+  .staff-bev__cell-name,
+  .staff-bev__cell-drinks {
+    font-size: var(--text-3xs);
+  }
+
+  .staff-bev__cell-note {
+    display: none;
+  }
+
+  .staff-bev__cell-tumbler {
+    position: static;
+    padding: 0 3px;
+  }
+}
+
+@media (max-width: 420px) {
+  .staff-bev__map-swipe-hint {
+    display: block;
+    margin-top: 2px;
+    color: var(--accent-deep);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staff-bev__room-tabs button,
+  button.staff-bev__cell,
+  .staff-bev__cell-pen {
+    transition: none;
+  }
+
+  button.staff-bev__cell:hover,
+  button.staff-bev__cell:active {
+    transform: none;
+  }
+}

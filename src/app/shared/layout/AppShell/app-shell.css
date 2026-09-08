@@ -38,9 +38,9 @@
 .workspace-shell__brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 52px;
-  padding: 0 8px;
+  gap: 14px;
+  min-height: 64px;
+  padding: 0 6px;
   color: var(--brand-ivory);
   text-decoration: none;
 }
@@ -50,20 +50,22 @@
 }
 
 .workspace-shell__brand-mark {
-  display: grid;
-  width: 42px;
-  height: 42px;
+  display: block;
+  width: 58px;
+  height: 58px;
   flex: 0 0 auto;
   overflow: hidden;
-  border: 1px solid rgb(var(--brand-ivory-rgb) / 16%);
-  border-radius: 13px;
-  background: var(--brand-ivory);
-  place-items: center;
+  border: 1px solid rgb(var(--brand-ivory-rgb) / 20%);
+  border-radius: 18px;
+  background: rgb(var(--brand-ivory-rgb) / 8%);
+  box-shadow: 0 12px 28px rgb(var(--brand-ink-rgb) / 20%);
 }
 
 .workspace-shell__brand-mark img {
+  display: block;
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
 .workspace-shell__brand-copy,
@@ -75,12 +77,13 @@
 }
 
 .workspace-shell__brand-copy strong {
-  font-size: var(--text-md);
+  font-size: var(--text-lg);
   font-weight: var(--weight-extrabold);
   letter-spacing: var(--tracking-tight);
 }
 
 .workspace-shell__brand-copy small {
+  margin-top: 3px;
   color: rgb(var(--brand-ivory-rgb) / 72%);
   font-size: var(--text-2xs);
 }
@@ -202,6 +205,17 @@
   backdrop-filter: blur(14px);
 }
 
+.workspace-shell__topbar-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+}
+
+.workspace-shell__topbar-mark {
+  display: none;
+}
+
 .workspace-shell__topbar p {
   color: var(--brand-muted);
   font-size: var(--text-xs);
@@ -262,6 +276,14 @@
     padding: 0;
   }
 
+  .workspace-shell__brand-mark {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--brand-ivory);
+    box-shadow: 0 8px 20px rgb(var(--brand-ink-rgb) / 16%);
+  }
+
   .workspace-shell__brand-copy,
   .workspace-shell__navigation-link span,
   .workspace-shell__account-copy,
@@ -305,6 +327,17 @@
 
   .workspace-shell__topbar h1 {
     font-size: 1.18rem;
+  }
+
+  .workspace-shell__topbar-mark {
+    display: block;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    border: 1px solid var(--brand-line);
+    border-radius: 13px;
+    background: var(--brand-ivory);
+    box-shadow: 0 7px 18px rgb(var(--brand-ink-rgb) / 9%);
   }
 
   .workspace-shell__topbar-account > span:nth-child(2) {

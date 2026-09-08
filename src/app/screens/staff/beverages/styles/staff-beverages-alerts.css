@@ -1,0 +1,304 @@
+/* One operational attention card; each data source keeps its own honest state. */
+.staff-bev__attention-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.staff-bev__attention-card::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: var(--accent);
+  content: '';
+}
+
+.staff-bev__attention-card.is-clear::before {
+  background: rgb(var(--brand-forest-rgb) / 28%);
+}
+
+.staff-bev__attention-card .card__header {
+  margin-bottom: var(--space-3);
+}
+
+.staff-bev__attention-groups {
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-bev__attention-group {
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--brand-line);
+}
+
+.staff-bev__attention-group:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.staff-bev__attention-group:last-child {
+  padding-bottom: 0;
+}
+
+.staff-bev__attention-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+  gap: var(--space-2);
+}
+
+.staff-bev__attention-head h4 {
+  color: var(--brand-ink);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-extrabold);
+}
+
+.staff-bev__attention-group.is-warn .staff-bev__attention-head h4 {
+  color: var(--danger-deep);
+}
+
+.staff-bev__badge {
+  min-width: 23px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.staff-bev__attention-group.is-warn .staff-bev__badge {
+  background: var(--danger-soft);
+  color: var(--danger-deep);
+}
+
+.staff-bev__attention-note {
+  margin: -2px 0 var(--space-2);
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  line-height: var(--leading-normal);
+}
+
+.staff-bev__attention-list,
+.staff-bev__unseated-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.staff-bev__attention-list li {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-top: 1px solid rgb(var(--brand-ink-rgb) / 6%);
+  font-size: var(--text-xs);
+  gap: var(--space-2);
+}
+
+.staff-bev__attention-list li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.staff-bev__attention-list li:last-child {
+  padding-bottom: 0;
+}
+
+.staff-bev__attention-list li > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.staff-bev__attention-detail {
+  flex: 0 0 auto;
+  color: var(--accent-deep);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+}
+
+.staff-bev__attention-group.is-warn .staff-bev__attention-detail {
+  color: var(--danger-deep);
+}
+
+.staff-bev__unseated-list {
+  gap: 5px;
+}
+
+.staff-bev__unseated-order {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 9px;
+  border: 1px solid rgb(var(--brand-forest-rgb) / 10%);
+  border-radius: 10px;
+  background: rgb(var(--brand-forest-rgb) / 5%);
+  color: var(--brand-ink);
+  cursor: pointer;
+  font: inherit;
+  gap: var(--space-2);
+  text-align: left;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.staff-bev__unseated-order:hover {
+  border-color: rgb(var(--brand-forest-rgb) / 24%);
+  background: rgb(var(--brand-forest-rgb) / 9%);
+  transform: translateY(-1px);
+}
+
+.staff-bev__unseated-order:active {
+  transform: scale(0.985);
+}
+
+.staff-bev__unseated-order:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+.staff-bev__unseated-order.is-away {
+  border-color: color-mix(in srgb, var(--special) 48%, transparent);
+  background: var(--special-soft);
+  color: var(--special-deep);
+}
+
+.staff-bev__unseated-person,
+.staff-bev__unseated-meta {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.staff-bev__unseated-person {
+  gap: 5px;
+}
+
+.staff-bev__unseated-person strong {
+  overflow: hidden;
+  font-size: var(--text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-bev__unseated-meta {
+  justify-content: flex-end;
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  gap: 4px;
+  text-align: right;
+}
+
+.staff-bev__unseated-meta > span:not(.staff-bev__tumbler-badge) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-bev__role {
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  background: var(--card-2);
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+}
+
+.staff-bev__attention-clear {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgb(var(--brand-forest-rgb) / 5%);
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  gap: 7px;
+}
+
+.staff-bev__compact-state {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  gap: var(--space-2);
+}
+
+.staff-bev__compact-state.is-error {
+  justify-content: space-between;
+  color: var(--danger-deep);
+}
+
+.staff-bev__compact-state.is-error > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.staff-bev__compact-state button {
+  display: inline-flex;
+  min-height: 36px;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0 9px;
+  border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--danger-deep);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  gap: 4px;
+}
+
+.staff-bev__compact-state button:focus-visible {
+  outline: 2px solid var(--danger);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .staff-bev__unseated-order,
+  .staff-bev__compact-state button {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 420px) {
+  .staff-bev__unseated-order {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .staff-bev__unseated-meta {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staff-bev__unseated-order {
+    transition: none;
+  }
+
+  .staff-bev__unseated-order:hover,
+  .staff-bev__unseated-order:active {
+    transform: none;
+  }
+}

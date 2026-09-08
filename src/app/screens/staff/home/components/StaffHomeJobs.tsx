@@ -23,6 +23,7 @@ export function StaffHomeJobs({ jobs }: StaffHomeJobsProps) {
           ]}
           icon={Coffee}
           label="음료"
+          tone="beverage"
           to={staffRoutes.beverages}
           unit="잔"
           value={jobs.beverages.cupCount}
@@ -37,6 +38,7 @@ export function StaffHomeJobs({ jobs }: StaffHomeJobsProps) {
           ]}
           icon={ClipboardCheck}
           label="출석"
+          tone="attendance"
           to={staffRoutes.attendance}
           unit="명 미착석"
           value={jobs.room.notSeatedCount}
@@ -53,6 +55,7 @@ export function StaffHomeJobs({ jobs }: StaffHomeJobsProps) {
           ]}
           icon={Settings2}
           label="운영"
+          tone="operations"
           to={staffRoutes.operations}
           unit="건 남음"
           value={jobs.operations.remainingCount}
@@ -72,6 +75,7 @@ type JobTileProps = {
   facts: Array<string | null>;
   icon: LucideIcon;
   label: string;
+  tone: 'attendance' | 'beverage' | 'operations';
   to: string;
   unit: string;
   /** Null while the tile's own query is still answering. */
@@ -83,6 +87,7 @@ function JobTile({
   facts,
   icon: Icon,
   label,
+  tone,
   to,
   unit,
   value,
@@ -93,6 +98,7 @@ function JobTile({
     <Link
       className={cx(
         'staff-home__job',
+        `is-${tone}`,
         alert && value !== null && value > 0 && 'is-alert',
       )}
       to={to}

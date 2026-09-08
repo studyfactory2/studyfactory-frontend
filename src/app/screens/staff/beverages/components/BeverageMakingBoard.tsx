@@ -31,9 +31,12 @@ export function BeverageMakingBoard({
   tumbler,
   tumblerToMake,
 }: BeverageMakingBoardProps) {
+  const cupGroups = cup.filter((group) => group.toMake > 0);
+  const tumblerGroups = tumbler.filter((group) => group.toMake > 0);
+
   if (loading) {
     return (
-      <Card className="staff-bev__card">
+      <Card className="staff-bev__card staff-bev__making-card" padding="sm">
         <CardHeader title="제조 목록" />
         <SectionLoading label="오늘 만들 음료를 계산하는 중" />
       </Card>
@@ -42,16 +45,16 @@ export function BeverageMakingBoard({
 
   if (errorMessage) {
     return (
-      <Card className="staff-bev__card">
+      <Card className="staff-bev__card staff-bev__making-card" padding="sm">
         <CardHeader title="제조 목록" />
         <SectionError message={errorMessage} onRetry={onRetry} />
       </Card>
     );
   }
 
-  if (ready && cup.length === 0 && tumbler.length === 0) {
+  if (ready && cupToMake === 0 && tumblerToMake === 0) {
     return (
-      <Card className="staff-bev__card">
+      <Card className="staff-bev__card staff-bev__making-card" padding="sm">
         <CardHeader title="제조 목록" />
         <SectionEmpty title="오늘 만들 음료가 없어요." />
       </Card>
@@ -59,67 +62,75 @@ export function BeverageMakingBoard({
   }
 
   return (
-    <div className="staff-bev__making">
-      <MakingSection
-        emptyLabel="컵 음료 없음"
-        groups={cup}
-        onOpenEditor={onOpenEditor}
-        title="컵"
-        toMake={cupToMake}
+    <Card className="staff-bev__card staff-bev__making-card" padding="sm">
+      <CardHeader
+        aside={
+          <span className="staff-bev__section-total is-all">
+            <b>{cupToMake + tumblerToMake}</b>잔
+          </span>
+        }
+        title="제조 목록"
       />
-      <MakingSection
-        emptyLabel="텀블러 음료 없음"
-        groups={tumbler}
-        note="회원이 가져온 텀블러에 담습니다."
-        onOpenEditor={onOpenEditor}
-        title="텀블러"
-        toMake={tumblerToMake}
-      />
-    </div>
+      <div className="staff-bev__making">
+        {cupToMake > 0 && (
+          <MakingSection
+            groups={cupGroups}
+            onOpenEditor={onOpenEditor}
+            title="컵"
+            toMake={cupToMake}
+            tone="cup"
+          />
+        )}
+        {tumblerToMake > 0 && (
+          <MakingSection
+            groups={tumblerGroups}
+            note="가져온 텀블러에 담습니다."
+            onOpenEditor={onOpenEditor}
+            title="텀블러"
+            toMake={tumblerToMake}
+            tone="tumbler"
+          />
+        )}
+      </div>
+    </Card>
   );
 }
 
 function MakingSection({
-  emptyLabel,
   groups,
   note,
   onOpenEditor,
   title,
   toMake,
+  tone,
 }: {
-  emptyLabel: string;
   groups: DrinkCount[];
   note?: string;
   onOpenEditor: (memberId: number) => void;
   title: string;
   toMake: number;
+  tone: 'cup' | 'tumbler';
 }) {
   return (
-    <Card className="staff-bev__card">
-      <CardHeader
-        aside={
-          <span className="staff-bev__section-total">
-            <b>{toMake}</b>잔
-          </span>
-        }
-        title={title}
-      />
+    <section className={cx('staff-bev__making-section', `is-${tone}`)}>
+      <header className="staff-bev__making-head">
+        <h4>{title}</h4>
+        <span className="staff-bev__section-total">
+          <b>{toMake}</b>잔
+        </span>
+      </header>
       {note && <p className="staff-bev__section-note">{note}</p>}
 
-      {groups.length === 0 ? (
-        <SectionEmpty title={emptyLabel} />
-      ) : (
-        <ul className="staff-bev__drinks">
-          {groups.map((group) => (
-            <DrinkRow
-              group={group}
-              key={group.name}
-              onOpenEditor={onOpenEditor}
-            />
-          ))}
-        </ul>
-      )}
-    </Card>
+      <ul className="staff-bev__drinks">
+        {groups.map((group) => (
+          <DrinkRow
+            group={group}
+            key={group.name}
+            onOpenEditor={onOpenEditor}
+          />
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -150,7 +161,14 @@ function DrinkRow({
         {group.servings.map((serving, index) => (
           <li key={`${serving.memberId}-${index}`}>
             <button
-              aria-label={`${serving.memberName} 음료 편집`}
+              aria-label={`${formatMemberLabel(
+                serving.seatNumber,
+                serving.memberName,
+              )}, ${
+                serving.deducted
+                  ? `휴무로 ${group.name} 제조 제외`
+                  : `${group.name}${serving.note ? `, 메모 ${serving.note}` : ''}`
+              }, 음료 편집`}
               className={cx('staff-bev__seat', serving.deducted && 'is-away')}
               onClick={() => onOpenEditor(serving.memberId)}
               type="button"

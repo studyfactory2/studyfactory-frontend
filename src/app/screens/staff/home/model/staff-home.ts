@@ -22,15 +22,15 @@ function isLeaveSlot(slot: string) {
 }
 
 export type RoomSummary = {
-  /** Members who hold a seat and are not on leave for the whole day. */
+  /** Members who hold a seat and are expected in the current operating slot. */
   expectedCount: number;
-  /** Of those, how many are checked in right now. */
+  /** Seat holders who are checked in right now, including an unexpected arrival. */
   seatedCount: number;
   notSeatedCount: number;
   onLeaveCount: number;
-  /** Expected members with no period marked present yet today. */
+  /** Expected members whose current slot has not been marked present. */
   unmarkedCount: number;
-  /** seated / expected, or null while the board is still loading. */
+  /** Expected-and-seated / expected; null after the operating day. */
   ratio: number | null;
 };
 
@@ -43,14 +43,45 @@ const EMPTY_ROOM: RoomSummary = {
   unmarkedCount: 0,
 };
 
+export type OperationalAttendanceSlot = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+const SLOT_BOUNDARIES = [
+  { before: 10 * 60 * 60 + 30 * 60, slot: 1 },
+  { before: 12 * 60 * 60 + 5 * 60, slot: 2 },
+  { before: 14 * 60 * 60 + 30 * 60, slot: 3 },
+  { before: 16 * 60 * 60 + 15 * 60, slot: 4 },
+  { before: 17 * 60 * 60 + 50 * 60, slot: 5 },
+  { before: 20 * 60 * 60 + 25 * 60, slot: 6 },
+  { before: 22 * 60 * 60, slot: 7 },
+] as const satisfies ReadonlyArray<{
+  before: number;
+  slot: OperationalAttendanceSlot;
+}>;
+
+/**
+ * The staff floor stays operational through breaks, so a break belongs to the
+ * class that follows it. Before the first class it previews slot 1; at 22:00
+ * the operating day is finished. This also preserves the backend's deliberate
+ * slot-4 overlap: both morning and afternoon leave are excluded around 4교시.
+ */
+export function getOperationalAttendanceSlot(
+  secondsOfDay: number,
+): OperationalAttendanceSlot | null {
+  return (
+    SLOT_BOUNDARIES.find((boundary) => secondsOfDay < boundary.before)?.slot ??
+    null
+  );
+}
+
 /**
  * "How full is the room" needs a denominator the board does not hand over
  * directly. The board is seat-shaped: it returns every seat from 1 to at least
  * 102, and then appends every member who has no seat at all — which is where
  * staff and admins land, since they are members of the branch too but are never
- * assigned one. So the people expected in a seat today are exactly the rows
- * that have both a memberId and a seatNumber, minus anyone whose seven periods
- * are all leave.
+ * assigned one. So the people expected right now are exactly the rows that
+ * have both a memberId and a seatNumber, minus anyone whose current operating
+ * slot is leave. Reading the board cell also covers fixed and special leave,
+ * and respects a staff override to "O" without duplicating backend leave rules.
  *
  * A member with no seat yet — a new sign-up waiting to be placed — is excluded
  * on purpose. They cannot sit anywhere, so counting them as missing would make
@@ -59,11 +90,13 @@ const EMPTY_ROOM: RoomSummary = {
 export function summariseRoom(
   board: DailyAttendanceBoard | undefined,
   live: StudyPresenceLiveResponse | undefined,
+  currentSlot: OperationalAttendanceSlot | null,
 ): RoomSummary {
   if (!board) {
     return EMPTY_ROOM;
   }
 
+  const seatHolderIds = new Set<number>();
   const expectedIds = new Set<number>();
   let onLeaveCount = 0;
   let unmarkedCount = 0;
@@ -73,14 +106,22 @@ export function summariseRoom(
       continue;
     }
 
-    if (row.slots.every(isLeaveSlot)) {
+    seatHolderIds.add(row.memberId);
+
+    if (currentSlot === null) {
+      continue;
+    }
+
+    const currentStatus = row.slots[currentSlot - 1] ?? ATTENDANCE_BLANK;
+
+    if (isLeaveSlot(currentStatus)) {
       onLeaveCount += 1;
       continue;
     }
 
     expectedIds.add(row.memberId);
 
-    if (!row.slots.some((slot) => slot === ATTENDANCE_PRESENT)) {
+    if (currentStatus !== ATTENDANCE_PRESENT) {
       unmarkedCount += 1;
     }
   }
@@ -90,16 +131,22 @@ export function summariseRoom(
    * that figure includes anyone checked in at the branch — a staff member who
    * scanned the door QR among them — and the ring is about seats.
    */
-  const seatedCount = (live?.sessions ?? []).filter((session) =>
-    expectedIds.has(session.memberId),
-  ).length;
+  const liveSeatHolderIds = new Set(
+    (live?.sessions ?? [])
+      .filter((session) => seatHolderIds.has(session.memberId))
+      .map((session) => session.memberId),
+  );
+  const seatedCount = liveSeatHolderIds.size;
   const expectedCount = expectedIds.size;
+  const expectedSeatedCount = [...expectedIds].filter((memberId) =>
+    liveSeatHolderIds.has(memberId),
+  ).length;
 
   return {
     expectedCount,
-    notSeatedCount: Math.max(0, expectedCount - seatedCount),
+    notSeatedCount: Math.max(0, expectedCount - expectedSeatedCount),
     onLeaveCount,
-    ratio: expectedCount > 0 ? seatedCount / expectedCount : null,
+    ratio: expectedCount > 0 ? expectedSeatedCount / expectedCount : null,
     seatedCount,
     unmarkedCount,
   };

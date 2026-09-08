@@ -61,9 +61,10 @@ export function AppShell({
           className="workspace-shell__brand"
           to={navigation[0].to}
         >
-          <span className="workspace-shell__brand-mark">
-            <img alt="" src="/favicon.svg" />
-          </span>
+          <picture className="workspace-shell__brand-mark">
+            <source media="(max-width: 1023px)" srcSet="/favicon.svg" />
+            <img alt="" src="/study-factory-logo.png" />
+          </picture>
           <span className="workspace-shell__brand-copy">
             <strong>자격증공장</strong>
             <small>학습 운영 시스템</small>
@@ -102,11 +103,18 @@ export function AppShell({
 
       <main className="workspace-shell__main" ref={mainRef} tabIndex={-1}>
         <header className="workspace-shell__topbar">
-          <div>
-            <p>
-              {branchName} <span>·</span> {workspaceLabel}
-            </p>
-            <h1>{activeItem.label}</h1>
+          <div className="workspace-shell__topbar-title">
+            <img
+              alt=""
+              className="workspace-shell__topbar-mark"
+              src="/favicon.svg"
+            />
+            <div>
+              <p>
+                {branchName} <span>·</span> {workspaceLabel}
+              </p>
+              <h1>{activeItem.label}</h1>
+            </div>
           </div>
           <div className="workspace-shell__topbar-account">
             <span aria-hidden="true" className="workspace-shell__avatar">

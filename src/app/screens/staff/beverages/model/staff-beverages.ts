@@ -155,6 +155,15 @@ export type RoomView = {
   tone: RoomTone;
 };
 
+export type UnseatedDrinker = {
+  away: boolean;
+  drinks: string[];
+  memberId: number;
+  memberName: string;
+  staff: boolean;
+  tumbler: boolean;
+};
+
 /**
  * The map is keyed by seat number rather than memberId: a seat carries a
  * memberId too, but the beverage list only knows seat numbers, and the two can
@@ -209,7 +218,7 @@ export function buildRoomViews(
 export function findUnseatedDrinkers(
   members: MemberBeverageResponse[] | undefined,
   board: DailyAttendanceBoard | undefined,
-) {
+): UnseatedDrinker[] {
   const away = morningLeaveMemberIds(board);
 
   return (members ?? [])

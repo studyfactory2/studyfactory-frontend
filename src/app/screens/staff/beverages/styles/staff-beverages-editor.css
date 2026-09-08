@@ -1,0 +1,133 @@
+/* Member drink editor. Kept separate from the serving floor it opens from. */
+.staff-bev__editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.staff-bev__editor-empty {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: var(--text-sm);
+}
+
+.staff-bev__editor-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: var(--space-2);
+  list-style: none;
+}
+
+.staff-bev__editor-row {
+  display: grid;
+  align-items: center;
+  gap: var(--space-2);
+  grid-template-columns: 22px minmax(0, 1.1fr) minmax(0, 1fr) 36px;
+}
+
+.staff-bev__editor-index {
+  color: var(--brand-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.staff-bev__editor-remove {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--brand-muted);
+  cursor: pointer;
+  place-items: center;
+}
+
+.staff-bev__editor-remove:hover {
+  background: var(--danger-soft);
+  color: var(--danger-deep);
+}
+
+.staff-bev__editor-remove:focus-visible,
+.staff-bev__editor-pick:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+.staff-bev__editor-add {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--brand-line);
+  gap: var(--space-3);
+}
+
+.staff-bev__editor-label {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.staff-bev__editor-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.staff-bev__editor-pick {
+  min-height: 36px;
+  padding: 0 13px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  color: var(--brand-ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+.staff-bev__editor-pick:hover {
+  border-color: var(--brand-forest);
+  color: var(--brand-forest);
+}
+
+.staff-bev__editor-custom {
+  display: grid;
+  align-items: center;
+  gap: var(--space-2);
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.staff-bev__editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-2);
+  gap: var(--space-2);
+}
+
+@media (max-width: 767px) {
+  .staff-bev__editor-row {
+    grid-template-columns: 18px minmax(0, 1fr) 44px;
+  }
+
+  .staff-bev__editor-remove {
+    width: 44px;
+    height: 44px;
+  }
+
+  .staff-bev__editor-pick {
+    min-height: 44px;
+  }
+
+  /* The note drops under the name on a phone; two inputs abreast is too tight. */
+  .staff-bev__editor-row > .control:nth-of-type(2) {
+    grid-column: 2;
+  }
+}

@@ -54,6 +54,7 @@ function StaffBeveragesContent({
   return (
     <div className="staff-bev">
       <Instrument
+        className="staff-bev__summary"
         label="오늘 음료"
         note={
           <span className="staff-bev__asof">
@@ -69,7 +70,12 @@ function StaffBeveragesContent({
               honest note of how old the current ones are.
             */}
             <button
-              aria-label="음료 목록 새로고침"
+              aria-busy={freshness.refreshing}
+              aria-label={
+                freshness.refreshing
+                  ? '음료 목록 갱신 중'
+                  : '음료 목록 새로고침'
+              }
               className={cx(
                 'staff-bev__refresh',
                 freshness.refreshing && 'is-refreshing',
@@ -79,7 +85,7 @@ function StaffBeveragesContent({
               type="button"
             >
               <RefreshCw aria-hidden="true" size={14} />
-              갱신
+              {freshness.refreshing ? '갱신 중' : '갱신'}
             </button>
           </span>
         }
@@ -92,24 +98,24 @@ function StaffBeveragesContent({
               <small>잔</small>
             </strong>
             <span className="staff-bev__metric-sub">
-              {making.kindCount}가지
+              {making.ready ? `${making.kindCount}가지` : '—'}
             </span>
           </p>
-          <p className="staff-bev__metric">
+          <p className="staff-bev__metric is-cup">
             <span className="staff-bev__metric-key">컵</span>
             <strong>
               {making.ready ? making.cupToMake : '—'}
               <small>잔</small>
             </strong>
           </p>
-          <p className="staff-bev__metric">
+          <p className="staff-bev__metric is-tumbler">
             <span className="staff-bev__metric-key">텀블러</span>
             <strong>
               {making.ready ? making.tumblerToMake : '—'}
               <small>잔</small>
             </strong>
           </p>
-          <p className="staff-bev__metric">
+          <p className="staff-bev__metric is-deduction">
             <span className="staff-bev__metric-key">휴무 제외</span>
             <strong>
               {making.ready ? making.deduction : '—'}
@@ -121,7 +127,7 @@ function StaffBeveragesContent({
       </Instrument>
 
       <div className="staff-bev__body">
-        <div className="staff-bev__col">
+        <aside aria-label="음료 작업" className="staff-bev__rail">
           <BeverageMakingBoard
             cup={making.cup}
             cupToMake={making.cupToMake}
@@ -133,9 +139,27 @@ function StaffBeveragesContent({
             tumbler={making.tumbler}
             tumblerToMake={making.tumblerToMake}
           />
-        </div>
+          <BeverageAlerts
+            changes={alerts.changes}
+            changesErrorMessage={alerts.changesErrorMessage}
+            changesLoading={alerts.changesLoading}
+            changesOnRetry={alerts.changesOnRetry}
+            changesReady={alerts.changesReady}
+            lateLeaves={alerts.lateLeaves}
+            lateLeavesErrorMessage={alerts.lateLeavesErrorMessage}
+            lateLeavesLoading={alerts.lateLeavesLoading}
+            lateLeavesOnRetry={alerts.lateLeavesOnRetry}
+            lateLeavesReady={alerts.lateLeavesReady}
+            onOpenEditor={editor.onOpen}
+            unseated={alerts.unseated}
+            unseatedErrorMessage={alerts.unseatedErrorMessage}
+            unseatedLoading={alerts.unseatedLoading}
+            unseatedOnRetry={alerts.unseatedOnRetry}
+            unseatedReady={alerts.unseatedReady}
+          />
+        </aside>
 
-        <div className="staff-bev__col">
+        <div className="staff-bev__map-panel">
           <BeverageRoomMap
             errorMessage={room.errorMessage}
             loading={room.loading}
@@ -144,13 +168,6 @@ function StaffBeveragesContent({
             onSelect={room.onSelect}
             rooms={room.rooms}
             selected={room.selected}
-            unseated={room.unseated}
-          />
-          <BeverageAlerts
-            changes={alerts.changes}
-            errorMessage={alerts.errorMessage}
-            lateLeaves={alerts.lateLeaves}
-            loading={alerts.loading}
           />
         </div>
       </div>

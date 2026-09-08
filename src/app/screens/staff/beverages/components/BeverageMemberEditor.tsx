@@ -40,9 +40,12 @@ export function BeverageMemberEditor({
     >
       {target !== null && (
         <EditorBody
-          /* A fresh draft per member — and per refetch, so a save elsewhere
-             never leaves this draft describing a list that no longer exists. */
-          key={`${target.memberId}-${target.items.length}-${target.items.map((i) => i.name).join('|')}`}
+          /* Keep local edits through identical refetches, but start a fresh
+             draft when this member's editable server content really changes. */
+          key={JSON.stringify([
+            target.memberId,
+            target.items.map((item) => [item.name, item.note ?? null]),
+          ])}
           onClose={onClose}
           onSave={onSave}
           saving={saving}

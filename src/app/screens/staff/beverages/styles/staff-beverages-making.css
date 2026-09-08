@@ -1,0 +1,251 @@
+/* One compact production board: cup and tumbler lanes share a single card. */
+.staff-bev__making-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.staff-bev__making-card::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  background: var(--brand-forest);
+  content: '';
+}
+
+.staff-bev__making-card .card__header {
+  margin-bottom: var(--space-3);
+}
+
+.staff-bev__making-card > .ui-section-state {
+  padding: var(--space-4) var(--space-2);
+}
+
+.staff-bev__making {
+  display: flex;
+  flex-direction: column;
+}
+
+.staff-bev__making-section {
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--brand-line);
+}
+
+.staff-bev__making-section:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.staff-bev__making-section:last-child {
+  padding-bottom: 0;
+}
+
+.staff-bev__making-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+  gap: var(--space-2);
+}
+
+.staff-bev__making-head h4 {
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-extrabold);
+}
+
+.staff-bev__making-section.is-tumbler .staff-bev__making-head h4 {
+  color: var(--accent-deep);
+}
+
+.staff-bev__section-total {
+  color: var(--brand-ink);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.staff-bev__section-total b {
+  margin-right: 2px;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-extrabold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.staff-bev__section-total.is-all {
+  color: var(--brand-forest);
+}
+
+.staff-bev__drinks {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.staff-bev__drink {
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--brand-line);
+}
+
+.staff-bev__drink:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.staff-bev__drink:last-child {
+  padding-bottom: 0;
+}
+
+.staff-bev__drink-head {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+  gap: var(--space-2);
+}
+
+.staff-bev__drink-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-bev__drink-count {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.staff-bev__drink-count b {
+  color: var(--brand-forest);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-extrabold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-tighter);
+}
+
+/* The subtraction stays visible: it is why the count differs from the roster. */
+.staff-bev__drink-count em {
+  color: var(--special-deep);
+  font-size: var(--text-xs);
+  font-style: normal;
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.staff-bev__seats {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
+  list-style: none;
+}
+
+.staff-bev__seats > li {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.staff-bev__seat {
+  display: inline-flex;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 36px;
+  align-items: center;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: rgb(var(--brand-forest-rgb) / 8%);
+  color: var(--brand-forest);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-2xs);
+  gap: 6px;
+  text-align: inherit;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.staff-bev__seat-who {
+  min-width: 0;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-bold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-bev__seat-note {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--accent-deep);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-bev__seat.is-away {
+  background: var(--special-soft);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--special) 55%, transparent);
+  color: var(--special-deep);
+}
+
+.staff-bev__seat.is-away .staff-bev__seat-who {
+  font-weight: var(--weight-semibold);
+  text-decoration: line-through;
+}
+
+.staff-bev__seat-away {
+  color: var(--special-deep);
+  font-weight: var(--weight-bold);
+}
+
+.staff-bev__seat:hover {
+  box-shadow: 0 0 0 2px rgb(var(--brand-forest-rgb) / 22%);
+  transform: translateY(-1px);
+}
+
+.staff-bev__seat.is-away:hover {
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--special) 55%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--special) 45%, transparent);
+}
+
+.staff-bev__seat:active {
+  filter: brightness(0.96);
+  transform: scale(0.98);
+}
+
+.staff-bev__seat:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .staff-bev__seat {
+    min-height: 44px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staff-bev__seat {
+    transition: none;
+  }
+
+  .staff-bev__seat:hover,
+  .staff-bev__seat:active {
+    transform: none;
+  }
+}
