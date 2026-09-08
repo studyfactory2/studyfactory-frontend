@@ -1,8 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { MoveHorizontal, Search } from 'lucide-react';
+import { MoveHorizontal, RefreshCw, Search } from 'lucide-react';
 import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import {
-  Badge,
   Card,
   SectionEmpty,
   SectionError,
@@ -11,31 +10,50 @@ import {
 } from '../../../../shared/ui';
 import { cx } from '../../../../shared/lib/cx';
 import {
+  formatKoreanDate,
+  formatTimeOfDayFromEpochMs,
+} from '../../../../shared/lib/seoul-date';
+import {
   ATTENDANCE_SLOTS,
   type StaffAttendanceCell,
   type StaffAttendanceMember,
 } from '../model/staff-attendance';
 
 type AttendanceFilter = 'all' | 'leave' | 'unmarked';
+type PresenceLoadState = 'error' | 'loading' | 'ready';
 
 type AttendanceBoardProps = {
   activeSlot: OperationalAttendanceSlot | null;
+  dateKey: string;
   errorMessage: string | null;
   loading: boolean;
   members: StaffAttendanceMember[];
+  onRefresh: () => void;
   onRetry: () => void;
   operationalSlot: OperationalAttendanceSlot | null;
+  periodLabel: string;
+  presenceErrorMessage: string | null;
+  presenceOnRetry: () => void;
+  presenceReady: boolean;
   ready: boolean;
+  refreshing: boolean;
 };
 
 export function AttendanceBoard({
   activeSlot,
+  dateKey,
   errorMessage,
   loading,
   members,
+  onRefresh,
   onRetry,
   operationalSlot,
+  periodLabel,
+  presenceErrorMessage,
+  presenceOnRetry,
+  presenceReady,
   ready,
+  refreshing,
 }: AttendanceBoardProps) {
   const searchId = useId();
   const [filter, setFilter] = useState<AttendanceFilter>('all');
@@ -43,6 +61,11 @@ export function AttendanceBoard({
   const filterSlot: OperationalAttendanceSlot = operationalSlot ?? 7;
   const effectiveFilter =
     activeSlot === null && filter === 'unmarked' ? 'all' : filter;
+  const presenceState: PresenceLoadState = presenceReady
+    ? 'ready'
+    : presenceErrorMessage
+      ? 'error'
+      : 'loading';
 
   const visibleMembers = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('ko');
@@ -67,11 +90,30 @@ export function AttendanceBoard({
   return (
     <Card className="staff-attendance__board" padding="none">
       <header className="staff-attendance__board-head">
-        <div>
+        <div className="staff-attendance__board-title">
           <h2>교시 출석부</h2>
-          <p>오늘 좌석이 배정된 회원의 교시별 상태입니다.</p>
+          <p>좌석 순서대로 입퇴실 시각과 교시별 상태를 확인하세요.</p>
         </div>
-        {ready && <Badge tone="neutral">{members.length}명</Badge>}
+        <div className="staff-attendance__board-context">
+          <p>
+            <time dateTime={dateKey}>{formatKoreanDate(dateKey)}</time>
+            <strong>{periodLabel}</strong>
+          </p>
+          <button
+            aria-busy={refreshing}
+            aria-label={refreshing ? '출석부 갱신 중' : '출석부 새로고침'}
+            className={cx(
+              'staff-attendance__refresh',
+              refreshing && 'is-refreshing',
+            )}
+            disabled={refreshing}
+            onClick={onRefresh}
+            type="button"
+          >
+            <RefreshCw aria-hidden="true" size={14} />
+            {refreshing ? '갱신 중' : '갱신'}
+          </button>
+        </div>
       </header>
 
       {loading && <SectionLoading label="오늘 출석부를 불러오고 있어요." />}
@@ -80,6 +122,12 @@ export function AttendanceBoard({
       )}
       {ready && (
         <>
+          {presenceErrorMessage && (
+            <SectionError
+              message={`입퇴실 시간을 불러오지 못했어요. ${presenceErrorMessage}`}
+              onRetry={presenceOnRetry}
+            />
+          )}
           <div className="staff-attendance__board-toolbar">
             <label className="staff-attendance__search" htmlFor={searchId}>
               <span className="staff-attendance__sr-only">회원 검색</span>
@@ -152,6 +200,7 @@ export function AttendanceBoard({
               activeSlot={activeSlot}
               members={visibleMembers}
               operationalSlot={operationalSlot}
+              presenceState={presenceState}
             />
           )}
         </>
@@ -188,10 +237,12 @@ function AttendanceTable({
   activeSlot,
   members,
   operationalSlot,
+  presenceState,
 }: {
   activeSlot: OperationalAttendanceSlot | null;
   members: StaffAttendanceMember[];
   operationalSlot: OperationalAttendanceSlot | null;
+  presenceState: PresenceLoadState;
 }) {
   const frameRef = useRef<HTMLDivElement>(null);
   const identityHeaderRef = useRef<HTMLTableCellElement>(null);
@@ -202,7 +253,7 @@ function AttendanceTable({
       return;
     }
 
-    const compactViewport = window.matchMedia('(max-width: 1023px)');
+    const compactViewport = window.matchMedia('(max-width: 1279px)');
     let animationFrame = 0;
 
     const alignOperationalSlot = () => {
@@ -258,7 +309,7 @@ function AttendanceTable({
       </p>
       <Table>
         <caption className="staff-attendance__sr-only">
-          좌석 회원별 오늘 1교시부터 7교시까지의 출석 상태
+          좌석 회원별 오늘 입퇴실 시각과 1교시부터 7교시까지의 출석 상태
         </caption>
         <thead>
           <tr>
@@ -267,7 +318,10 @@ function AttendanceTable({
               ref={identityHeaderRef}
               scope="col"
             >
-              회원
+              <span>회원</span>
+              <small className="staff-attendance__identity-note">
+                오늘 입·퇴실
+              </small>
             </th>
             {ATTENDANCE_SLOTS.map((slot) => (
               <th
@@ -290,7 +344,7 @@ function AttendanceTable({
           {members.map((member) => (
             <tr key={member.memberId}>
               <th className="staff-attendance__identity-col" scope="row">
-                <MemberIdentity member={member} />
+                <MemberIdentity member={member} presenceState={presenceState} />
               </th>
               {member.slots.map((cell, index) => {
                 const slot = (index + 1) as OperationalAttendanceSlot;
@@ -316,13 +370,91 @@ function AttendanceTable({
   );
 }
 
-function MemberIdentity({ member }: { member: StaffAttendanceMember }) {
+function MemberIdentity({
+  member,
+  presenceState,
+}: {
+  member: StaffAttendanceMember;
+  presenceState: PresenceLoadState;
+}) {
   return (
     <span className="staff-attendance__member">
       <b aria-label={`${member.seatNumber}번 좌석`}>{member.seatNumber}</b>
-      <span>{member.name}</span>
+      <span className="staff-attendance__member-copy">
+        <span className="staff-attendance__member-name">
+          <strong>{member.name}</strong>
+          {presenceState === 'ready' &&
+            member.presence !== null &&
+            member.presence.sessionCount > 1 && (
+              <em
+                aria-label={`오늘 ${member.presence.sessionCount}회 입실`}
+                className="staff-attendance__session-count"
+                title={`오늘 ${member.presence.sessionCount}회 입실`}
+              >
+                {member.presence.sessionCount}회
+              </em>
+            )}
+        </span>
+        <MemberPresence member={member} presenceState={presenceState} />
+      </span>
     </span>
   );
+}
+
+function MemberPresence({
+  member,
+  presenceState,
+}: {
+  member: StaffAttendanceMember;
+  presenceState: PresenceLoadState;
+}) {
+  if (presenceState !== 'ready') {
+    return (
+      <small className="staff-attendance__member-presence is-muted">
+        {presenceState === 'error' ? '입퇴실 시간 미확인' : '입퇴실 확인 중'}
+      </small>
+    );
+  }
+
+  const { checkedInAt, checkedOutAt, currentlyActive } = member.presence ?? {
+    checkedInAt: null,
+    checkedOutAt: null,
+    currentlyActive: false,
+  };
+
+  return (
+    <small className="staff-attendance__member-presence">
+      <span>
+        <i>입실</i>
+        <PresenceTime value={checkedInAt} />
+      </span>
+      <span aria-hidden="true" className="staff-attendance__time-divider">
+        ·
+      </span>
+      <span>
+        <i>퇴실</i>
+        {currentlyActive ? (
+          <em className="is-active">입실 중</em>
+        ) : (
+          <PresenceTime value={checkedOutAt} />
+        )}
+      </span>
+    </small>
+  );
+}
+
+function PresenceTime({ value }: { value: string | null }) {
+  if (!value) {
+    return <span>—</span>;
+  }
+
+  const epochMs = Date.parse(value);
+
+  if (!Number.isFinite(epochMs)) {
+    return <span>—</span>;
+  }
+
+  return <time dateTime={value}>{formatTimeOfDayFromEpochMs(epochMs)}</time>;
 }
 
 function AttendanceStatus({

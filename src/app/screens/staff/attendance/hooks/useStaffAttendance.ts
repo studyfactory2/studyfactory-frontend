@@ -5,19 +5,14 @@ import { attendanceQueryKeys } from '../../../../features/attendances/attendance
 import { getOperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import { fetchDailyAttendanceBoard } from '../../../../features/attendances/attendances-api';
 import { studyPresenceQueryKeys } from '../../../../features/study-presence/study-presence-query-keys';
-import { fetchLiveStudyPresence } from '../../../../features/study-presence/study-presence-api';
+import { fetchDailyStudyPresenceHistory } from '../../../../features/study-presence/study-presence-api';
 import { useSeoulClock } from '../../../../shared/hooks/useSeoulClock';
 import { useSeoulToday } from '../../../../shared/hooks/useSeoulToday';
-import { formatTimeOfDayFromEpochMs } from '../../../../shared/lib/seoul-date';
-import {
-  buildActiveMemberSessions,
-  buildAttendanceSummary,
-  buildSeatedAttendanceMembers,
-} from '../model/staff-attendance';
+import { buildSeatedAttendanceMembers } from '../model/staff-attendance';
 
 const BOARD_STALE_TIME_MS = 60 * 1_000;
-const LIVE_REFETCH_MS = 30 * 1_000;
-const LIVE_STALE_TIME_MS = 15 * 1_000;
+const ATTENDANCE_REFETCH_MS = 30 * 1_000;
+const PRESENCE_STALE_TIME_MS = 15 * 1_000;
 const STUDY_START_SECONDS = 9 * 60 * 60;
 
 type UseStaffAttendanceArgs = {
@@ -40,43 +35,33 @@ export function useStaffAttendance({
   const boardQuery = useQuery({
     queryFn: () => fetchDailyAttendanceBoard(today.dateKey, branchId, memberId),
     queryKey: attendanceQueryKeys.dailyBoard(ownerKey, branchId, today.dateKey),
-    refetchInterval: LIVE_REFETCH_MS,
+    refetchInterval: ATTENDANCE_REFETCH_MS,
     refetchOnWindowFocus: 'always',
     staleTime: BOARD_STALE_TIME_MS,
   });
 
-  const liveQuery = useQuery({
-    queryFn: () => fetchLiveStudyPresence(memberId, branchId),
-    queryKey: studyPresenceQueryKeys.live(ownerKey),
-    refetchInterval: LIVE_REFETCH_MS,
+  const presenceQuery = useQuery({
+    queryFn: () =>
+      fetchDailyStudyPresenceHistory(today.dateKey, memberId, branchId),
+    queryKey: studyPresenceQueryKeys.managerDailyHistory(
+      ownerKey,
+      branchId,
+      today.dateKey,
+    ),
+    refetchInterval: ATTENDANCE_REFETCH_MS,
     refetchOnWindowFocus: 'always',
-    staleTime: LIVE_STALE_TIME_MS,
+    staleTime: PRESENCE_STALE_TIME_MS,
   });
 
   const members = useMemo(
-    () => buildSeatedAttendanceMembers(boardQuery.data),
-    [boardQuery.data],
-  );
-  const sessions = useMemo(
-    () => buildActiveMemberSessions(liveQuery.data, branchId),
-    [branchId, liveQuery.data],
-  );
-  const summary = useMemo(
-    () =>
-      buildAttendanceSummary({
-        activeSlot,
-        boardReady: boardQuery.isSuccess,
-        liveReady: liveQuery.isSuccess,
-        members,
-        sessions,
-      }),
-    [activeSlot, boardQuery.isSuccess, liveQuery.isSuccess, members, sessions],
+    () => buildSeatedAttendanceMembers(boardQuery.data, presenceQuery.data),
+    [boardQuery.data, presenceQuery.data],
   );
 
   const refresh = useCallback(() => {
     void boardQuery.refetch();
-    void liveQuery.refetch();
-  }, [boardQuery, liveQuery]);
+    void presenceQuery.refetch();
+  }, [boardQuery, presenceQuery]);
 
   const periodLabel =
     operationalSlot === null
@@ -91,35 +76,22 @@ export function useStaffAttendance({
       loading: boardQuery.isPending,
       members,
       onRetry: () => void boardQuery.refetch(),
-      ready: boardQuery.isSuccess,
+      ready: boardQuery.data !== undefined,
     },
     freshness: {
       onRefresh: refresh,
-      refreshing: boardQuery.isFetching || liveQuery.isFetching,
-    },
-    live: {
-      asOfLabel:
-        liveQuery.isSuccess && liveQuery.data
-          ? formatSafeTime(liveQuery.data.asOf)
-          : null,
-      errorMessage: liveQuery.isError ? liveQuery.error.message : null,
-      loading: liveQuery.isPending,
-      onRetry: () => void liveQuery.refetch(),
-      ready: liveQuery.isSuccess,
-      sessions,
+      refreshing: boardQuery.isFetching || presenceQuery.isFetching,
     },
     period: {
       activeSlot,
       label: periodLabel,
       operationalSlot,
     },
-    summary,
+    presence: {
+      errorMessage: presenceQuery.isError ? presenceQuery.error.message : null,
+      onRetry: () => void presenceQuery.refetch(),
+      ready: presenceQuery.data !== undefined,
+    },
     today,
   };
-}
-
-function formatSafeTime(value: string) {
-  const epochMs = Date.parse(value);
-
-  return Number.isFinite(epochMs) ? formatTimeOfDayFromEpochMs(epochMs) : null;
 }

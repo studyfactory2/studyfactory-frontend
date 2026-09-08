@@ -11,6 +11,12 @@ export const studyPresenceQueryKeys = {
     [...root(ownerKey), 'history'] as const,
   history: (ownerKey: SessionOwnerKey, from: string, to: string) =>
     [...root(ownerKey), 'history', from, to] as const,
+  /** Daily operations history, pinned to the caller's branch by the backend. */
+  managerDailyHistory: (
+    ownerKey: SessionOwnerKey,
+    branchId: number,
+    date: string,
+  ) => [...root(ownerKey), 'managerHistory', branchId, date] as const,
   /** Who is sitting in the branch right now — managers only. */
   live: (ownerKey: SessionOwnerKey) => [...root(ownerKey), 'live'] as const,
   me: (ownerKey: SessionOwnerKey) => [...root(ownerKey), 'me'] as const,

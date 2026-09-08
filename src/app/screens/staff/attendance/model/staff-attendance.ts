@@ -4,9 +4,8 @@ import {
   type AttendanceSlotSource,
   type DailyAttendanceBoard,
 } from '../../../../features/attendances/attendances-api';
-import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import type {
-  StudyPresenceLiveResponse,
+  StudyPresenceManagerHistoryResponse,
   StudyPresenceManagerSessionResponse,
 } from '../../../../features/study-presence/study-presence-api';
 
@@ -23,16 +22,16 @@ export type StaffAttendanceCell = {
 export type StaffAttendanceMember = {
   memberId: number;
   name: string;
+  presence: StaffAttendancePresence | null;
   seatNumber: number;
   slots: StaffAttendanceCell[];
 };
 
-export type StaffAttendanceSummary = {
-  checkedInCount: number | null;
-  expectedCount: number | null;
-  leaveCount: number | null;
-  presentCount: number | null;
-  unmarkedCount: number | null;
+export type StaffAttendancePresence = {
+  checkedInAt: string | null;
+  checkedOutAt: string | null;
+  currentlyActive: boolean;
+  sessionCount: number;
 };
 
 /**
@@ -42,10 +41,15 @@ export type StaffAttendanceSummary = {
  */
 export function buildSeatedAttendanceMembers(
   board: DailyAttendanceBoard | undefined,
+  history: StudyPresenceManagerHistoryResponse | undefined,
 ): StaffAttendanceMember[] {
   if (!board) {
     return [];
   }
+
+  const presenceByMemberId = history
+    ? buildDailyMemberPresence(history.sessions)
+    : null;
 
   return board.rows
     .filter(
@@ -55,6 +59,16 @@ export function buildSeatedAttendanceMembers(
     .map((row) => ({
       memberId: row.memberId,
       name: row.name,
+      presence:
+        presenceByMemberId?.get(row.memberId) ??
+        (history
+          ? {
+              checkedInAt: null,
+              checkedOutAt: null,
+              currentlyActive: false,
+              sessionCount: 0,
+            }
+          : null),
       seatNumber: row.seatNumber,
       slots: ATTENDANCE_SLOTS.map((slot) =>
         toAttendanceCell(
@@ -71,91 +85,82 @@ export function buildSeatedAttendanceMembers(
 }
 
 /**
- * Live presence is a branch feed, not a member feed. Staff/admin sessions are
- * legitimate backend rows but must not be counted as students. Duplicate
- * active rows are collapsed defensively so the headline remains a people
- * count even if a legacy record violates the one-active-session invariant.
+ * A member may leave and re-enter during one day. The compact attendance row
+ * shows the day's first check-in and final check-out; while any session is
+ * still active, checkout intentionally remains open instead of showing an
+ * earlier intermediate departure.
  */
-export function buildActiveMemberSessions(
-  live: StudyPresenceLiveResponse | undefined,
-  expectedBranchId: number,
-): StudyPresenceManagerSessionResponse[] {
-  const byMemberId = new Map<number, StudyPresenceManagerSessionResponse>();
+export function buildDailyMemberPresence(
+  sessions: StudyPresenceManagerSessionResponse[],
+) {
+  const byMemberId = new Map<number, StaffAttendancePresence>();
+  const seenSessionIds = new Set<number>();
 
-  for (const session of live?.sessions ?? []) {
-    if (
-      session.branchId !== expectedBranchId ||
-      session.memberRole !== 'MEMBER' ||
-      !session.currentlyActive
-    ) {
+  for (const session of sessions) {
+    if (seenSessionIds.has(session.sessionId)) {
       continue;
     }
 
-    const current = byMemberId.get(session.memberId);
+    seenSessionIds.add(session.sessionId);
+    const current = byMemberId.get(session.memberId) ?? {
+      checkedInAt: null,
+      checkedOutAt: null,
+      currentlyActive: false,
+      sessionCount: 0,
+    };
 
-    if (
-      !current ||
-      Date.parse(session.checkedInAt) > Date.parse(current.checkedInAt)
-    ) {
-      byMemberId.set(session.memberId, session);
+    current.sessionCount += 1;
+    current.checkedInAt = earlierTimestamp(
+      current.checkedInAt,
+      session.checkedInAt,
+    );
+    current.currentlyActive ||= session.currentlyActive;
+
+    if (!session.currentlyActive && session.checkedOutAt) {
+      current.checkedOutAt = laterTimestamp(
+        current.checkedOutAt,
+        session.checkedOutAt,
+      );
+    }
+
+    byMemberId.set(session.memberId, current);
+  }
+
+  for (const presence of byMemberId.values()) {
+    if (presence.currentlyActive) {
+      presence.checkedOutAt = null;
     }
   }
 
-  return [...byMemberId.values()].sort((left, right) => {
-    if (left.seatNumber === null && right.seatNumber !== null) {
-      return 1;
-    }
-
-    if (left.seatNumber !== null && right.seatNumber === null) {
-      return -1;
-    }
-
-    if (left.seatNumber !== null && right.seatNumber !== null) {
-      const seatOrder = left.seatNumber - right.seatNumber;
-
-      if (seatOrder !== 0) {
-        return seatOrder;
-      }
-    }
-
-    return (left.memberName ?? '').localeCompare(right.memberName ?? '', 'ko');
-  });
+  return byMemberId;
 }
 
-export function buildAttendanceSummary({
-  activeSlot,
-  boardReady,
-  liveReady,
-  members,
-  sessions,
-}: {
-  activeSlot: OperationalAttendanceSlot | null;
-  boardReady: boolean;
-  liveReady: boolean;
-  members: StaffAttendanceMember[];
-  sessions: StudyPresenceManagerSessionResponse[];
-}): StaffAttendanceSummary {
-  const slotCells =
-    activeSlot === null
-      ? null
-      : members.map((member) => member.slots[activeSlot - 1]);
+function earlierTimestamp(current: string | null, candidate: string) {
+  const candidateMs = Date.parse(candidate);
 
-  return {
-    checkedInCount: liveReady ? sessions.length : null,
-    expectedCount: boardReady ? members.length : null,
-    leaveCount:
-      boardReady && slotCells
-        ? slotCells.filter((cell) => cell.state === 'leave').length
-        : null,
-    presentCount:
-      boardReady && slotCells
-        ? slotCells.filter((cell) => cell.state === 'present').length
-        : null,
-    unmarkedCount:
-      boardReady && slotCells
-        ? slotCells.filter((cell) => cell.state === 'unmarked').length
-        : null,
-  };
+  if (!Number.isFinite(candidateMs)) {
+    return current;
+  }
+
+  if (!current || !Number.isFinite(Date.parse(current))) {
+    return candidate;
+  }
+
+  return candidateMs < Date.parse(current) ? candidate : current;
+}
+
+function laterTimestamp(current: string | null, candidate: string) {
+  const candidateMs = Date.parse(candidate);
+
+  if (!Number.isFinite(candidateMs)) {
+    return current;
+  }
+
+  if (!current || !Number.isFinite(Date.parse(current))) {
+    return candidate;
+  }
+
+  return candidateMs > Date.parse(current) ? candidate : current;
 }
 
 function toAttendanceCell(

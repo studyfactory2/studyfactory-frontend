@@ -120,6 +120,9 @@ export async function submitStudyPresenceQr(
 }
 
 export type StudyPresenceCheckInMethod = 'MANAGER' | 'QR';
+export type StudyPresenceCloseReason = 'CHECK_OUT' | 'MEMBER_DELETED';
+export type StudyPresenceCheckoutMethod =
+  'AUTO_MIDNIGHT' | 'MANAGER' | 'MEMBER_DELETED' | 'QR';
 
 export type StudyPresenceManagerSessionResponse = {
   sessionId: number;
@@ -130,11 +133,16 @@ export type StudyPresenceManagerSessionResponse = {
   seatNumber: number | null;
   branchId: number;
   checkedInAt: string;
-  checkInMethod: StudyPresenceCheckInMethod;
+  checkInMethod: StudyPresenceCheckInMethod | null;
   checkedInByMemberId: number | null;
   manualCheckInReason: string | null;
   checkedOutAt: string | null;
+  closeReason: StudyPresenceCloseReason | null;
+  closedByMemberId: number | null;
+  checkoutMethod: StudyPresenceCheckoutMethod | null;
   currentlyActive: boolean;
+  overlapStartedAt: string;
+  overlapEndedAt: string;
   presenceDuration: StudyPresenceDurationResponse;
 };
 
@@ -145,6 +153,59 @@ export type StudyPresenceLiveResponse = {
   memberCount: number;
   sessions: StudyPresenceManagerSessionResponse[];
 };
+
+export type StudyPresenceManagerHistoryResponse = {
+  branchId: number;
+  memberId: number | null;
+  fromDate: string;
+  toDate: string;
+  zoneId: string;
+  asOf: string;
+  sessionCount: number;
+  totalPresenceDuration: StudyPresenceDurationResponse;
+  sessions: StudyPresenceManagerSessionResponse[];
+};
+
+/**
+ * Every presence session that overlaps one Seoul calendar day in the signed-in
+ * operations member's branch. This is intentionally different from `live`:
+ * closed sessions remain in the response, so the attendance board can show
+ * both the first check-in and the final check-out for the day.
+ */
+export async function fetchDailyStudyPresenceHistory(
+  date: string,
+  expectedMemberId: number,
+  expectedBranchId: number,
+) {
+  const query = new URLSearchParams({ date });
+  const response = await apiRequest<StudyPresenceManagerHistoryResponse>(
+    `/api/study-presence/history?${query}`,
+    { expectedMemberId },
+  );
+
+  if (
+    response.branchId !== expectedBranchId ||
+    response.memberId !== null ||
+    response.fromDate !== date ||
+    response.toDate !== date
+  ) {
+    throw new ApiRequestError(
+      '요청한 지점 또는 날짜와 다른 입퇴실 기록을 받았습니다.',
+      409,
+    );
+  }
+
+  if (
+    response.sessions.some((session) => session.branchId !== expectedBranchId)
+  ) {
+    throw new ApiRequestError(
+      '다른 지점의 입퇴실 기록이 포함되어 있습니다.',
+      409,
+    );
+  }
+
+  return response;
+}
 
 /**
  * Who is sitting in the branch at this moment. Unlike the other manager reads
