@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import {
+  Armchair,
   CalendarClock,
   CalendarDays,
   ListChecks,
@@ -7,7 +8,7 @@ import {
 } from 'lucide-react';
 import { cx } from '../../../../shared/lib/cx';
 
-export type OperationsView = 'leave' | 'meals' | 'schedule' | 'work';
+export type OperationsView = 'leave' | 'meals' | 'schedule' | 'seats' | 'work';
 
 const TABS: readonly {
   description: string;
@@ -38,6 +39,12 @@ const TABS: readonly {
     icon: CalendarClock,
     label: '근무표',
     value: 'schedule',
+  },
+  {
+    description: '배정 · 이동 · 해제',
+    icon: Armchair,
+    label: '좌석 관리',
+    value: 'seats',
   },
 ];
 

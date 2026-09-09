@@ -31,6 +31,7 @@ export function BeverageMemberEditor({
 }: BeverageMemberEditorProps) {
   return (
     <Modal
+      closeDisabled={saving}
       onClose={onClose}
       open={target !== null}
       size="sm"
@@ -215,7 +216,7 @@ function EditorBody({
       </div>
 
       <div className="staff-bev__editor-actions">
-        <Button onClick={onClose} variant="ghost">
+        <Button disabled={saving} onClick={onClose} variant="ghost">
           닫기
         </Button>
         <Button

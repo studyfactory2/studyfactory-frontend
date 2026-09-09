@@ -84,10 +84,10 @@ export function fetchMySideDishOrderDates(
 }
 
 /**
- * This self-service UI only supplies ids returned by `/me`. The backend lets
- * STAFF/ADMIN bypass the owner check, so server-side ownership still needs
- * hardening before this is a complete authorization boundary. The screen also
- * enforces the ordering cutoff because deletion has no backend deadline.
+ * This self-service UI only supplies ids returned by `/me`. The server enforces
+ * ownership for MEMBER and STAFF callers; ADMIN retains its explicit
+ * management capability. The screen also enforces the ordering cutoff because
+ * deletion has no backend deadline.
  */
 export function deleteMySideDish(sideDishId: number, expectedMemberId: number) {
   return apiRequest<null>(`/api/side-dishes/${sideDishId}`, {
@@ -109,9 +109,9 @@ export type DailySideDishResponse = {
 };
 
 /**
- * Everyone's orders for one day. The backend accepts an arbitrary branchId but
- * defaults to the authenticated manager's branch when it is omitted, so the
- * client deliberately omits it and still validates every row on the way back.
+ * Everyone's orders for one day. The server requires manager access and
+ * restricts STAFF to their own branch. The client deliberately omits branchId
+ * so the server resolves that branch, then validates every returned row.
  */
 export async function fetchDailySideDishes(
   date: string,

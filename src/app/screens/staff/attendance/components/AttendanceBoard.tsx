@@ -460,7 +460,7 @@ export function AttendanceBoard({
                 <FilterButton
                   active={effectiveFilter === 'unmarked'}
                   disabled={activeSlot === null}
-                  label={`${filterSlot}교시 미출석`}
+                  label={`${filterSlot}교시 미확인`}
                   onClick={() => {
                     setFilter('unmarked');
                     setPresenceMemberId(null);
@@ -626,6 +626,6 @@ function attendanceCellAlreadyHasStatus(
 ) {
   return (
     (status === 'PRESENT' && cell.state === 'present') ||
-    (status === 'ABSENT' && cell.state === 'unmarked')
+    (status === 'ABSENT' && cell.state === 'absent')
   );
 }

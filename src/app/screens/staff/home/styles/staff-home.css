@@ -84,6 +84,30 @@
   font-size: var(--text-xs);
 }
 
+.staff-home__shift-retry {
+  width: fit-content;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--brand-line);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--brand-ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-bold);
+}
+
+.staff-home__shift-retry:hover {
+  border-color: var(--inst-accent);
+  background: rgb(var(--brand-ivory-rgb) / 5%);
+}
+
+.staff-home__shift-retry:focus-visible {
+  outline: 2px solid var(--inst-accent);
+  outline-offset: 2px;
+}
+
 /* ---------- job tiles ---------- */
 
 .staff-home__jobs-block {
@@ -471,6 +495,10 @@
     grid-column: 2;
     font-size: var(--text-3xs);
     text-align: right;
+  }
+
+  .staff-home__shift-retry {
+    justify-self: end;
   }
 
   .staff-home__jobs {

@@ -39,7 +39,7 @@ export function AttendanceStatusCell({
   timing,
 }: AttendanceStatusCellProps) {
   const safeCell = cell ?? {
-    label: '미출석',
+    label: '—',
     source: 'NONE' as const,
     state: 'unmarked' as const,
   };
@@ -47,9 +47,11 @@ export function AttendanceStatusCell({
   const statusLabel =
     safeCell.state === 'present'
       ? '출석 처리'
-      : safeCell.state === 'unmarked'
+      : safeCell.state === 'absent'
         ? '미출석'
-        : safeCell.label;
+        : safeCell.state === 'unmarked'
+          ? '미확인'
+          : safeCell.label;
   const modeLabel =
     mode === 'PRESENT'
       ? '출석'

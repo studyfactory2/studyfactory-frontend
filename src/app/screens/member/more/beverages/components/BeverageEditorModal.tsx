@@ -30,6 +30,7 @@ export function BeverageEditorModal({
 }: BeverageEditorModalProps) {
   return (
     <Modal
+      closeDisabled={saving}
       onClose={onClose}
       open={target !== null}
       size="sm"
@@ -112,7 +113,7 @@ function BeverageEditorBody({
             삭제
           </Button>
         )}
-        <Button onClick={onClose} variant="ghost">
+        <Button disabled={saving} onClick={onClose} variant="ghost">
           닫기
         </Button>
         <Button

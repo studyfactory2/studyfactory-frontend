@@ -7,6 +7,8 @@ import './modal.css';
 
 type ModalProps = {
   children: ReactNode;
+  /** Keep an in-flight write from being abandoned through Escape/backdrop/X. */
+  closeDisabled?: boolean;
   footer?: ReactNode;
   initialFocusRef?: RefObject<HTMLElement | null>;
   onClose: () => void;
@@ -17,6 +19,7 @@ type ModalProps = {
 
 export function Modal({
   children,
+  closeDisabled = false,
   footer,
   initialFocusRef,
   onClose,
@@ -25,14 +28,16 @@ export function Modal({
   title,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const closeDisabledRef = useRef(closeDisabled);
   const initialFocusTargetRef = useRef(initialFocusRef);
   const onCloseRef = useRef(onClose);
   const titleId = useId();
 
   useEffect(() => {
+    closeDisabledRef.current = closeDisabled;
     initialFocusTargetRef.current = initialFocusRef;
     onCloseRef.current = onClose;
-  }, [initialFocusRef, onClose]);
+  }, [closeDisabled, initialFocusRef, onClose]);
 
   useEffect(() => {
     if (!open) {
@@ -55,7 +60,9 @@ export function Modal({
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        onCloseRef.current();
+        if (!closeDisabledRef.current) {
+          onCloseRef.current();
+        }
         return;
       }
 
@@ -120,7 +127,7 @@ export function Modal({
     <div
       className="modal"
       onClick={(event) => {
-        if (event.target === event.currentTarget) {
+        if (event.target === event.currentTarget && !closeDisabled) {
           onClose();
         }
       }}
@@ -141,6 +148,7 @@ export function Modal({
           <button
             aria-label="닫기"
             className="modal__close"
+            disabled={closeDisabled}
             onClick={onClose}
             type="button"
           >

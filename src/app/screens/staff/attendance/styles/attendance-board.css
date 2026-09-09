@@ -5,6 +5,11 @@
     var(--danger-soft) 72%,
     var(--card)
   );
+  --attendance-unmarked-surface: color-mix(
+    in srgb,
+    var(--card-2) 68%,
+    var(--card)
+  );
   --attendance-leave-surface: var(--special-soft);
   --attendance-future-surface: color-mix(
     in srgb,
@@ -531,10 +536,18 @@
   font-weight: var(--weight-extrabold);
 }
 
-.staff-attendance__status.is-unmarked {
+.staff-attendance__status.is-absent {
   background: var(--attendance-absent-surface);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger) 16%, transparent);
   color: var(--danger-deep);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-extrabold);
+}
+
+.staff-attendance__status.is-unmarked {
+  background: var(--attendance-unmarked-surface);
+  box-shadow: inset 0 0 0 1px rgb(var(--brand-ink-rgb) / 7%);
+  color: var(--brand-muted);
 }
 
 .staff-attendance__status.is-leave {

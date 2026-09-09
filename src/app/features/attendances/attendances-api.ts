@@ -1,22 +1,20 @@
 import { apiRequest, ApiRequestError } from '../../core/api/api-client';
 
 /**
- * A board cell holds one of three things: "O" for a slot staff have marked
- * present, "X" for a slot with no stored status, or a leave label the backend
- * composed from the leave itself ("오전반차", "병원", …). Only the first two are
- * fixed strings, so callers match those and treat everything else as leave
- * rather than trying to enumerate labels the frontend does not own.
+ * A board cell holds "O", "X", or a leave label. `slotSources` is required to
+ * tell an untouched "X" (`NONE`) from an "X" that staff explicitly reviewed
+ * (`MANAGER_ABSENT`); the visible value alone is intentionally not enough.
  */
 export const ATTENDANCE_PRESENT = 'O';
 export const ATTENDANCE_BLANK = 'X';
 
 /**
- * Where a cell's value came from. Note that "NONE" covers both an untouched
- * slot and one staff marked present — the backend does not distinguish them
- * here, and it does not need to: a slot only becomes "O" through
- * PATCH /daily-board/slot, so every "O" on the board is a staff action.
+ * Where a cell's value came from. "NONE" covers an untouched slot and a stored
+ * present slot. `MANAGER_ABSENT` is the durable reviewed-X marker returned
+ * after PATCH /daily-board/slot, including a fixed-leave cancellation.
  */
-export type AttendanceSlotSource = 'MANAGER_LEAVE' | 'MEMBER_LEAVE' | 'NONE';
+export type AttendanceSlotSource =
+  'MANAGER_ABSENT' | 'MANAGER_LEAVE' | 'MEMBER_LEAVE' | 'NONE';
 
 export type AttendanceBoardRow = {
   /** Null on an unoccupied seat, which the board still returns as a row. */

@@ -118,8 +118,13 @@ export function useStaffBeverages({
 
   const unseated = useMemo(
     () =>
-      findUnseatedDrinkers(beverageQuery.data, boardQuery.data, today.dateKey),
-    [beverageQuery.data, boardQuery.data, today.dateKey],
+      findUnseatedDrinkers(
+        beverageQuery.data,
+        boardQuery.data,
+        roomQuery.data,
+        today.dateKey,
+      ),
+    [beverageQuery.data, boardQuery.data, roomQuery.data, today.dateKey],
   );
 
   const changes = useMemo(
@@ -216,13 +221,18 @@ export function useStaffBeverages({
         ? beverageQuery.error.message
         : boardQuery.isError
           ? boardQuery.error.message
-          : null,
-      unseatedLoading: beverageQuery.isPending || boardQuery.isPending,
+          : roomQuery.isError
+            ? roomQuery.error.message
+            : null,
+      unseatedLoading:
+        beverageQuery.isPending || boardQuery.isPending || roomQuery.isPending,
       unseatedOnRetry: () => {
         void beverageQuery.refetch();
         void boardQuery.refetch();
+        void roomQuery.refetch();
       },
-      unseatedReady: beverageQuery.isSuccess && boardQuery.isSuccess,
+      unseatedReady:
+        beverageQuery.isSuccess && boardQuery.isSuccess && roomQuery.isSuccess,
     },
     editor: {
       onClose: closeEditor,
@@ -242,7 +252,8 @@ export function useStaffBeverages({
       refreshing:
         beverageQuery.isFetching ||
         boardQuery.isFetching ||
-        leaveQuery.isFetching,
+        leaveQuery.isFetching ||
+        roomQuery.isFetching,
       updatedAtLabel:
         updatedAtMs === Number.MAX_SAFE_INTEGER
           ? null

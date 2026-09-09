@@ -26,6 +26,7 @@ export function LeaveDayModal({
 }: LeaveDayModalProps) {
   return (
     <Modal
+      closeDisabled={saving}
       onClose={onClose}
       open={cell !== null}
       size="sm"
@@ -105,7 +106,7 @@ function LeaveDayBody({
         </p>
 
         <div className="member-leaves__day-modal-actions">
-          <Button onClick={onClose} variant="ghost">
+          <Button disabled={saving} onClick={onClose} variant="ghost">
             닫기
           </Button>
           <Button
@@ -142,7 +143,7 @@ function LeaveDayBody({
       </p>
 
       <div className="member-leaves__day-modal-actions">
-        <Button onClick={onClose} variant="ghost">
+        <Button disabled={saving} onClick={onClose} variant="ghost">
           닫기
         </Button>
         {cancellableLeaveId !== null && (

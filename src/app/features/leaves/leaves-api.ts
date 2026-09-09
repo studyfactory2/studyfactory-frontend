@@ -51,10 +51,10 @@ export function createMyLeave(
 }
 
 /**
- * This self-service UI only supplies ids returned by `/me/plan`. The backend
- * currently lets STAFF/ADMIN bypass the owner check, so server-side ownership
- * still needs hardening before this is a complete authorization boundary.
- * Office-assigned leaves return a null id and are never deletable here.
+ * This self-service UI only supplies ids returned by `/me/plan`. The server
+ * enforces ownership for MEMBER and STAFF callers; ADMIN retains its explicit
+ * management capability. Office-assigned leaves return a null id and are never
+ * deletable here.
  */
 export function deleteMyLeave(leaveId: number, expectedMemberId: number) {
   return apiRequest<null>(`/api/leaves/${leaveId}`, {
@@ -75,18 +75,16 @@ export type DailyLeaveStatusResponse = {
   createdAt: string;
   label: string | null;
   source: MemberLeavePlanSource | string;
-  /** Set only on manager-assigned special leave; null elsewhere. */
+  /** Whether the request was created from 08:00 (inclusive) to 09:00 in Seoul. */
   requestedAfterEight: boolean | null;
 };
 
 /**
  * Everyone's leave for one day.
  *
- * Worth knowing what this endpoint is: it has no permission check at all on the
- * backend — any signed-in member can call it, and omitting branchId returns
- * every branch in the company. Sending the session's own branch and verifying
- * the rows on the way back is the whole of the protection here, so neither is
- * optional. It is on the list to gate.
+ * The server limits this manager read to the caller's branch for STAFF (ADMIN
+ * may select a branch). Sending the session branch and validating every row
+ * remain useful client-side contract checks.
  */
 export async function fetchDailyLeaveStatuses(
   date: string,

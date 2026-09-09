@@ -53,9 +53,14 @@
   color: var(--brand-muted);
 }
 
-.modal__close:hover {
+.modal__close:hover:not(:disabled) {
   background: var(--card-2);
   color: var(--brand-ink);
+}
+
+.modal__close:disabled {
+  cursor: wait;
+  opacity: 0.42;
 }
 
 .modal__body {

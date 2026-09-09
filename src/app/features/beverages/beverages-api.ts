@@ -106,10 +106,9 @@ export type MemberBeverageResponse = {
 };
 
 /**
- * Every member's drink setup, for the making list. Omitting branchId here would
- * return every branch in the company — the backend checks the caller's role but
- * not their branch — so the session's own branch is always sent and the result
- * is checked against it.
+ * Every member's drink setup, for the making list. The server restricts STAFF
+ * to their own branch; this client still sends that branch explicitly and
+ * validates every row as a response-contract guard.
  */
 export async function fetchMemberBeverages(
   branchId: number,
@@ -135,9 +134,9 @@ export async function fetchMemberBeverages(
  * sharing it, and the same drink may legitimately appear twice. Removing one
  * of two is therefore "send the list without it".
  *
- * The backend's own check on this endpoint is the role only — it does not
- * confirm the target is in the caller's branch — so the response's branchId is
- * verified here rather than trusted.
+ * The server permits manager roles and restricts STAFF to same-branch targets;
+ * ADMIN retains broader scope. The response identity and branch are still
+ * verified here before the cache accepts this Staff-screen write.
  */
 export async function replaceMemberBeverageItems(
   memberId: number,

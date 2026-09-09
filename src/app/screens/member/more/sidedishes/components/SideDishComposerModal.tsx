@@ -25,6 +25,7 @@ export function SideDishComposerModal({
 
   return (
     <Modal
+      closeDisabled={saving}
       onClose={onClose}
       open={mealType !== null}
       size="sm"
@@ -116,7 +117,7 @@ function ComposerBody({
       </p>
 
       <div className="member-sidedishes__composer-actions">
-        <Button onClick={onClose} variant="ghost">
+        <Button disabled={saving} onClick={onClose} variant="ghost">
           닫기
         </Button>
         <Button disabled={!submittable} loading={saving} type="submit">

@@ -13,10 +13,12 @@ import {
 import { StaffLeavePanel } from './components/StaffLeavePanel';
 import { StaffSideDishPanel } from './components/StaffSideDishPanel';
 import { StaffSchedulePanel } from './components/StaffSchedulePanel';
+import { StaffSeatPanel } from './components/StaffSeatPanel';
 import { SuggestionInbox } from './components/SuggestionInbox';
 import { TodoBoard } from './components/TodoBoard';
 import { useStaffSuggestions } from './hooks/useStaffSuggestions';
 import { useStaffSchedule } from './hooks/useStaffSchedule';
+import { useStaffSeats } from './hooks/useStaffSeats';
 import { useStaffTodos } from './hooks/useStaffTodos';
 import './styles/staff-operations.css';
 
@@ -67,7 +69,7 @@ function StaffOperationsContent({
         <div>
           <p>STAFF · OPERATIONS</p>
           <h2>운영</h2>
-          <span>오늘 업무를 처리하고 내 신청과 근무표를 확인해요.</span>
+          <span>오늘 업무와 좌석을 관리하고 내 신청·근무표를 확인해요.</span>
         </div>
         <strong>{formatKoreanDate(today.dateKey)}</strong>
       </header>
@@ -85,7 +87,7 @@ function StaffOperationsContent({
           <StaffLeavePanel memberId={memberId} ownerKey={ownerKey} />
         ) : activeView === 'meals' ? (
           <StaffSideDishPanel memberId={memberId} ownerKey={ownerKey} />
-        ) : (
+        ) : activeView === 'schedule' ? (
           <StaffScheduleView
             branchId={branchId}
             memberId={memberId}
@@ -93,10 +95,30 @@ function StaffOperationsContent({
             ownerKey={ownerKey}
             todayDateKey={today.dateKey}
           />
+        ) : (
+          <StaffSeatView
+            branchId={branchId}
+            memberId={memberId}
+            ownerKey={ownerKey}
+          />
         )}
       </section>
     </div>
   );
+}
+
+function StaffSeatView({
+  branchId,
+  memberId,
+  ownerKey,
+}: {
+  branchId: number;
+  memberId: number;
+  ownerKey: SessionOwnerKey;
+}) {
+  const seats = useStaffSeats({ branchId, memberId, ownerKey });
+
+  return <StaffSeatPanel seats={seats} />;
 }
 
 function StaffScheduleView({

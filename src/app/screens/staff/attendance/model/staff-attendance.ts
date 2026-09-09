@@ -14,7 +14,7 @@ import type { OperationalAttendanceSlot } from '../../../../features/attendances
 
 export const ATTENDANCE_SLOTS = [1, 2, 3, 4, 5, 6, 7] as const;
 
-export type AttendanceCellState = 'leave' | 'present' | 'unmarked';
+export type AttendanceCellState = 'absent' | 'leave' | 'present' | 'unmarked';
 export type AttendanceMemberStage = 'active' | 'starts-today' | 'future';
 export type AttendanceSelectionTiming = 'current' | 'future' | 'past';
 
@@ -239,6 +239,10 @@ function toAttendanceCell(
   value: string,
   source: AttendanceSlotSource,
 ): StaffAttendanceCell {
+  if (source === 'MANAGER_ABSENT') {
+    return { label: 'X', source, state: 'absent' };
+  }
+
   if (source !== 'NONE') {
     return {
       label: value.trim() || '휴무',
@@ -252,7 +256,7 @@ function toAttendanceCell(
   }
 
   if (value === ATTENDANCE_BLANK) {
-    return { label: '미출석', source, state: 'unmarked' };
+    return { label: '—', source, state: 'unmarked' };
   }
 
   return {

@@ -12,6 +12,7 @@ import type {
   RoomLayout,
   RoomLayoutItem,
 } from '../../../../features/rooms/rooms-api';
+import { toSeoulDateKey } from './seoul-date';
 
 /*
  * Screen-shaped derivations for the beverages page: the room map, and the two
@@ -53,8 +54,8 @@ export function findTodayChanges(
   return (members ?? [])
     .filter((member) => hasJoinedByDate(member.joinDate, todayDateKey))
     .flatMap((member) => {
-      const created = (member.createdAt ?? '').slice(0, 10);
-      const updated = (member.updatedAt ?? '').slice(0, 10);
+      const created = toSeoulDateKey(member.createdAt);
+      const updated = toSeoulDateKey(member.updatedAt);
 
       if (created !== todayDateKey && updated !== todayDateKey) {
         return [];
@@ -160,8 +161,11 @@ export type RoomView = {
 export type UnseatedDrinker = {
   away: boolean;
   drinks: string[];
+  /** A positive assignment that no current room can draw. */
+  mapMissing: boolean;
   memberId: number;
   memberName: string;
+  seatNumber: number | null;
   staff: boolean;
   tumbler: boolean;
 };
@@ -219,21 +223,34 @@ export function buildRoomViews(
 }
 
 /**
- * Everyone whose drinks the map cannot show, because they have no seat to draw
- * them on. Without this they would silently go unmade.
+ * Everyone whose drinks the map cannot show: either no assignment, or a
+ * positive seat number absent from every current room layout. Without this
+ * they would silently go unmade.
  */
 export function findUnseatedDrinkers(
   members: MemberBeverageResponse[] | undefined,
   board: DailyAttendanceBoard | undefined,
+  rooms: RoomLayout[] | undefined,
   todayDateKey: string,
 ): UnseatedDrinker[] {
   const away = morningLeaveMemberIds(board);
+  const mappedSeatNumbers = new Set(
+    (rooms ?? []).flatMap((room) =>
+      room.items.flatMap((item) =>
+        item.type === 'SEAT' && item.number !== null && item.number > 0
+          ? [item.number]
+          : [],
+      ),
+    ),
+  );
 
   return (members ?? [])
     .filter(
       (member) =>
         hasJoinedByDate(member.joinDate, todayDateKey) &&
-        (member.seatNumber === null || member.seatNumber <= 0) &&
+        (member.seatNumber === null ||
+          member.seatNumber <= 0 ||
+          !mappedSeatNumbers.has(member.seatNumber)) &&
         member.items.some(
           (item) => item.name.trim() !== '' && !isExcludedDrink(item.name),
         ),
@@ -246,8 +263,13 @@ export function findUnseatedDrinkers(
       return {
         away: away.has(member.memberId),
         drinks,
+        mapMissing:
+          member.seatNumber !== null &&
+          member.seatNumber > 0 &&
+          !mappedSeatNumbers.has(member.seatNumber),
         memberId: member.memberId,
         memberName: member.memberName,
+        seatNumber: member.seatNumber,
         /* Staff have no seat by design; saying so stops "why no seat?" at a glance. */
         staff: member.role !== 'MEMBER',
         tumbler: drinks.some(isTumblerDrink),

@@ -179,15 +179,15 @@ function UnseatedOrders({
   return (
     <AttentionGroup
       count={!loading && !errorMessage ? items.length : null}
-      title="좌석 없는 주문"
+      title="좌석 확인 필요"
     >
       {loading ? (
-        <CompactLoading label="좌석 없는 주문을 확인하는 중" />
+        <CompactLoading label="좌석 배정을 확인하는 중" />
       ) : errorMessage ? (
         <CompactError
           message={errorMessage}
           onRetry={onRetry}
-          title="좌석 없는 주문"
+          title="좌석 확인 필요"
         />
       ) : (
         <ul className="staff-bev__unseated-list">
@@ -199,9 +199,9 @@ function UnseatedOrders({
             return (
               <li key={member.memberId}>
                 <button
-                  aria-label={`좌석 없음, ${member.memberName}${
-                    member.staff ? ', 스텝' : ''
-                  }, ${drinkLabel}${
+                  aria-label={`${formatSeatIssue(member)}, ${
+                    member.memberName
+                  }${member.staff ? ', 스텝' : ''}, ${drinkLabel}${
                     member.tumbler ? ', 텀블러' : ''
                   }, 음료 편집`}
                   className={cx(
@@ -215,6 +215,13 @@ function UnseatedOrders({
                     <strong>{member.memberName}</strong>
                     {member.staff && (
                       <span className="staff-bev__role">스텝</span>
+                    )}
+                    {!member.staff && (
+                      <span className="staff-bev__role">
+                        {member.mapMissing
+                          ? `${member.seatNumber}번 · 배치도 누락`
+                          : '미배정'}
+                      </span>
                     )}
                   </span>
                   <span className="staff-bev__unseated-meta">
@@ -237,6 +244,16 @@ function UnseatedOrders({
       )}
     </AttentionGroup>
   );
+}
+
+function formatSeatIssue(member: UnseatedDrinker) {
+  if (member.staff) {
+    return '좌석 없음';
+  }
+
+  return member.mapMissing
+    ? `${member.seatNumber}번 좌석이 배치도에 없음`
+    : '좌석 미배정';
 }
 
 function AttentionGroup({

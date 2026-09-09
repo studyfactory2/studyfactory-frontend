@@ -30,11 +30,7 @@ export type RoomSummary = {
   seatedCount: number;
   notSeatedCount: number;
   onLeaveCount: number;
-  /**
-   * Expected members whose current slot is not O. Backend X covers both an
-   * untouched cell and an explicitly reviewed absence, so this is not a count
-   * of unfinished staff actions.
-   */
+  /** Expected members whose current slot staff have not reviewed yet. */
   unmarkedCount: number;
   /** Expected-and-seated / expected; null after the operating day. */
   ratio: number | null;
@@ -100,6 +96,7 @@ export function summariseRoom(
     }
 
     const currentStatus = row.slots[currentSlot - 1] ?? ATTENDANCE_BLANK;
+    const currentSource = row.slotSources[currentSlot - 1] ?? 'NONE';
 
     if (isLeaveSlot(currentStatus)) {
       onLeaveCount += 1;
@@ -108,7 +105,10 @@ export function summariseRoom(
 
     expectedIds.add(row.memberId);
 
-    if (currentStatus !== ATTENDANCE_PRESENT) {
+    if (
+      currentStatus !== ATTENDANCE_PRESENT &&
+      currentSource !== 'MANAGER_ABSENT'
+    ) {
       unmarkedCount += 1;
     }
   }

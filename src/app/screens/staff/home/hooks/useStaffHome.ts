@@ -104,7 +104,8 @@ export function useStaffHome({
   const todoQuery = useQuery({
     queryFn: () => fetchDailyTodos(today.dateKey, branchId, memberId),
     queryKey: todoQueryKeys.daily(ownerKey, branchId, today.dateKey),
-    refetchInterval: OPERATIONS_REFETCH_MS,
+    /* This GET lazily materializes the day's recurring rows. Do not poll a
+       read that can write; mutations and an explicit/focus retry refresh it. */
     refetchOnWindowFocus: 'always',
     staleTime: LIVE_STALE_TIME_MS,
   });

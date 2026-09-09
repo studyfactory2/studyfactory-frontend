@@ -12,6 +12,7 @@ type StaffHomeHeroProps = {
   shifts: ShiftSummary & {
     errorMessage: string | null;
     loading: boolean;
+    onRetry: () => void;
   };
 };
 
@@ -73,9 +74,13 @@ function StaffHomeShift({ shifts }: Pick<StaffHomeHeroProps, 'shifts'>) {
       {shifts.loading ? (
         <span className="staff-home__shift-quiet">불러오는 중</span>
       ) : shifts.errorMessage ? (
-        <span className="staff-home__shift-quiet">
-          근무표를 불러오지 못했어요
-        </span>
+        <button
+          className="staff-home__shift-retry"
+          onClick={shifts.onRetry}
+          type="button"
+        >
+          근무표 다시 불러오기
+        </button>
       ) : shifts.today.length > 0 ? (
         <>
           <strong className="staff-home__shift-now">
