@@ -25,7 +25,7 @@ export function TodoItem({
     onSuccess?: () => void,
   ) => void;
   onDelete: (todo: TodoResponse) => void;
-  onToggle: (todo: TodoResponse) => void;
+  onToggle: (todo: TodoResponse, onSuccess?: () => void) => void;
   onUpdate: (
     todo: TodoResponse,
     content: string,
@@ -83,8 +83,38 @@ export function TodoItem({
           aria-label={todo.completed ? '할 일 다시 열기' : '할 일 완료'}
           aria-pressed={todo.completed}
           className="staff-operations__todo-check"
+          data-todo-toggle
           disabled={saving}
-          onClick={() => onToggle(todo)}
+          id={`staff-operations-todo-toggle-${todo.id}`}
+          onClick={(event) => {
+            const controls = Array.from(
+              event.currentTarget
+                .closest('ul')
+                ?.querySelectorAll<HTMLButtonElement>('[data-todo-toggle]') ??
+                [],
+            );
+            const index = controls.indexOf(event.currentTarget);
+            const adjacentId =
+              controls[index + 1]?.id || controls[index - 1]?.id || null;
+
+            onToggle(todo, () => {
+              window.requestAnimationFrame(() => {
+                const sameControl = document.getElementById(
+                  `staff-operations-todo-toggle-${todo.id}`,
+                );
+                const adjacentControl = adjacentId
+                  ? document.getElementById(adjacentId)
+                  : null;
+                const fallback = document.getElementById(
+                  todo.completed
+                    ? 'staff-operations-completed-toggle'
+                    : 'staff-operations-todo-composer-input',
+                );
+
+                (sameControl ?? adjacentControl ?? fallback)?.focus();
+              });
+            });
+          }}
           type="button"
         >
           <Check aria-hidden="true" size={15} strokeWidth={3} />

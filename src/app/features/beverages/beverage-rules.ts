@@ -57,6 +57,15 @@ export function isTumblerDrink(name: string) {
   return normaliseDrinkName(name).includes('텀');
 }
 
+/**
+ * `joinDate` is a backend LocalDate, so comparing it with the date key from
+ * useSeoulToday keeps the decision in the branch's Asia/Seoul calendar. A
+ * missing date is treated as already active for legacy members.
+ */
+export function hasJoinedByDate(joinDate: string | null, seoulDateKey: string) {
+  return joinDate === null || joinDate <= seoulDateKey;
+}
+
 function isLeaveSlot(slot: string) {
   return slot !== ATTENDANCE_PRESENT && slot !== ATTENDANCE_BLANK;
 }
@@ -121,11 +130,16 @@ export type MakingBoard = {
 export function buildMakingBoard(
   members: MemberBeverageResponse[] | undefined,
   board: DailyAttendanceBoard | undefined,
+  seoulDateKey: string,
 ): MakingBoard {
   const away = morningLeaveMemberIds(board);
   const groups = new Map<string, DrinkCount>();
 
   for (const member of members ?? []) {
+    if (!hasJoinedByDate(member.joinDate, seoulDateKey)) {
+      continue;
+    }
+
     for (const item of member.items) {
       const name = item.name.trim();
 

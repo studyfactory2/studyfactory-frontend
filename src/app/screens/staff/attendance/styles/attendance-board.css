@@ -222,7 +222,11 @@
 
 .staff-attendance__table-frame {
   position: relative;
+  display: flex;
   min-width: 0;
+  max-height: min(68svh, 42rem);
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .staff-attendance__scroll-hint {
@@ -231,7 +235,8 @@
 
 .staff-attendance__table-frame .table-wrap {
   position: relative;
-  max-height: min(68svh, 42rem);
+  min-height: 0;
+  flex: 1 1 auto;
   overflow: auto;
   border-width: 1px 0 0;
   border-radius: 0;
@@ -350,6 +355,14 @@
   place-items: center;
 }
 
+.staff-attendance__member > b.is-unassigned {
+  width: 46px;
+  padding: 0 5px;
+  background: var(--card-2);
+  color: var(--brand-muted);
+  font-size: 0.58rem;
+}
+
 .staff-attendance__member-copy {
   display: flex;
   min-width: 0;
@@ -361,6 +374,7 @@
 
 .staff-attendance__member-name {
   display: flex;
+  width: 100%;
   max-width: 100%;
   align-items: center;
   gap: 5px;
@@ -369,6 +383,7 @@
 .staff-attendance__member-name > strong {
   min-width: 0;
   max-width: 100%;
+  flex: 1 1 auto;
   overflow: hidden;
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
@@ -436,6 +451,37 @@
   font-weight: var(--weight-extrabold);
 }
 
+.staff-attendance__presence-button {
+  min-height: 23px;
+  flex: 0 0 auto;
+  padding: 1px 6px;
+  border: 1px solid rgb(var(--brand-forest-rgb) / 18%);
+  border-radius: var(--radius-pill);
+  background: rgb(var(--brand-forest-rgb) / 7%);
+  color: var(--brand-forest);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.58rem;
+  font-weight: var(--weight-extrabold);
+  line-height: 1;
+}
+
+.staff-attendance__presence-button.is-checkout {
+  border-color: rgb(var(--brand-gold-rgb) / 24%);
+  background: var(--special-soft);
+  color: var(--special-deep);
+}
+
+.staff-attendance__presence-button:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring);
+}
+
+.staff-attendance__presence-button:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
 .staff-attendance__status {
   display: inline-flex;
   width: min(100%, 4.5rem);
@@ -444,12 +490,42 @@
   justify-content: center;
   overflow: hidden;
   padding: 3px 7px;
+  border: 0;
   border-radius: 9px;
+  cursor: pointer;
+  font-family: inherit;
   font-size: var(--text-2xs);
   font-weight: var(--weight-bold);
   line-height: var(--leading-tight);
   text-overflow: ellipsis;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
   white-space: nowrap;
+}
+
+.staff-attendance__status:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 1px rgb(var(--brand-forest-rgb) / 24%);
+}
+
+.staff-attendance__status:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
+.staff-attendance__status.is-selected {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+.staff-attendance__status:disabled {
+  cursor: wait;
+}
+
+.staff-attendance__status.is-pending {
+  opacity: 0.72;
 }
 
 .staff-attendance__status.is-present {
@@ -476,6 +552,47 @@
   box-shadow: none;
   color: var(--brand-muted);
   font-weight: var(--weight-semibold);
+}
+
+.staff-attendance__table-frame .table tbody tr.is-unassigned th,
+.staff-attendance__table-frame .table tbody tr.is-unassigned td {
+  border-top: 2px solid rgb(var(--brand-forest-rgb) / 14%);
+}
+
+.staff-attendance__table-frame .table tbody tr.is-prestart th {
+  background: rgb(var(--brand-gold-rgb) / 5%);
+}
+
+.staff-attendance__membership-stage {
+  border-bottom: 1px solid var(--brand-line);
+  background: rgb(var(--brand-gold-rgb) / 5%);
+  color: var(--brand-muted);
+  text-align: left !important;
+}
+
+.staff-attendance__membership-stage > span {
+  display: inline-flex;
+  align-items: center;
+  margin-right: var(--space-3);
+  gap: 7px;
+}
+
+.staff-attendance__membership-stage strong {
+  color: var(--special-deep);
+  font-size: var(--text-2xs);
+}
+
+.staff-attendance__membership-stage time,
+.staff-attendance__membership-stage small {
+  font-size: var(--text-3xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.staff-attendance__membership-stage button {
+  min-height: 32px;
+  border-color: rgb(var(--brand-gold-rgb) / 28%);
+  background: var(--special-soft);
+  color: var(--special-deep);
 }
 
 .staff-attendance__board-empty {
@@ -596,8 +713,11 @@
     margin-left: var(--space-4);
   }
 
+  .staff-attendance__table-frame {
+    max-height: min(72svh, 40rem);
+  }
+
   .staff-attendance__table-frame .table-wrap {
-    max-height: min(64svh, 36rem);
     scroll-padding-left: 11.5rem;
   }
 
@@ -676,7 +796,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .staff-attendance__refresh,
-  .staff-attendance__search {
+  .staff-attendance__search,
+  .staff-attendance__status {
     transition: none;
   }
 

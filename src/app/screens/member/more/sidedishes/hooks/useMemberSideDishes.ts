@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SessionOwnerKey } from '../../../../../core/session';
 import { sideDishQueryKeys } from '../../../../../features/side-dishes/side-dish-query-keys';
@@ -28,7 +28,14 @@ export function useMemberSideDishes(
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [selectedDateKey, setSelectedDateKey] = useState(clock.dateKey);
+  const followsTodayRef = useRef(true);
   const [composingMeal, setComposingMeal] = useState<MealType | null>(null);
+
+  useEffect(() => {
+    if (followsTodayRef.current) {
+      setSelectedDateKey(clock.dateKey);
+    }
+  }, [clock.dateKey]);
 
   const [year, month] = selectedDateKey.split('-').map(Number);
   const monthStart = getMonthStartKey(year, month);
@@ -94,11 +101,23 @@ export function useMemberSideDishes(
     meals,
     onCloseComposer: () => setComposingMeal(null),
     onDelete: (sideDishId: number) => deleteMutation.mutate(sideDishId),
-    onGoToday: () => setSelectedDateKey(clock.dateKey),
+    onGoToday: () => {
+      followsTodayRef.current = true;
+      setSelectedDateKey(clock.dateKey);
+    },
     onOpenComposer: setComposingMeal,
-    onSelectDate: setSelectedDateKey,
-    onShiftDate: (days: number) =>
-      setSelectedDateKey((current) => addDays(current, days)),
+    onSelectDate: (dateKey: string) => {
+      followsTodayRef.current = dateKey === clock.dateKey;
+      setSelectedDateKey(dateKey);
+    },
+    onShiftDate: (days: number) => {
+      setSelectedDateKey((current) => {
+        const next = addDays(current, days);
+
+        followsTodayRef.current = next === clock.dateKey;
+        return next;
+      });
+    },
     onSubmit: (menuName: string, price: number) => {
       if (
         composingMeal === null ||

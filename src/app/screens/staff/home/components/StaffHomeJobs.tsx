@@ -50,7 +50,7 @@ export function StaffHomeJobs({ jobs }: StaffHomeJobsProps) {
           facts={[
             `착석 ${jobs.room.seatedCount}명`,
             jobs.room.unmarkedCount > 0
-              ? `출석 처리 전 ${jobs.room.unmarkedCount}명`
+              ? `미출석 ${jobs.room.unmarkedCount}명`
               : null,
           ]}
           icon={ClipboardCheck}

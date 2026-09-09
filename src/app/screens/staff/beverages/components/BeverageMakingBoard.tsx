@@ -159,7 +159,13 @@ function DrinkRow({
 
       <ul className="staff-bev__seats">
         {group.servings.map((serving, index) => (
-          <li key={`${serving.memberId}-${index}`}>
+          <li
+            className={cx(
+              'staff-bev__seat-item',
+              serving.note && !serving.deducted && 'has-note',
+            )}
+            key={`${serving.memberId}-${index}`}
+          >
             <button
               aria-label={`${formatMemberLabel(
                 serving.seatNumber,
@@ -169,7 +175,11 @@ function DrinkRow({
                   ? `휴무로 ${group.name} 제조 제외`
                   : `${group.name}${serving.note ? `, 메모 ${serving.note}` : ''}`
               }, 음료 편집`}
-              className={cx('staff-bev__seat', serving.deducted && 'is-away')}
+              className={cx(
+                'staff-bev__seat',
+                serving.deducted && 'is-away',
+                serving.note && !serving.deducted && 'has-note',
+              )}
               onClick={() => onOpenEditor(serving.memberId)}
               type="button"
             >

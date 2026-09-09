@@ -7,6 +7,7 @@ import type { OperationalAttendanceSlot } from '../../../../features/attendances
 import type { DailySideDishResponse } from '../../../../features/side-dishes/side-dishes-api';
 import type { StaffScheduleResponse } from '../../../../features/staff-schedules/staff-schedules-api';
 import type { StudyPresenceLiveResponse } from '../../../../features/study-presence/study-presence-api';
+import type { MemberBeverageResponse } from '../../../../features/beverages/beverages-api';
 import type { SuggestionResponse } from '../../../../features/suggestions/suggestions-api';
 import type { TodoResponse } from '../../../../features/todos/todos-api';
 import type { WeekdayName } from '../../../../shared/lib/seoul-date';
@@ -29,7 +30,11 @@ export type RoomSummary = {
   seatedCount: number;
   notSeatedCount: number;
   onLeaveCount: number;
-  /** Expected members whose current slot has not been marked present. */
+  /**
+   * Expected members whose current slot is not O. Backend X covers both an
+   * untouched cell and an explicitly reviewed absence, so this is not a count
+   * of unfinished staff actions.
+   */
   unmarkedCount: number;
   /** Expected-and-seated / expected; null after the operating day. */
   ratio: number | null;
@@ -62,18 +67,29 @@ export function summariseRoom(
   board: DailyAttendanceBoard | undefined,
   live: StudyPresenceLiveResponse | undefined,
   currentSlot: OperationalAttendanceSlot | null,
+  roster: MemberBeverageResponse[] | undefined,
 ): RoomSummary {
-  if (!board) {
+  if (!board || !roster) {
     return EMPTY_ROOM;
   }
 
+  const memberIds = new Set(
+    roster
+      .filter((member) => member.role === 'MEMBER')
+      .map((member) => member.memberId),
+  );
   const seatHolderIds = new Set<number>();
   const expectedIds = new Set<number>();
   let onLeaveCount = 0;
   let unmarkedCount = 0;
 
   for (const row of board.rows) {
-    if (row.memberId === null || row.seatNumber === null) {
+    if (
+      row.memberId === null ||
+      !memberIds.has(row.memberId) ||
+      row.seatNumber === null ||
+      (row.joinDate !== null && row.joinDate >= board.date)
+    ) {
       continue;
     }
 

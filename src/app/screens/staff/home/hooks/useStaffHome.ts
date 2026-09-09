@@ -40,8 +40,11 @@ import {
 const LIVE_REFETCH_MS = 60 * 1_000;
 const LIVE_STALE_TIME_MS = 30 * 1_000;
 const DAILY_STALE_TIME_MS = 60 * 1_000;
+const OPERATIONS_REFETCH_MS = 60 * 1_000;
+const SCHEDULE_REFETCH_MS = 5 * 60 * 1_000;
 /** The weekly grid is edited by an admin now and then, not during a shift. */
 const SCHEDULE_STALE_TIME_MS = 30 * 60 * 1_000;
+const FIRST_CLASS_START_SECONDS = 9 * 60 * 60;
 
 type UseStaffHomeArgs = {
   branchId: number;
@@ -59,7 +62,15 @@ export function useStaffHome({
   const today = useSeoulToday();
   const clock = useSeoulClock();
   const weekday = getWeekdayName(today.dateKey);
-  const currentSlot = getOperationalAttendanceSlot(clock.secondsOfDay);
+  /*
+   * The shared slot helper previews period 1 before it begins, which is useful
+   * on the attendance screen. Home is an operational status screen, though:
+   * before 09:00 nobody is late or unmarked yet.
+   */
+  const currentSlot =
+    clock.secondsOfDay < FIRST_CLASS_START_SECONDS
+      ? null
+      : getOperationalAttendanceSlot(clock.secondsOfDay);
 
   const liveQuery = useQuery({
     queryFn: () => fetchLiveStudyPresence(memberId, branchId),
@@ -70,10 +81,9 @@ export function useStaffHome({
 
   /*
    * The heaviest call on the screen — the board returns a row per seat, over a
-   * hundred of them — but it is the only source for "who is expected today",
-   * and it shares its key with the 출석부 tab, so opening that next is instant.
-   * The alternative, GET /api/members, has no permission check at all on the
-   * backend and would hand back every branch in the company.
+   * hundred of them — but it is the source for "who is expected today", and it
+   * shares its key with the 출석부 tab. The beverage roster supplies roles so a
+   * seated staff/admin account can never enter member attendance counts.
    */
   const boardQuery = useQuery({
     queryFn: () => fetchDailyAttendanceBoard(today.dateKey, branchId, memberId),
@@ -86,36 +96,52 @@ export function useStaffHome({
   const beverageQuery = useQuery({
     queryFn: () => fetchMemberBeverages(branchId, memberId),
     queryKey: beverageQueryKeys.members(ownerKey, branchId),
+    refetchInterval: OPERATIONS_REFETCH_MS,
+    refetchOnWindowFocus: 'always',
     staleTime: DAILY_STALE_TIME_MS,
   });
 
   const todoQuery = useQuery({
     queryFn: () => fetchDailyTodos(today.dateKey, branchId, memberId),
     queryKey: todoQueryKeys.daily(ownerKey, branchId, today.dateKey),
+    refetchInterval: OPERATIONS_REFETCH_MS,
+    refetchOnWindowFocus: 'always',
     staleTime: LIVE_STALE_TIME_MS,
   });
 
   const suggestionQuery = useQuery({
     queryFn: () => fetchBranchSuggestions(memberId),
     queryKey: suggestionQueryKeys.branch(ownerKey),
+    refetchInterval: OPERATIONS_REFETCH_MS,
+    refetchOnWindowFocus: 'always',
     staleTime: DAILY_STALE_TIME_MS,
   });
 
   const sideDishQuery = useQuery({
     queryFn: () => fetchDailySideDishes(today.dateKey, branchId, memberId),
     queryKey: sideDishQueryKeys.daily(ownerKey, branchId, today.dateKey),
+    refetchInterval: OPERATIONS_REFETCH_MS,
+    refetchOnWindowFocus: 'always',
     staleTime: DAILY_STALE_TIME_MS,
   });
 
   const scheduleQuery = useQuery({
     queryFn: () => fetchStaffSchedules(branchId, memberId),
     queryKey: staffScheduleQueryKeys.board(ownerKey, branchId),
+    refetchInterval: SCHEDULE_REFETCH_MS,
+    refetchOnWindowFocus: 'always',
     staleTime: SCHEDULE_STALE_TIME_MS,
   });
 
   const room = useMemo(
-    () => summariseRoom(boardQuery.data, liveQuery.data, currentSlot),
-    [boardQuery.data, currentSlot, liveQuery.data],
+    () =>
+      summariseRoom(
+        boardQuery.data,
+        liveQuery.data,
+        currentSlot,
+        beverageQuery.data,
+      ),
+    [beverageQuery.data, boardQuery.data, currentSlot, liveQuery.data],
   );
   /*
    * The same rule the beverages screen uses, not a second count of its own.
@@ -123,8 +149,8 @@ export function useStaffHome({
    * would include everyone on leave today and read high every morning.
    */
   const beverages = useMemo(
-    () => buildMakingBoard(beverageQuery.data, boardQuery.data),
-    [beverageQuery.data, boardQuery.data],
+    () => buildMakingBoard(beverageQuery.data, boardQuery.data, today.dateKey),
+    [beverageQuery.data, boardQuery.data, today.dateKey],
   );
   const todos = useMemo(() => summariseTodos(todoQuery.data), [todoQuery.data]);
   const meals = useMemo(
@@ -140,7 +166,8 @@ export function useStaffHome({
     [suggestionQuery.data],
   );
 
-  const roomReady = boardQuery.isSuccess && liveQuery.isSuccess;
+  const roomReady =
+    boardQuery.isSuccess && liveQuery.isSuccess && beverageQuery.isSuccess;
   const beveragesReady = beverageQuery.isSuccess && boardQuery.isSuccess;
 
   return {
@@ -196,11 +223,15 @@ export function useStaffHome({
         ? liveQuery.error.message
         : boardQuery.isError
           ? boardQuery.error.message
-          : null,
-      loading: liveQuery.isPending || boardQuery.isPending,
+          : beverageQuery.isError
+            ? beverageQuery.error.message
+            : null,
+      loading:
+        liveQuery.isPending || boardQuery.isPending || beverageQuery.isPending,
       onRetry: () => {
         void liveQuery.refetch();
         void boardQuery.refetch();
+        void beverageQuery.refetch();
       },
       ready: roomReady,
     },

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SessionOwnerKey } from '../../../../core/session';
 import { todoQueryKeys } from '../../../../features/todos/todo-query-keys';
@@ -34,8 +34,15 @@ export function useStaffTodos({
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [selectedDateKey, setSelectedDateKey] = useState(today.dateKey);
+  const followsTodayRef = useRef(true);
   const [draft, setDraft] = useState('');
   const [priority, setPriority] = useState<TodoPriority>('NORMAL');
+
+  useEffect(() => {
+    if (followsTodayRef.current) {
+      setSelectedDateKey(today.dateKey);
+    }
+  }, [today.dateKey]);
 
   const queryKey = todoQueryKeys.daily(ownerKey, branchId, selectedDateKey);
   const todoQuery = useQuery({
@@ -189,9 +196,18 @@ export function useStaffTodos({
     },
     date: {
       isToday: selectedDateKey === today.dateKey,
-      onGoToday: () => setSelectedDateKey(today.dateKey),
-      onShift: (days: number) =>
-        setSelectedDateKey((current) => addDays(current, days)),
+      onGoToday: () => {
+        followsTodayRef.current = true;
+        setSelectedDateKey(today.dateKey);
+      },
+      onShift: (days: number) => {
+        setSelectedDateKey((current) => {
+          const next = addDays(current, days);
+
+          followsTodayRef.current = next === today.dateKey;
+          return next;
+        });
+      },
       selectedDateKey,
     },
     errorMessage: todoQuery.isError ? todoQuery.error.message : null,
@@ -211,12 +227,15 @@ export function useStaffTodos({
         { onSuccess },
       ),
     onRetry: () => void todoQuery.refetch(),
-    onToggle: (todo: TodoResponse) =>
-      completionMutation.mutate({
-        completed: !todo.completed,
-        id: todo.id,
-        todoDate: todo.todoDate,
-      }),
+    onToggle: (todo: TodoResponse, onSuccess?: () => void) =>
+      completionMutation.mutate(
+        {
+          completed: !todo.completed,
+          id: todo.id,
+          todoDate: todo.todoDate,
+        },
+        { onSuccess },
+      ),
     onUpdate: (todo: TodoResponse, content: string, onSuccess?: () => void) =>
       updateMutation.mutate(
         {

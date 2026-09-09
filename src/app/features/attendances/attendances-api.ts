@@ -36,6 +36,21 @@ export type DailyAttendanceBoard = {
   rows: AttendanceBoardRow[];
 };
 
+export type AttendanceSlotUpdateStatus = 'PRESENT' | 'ABSENT' | 'OTHER';
+
+export type AttendanceSlotUpdateInput = {
+  date: string;
+  memberId: number;
+  reason?: string;
+  slot: number;
+  status: AttendanceSlotUpdateStatus;
+};
+
+export type AttendanceDailyResetInput = {
+  date: string;
+  memberId: number;
+};
+
 /**
  * The board is seat-shaped rather than member-shaped: it returns a row for
  * every seat from 1 to at least 102 — name "공석", memberId null — and then
@@ -64,4 +79,26 @@ export async function fetchDailyAttendanceBoard(
   }
 
   return response;
+}
+
+export function updateDailyAttendanceSlot(
+  input: AttendanceSlotUpdateInput,
+  expectedMemberId: number,
+) {
+  return apiRequest<void>('/api/attendances/daily-board/slot', {
+    body: JSON.stringify(input),
+    expectedMemberId,
+    method: 'PATCH',
+  });
+}
+
+export function resetDailyAttendanceMember(
+  input: AttendanceDailyResetInput,
+  expectedMemberId: number,
+) {
+  return apiRequest<void>('/api/attendances/daily-board/member/reset', {
+    body: JSON.stringify(input),
+    expectedMemberId,
+    method: 'PATCH',
+  });
 }

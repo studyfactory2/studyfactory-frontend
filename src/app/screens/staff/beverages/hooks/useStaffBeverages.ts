@@ -25,6 +25,7 @@ import {
 } from '../model/staff-beverages';
 
 const DAILY_STALE_TIME_MS = 60 * 1_000;
+const LIVE_REFETCH_MS = 60 * 1_000;
 /** Seats move rarely, and never during a drink round. */
 const ROOM_STALE_TIME_MS = 30 * 60 * 1_000;
 
@@ -62,6 +63,7 @@ export function useStaffBeverages({
   const beverageQuery = useQuery({
     queryFn: () => fetchMemberBeverages(branchId, memberId),
     queryKey: beverageQueryKeys.members(ownerKey, branchId),
+    refetchInterval: LIVE_REFETCH_MS,
     refetchOnWindowFocus: true,
     staleTime: DAILY_STALE_TIME_MS,
   });
@@ -74,6 +76,7 @@ export function useStaffBeverages({
   const boardQuery = useQuery({
     queryFn: () => fetchDailyAttendanceBoard(today.dateKey, branchId, memberId),
     queryKey: attendanceQueryKeys.dailyBoard(ownerKey, branchId, today.dateKey),
+    refetchInterval: LIVE_REFETCH_MS,
     refetchOnWindowFocus: true,
     staleTime: DAILY_STALE_TIME_MS,
   });
@@ -92,23 +95,31 @@ export function useStaffBeverages({
   const leaveQuery = useQuery({
     queryFn: () => fetchDailyLeaveStatuses(today.dateKey, branchId, memberId),
     queryKey: leaveQueryKeys.dailyStatus(ownerKey, branchId, today.dateKey),
+    refetchInterval: LIVE_REFETCH_MS,
     refetchOnWindowFocus: true,
     staleTime: DAILY_STALE_TIME_MS,
   });
 
   const making = useMemo(
-    () => buildMakingBoard(beverageQuery.data, boardQuery.data),
-    [beverageQuery.data, boardQuery.data],
+    () => buildMakingBoard(beverageQuery.data, boardQuery.data, today.dateKey),
+    [beverageQuery.data, boardQuery.data, today.dateKey],
   );
 
   const rooms = useMemo(
-    () => buildRoomViews(roomQuery.data, beverageQuery.data, boardQuery.data),
-    [beverageQuery.data, boardQuery.data, roomQuery.data],
+    () =>
+      buildRoomViews(
+        roomQuery.data,
+        beverageQuery.data,
+        boardQuery.data,
+        today.dateKey,
+      ),
+    [beverageQuery.data, boardQuery.data, roomQuery.data, today.dateKey],
   );
 
   const unseated = useMemo(
-    () => findUnseatedDrinkers(beverageQuery.data, boardQuery.data),
-    [beverageQuery.data, boardQuery.data],
+    () =>
+      findUnseatedDrinkers(beverageQuery.data, boardQuery.data, today.dateKey),
+    [beverageQuery.data, boardQuery.data, today.dateKey],
   );
 
   const changes = useMemo(

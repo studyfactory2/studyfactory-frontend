@@ -200,7 +200,12 @@ function RoomCellView({
    */
   if (cell.memberId === null) {
     return (
-      <div className={className} style={position}>
+      <div
+        aria-label={`${item.number}번 공석`}
+        className={className}
+        role="img"
+        style={position}
+      >
         {content}
       </div>
     );

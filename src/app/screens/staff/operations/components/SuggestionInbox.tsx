@@ -66,6 +66,7 @@ export function SuggestionInbox({
         <button
           aria-pressed={filter === 'open'}
           className={cx(filter === 'open' && 'is-active')}
+          id="staff-operations-suggestion-filter-open"
           onClick={() => setFilter('open')}
           type="button"
         >
@@ -74,6 +75,7 @@ export function SuggestionInbox({
         <button
           aria-pressed={filter === 'resolved'}
           className={cx(filter === 'resolved' && 'is-active')}
+          id="staff-operations-suggestion-filter-resolved"
           onClick={() => setFilter('resolved')}
           type="button"
         >
@@ -147,8 +149,32 @@ export function SuggestionInbox({
 
                   <Button
                     full
+                    id={`staff-operations-suggestion-action-${suggestion.id}`}
                     loading={resolving}
-                    onClick={() => suggestions.onToggle(suggestion)}
+                    onClick={() => {
+                      const index = rows.findIndex(
+                        (row) => row.id === suggestion.id,
+                      );
+                      const adjacent = rows[index + 1] ?? rows[index - 1];
+
+                      suggestions.onToggle(suggestion, () => {
+                        window.requestAnimationFrame(() => {
+                          const sameControl = document.getElementById(
+                            `staff-operations-suggestion-action-${suggestion.id}`,
+                          );
+                          const adjacentControl = adjacent
+                            ? document.getElementById(
+                                `staff-operations-suggestion-action-${adjacent.id}`,
+                              )
+                            : null;
+                          const fallback = document.getElementById(
+                            `staff-operations-suggestion-filter-${filter}`,
+                          );
+
+                          (sameControl ?? adjacentControl ?? fallback)?.focus();
+                        });
+                      });
+                    }}
                     size="sm"
                     variant={suggestion.isResolved ? 'ghost' : 'primary'}
                   >

@@ -26,3 +26,24 @@ export async function fetchMe(expectedMemberId: number) {
 
   return response;
 }
+
+/**
+ * Role-bearing roster for an operator's own branch. Attendance's board payload
+ * is intentionally seat-shaped and does not carry roles, so consumers that
+ * expose member-only actions must join it with this checked roster first.
+ */
+export async function fetchBranchMembers(
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({ branchId: String(branchId) });
+  const response = await apiRequest<MemberResponse[]>(`/api/members?${query}`, {
+    expectedMemberId,
+  });
+
+  if (response.some((member) => member.branchId !== branchId)) {
+    throw new ApiRequestError('다른 지점의 회원 목록을 받았습니다.', 409);
+  }
+
+  return response;
+}

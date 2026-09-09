@@ -193,6 +193,16 @@
   white-space: nowrap;
 }
 
+.staff-bev__seat-note::before {
+  margin-right: 4px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: var(--accent-soft);
+  content: '메모';
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-extrabold);
+}
+
 .staff-bev__seat.is-away {
   background: var(--special-soft);
   box-shadow: inset 0 0 0 1px
@@ -232,10 +242,28 @@
 }
 
 @media (max-width: 767px) {
+  .staff-bev__seat-item.has-note {
+    width: 100%;
+  }
+
   .staff-bev__seat {
     min-height: 44px;
     padding-right: 12px;
     padding-left: 12px;
+  }
+
+  .staff-bev__seat.has-note {
+    display: grid;
+    width: 100%;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .staff-bev__seat.has-note .staff-bev__seat-note {
+    overflow: visible;
+    line-height: var(--leading-normal);
+    text-align: right;
+    text-overflow: clip;
+    white-space: normal;
   }
 }
 

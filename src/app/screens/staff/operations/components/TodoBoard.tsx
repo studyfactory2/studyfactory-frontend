@@ -98,6 +98,7 @@ export function TodoBoard({
         <Input
           aria-label="새 할 일"
           disabled={todos.composer.saving}
+          id="staff-operations-todo-composer-input"
           onChange={(event) => todos.composer.onChange(event.target.value)}
           placeholder="새 할 일을 입력하세요."
           value={todos.composer.draft}
@@ -156,6 +157,7 @@ export function TodoBoard({
           <section className="staff-operations__completed">
             <button
               aria-expanded={showCompleted}
+              id="staff-operations-completed-toggle"
               onClick={() => setShowCompleted((current) => !current)}
               type="button"
             >

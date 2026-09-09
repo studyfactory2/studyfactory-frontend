@@ -450,22 +450,27 @@
   /* The shift stops being a third column and becomes a strip under the row. */
   .staff-home__shift {
     min-width: 0;
-    flex-direction: row;
+    display: grid;
     align-items: baseline;
-    justify-content: space-between;
     padding: var(--space-3) 0 0;
     border-top: 1px solid var(--brand-line);
     border-left: 0;
     grid-column: 1 / -1;
-    gap: var(--space-3);
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--space-3);
+    row-gap: 2px;
   }
 
   .staff-home__shift-now {
     font-size: var(--text-md);
+    overflow-wrap: anywhere;
+    text-align: right;
   }
 
   .staff-home__shift-quiet {
-    display: none;
+    grid-column: 2;
+    font-size: var(--text-3xs);
+    text-align: right;
   }
 
   .staff-home__jobs {

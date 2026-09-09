@@ -146,6 +146,89 @@ export type StudyPresenceManagerSessionResponse = {
   presenceDuration: StudyPresenceDurationResponse;
 };
 
+export type StudyPresenceManualCheckInInput = {
+  checkedInAt: string;
+  reason: string;
+};
+
+/**
+ * Records a member's missed door check-in. The backend pins the operation to
+ * the signed-in STAFF/ADMIN member's branch and accepts only a MEMBER target.
+ */
+export async function manualCheckInStudyPresenceMember(
+  targetMemberId: number,
+  input: StudyPresenceManualCheckInInput,
+  expectedMemberId: number,
+  expectedBranchId: number,
+) {
+  const response = await apiRequest<StudyPresenceManagerSessionResponse>(
+    `/api/study-presence/members/${targetMemberId}/manual-check-in`,
+    {
+      body: JSON.stringify(input),
+      expectedMemberId,
+      method: 'POST',
+    },
+  );
+
+  assertManagerPresenceResponse(response, {
+    active: true,
+    branchId: expectedBranchId,
+    memberId: targetMemberId,
+  });
+
+  if (response.checkInMethod !== 'MANAGER') {
+    throw new ApiRequestError('수동 입실 방식이 아닌 응답을 받았습니다.', 409);
+  }
+
+  return response;
+}
+
+/** Manual checkout always closes the supplied active session at server time. */
+export async function manualCheckOutStudyPresenceSession(
+  sessionId: number,
+  targetMemberId: number,
+  expectedMemberId: number,
+  expectedBranchId: number,
+) {
+  const response = await apiRequest<StudyPresenceManagerSessionResponse>(
+    `/api/study-presence/sessions/${sessionId}/manual-check-out`,
+    { expectedMemberId, method: 'POST' },
+  );
+
+  assertManagerPresenceResponse(response, {
+    active: false,
+    branchId: expectedBranchId,
+    memberId: targetMemberId,
+    sessionId,
+  });
+
+  return response;
+}
+
+function assertManagerPresenceResponse(
+  response: StudyPresenceManagerSessionResponse,
+  expected: {
+    active: boolean;
+    branchId: number;
+    memberId: number;
+    sessionId?: number;
+  },
+) {
+  if (
+    response.branchId !== expected.branchId ||
+    response.memberId !== expected.memberId ||
+    response.memberRole !== 'MEMBER' ||
+    response.currentlyActive !== expected.active ||
+    (expected.sessionId !== undefined &&
+      response.sessionId !== expected.sessionId)
+  ) {
+    throw new ApiRequestError(
+      '요청한 회원 또는 입퇴실 세션과 다른 응답을 받았습니다.',
+      409,
+    );
+  }
+}
+
 export type StudyPresenceLiveResponse = {
   branchId: number;
   zoneId: string;

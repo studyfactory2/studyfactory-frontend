@@ -1,6 +1,7 @@
 import type { DailyAttendanceBoard } from '../../../../features/attendances/attendances-api';
 import {
   formatMemberLabel,
+  hasJoinedByDate,
   isExcludedDrink,
   isTumblerDrink,
   morningLeaveMemberIds,
@@ -50,6 +51,7 @@ export function findTodayChanges(
   todayDateKey: string,
 ): BeverageAlert[] {
   return (members ?? [])
+    .filter((member) => hasJoinedByDate(member.joinDate, todayDateKey))
     .flatMap((member) => {
       const created = (member.createdAt ?? '').slice(0, 10);
       const updated = (member.updatedAt ?? '').slice(0, 10);
@@ -173,12 +175,17 @@ export function buildRoomViews(
   rooms: RoomLayout[] | undefined,
   members: MemberBeverageResponse[] | undefined,
   board: DailyAttendanceBoard | undefined,
+  todayDateKey: string,
 ): RoomView[] {
   const away = morningLeaveMemberIds(board);
   const bySeat = new Map<number, MemberBeverageResponse>();
 
   for (const member of members ?? []) {
-    if (member.seatNumber !== null && member.seatNumber > 0) {
+    if (
+      hasJoinedByDate(member.joinDate, todayDateKey) &&
+      member.seatNumber !== null &&
+      member.seatNumber > 0
+    ) {
       bySeat.set(member.seatNumber, member);
     }
   }
@@ -218,12 +225,14 @@ export function buildRoomViews(
 export function findUnseatedDrinkers(
   members: MemberBeverageResponse[] | undefined,
   board: DailyAttendanceBoard | undefined,
+  todayDateKey: string,
 ): UnseatedDrinker[] {
   const away = morningLeaveMemberIds(board);
 
   return (members ?? [])
     .filter(
       (member) =>
+        hasJoinedByDate(member.joinDate, todayDateKey) &&
         (member.seatNumber === null || member.seatNumber <= 0) &&
         member.items.some(
           (item) => item.name.trim() !== '' && !isExcludedDrink(item.name),

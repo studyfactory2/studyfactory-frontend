@@ -381,7 +381,10 @@ button.staff-bev__cell:focus-visible {
   }
 
   .staff-bev__cell-note {
-    display: none;
+    display: block;
+    max-width: calc(100% - 2px);
+    color: var(--accent-deep);
+    font-weight: var(--weight-bold);
   }
 
   .staff-bev__cell-tumbler {

@@ -1,0 +1,278 @@
+.staff-attendance__action-bar {
+  position: relative;
+  z-index: 7;
+  display: flex;
+  min-height: 66px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px var(--space-5);
+  border-top: 1px solid var(--brand-line);
+  background: var(--paper);
+  box-shadow: 0 -8px 24px rgb(var(--brand-ink-rgb) / 5%);
+  gap: var(--space-4);
+}
+
+.staff-attendance__action-target {
+  display: flex;
+  min-width: 11rem;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.staff-attendance__action-target small {
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-semibold);
+}
+
+.staff-attendance__action-target strong {
+  overflow: hidden;
+  color: var(--brand-ink);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-extrabold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.staff-attendance__action-buttons {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 7px;
+}
+
+.staff-attendance__action-buttons button,
+.staff-attendance__membership-stage button,
+.staff-attendance__reason-picks button {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 13px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-extrabold);
+  white-space: nowrap;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.staff-attendance__action-buttons button:hover:not(:disabled),
+.staff-attendance__membership-stage button:hover:not(:disabled),
+.staff-attendance__reason-picks button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.staff-attendance__action-buttons button:focus-visible,
+.staff-attendance__membership-stage button:focus-visible,
+.staff-attendance__reason-picks button:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring);
+}
+
+.staff-attendance__action-buttons button:disabled,
+.staff-attendance__membership-stage button:disabled,
+.staff-attendance__reason-picks button:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
+.staff-attendance__action-buttons .is-present {
+  background: var(--brand-forest);
+  color: var(--brand-ivory);
+}
+
+.staff-attendance__action-buttons .is-absent {
+  border-color: var(--brand-line);
+  background: var(--card-2);
+  color: var(--brand-ink-soft);
+}
+
+.staff-attendance__action-buttons .is-other {
+  border-color: rgb(var(--brand-gold-rgb) / 30%);
+  background: var(--special-soft);
+  color: var(--special-deep);
+}
+
+.staff-attendance__action-buttons .is-clear {
+  width: 38px;
+  flex: 0 0 auto;
+  padding: 0;
+  border-color: var(--brand-line);
+  background: transparent;
+  color: var(--brand-muted);
+}
+
+.staff-attendance__action-pending {
+  position: absolute;
+  right: var(--space-5);
+  bottom: 3px;
+  color: var(--brand-muted);
+  font-size: 0.58rem;
+  font-weight: var(--weight-semibold);
+}
+
+.staff-attendance__reason-form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.staff-attendance__reason-form > p,
+.staff-attendance__start-copy p {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+}
+
+.staff-attendance__reason-picks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.staff-attendance__reason-picks button {
+  min-width: 0;
+  padding: 0 7px;
+  border-color: var(--brand-line);
+  background: var(--card-2);
+  color: var(--brand-ink-soft);
+}
+
+.staff-attendance__reason-picks button.is-selected {
+  border-color: var(--brand-forest);
+  background: rgb(var(--brand-forest-rgb) / 10%);
+  color: var(--brand-forest);
+}
+
+.staff-attendance__reason-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.staff-attendance__start-copy {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.staff-attendance__presence-form,
+.staff-attendance__presence-confirm,
+.staff-attendance__presence-member {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.staff-attendance__presence-member,
+.staff-attendance__presence-confirm {
+  padding: var(--space-4);
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-control);
+  background: var(--card-2);
+}
+
+.staff-attendance__presence-member strong,
+.staff-attendance__presence-confirm strong {
+  color: var(--brand-ink);
+  font-size: var(--text-md);
+  font-weight: var(--weight-extrabold);
+}
+
+.staff-attendance__presence-member p,
+.staff-attendance__presence-confirm p,
+.staff-attendance__presence-confirm small {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+}
+
+.staff-attendance__presence-confirm small {
+  color: var(--special-deep);
+  font-weight: var(--weight-bold);
+}
+
+.staff-attendance__leave-warning,
+.staff-attendance__leave-override-copy {
+  display: grid;
+  padding: var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--danger) 28%, transparent);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--danger) 8%, var(--paper));
+  gap: 5px;
+}
+
+.staff-attendance__leave-warning strong,
+.staff-attendance__leave-override-copy > strong {
+  color: var(--danger-deep);
+  font-size: var(--text-xs);
+}
+
+.staff-attendance__leave-warning span,
+.staff-attendance__leave-override-copy p {
+  color: var(--brand-ink-soft);
+  font-size: var(--text-2xs);
+  line-height: var(--leading-relaxed);
+}
+
+.staff-attendance__leave-override-copy p b {
+  color: var(--danger-deep);
+}
+
+.staff-attendance__start-copy strong {
+  color: var(--brand-ink);
+  font-size: var(--text-md);
+}
+
+@media (max-width: 768px) {
+  .staff-attendance__action-bar {
+    min-height: 0;
+    align-items: stretch;
+    flex-direction: column;
+    padding: 10px var(--space-4) 12px;
+    gap: 9px;
+  }
+
+  .staff-attendance__action-target {
+    min-width: 0;
+  }
+
+  .staff-attendance__action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr 42px;
+    gap: 5px;
+  }
+
+  .staff-attendance__action-buttons button {
+    min-height: 42px;
+    padding: 0 7px;
+  }
+
+  .staff-attendance__action-buttons .is-clear {
+    width: 42px;
+  }
+
+  .staff-attendance__action-pending {
+    right: var(--space-4);
+    bottom: 1px;
+  }
+}
+
+@media (max-width: 380px) {
+  .staff-attendance__reason-picks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staff-attendance__action-buttons button,
+  .staff-attendance__membership-stage button,
+  .staff-attendance__reason-picks button {
+    transition: none;
+  }
+}

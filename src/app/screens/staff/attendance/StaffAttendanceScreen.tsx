@@ -63,12 +63,20 @@ function StaffAttendanceContent({
         errorMessage={attendance.board.errorMessage}
         loading={attendance.board.loading}
         members={attendance.board.members}
+        onManualCheckIn={attendance.actions.onManualCheckIn}
+        onManualCheckOut={attendance.actions.onManualCheckOut}
+        onResetMember={attendance.actions.onResetMember}
         onRefresh={() => {
           attendance.freshness.onRefresh();
           operations.onRefresh();
         }}
         onRetry={attendance.board.onRetry}
+        onUpdateSlot={attendance.actions.onUpdateSlot}
         operationalSlot={attendance.period.operationalSlot}
+        pendingCellKeys={attendance.actions.pendingCellKeys}
+        pendingMemberIds={attendance.actions.pendingMemberIds}
+        pendingPresenceMemberIds={attendance.actions.pendingPresenceMemberIds}
+        pendingResetIds={attendance.actions.pendingResetIds}
         periodLabel={attendance.period.label}
         presenceErrorMessage={attendance.presence.errorMessage}
         presenceOnRetry={attendance.presence.onRetry}

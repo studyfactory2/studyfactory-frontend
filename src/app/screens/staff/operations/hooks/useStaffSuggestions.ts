@@ -24,6 +24,7 @@ export function useStaffSuggestions({
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const pendingIdsRef = useRef(new Set<number>());
+  const successCallbacksRef = useRef(new Map<number, () => void>());
   const [pendingIds, setPendingIds] = useState<ReadonlySet<number>>(
     () => new Set(),
   );
@@ -48,8 +49,11 @@ export function useStaffSuggestions({
   const toggleMutation = useMutation({
     mutationFn: (suggestion: SuggestionResponse) =>
       toggleSuggestionResolution(suggestion.id, branchId, memberId),
-    onError: (error: Error) => toast(error.message, 'error'),
-    onSuccess: (updated) => {
+    onError: (error: Error, suggestion) => {
+      successCallbacksRef.current.delete(suggestion.id);
+      toast(error.message, 'error');
+    },
+    onSuccess: (updated, suggestion) => {
       queryClient.setQueryData<SuggestionResponse[]>(
         suggestionQueryKeys.branch(ownerKey),
         (current) =>
@@ -63,6 +67,11 @@ export function useStaffSuggestions({
           : '회원 요청을 다시 열었어요.',
         'success',
       );
+
+      const onSuccess = successCallbacksRef.current.get(suggestion.id);
+
+      successCallbacksRef.current.delete(suggestion.id);
+      onSuccess?.();
     },
     onSettled: async (_updated, _error, suggestion) => {
       try {
@@ -70,6 +79,7 @@ export function useStaffSuggestions({
           queryKey: suggestionQueryKeys.all(ownerKey),
         });
       } finally {
+        successCallbacksRef.current.delete(suggestion.id);
         clearPending(suggestion.id);
       }
     },
@@ -86,9 +96,15 @@ export function useStaffSuggestions({
       : null,
     loading: suggestionQuery.isPending,
     onRetry: () => void suggestionQuery.refetch(),
-    onToggle: (suggestion: SuggestionResponse) => {
+    onToggle: (suggestion: SuggestionResponse, onSuccess?: () => void) => {
       if (pendingIdsRef.current.has(suggestion.id)) {
         return;
+      }
+
+      if (onSuccess) {
+        successCallbacksRef.current.set(suggestion.id, onSuccess);
+      } else {
+        successCallbacksRef.current.delete(suggestion.id);
       }
 
       markPending(suggestion.id);
