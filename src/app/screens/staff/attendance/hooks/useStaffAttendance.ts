@@ -129,9 +129,6 @@ export function useStaffAttendance({
     mutationFn: (command: AttendanceSlotCommand) =>
       updateDailyAttendanceSlot({ ...command, date: today.dateKey }, memberId),
     onError: (error: Error) => toast(error.message, 'error'),
-    onSuccess: (_result, command) => {
-      toast(toSlotSuccessMessage(command), 'success');
-    },
     onSettled: async (_result, error, command) => {
       try {
         /* ABSENT and OTHER can remove a multi-slot leave request, so the
@@ -376,17 +373,6 @@ export function useStaffAttendance({
     },
     today,
   };
-}
-
-function toSlotSuccessMessage(command: AttendanceSlotCommand) {
-  const status =
-    command.status === 'PRESENT'
-      ? '출석'
-      : command.status === 'ABSENT'
-        ? '미출석(X)'
-        : command.reason?.trim() || '기타';
-
-  return `${command.slot}교시를 ${status}(으)로 처리했어요.`;
 }
 
 function runAfterPendingStateCommit(callback: (() => void) | undefined) {
