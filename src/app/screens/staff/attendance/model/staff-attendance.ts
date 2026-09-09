@@ -10,11 +10,13 @@ import type {
   StudyPresenceManagerSessionResponse,
 } from '../../../../features/study-presence/study-presence-api';
 import type { MemberResponse } from '../../../../features/members/members-api';
+import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 
 export const ATTENDANCE_SLOTS = [1, 2, 3, 4, 5, 6, 7] as const;
 
 export type AttendanceCellState = 'leave' | 'present' | 'unmarked';
 export type AttendanceMemberStage = 'active' | 'starts-today' | 'future';
+export type AttendanceSelectionTiming = 'current' | 'future' | 'past';
 
 export type StaffAttendanceCell = {
   label: string;
@@ -50,8 +52,30 @@ export type AttendanceSelection = {
 
 export type AttendanceSlotCommand = Omit<AttendanceSlotUpdateInput, 'date'>;
 
+export type AttendancePaintMode = AttendanceSlotCommand['status'] | null;
+
 export function toAttendanceCellKey(memberId: number, slot: number) {
   return `${memberId}:${slot}`;
+}
+
+export function toAttendanceCellId(memberId: number, slot: number) {
+  return `staff-attendance-cell-${memberId}-${slot}`;
+}
+
+export function toAttendanceSelectionTiming(
+  slot: OperationalAttendanceSlot,
+  activeSlot: OperationalAttendanceSlot | null,
+  operationalSlot: OperationalAttendanceSlot | null,
+): AttendanceSelectionTiming {
+  if (activeSlot !== null) {
+    if (slot < activeSlot) {
+      return 'past';
+    }
+
+    return slot === activeSlot ? 'current' : 'future';
+  }
+
+  return operationalSlot === null ? 'past' : 'future';
 }
 
 /**
@@ -215,6 +239,14 @@ function toAttendanceCell(
   value: string,
   source: AttendanceSlotSource,
 ): StaffAttendanceCell {
+  if (source !== 'NONE') {
+    return {
+      label: value.trim() || '휴무',
+      source,
+      state: 'leave',
+    };
+  }
+
   if (value === ATTENDANCE_PRESENT) {
     return { label: 'O', source, state: 'present' };
   }

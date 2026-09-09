@@ -1,7 +1,23 @@
 .staff-attendance__board {
+  --attendance-present-surface: var(--positive-soft);
+  --attendance-absent-surface: color-mix(
+    in srgb,
+    var(--danger-soft) 72%,
+    var(--card)
+  );
+  --attendance-leave-surface: var(--special-soft);
+  --attendance-future-surface: color-mix(
+    in srgb,
+    var(--card-2) 48%,
+    var(--card)
+  );
   min-width: 0;
-  overflow: hidden;
-  box-shadow: var(--elev-2);
+  overflow: visible;
+  border-color: rgb(var(--brand-ink-rgb) / 9%);
+  background: var(--card);
+  box-shadow:
+    0 1px 2px rgb(var(--brand-ink-rgb) / 3%),
+    0 10px 28px rgb(var(--brand-ink-rgb) / 5%);
 }
 
 .staff-attendance__board > .ui-section-state {
@@ -12,8 +28,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-5);
-  gap: var(--space-5);
+  padding: 16px 18px 12px;
+  gap: var(--space-4);
 }
 
 .staff-attendance__board-title {
@@ -21,12 +37,12 @@
 }
 
 .staff-attendance__board-head h2 {
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   font-weight: var(--weight-extrabold);
 }
 
 .staff-attendance__board-head p {
-  margin-top: 5px;
+  margin-top: 3px;
   color: var(--brand-muted);
   font-size: var(--text-2xs);
   line-height: var(--leading-normal);
@@ -36,7 +52,7 @@
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: var(--space-3);
+  gap: 8px;
 }
 
 .staff-attendance__board-context > p {
@@ -60,13 +76,13 @@
 
 .staff-attendance__refresh {
   display: inline-flex;
-  min-height: 38px;
+  min-height: 36px;
   flex: 0 0 auto;
   align-items: center;
-  padding: 0 12px;
-  border: 1px solid var(--brand-line);
+  padding: 0 11px;
+  border: 1px solid rgb(var(--brand-ink-rgb) / 10%);
   border-radius: var(--radius-pill);
-  background: var(--card-2);
+  background: rgb(var(--card-rgb) / 86%);
   color: var(--brand-ink-soft);
   cursor: pointer;
   font: inherit;
@@ -103,20 +119,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-5) var(--space-3);
-  gap: var(--space-3);
+  padding: 0 18px 10px;
+  gap: 10px;
 }
 
 .staff-attendance__search {
   display: flex;
   width: min(100%, 17rem);
   min-width: 0;
-  height: 40px;
+  height: 38px;
   align-items: center;
   padding: 0 12px;
-  border: 1px solid var(--brand-line);
+  border: 1px solid rgb(var(--brand-ink-rgb) / 10%);
   border-radius: var(--radius-control);
-  background: var(--card-2);
+  background: color-mix(in srgb, var(--card-2) 58%, var(--card));
   color: var(--brand-muted);
   gap: 8px;
   transition:
@@ -148,13 +164,14 @@
   display: flex;
   align-items: center;
   padding: 3px;
+  border: 1px solid rgb(var(--brand-ink-rgb) / 6%);
   border-radius: var(--radius-pill);
-  background: var(--card-2);
+  background: color-mix(in srgb, var(--card-2) 62%, var(--card));
   gap: 2px;
 }
 
 .staff-attendance__filters button {
-  min-height: 34px;
+  min-height: 32px;
   padding: 0 12px;
   border: 0;
   border-radius: var(--radius-pill);
@@ -172,9 +189,9 @@
 }
 
 .staff-attendance__filters button.is-active {
-  background: var(--brand-forest);
-  box-shadow: 0 3px 10px rgb(var(--brand-forest-rgb) / 16%);
-  color: var(--brand-ivory);
+  background: var(--card);
+  box-shadow: 0 2px 7px rgb(var(--brand-ink-rgb) / 8%);
+  color: var(--brand-forest);
 }
 
 .staff-attendance__filters button:disabled {
@@ -182,51 +199,13 @@
   opacity: 0.45;
 }
 
-.staff-attendance__legend {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0;
-  padding: 0 var(--space-5) var(--space-3);
-  gap: 5px var(--space-4);
-  list-style: none;
-}
-
-.staff-attendance__legend li {
-  display: inline-flex;
-  align-items: center;
-  color: var(--brand-muted);
-  font-size: var(--text-2xs);
-  gap: 5px;
-}
-
-.staff-attendance__legend i {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-}
-
-.staff-attendance__legend i.is-present {
-  background: var(--positive-soft);
-  box-shadow: inset 0 0 0 1px rgb(var(--positive-rgb) / 35%);
-}
-
-.staff-attendance__legend i.is-unmarked {
-  background: var(--card-2);
-  box-shadow: inset 0 0 0 1px rgb(var(--brand-ink-rgb) / 12%);
-}
-
-.staff-attendance__legend i.is-leave {
-  background: var(--special-soft);
-  box-shadow: inset 0 0 0 1px rgb(var(--brand-gold-rgb) / 28%);
-}
-
 .staff-attendance__table-frame {
   position: relative;
   display: flex;
   min-width: 0;
-  max-height: min(68svh, 42rem);
+  max-height: min(70svh, 43rem);
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .staff-attendance__scroll-hint {
@@ -238,16 +217,19 @@
   min-height: 0;
   flex: 1 1 auto;
   overflow: auto;
-  border-width: 1px 0 0;
-  border-radius: 0;
+  margin: 0 12px;
+  border: 1px solid rgb(var(--brand-ink-rgb) / 8%);
+  border-radius: 12px;
+  background: var(--paper);
   overscroll-behavior: contain;
-  scroll-padding-left: 14rem;
+  scroll-padding-left: 11.75rem;
   scrollbar-width: thin;
   touch-action: pan-x pan-y;
 }
 
 .staff-attendance__table-frame .table {
-  min-width: 56rem;
+  width: max-content;
+  min-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   table-layout: fixed;
@@ -255,9 +237,9 @@
 
 .staff-attendance__table-frame .table th,
 .staff-attendance__table-frame .table td {
-  width: 6rem;
-  height: 50px;
-  padding: 10px 8px;
+  width: 3.5rem;
+  height: 52px;
+  padding: 7px 4px;
   text-align: center;
 }
 
@@ -265,11 +247,11 @@
   position: sticky;
   z-index: 3;
   top: 0;
-  height: 52px;
-  background: var(--card-2);
+  height: 48px;
+  background: color-mix(in srgb, var(--card-2) 62%, var(--card));
   color: var(--brand-muted);
   font-size: var(--text-2xs);
-  box-shadow: inset 0 -1px 0 var(--brand-line);
+  box-shadow: inset 0 -1px 0 rgb(var(--brand-ink-rgb) / 8%);
 }
 
 .staff-attendance__table-frame .table thead th > span,
@@ -294,8 +276,8 @@
 }
 
 .staff-attendance__table-frame .table tbody th {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--brand-line);
+  padding: 7px 9px;
+  border-bottom: 1px solid rgb(var(--brand-ink-rgb) / 7%);
   background: var(--card);
   color: var(--brand-ink);
   font-weight: inherit;
@@ -310,9 +292,11 @@
   position: sticky;
   left: 0;
   z-index: 2;
-  width: 14rem;
-  min-width: 14rem;
-  box-shadow: 1px 0 0 var(--brand-line);
+  width: 11.75rem;
+  min-width: 11.75rem;
+  box-shadow:
+    1px 0 0 rgb(var(--brand-ink-rgb) / 8%),
+    8px 0 18px rgb(var(--brand-ink-rgb) / 2.5%);
 }
 
 .staff-attendance__table-frame .table thead .staff-attendance__identity-col {
@@ -321,34 +305,47 @@
 }
 
 .staff-attendance__table-frame .table th.is-operational {
-  background: var(--positive-soft);
+  background: color-mix(in srgb, var(--positive-soft) 54%, var(--card-2));
   color: var(--positive-deep);
-  box-shadow: inset 0 3px 0 var(--positive);
+  box-shadow:
+    inset 0 2px 0 rgb(var(--positive-rgb) / 70%),
+    inset 0 -1px 0 rgb(var(--brand-ink-rgb) / 8%);
+}
+
+.staff-attendance__table-frame .table th.is-marking-mode {
+  color: var(--positive-deep);
+  box-shadow:
+    inset 0 2px 0 var(--brand-forest),
+    inset 0 -1px 0 rgb(var(--brand-ink-rgb) / 8%);
 }
 
 .staff-attendance__table-frame .table td.is-operational {
+  background: rgb(var(--positive-soft-rgb) / 28%);
+  box-shadow: inset 1px 0 0 rgb(var(--positive-rgb) / 7%);
+}
+
+.staff-attendance__table-frame .table td.is-marking-mode {
   background: rgb(var(--positive-soft-rgb) / 42%);
-  box-shadow: inset 1px 0 0 rgb(var(--positive-rgb) / 10%);
 }
 
 .staff-attendance__table-frame .table tbody tr:hover td.is-operational {
-  background: rgb(var(--positive-soft-rgb) / 70%);
+  background: rgb(var(--positive-soft-rgb) / 50%);
 }
 
 .staff-attendance__member {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
 }
 
 .staff-attendance__member > b {
   display: grid;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   flex: 0 0 auto;
-  border-radius: 10px;
-  background: rgb(var(--brand-forest-rgb) / 9%);
+  border-radius: 9px;
+  background: rgb(var(--brand-forest-rgb) / 7%);
   color: var(--brand-forest);
   font-size: var(--text-2xs);
   font-variant-numeric: tabular-nums;
@@ -356,7 +353,7 @@
 }
 
 .staff-attendance__member > b.is-unassigned {
-  width: 46px;
+  width: 42px;
   padding: 0 5px;
   background: var(--card-2);
   color: var(--brand-muted);
@@ -369,7 +366,7 @@
   flex: 1;
   flex-direction: column;
   align-items: flex-start;
-  gap: 3px;
+  gap: 2px;
 }
 
 .staff-attendance__member-name {
@@ -452,7 +449,7 @@
 }
 
 .staff-attendance__presence-button {
-  min-height: 23px;
+  min-height: 24px;
   flex: 0 0 auto;
   padding: 1px 6px;
   border: 1px solid rgb(var(--brand-forest-rgb) / 18%);
@@ -484,14 +481,14 @@
 
 .staff-attendance__status {
   display: inline-flex;
-  width: min(100%, 4.5rem);
-  min-height: 30px;
+  width: min(100%, 2.75rem);
+  min-height: 34px;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   padding: 3px 7px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 10px;
   cursor: pointer;
   font-family: inherit;
   font-size: var(--text-2xs);
@@ -509,54 +506,67 @@
   box-shadow: inset 0 0 0 1px rgb(var(--brand-forest-rgb) / 24%);
 }
 
-.staff-attendance__status:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  box-shadow: var(--focus-ring);
-}
-
 .staff-attendance__status.is-selected {
-  outline: 2px solid var(--brand-forest);
-  outline-offset: 2px;
+  outline: 1px solid rgb(var(--brand-forest-rgb) / 48%);
+  outline-offset: 1px;
 }
 
 .staff-attendance__status:disabled {
-  cursor: wait;
+  cursor: default;
 }
 
 .staff-attendance__status.is-pending {
   opacity: 0.72;
 }
 
+.staff-attendance__status.is-pending:disabled {
+  cursor: wait;
+}
+
 .staff-attendance__status.is-present {
-  background: var(--positive-soft);
-  box-shadow: inset 0 0 0 1px rgb(var(--positive-rgb) / 22%);
+  background: var(--attendance-present-surface);
+  box-shadow: inset 0 0 0 1px rgb(var(--positive-rgb) / 18%);
   color: var(--positive-deep);
   font-size: var(--text-sm);
   font-weight: var(--weight-extrabold);
 }
 
 .staff-attendance__status.is-unmarked {
-  background: var(--card-2);
-  color: var(--brand-muted);
+  background: var(--attendance-absent-surface);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--danger) 16%, transparent);
+  color: var(--danger-deep);
 }
 
 .staff-attendance__status.is-leave {
-  background: var(--special-soft);
-  box-shadow: inset 0 0 0 1px rgb(var(--brand-gold-rgb) / 18%);
+  background: var(--attendance-leave-surface);
+  box-shadow: inset 0 0 0 1px rgb(var(--brand-gold-rgb) / 14%);
   color: var(--special-deep);
 }
 
 .staff-attendance__status.is-future {
-  background: transparent;
+  background: var(--attendance-future-surface);
   box-shadow: none;
   color: var(--brand-muted);
   font-weight: var(--weight-semibold);
 }
 
+.staff-attendance__status.is-mode-target:not(:disabled) {
+  box-shadow: inset 0 0 0 1px rgb(var(--brand-forest-rgb) / 24%);
+}
+
+.staff-attendance__status.is-mode-target:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 2px rgb(var(--brand-forest-rgb) / 34%);
+}
+
+.staff-attendance__status:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+}
+
 .staff-attendance__table-frame .table tbody tr.is-unassigned th,
 .staff-attendance__table-frame .table tbody tr.is-unassigned td {
-  border-top: 2px solid rgb(var(--brand-forest-rgb) / 14%);
+  border-top: 1px solid rgb(var(--brand-forest-rgb) / 16%);
 }
 
 .staff-attendance__table-frame .table tbody tr.is-prestart th {
@@ -629,23 +639,23 @@
   }
 
   .staff-attendance__table-frame .table-wrap {
-    scroll-padding-left: 13rem;
+    scroll-padding-left: 10rem;
   }
 
   .staff-attendance__table-frame .table {
-    min-width: 48rem;
+    min-width: max(100%, 32.75rem);
   }
 
   .staff-attendance__table-frame .table th,
   .staff-attendance__table-frame .table td {
-    width: 5rem;
-    height: 48px;
-    padding: 8px 6px;
+    width: 3.25rem;
+    height: 50px;
+    padding: 7px 4px;
   }
 
   .staff-attendance__table-frame .table .staff-attendance__identity-col {
-    width: 13rem;
-    min-width: 13rem;
+    width: 10rem;
+    min-width: 10rem;
   }
 
   .staff-attendance__table-frame .table thead .staff-attendance__identity-col {
@@ -662,8 +672,8 @@
   .staff-attendance__board-head {
     align-items: stretch;
     flex-direction: column;
-    padding: var(--space-4) var(--space-4) var(--space-3);
-    gap: var(--space-3);
+    padding: 14px 14px 11px;
+    gap: 10px;
   }
 
   .staff-attendance__board-context {
@@ -677,14 +687,14 @@
   }
 
   .staff-attendance__refresh {
-    min-height: 42px;
+    min-height: 40px;
   }
 
   .staff-attendance__board-toolbar {
     align-items: stretch;
     flex-direction: column;
-    padding-right: var(--space-4);
-    padding-left: var(--space-4);
+    padding-right: 14px;
+    padding-left: 14px;
   }
 
   .staff-attendance__search {
@@ -703,56 +713,53 @@
     padding: 0 7px;
   }
 
-  .staff-attendance__legend {
-    padding-right: var(--space-4);
-    padding-left: var(--space-4);
-  }
-
   .staff-attendance__scroll-hint {
-    margin-right: var(--space-4);
-    margin-left: var(--space-4);
+    margin-right: 14px;
+    margin-left: 14px;
   }
 
   .staff-attendance__table-frame {
-    max-height: min(72svh, 40rem);
+    max-height: min(74svh, 41rem);
   }
 
   .staff-attendance__table-frame .table-wrap {
-    scroll-padding-left: 11.5rem;
+    margin-right: 8px;
+    margin-left: 8px;
+    scroll-padding-left: 9.25rem;
   }
 
   .staff-attendance__table-frame .table {
-    min-width: 43rem;
+    min-width: max(100%, 31.125rem);
   }
 
   .staff-attendance__table-frame .table th,
   .staff-attendance__table-frame .table td {
-    width: 4.5rem;
-    height: 46px;
-    padding: 6px 4px;
+    width: 3.125rem;
+    height: 48px;
+    padding: 5px 3px;
   }
 
   .staff-attendance__table-frame .table thead th {
-    height: 48px;
+    height: 46px;
   }
 
   .staff-attendance__table-frame .table tbody th {
-    padding: 6px 8px;
+    padding: 5px 7px;
   }
 
   .staff-attendance__table-frame .table .staff-attendance__identity-col {
-    width: 11.5rem;
-    min-width: 11.5rem;
+    width: 9.25rem;
+    min-width: 9.25rem;
   }
 
   .staff-attendance__member {
-    gap: 7px;
+    gap: 5px;
   }
 
   .staff-attendance__member > b {
-    width: 28px;
-    height: 28px;
-    border-radius: 9px;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
   }
 
   .staff-attendance__member-name > strong {
@@ -763,34 +770,46 @@
     font-size: 0.6rem;
   }
 
+  .staff-attendance__member-presence i {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
   .staff-attendance__session-count {
     display: none;
   }
 
   .staff-attendance__status {
-    width: min(100%, 3.9rem);
-    min-height: 30px;
-    padding: 3px 5px;
+    width: min(100%, 2.5rem);
+    min-height: 34px;
+    padding: 3px 4px;
   }
 }
 
 @media (max-width: 380px) {
   .staff-attendance__table-frame .table-wrap {
-    scroll-padding-left: 10.75rem;
+    scroll-padding-left: 8.75rem;
   }
 
   .staff-attendance__table-frame .table {
-    min-width: 40.5rem;
+    min-width: max(100%, 29.75rem);
   }
 
   .staff-attendance__table-frame .table th,
   .staff-attendance__table-frame .table td {
-    width: 4.25rem;
+    width: 3rem;
   }
 
   .staff-attendance__table-frame .table .staff-attendance__identity-col {
-    width: 10.75rem;
-    min-width: 10.75rem;
+    width: 8.75rem;
+    min-width: 8.75rem;
   }
 }
 

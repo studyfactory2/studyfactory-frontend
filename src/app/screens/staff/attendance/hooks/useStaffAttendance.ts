@@ -131,11 +131,8 @@ export function useStaffAttendance({
     onError: (error: Error) => toast(error.message, 'error'),
     onSuccess: (_result, command) => {
       toast(toSlotSuccessMessage(command), 'success');
-      slotSuccessCallbacksRef.current.get(
-        toAttendanceCellKey(command.memberId, command.slot),
-      )?.();
     },
-    onSettled: async (_result, _error, command) => {
+    onSettled: async (_result, error, command) => {
       try {
         /* ABSENT and OTHER can remove a multi-slot leave request, so the
            authoritative board must replace every consumer's cached copy. */
@@ -144,11 +141,16 @@ export function useStaffAttendance({
         });
       } finally {
         const key = toAttendanceCellKey(command.memberId, command.slot);
+        const onSuccess = error
+          ? undefined
+          : slotSuccessCallbacksRef.current.get(key);
+
         slotSuccessCallbacksRef.current.delete(key);
         pendingCellKeysRef.current.delete(key);
         pendingMemberIdsRef.current.delete(command.memberId);
         setPendingCellKeys(new Set(pendingCellKeysRef.current));
         setPendingMemberIds(new Set(pendingMemberIdsRef.current));
+        runAfterPendingStateCommit(onSuccess);
       }
     },
   });
@@ -160,21 +162,25 @@ export function useStaffAttendance({
         memberId,
       ),
     onError: (error: Error) => toast(error.message, 'error'),
-    onSuccess: (_result, targetMemberId) => {
+    onSuccess: () => {
       toast('신규 회원의 오늘 출석부를 시작했어요.', 'success');
-      resetSuccessCallbacksRef.current.get(targetMemberId)?.();
     },
-    onSettled: async (_result, _error, targetMemberId) => {
+    onSettled: async (_result, error, targetMemberId) => {
       try {
         await queryClient.invalidateQueries({
           queryKey: attendanceQueryKeys.all(ownerKey),
         });
       } finally {
+        const onSuccess = error
+          ? undefined
+          : resetSuccessCallbacksRef.current.get(targetMemberId);
+
         resetSuccessCallbacksRef.current.delete(targetMemberId);
         pendingResetIdsRef.current.delete(targetMemberId);
         pendingMemberIdsRef.current.delete(targetMemberId);
         setPendingResetIds(new Set(pendingResetIdsRef.current));
         setPendingMemberIds(new Set(pendingMemberIdsRef.current));
+        runAfterPendingStateCommit(onSuccess);
       }
     },
   });
@@ -219,7 +225,7 @@ export function useStaffAttendance({
           new Set(pendingPresenceMemberIdsRef.current),
         );
         setPendingMemberIds(new Set(pendingMemberIdsRef.current));
-        onSuccess?.();
+        runAfterPendingStateCommit(onSuccess);
       }
     },
   });
@@ -381,4 +387,12 @@ function toSlotSuccessMessage(command: AttendanceSlotCommand) {
         : command.reason?.trim() || '기타';
 
   return `${command.slot}교시를 ${status}(으)로 처리했어요.`;
+}
+
+function runAfterPendingStateCommit(callback: (() => void) | undefined) {
+  if (!callback) {
+    return;
+  }
+
+  window.setTimeout(callback, 0);
 }

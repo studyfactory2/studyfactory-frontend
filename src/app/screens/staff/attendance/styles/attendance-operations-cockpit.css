@@ -2,10 +2,12 @@
   --cockpit-accent: var(--brand-forest);
   min-width: 0;
   overflow: hidden;
-  border: 1px solid rgb(var(--brand-ink-rgb) / 7%);
+  border: 1px solid rgb(var(--brand-ink-rgb) / 6%);
   border-radius: var(--radius-card);
-  background: var(--card);
-  box-shadow: var(--elev-1);
+  background: color-mix(in srgb, var(--card) 88%, var(--brand-paper));
+  box-shadow:
+    0 1px 2px rgb(var(--brand-ink-rgb) / 2%),
+    0 7px 20px rgb(var(--brand-ink-rgb) / 4%);
   container-name: attendance-cockpit;
   container-type: inline-size;
 }
@@ -21,17 +23,17 @@
   position: relative;
   display: grid;
   min-width: 0;
-  min-height: 84px;
+  min-height: 64px;
   align-items: center;
-  padding: 13px 17px;
+  padding: 9px 13px;
   border: 0;
-  border-right: 1px solid var(--brand-line);
+  border-right: 1px solid rgb(var(--brand-ink-rgb) / 7%);
   background: transparent;
   color: var(--brand-ink);
   cursor: pointer;
   font: inherit;
-  gap: 10px;
-  grid-template-columns: 36px minmax(0, 1fr) auto 18px;
+  gap: 8px;
+  grid-template-columns: 30px minmax(0, 1fr) auto 16px;
   text-align: left;
   transition:
     background-color 0.16s ease,
@@ -54,10 +56,10 @@
 
 .staff-attendance-cockpit__summary::after {
   position: absolute;
-  right: 17px;
+  right: 13px;
   bottom: 0;
-  left: 17px;
-  height: 3px;
+  left: 13px;
+  height: 2px;
   border-radius: var(--radius-pill) var(--radius-pill) 0 0;
   background: var(--cockpit-accent);
   content: '';
@@ -70,7 +72,7 @@
 
 .staff-attendance-cockpit__summary:hover,
 .staff-attendance-cockpit__summary.is-active {
-  background: rgb(var(--brand-forest-rgb) / 4%);
+  background: rgb(var(--brand-forest-rgb) / 3%);
 }
 
 .staff-attendance-cockpit__summary.is-active::after {
@@ -88,9 +90,9 @@
 
 .staff-attendance-cockpit__summary-icon {
   display: grid;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
   background: var(--cockpit-accent-soft);
   color: var(--cockpit-accent);
   place-items: center;
@@ -99,12 +101,12 @@
 .staff-attendance-cockpit__summary-copy {
   display: grid;
   min-width: 0;
-  gap: 3px;
+  gap: 1px;
 }
 
 .staff-attendance-cockpit__summary-copy strong {
   overflow: hidden;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-extrabold);
   letter-spacing: var(--tracking-tight);
   text-overflow: ellipsis;
@@ -136,7 +138,7 @@
 }
 
 .staff-attendance-cockpit__summary-count b {
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   font-weight: var(--weight-extrabold);
   letter-spacing: var(--tracking-tighter);
 }
@@ -158,13 +160,13 @@
 }
 
 .staff-attendance-cockpit__panel {
-  border-top: 1px solid var(--brand-line);
-  background: rgb(var(--brand-forest-rgb) / 2.5%);
+  border-top: 1px solid rgb(var(--brand-ink-rgb) / 7%);
+  background: rgb(var(--brand-forest-rgb) / 1.8%);
 }
 
 .staff-attendance-cockpit__panel-header {
   display: flex;
-  min-height: 54px;
+  min-height: 50px;
   align-items: center;
   justify-content: space-between;
   padding: 9px var(--space-4);
@@ -264,7 +266,7 @@
   margin: 0;
   padding: 0 3px 0 0;
   overflow-y: auto;
-  gap: 8px;
+  gap: 6px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   list-style: none;
   scrollbar-color: rgb(var(--brand-forest-rgb) / 22%) transparent;
@@ -275,14 +277,14 @@
   --preview-accent: rgb(var(--brand-forest-rgb) / 22%);
   display: flex;
   min-width: 0;
-  min-height: 74px;
+  min-height: 68px;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 11px 10px 14px;
-  border: 1px solid var(--brand-line);
-  border-radius: 12px;
-  background: var(--paper);
-  box-shadow: inset 3px 0 0 var(--preview-accent);
+  padding: 9px 10px 9px 12px;
+  border: 1px solid rgb(var(--brand-ink-rgb) / 7%);
+  border-radius: 10px;
+  background: rgb(var(--card-rgb) / 82%);
+  box-shadow: inset 2px 0 0 var(--preview-accent);
   gap: 9px;
 }
 
@@ -398,15 +400,15 @@
 
 @container attendance-cockpit (max-width: 52rem) {
   .staff-attendance-cockpit__summary {
-    min-height: 78px;
-    padding: 11px 13px;
-    gap: 8px;
-    grid-template-columns: 32px minmax(0, 1fr) auto;
+    min-height: 60px;
+    padding: 8px 10px;
+    gap: 7px;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
   }
 
   .staff-attendance-cockpit__summary-icon {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
   }
 
   .staff-attendance-cockpit__summary-chevron {
@@ -420,12 +422,12 @@
 
 @container attendance-cockpit (max-width: 34rem) {
   .staff-attendance-cockpit__summary {
-    min-height: 76px;
-    justify-items: center;
-    padding: 8px 4px;
-    gap: 3px;
-    grid-template-columns: minmax(0, 1fr);
-    text-align: center;
+    min-height: 56px;
+    justify-items: stretch;
+    padding: 8px;
+    gap: 4px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    text-align: left;
   }
 
   .staff-attendance-cockpit__summary::after {
@@ -438,12 +440,12 @@
   }
 
   .staff-attendance-cockpit__summary-copy {
-    justify-items: center;
+    justify-items: start;
   }
 
   .staff-attendance-cockpit__summary-copy strong {
     max-width: 100%;
-    font-size: var(--text-3xs);
+    font-size: var(--text-2xs);
     letter-spacing: 0;
   }
 
@@ -452,7 +454,7 @@
   }
 
   .staff-attendance-cockpit__summary-count b {
-    font-size: var(--text-lg);
+    font-size: var(--text-md);
   }
 
   .staff-attendance-cockpit__panel-header {

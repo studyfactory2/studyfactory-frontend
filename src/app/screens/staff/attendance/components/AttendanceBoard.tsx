@@ -1,43 +1,52 @@
-import {
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-  type ReactNode,
-} from 'react';
-import { MoveHorizontal, RefreshCw, Search } from 'lucide-react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import { RefreshCw, Search } from 'lucide-react';
 import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import type { StudyPresenceManualCheckInInput } from '../../../../features/study-presence/study-presence-api';
+import { cx } from '../../../../shared/lib/cx';
+import { formatKoreanDate } from '../../../../shared/lib/seoul-date';
 import {
   Card,
   SectionEmpty,
   SectionError,
   SectionLoading,
-  Table,
 } from '../../../../shared/ui';
-import { cx } from '../../../../shared/lib/cx';
-import {
-  formatKoreanDate,
-  formatTimeOfDayFromEpochMs,
-} from '../../../../shared/lib/seoul-date';
-import {
-  ATTENDANCE_SLOTS,
-  type AttendanceSelection,
-  type AttendanceSlotCommand,
-  type StaffAttendanceCell,
-  type StaffAttendanceMember,
-  toAttendanceCellKey,
+import type {
+  AttendancePaintMode,
+  AttendanceSelection,
+  AttendanceSlotCommand,
+  StaffAttendanceCell,
+  StaffAttendanceMember,
 } from '../model/staff-attendance';
-import { AttendanceActionBar } from './AttendanceActionBar';
+import {
+  toAttendanceCellId,
+  toAttendanceCellKey,
+  toAttendanceSelectionTiming,
+} from '../model/staff-attendance';
 import { AttendanceLeaveOverrideModal } from './AttendanceLeaveOverrideModal';
+import type { AttendancePresenceLoadState } from './AttendanceMemberIdentity';
+import { AttendancePaintDock } from './AttendancePaintDock';
 import { AttendancePresenceModal } from './AttendancePresenceModal';
 import { AttendanceReasonModal } from './AttendanceReasonModal';
 import { AttendanceStartModal } from './AttendanceStartModal';
+import { AttendanceTable } from './AttendanceTable';
 
 type AttendanceFilter = 'all' | 'leave' | 'unmarked';
-type PresenceLoadState = 'error' | 'loading' | 'ready';
+type ActivePaintMode = Exclude<AttendancePaintMode, null>;
+
+type DatedSelection = {
+  dateKey: string;
+  value: AttendanceSelection;
+};
+
+type DatedPaintMode = {
+  dateKey: string;
+  value: ActivePaintMode;
+};
+
+type DatedDialogTarget = {
+  cellKey: string;
+  dateKey: string;
+};
 
 type AttendanceBoardProps = {
   activeSlot: OperationalAttendanceSlot | null;
@@ -100,17 +109,45 @@ export function AttendanceBoard({
   refreshing,
 }: AttendanceBoardProps) {
   const searchId = useId();
+  const dateKeyRef = useRef(dateKey);
   const [filter, setFilter] = useState<AttendanceFilter>('all');
   const [query, setQuery] = useState('');
-  const [selection, setSelection] = useState<AttendanceSelection | null>(null);
-  const [leaveOverrideOpen, setLeaveOverrideOpen] = useState(false);
+  const [selectionState, setSelectionState] = useState<DatedSelection | null>(
+    null,
+  );
+  const [paintModeState, setPaintModeState] = useState<DatedPaintMode | null>(
+    null,
+  );
+  const [leaveOverrideTarget, setLeaveOverrideTarget] =
+    useState<DatedDialogTarget | null>(null);
   const [presenceMemberId, setPresenceMemberId] = useState<number | null>(null);
-  const [reasonOpen, setReasonOpen] = useState(false);
+  const [reasonTarget, setReasonTarget] = useState<DatedDialogTarget | null>(
+    null,
+  );
   const [startMemberId, setStartMemberId] = useState<number | null>(null);
+  const currentSelection =
+    selectionState?.dateKey === dateKey ? selectionState.value : null;
+  const paintMode =
+    paintModeState?.dateKey === dateKey ? paintModeState.value : null;
+
+  /* A Seoul date rollover invalidates every interaction target. Period
+     changes intentionally do not: one selected paint mode lasts all day. */
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    dateKeyRef.current = dateKey;
+    setSelectionState(null);
+    setPaintModeState(null);
+    setLeaveOverrideTarget(null);
+    setReasonTarget(null);
+    setPresenceMemberId(null);
+    setStartMemberId(null);
+  }, [dateKey]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
   const filterSlot: OperationalAttendanceSlot = operationalSlot ?? 7;
   const effectiveFilter =
     activeSlot === null && filter === 'unmarked' ? 'all' : filter;
-  const presenceState: PresenceLoadState = presenceReady
+  const presenceState: AttendancePresenceLoadState = presenceReady
     ? 'ready'
     : presenceErrorMessage
       ? 'error'
@@ -140,19 +177,31 @@ export function AttendanceBoard({
     });
   }, [activeSlot, effectiveFilter, filterSlot, members, query]);
 
-  const selectedMember = selection
+  const selectedMember = currentSelection
     ? visibleMembers.find(
         (member) =>
-          member.memberId === selection.memberId && member.stage === 'active',
+          member.memberId === currentSelection.memberId &&
+          member.stage === 'active',
       )
     : undefined;
   const activeSelection =
-    selection && selectedMember
+    currentSelection && selectedMember
       ? {
-          ...selection,
-          cell: selectedMember.slots[selection.slot - 1] ?? selection.cell,
+          ...currentSelection,
+          cell:
+            selectedMember.slots[currentSelection.slot - 1] ??
+            currentSelection.cell,
         }
       : null;
+  const activeSelectionKey = activeSelection
+    ? toAttendanceCellKey(activeSelection.memberId, activeSelection.slot)
+    : null;
+  const leaveOverrideOpen =
+    leaveOverrideTarget?.dateKey === dateKey &&
+    leaveOverrideTarget.cellKey === activeSelectionKey;
+  const reasonOpen =
+    reasonTarget?.dateKey === dateKey &&
+    reasonTarget.cellKey === activeSelectionKey;
   const startTarget =
     startMemberId === null
       ? null
@@ -168,63 +217,172 @@ export function AttendanceBoard({
           (member) =>
             member.memberId === presenceMemberId && member.stage === 'active',
         ) ?? null);
-
   const selectedPending = activeSelection
     ? pendingMemberIds.has(activeSelection.memberId)
     : false;
-  const defaultSelectionSlot: OperationalAttendanceSlot =
-    activeSlot ?? operationalSlot ?? 1;
+
+  useEffect(() => {
+    if (paintMode === null) {
+      return;
+    }
+
+    const exitPaintMode = (event: KeyboardEvent) => {
+      if (
+        event.key === 'Escape' &&
+        !leaveOverrideOpen &&
+        !reasonOpen &&
+        presenceMemberId === null &&
+        startMemberId === null
+      ) {
+        setPaintModeState(null);
+      }
+    };
+
+    window.addEventListener('keydown', exitPaintMode);
+
+    return () => window.removeEventListener('keydown', exitPaintMode);
+  }, [
+    leaveOverrideOpen,
+    paintMode,
+    presenceMemberId,
+    reasonOpen,
+    startMemberId,
+  ]);
+
+  const selectCell = (nextSelection: AttendanceSelection) => {
+    setSelectionState({ dateKey, value: nextSelection });
+  };
 
   const submitStatus = (
     status: AttendanceSlotCommand['status'],
     reason?: string,
+    targetSelection: AttendanceSelection | null = activeSelection,
+    closeDialog?: 'leave' | 'reason',
   ) => {
-    if (!activeSelection || selectedPending) {
+    if (
+      !targetSelection ||
+      pendingMemberIds.has(targetSelection.memberId) ||
+      toAttendanceSelectionTiming(
+        targetSelection.slot,
+        activeSlot,
+        operationalSlot,
+      ) === 'future' ||
+      attendanceCellAlreadyHasStatus(targetSelection.cell, status)
+    ) {
       return;
     }
 
-    const currentSelection = activeSelection;
-    onUpdateSlot(
-      {
-        memberId: currentSelection.memberId,
-        reason,
-        slot: currentSelection.slot,
-        status,
-      },
-      () => {
-        setLeaveOverrideOpen(false);
-        setReasonOpen(false);
-        setSelection((current) =>
-          current?.memberId === currentSelection.memberId &&
-          current.slot === currentSelection.slot
-            ? nextSeatSelection(currentSelection, visibleMembers)
-            : current,
-        );
-      },
+    const submittedDateKey = dateKey;
+    const submittedCellKey = toAttendanceCellKey(
+      targetSelection.memberId,
+      targetSelection.slot,
     );
-  };
-  const actionBar =
-    ready && visibleMembers.some((member) => member.stage === 'active') ? (
-      <AttendanceActionBar
-        onAbsent={() => {
-          if (activeSelection?.cell.source === 'MEMBER_LEAVE') {
-            setLeaveOverrideOpen(true);
+    const closeSubmittedDialog = closeDialog
+      ? () => {
+          if (dateKeyRef.current !== submittedDateKey) {
             return;
           }
 
-          submitStatus('ABSENT');
-        }}
-        onClear={() => {
-          setLeaveOverrideOpen(false);
-          setReasonOpen(false);
-          setSelection(null);
-        }}
-        onOther={() => setReasonOpen(true)}
-        onPresent={() => submitStatus('PRESENT')}
-        pending={selectedPending}
-        selection={activeSelection}
+          const closeIfStillSubmittedTarget = (
+            current: DatedDialogTarget | null,
+          ) =>
+            current?.dateKey === submittedDateKey &&
+            current.cellKey === submittedCellKey
+              ? null
+              : current;
+
+          if (closeDialog === 'leave') {
+            setLeaveOverrideTarget(closeIfStillSubmittedTarget);
+          } else {
+            setReasonTarget(closeIfStillSubmittedTarget);
+          }
+
+          window.requestAnimationFrame(() => {
+            const focusTarget =
+              document.getElementById(
+                toAttendanceCellId(
+                  targetSelection.memberId,
+                  targetSelection.slot,
+                ),
+              ) ?? document.getElementById(searchId);
+
+            focusTarget?.focus({ preventScroll: true });
+          });
+        }
+      : undefined;
+
+    onUpdateSlot(
+      {
+        memberId: targetSelection.memberId,
+        reason,
+        slot: targetSelection.slot,
+        status,
+      },
+      closeSubmittedDialog,
+    );
+  };
+
+  const requestPaint = (
+    targetSelection: AttendanceSelection,
+    mode: ActivePaintMode,
+  ) => {
+    if (
+      pendingMemberIds.has(targetSelection.memberId) ||
+      toAttendanceSelectionTiming(
+        targetSelection.slot,
+        activeSlot,
+        operationalSlot,
+      ) === 'future' ||
+      attendanceCellAlreadyHasStatus(targetSelection.cell, mode)
+    ) {
+      return;
+    }
+
+    if (mode === 'OTHER') {
+      setReasonTarget({
+        cellKey: toAttendanceCellKey(
+          targetSelection.memberId,
+          targetSelection.slot,
+        ),
+        dateKey,
+      });
+      return;
+    }
+
+    if (mode === 'ABSENT' && targetSelection.cell.source === 'MEMBER_LEAVE') {
+      setLeaveOverrideTarget({
+        cellKey: toAttendanceCellKey(
+          targetSelection.memberId,
+          targetSelection.slot,
+        ),
+        dateKey,
+      });
+      return;
+    }
+
+    submitStatus(mode, undefined, targetSelection);
+  };
+
+  const paintDock =
+    ready && visibleMembers.some((member) => member.stage === 'active') ? (
+      <AttendancePaintDock
+        mode={paintMode}
+        onExit={() => setPaintModeState(null)}
+        onModeChange={(nextMode) =>
+          setPaintModeState((current) =>
+            current?.dateKey === dateKey && current.value === nextMode
+              ? current
+              : { dateKey, value: nextMode },
+          )
+        }
       />
     ) : null;
+
+  const clearTransientSelection = () => {
+    setSelectionState(null);
+    setLeaveOverrideTarget(null);
+    setReasonTarget(null);
+  };
 
   return (
     <>
@@ -277,10 +435,8 @@ export function AttendanceBoard({
                   id={searchId}
                   onChange={(event) => {
                     setQuery(event.target.value);
-                    setLeaveOverrideOpen(false);
                     setPresenceMemberId(null);
-                    setReasonOpen(false);
-                    setSelection(null);
+                    clearTransientSelection();
                   }}
                   placeholder="이름 또는 좌석 검색"
                   type="search"
@@ -297,10 +453,8 @@ export function AttendanceBoard({
                   label="전체"
                   onClick={() => {
                     setFilter('all');
-                    setLeaveOverrideOpen(false);
                     setPresenceMemberId(null);
-                    setReasonOpen(false);
-                    setSelection(null);
+                    clearTransientSelection();
                   }}
                 />
                 <FilterButton
@@ -309,10 +463,8 @@ export function AttendanceBoard({
                   label={`${filterSlot}교시 미출석`}
                   onClick={() => {
                     setFilter('unmarked');
-                    setLeaveOverrideOpen(false);
                     setPresenceMemberId(null);
-                    setReasonOpen(false);
-                    setSelection(null);
+                    clearTransientSelection();
                   }}
                 />
                 <FilterButton
@@ -320,30 +472,12 @@ export function AttendanceBoard({
                   label={`${filterSlot}교시 휴무`}
                   onClick={() => {
                     setFilter('leave');
-                    setLeaveOverrideOpen(false);
                     setPresenceMemberId(null);
-                    setReasonOpen(false);
-                    setSelection(null);
+                    clearTransientSelection();
                   }}
                 />
               </div>
             </div>
-
-            <ul
-              aria-label="출석 상태 범례"
-              className="staff-attendance__legend"
-            >
-              <li>
-                <i className="is-present" />O 처리
-              </li>
-              <li>
-                <i className="is-unmarked" />X 미출석
-              </li>
-              <li>
-                <i className="is-leave" />
-                휴무
-              </li>
-            </ul>
 
             {visibleMembers.length === 0 ? (
               <div className="staff-attendance__board-empty">
@@ -364,31 +498,23 @@ export function AttendanceBoard({
             ) : (
               <AttendanceTable
                 activeSlot={activeSlot}
-                actionBar={actionBar}
+                dock={paintDock}
                 members={visibleMembers}
-                onPresenceRequest={(member) => {
-                  const cell =
-                    member.slots[defaultSelectionSlot - 1] ?? member.slots[0];
+                mode={paintMode}
+                onActivate={(nextSelection) => {
+                  setLeaveOverrideTarget(null);
+                  setReasonTarget(null);
+                  selectCell(nextSelection);
 
-                  setLeaveOverrideOpen(false);
-                  setReasonOpen(false);
-                  if (cell) {
-                    setSelection({
-                      cell,
-                      memberId: member.memberId,
-                      name: member.name,
-                      seatNumber: member.seatNumber,
-                      slot: defaultSelectionSlot,
-                    });
+                  if (paintMode) {
+                    requestPaint(nextSelection, paintMode);
                   }
-                  setPresenceMemberId(member.memberId);
                 }}
+                onPresenceRequest={(member) =>
+                  setPresenceMemberId(member.memberId)
+                }
                 onResetRequest={(member) => setStartMemberId(member.memberId)}
-                onSelect={(nextSelection) => {
-                  setLeaveOverrideOpen(false);
-                  setReasonOpen(false);
-                  setSelection(nextSelection);
-                }}
+                onSelect={selectCell}
                 operationalSlot={operationalSlot}
                 pendingCellKeys={pendingCellKeys}
                 pendingMemberIds={pendingMemberIds}
@@ -402,15 +528,19 @@ export function AttendanceBoard({
         )}
       </Card>
       <AttendanceReasonModal
-        onClose={() => setReasonOpen(false)}
-        onSubmit={(reason) => submitStatus('OTHER', reason)}
+        onClose={() => setReasonTarget(null)}
+        onSubmit={(reason) =>
+          submitStatus('OTHER', reason, activeSelection, 'reason')
+        }
         open={reasonOpen}
         pending={selectedPending}
         selection={activeSelection}
       />
       <AttendanceLeaveOverrideModal
-        onClose={() => setLeaveOverrideOpen(false)}
-        onConfirm={() => submitStatus('ABSENT')}
+        onClose={() => setLeaveOverrideTarget(null)}
+        onConfirm={() =>
+          submitStatus('ABSENT', undefined, activeSelection, 'leave')
+        }
         pending={selectedPending}
         selection={leaveOverrideOpen ? activeSelection : null}
       />
@@ -490,537 +620,12 @@ function FilterButton({
   );
 }
 
-function AttendanceTable({
-  activeSlot,
-  actionBar,
-  members,
-  onPresenceRequest,
-  onResetRequest,
-  onSelect,
-  operationalSlot,
-  pendingCellKeys,
-  pendingMemberIds,
-  pendingPresenceMemberIds,
-  pendingResetIds,
-  presenceState,
-  selection,
-}: {
-  activeSlot: OperationalAttendanceSlot | null;
-  actionBar: ReactNode;
-  members: StaffAttendanceMember[];
-  onPresenceRequest: (member: StaffAttendanceMember) => void;
-  onResetRequest: (member: StaffAttendanceMember) => void;
-  onSelect: (selection: AttendanceSelection) => void;
-  operationalSlot: OperationalAttendanceSlot | null;
-  pendingCellKeys: ReadonlySet<string>;
-  pendingMemberIds: ReadonlySet<number>;
-  pendingPresenceMemberIds: ReadonlySet<number>;
-  pendingResetIds: ReadonlySet<number>;
-  presenceState: PresenceLoadState;
-  selection: AttendanceSelection | null;
-}) {
-  const frameRef = useRef<HTMLDivElement>(null);
-  const identityHeaderRef = useRef<HTMLTableCellElement>(null);
-  const operationalHeaderRef = useRef<HTMLTableCellElement>(null);
-  const activeMembers = members.filter((member) => member.stage === 'active');
-  const navigableMembers = activeMembers.filter(
-    (member) => !pendingMemberIds.has(member.memberId),
-  );
-  const selectedTabMember = selection
-    ? navigableMembers.find((member) => member.memberId === selection.memberId)
-    : undefined;
-  const tabStopMember = selectedTabMember ?? navigableMembers[0];
-  const tabStopSlot = selection?.slot ?? activeSlot ?? operationalSlot ?? 1;
-  const selectedCellId = selection
-    ? attendanceCellId(selection.memberId, selection.slot)
-    : null;
-
-  useEffect(() => {
-    if (operationalSlot === null) {
-      return;
-    }
-
-    const compactViewport = window.matchMedia('(max-width: 1279px)');
-    let animationFrame = 0;
-
-    const alignOperationalSlot = () => {
-      if (!compactViewport.matches) {
-        return;
-      }
-
-      cancelAnimationFrame(animationFrame);
-      animationFrame = requestAnimationFrame(() => {
-        const scrollViewport =
-          frameRef.current?.querySelector<HTMLElement>('.table-wrap');
-        const identityHeader = identityHeaderRef.current;
-        const operationalHeader = operationalHeaderRef.current;
-
-        if (!scrollViewport || !identityHeader || !operationalHeader) {
-          return;
-        }
-
-        const contentWidth = Math.max(
-          0,
-          scrollViewport.clientWidth - identityHeader.offsetWidth,
-        );
-        const centeredOffset =
-          operationalHeader.offsetLeft -
-          identityHeader.offsetWidth -
-          (contentWidth - operationalHeader.offsetWidth) / 2;
-        const maximumOffset = Math.max(
-          0,
-          scrollViewport.scrollWidth - scrollViewport.clientWidth,
-        );
-
-        scrollViewport.scrollLeft = Math.min(
-          maximumOffset,
-          Math.max(0, centeredOffset),
-        );
-      });
-    };
-
-    alignOperationalSlot();
-    compactViewport.addEventListener('change', alignOperationalSlot);
-
-    return () => {
-      cancelAnimationFrame(animationFrame);
-      compactViewport.removeEventListener('change', alignOperationalSlot);
-    };
-  }, [operationalSlot]);
-
-  useEffect(() => {
-    if (!selectedCellId) {
-      return;
-    }
-
-    const animationFrame = requestAnimationFrame(() => {
-      const cell = document.getElementById(selectedCellId);
-
-      if (!(cell instanceof HTMLButtonElement) || cell.disabled) {
-        return;
-      }
-
-      cell.focus({ preventScroll: true });
-      cell.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-    });
-
-    return () => cancelAnimationFrame(animationFrame);
-  }, [selectedCellId]);
-
-  const navigateCell = (
-    event: KeyboardEvent<HTMLButtonElement>,
-    member: StaffAttendanceMember,
-    slot: OperationalAttendanceSlot,
-  ) => {
-    let nextMember = member;
-    let nextSlot: OperationalAttendanceSlot = slot;
-    const memberIndex = navigableMembers.findIndex(
-      (candidate) => candidate.memberId === member.memberId,
-    );
-
-    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-      const offset = event.key === 'ArrowUp' ? -1 : 1;
-      const candidate = navigableMembers[memberIndex + offset];
-
-      if (!candidate) {
-        return;
-      }
-      nextMember = candidate;
-    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-      const offset = event.key === 'ArrowLeft' ? -1 : 1;
-      const candidate = slot + offset;
-
-      if (candidate < 1 || candidate > ATTENDANCE_SLOTS.length) {
-        return;
-      }
-      nextSlot = candidate as OperationalAttendanceSlot;
-    } else {
-      return;
-    }
-
-    event.preventDefault();
-    const nextCell = nextMember.slots[nextSlot - 1];
-
-    if (nextCell) {
-      onSelect({
-        cell: nextCell,
-        memberId: nextMember.memberId,
-        name: nextMember.name,
-        seatNumber: nextMember.seatNumber,
-        slot: nextSlot,
-      });
-    }
-  };
-
-  return (
-    <div className="staff-attendance__table-frame" ref={frameRef}>
-      <p className="staff-attendance__scroll-hint">
-        <MoveHorizontal aria-hidden="true" size={14} />
-        옆으로 밀어 1–7교시를 확인하세요.
-      </p>
-      <Table>
-        <caption className="staff-attendance__sr-only">
-          좌석 순서 회원과 미배정 회원의 오늘 입퇴실 시각, 1교시부터 7교시까지의
-          출석 상태
-        </caption>
-        <thead>
-          <tr>
-            <th
-              className="staff-attendance__identity-col"
-              ref={identityHeaderRef}
-              scope="col"
-            >
-              <span>회원</span>
-              <small className="staff-attendance__identity-note">
-                오늘 입·퇴실
-              </small>
-            </th>
-            {ATTENDANCE_SLOTS.map((slot) => (
-              <th
-                className={cx(operationalSlot === slot && 'is-operational')}
-                key={slot}
-                ref={
-                  operationalSlot === slot ? operationalHeaderRef : undefined
-                }
-                scope="col"
-              >
-                <span>{slot}교시</span>
-                {operationalSlot === slot && (
-                  <small>{activeSlot === slot ? '현재' : '예정'}</small>
-                )}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member) => (
-            <tr
-              className={cx(
-                member.seatNumber === null && 'is-unassigned',
-                member.stage !== 'active' && 'is-prestart',
-              )}
-              key={member.memberId}
-            >
-              <th className="staff-attendance__identity-col" scope="row">
-                <MemberIdentity
-                  disabled={pendingMemberIds.has(member.memberId)}
-                  member={member}
-                  onPresenceRequest={onPresenceRequest}
-                  presencePending={pendingPresenceMemberIds.has(
-                    member.memberId,
-                  )}
-                  presenceState={presenceState}
-                  presenceTabStop={tabStopMember?.memberId === member.memberId}
-                />
-              </th>
-              {member.stage === 'active' ? (
-                member.slots.map((cell, index) => {
-                  const slot = (index + 1) as OperationalAttendanceSlot;
-                  const future =
-                    cell.state === 'unmarked' &&
-                    operationalSlot !== null &&
-                    (activeSlot === null || slot > activeSlot);
-                  const pending = pendingCellKeys.has(
-                    toAttendanceCellKey(member.memberId, slot),
-                  );
-                  const memberPending = pendingMemberIds.has(member.memberId);
-                  const selected =
-                    selection?.memberId === member.memberId &&
-                    selection.slot === slot;
-
-                  return (
-                    <td
-                      className={cx(
-                        operationalSlot === slot && 'is-operational',
-                      )}
-                      key={slot}
-                    >
-                      <AttendanceStatus
-                        cell={cell}
-                        disabled={memberPending}
-                        future={future}
-                        member={member}
-                        onKeyDown={(event) => navigateCell(event, member, slot)}
-                        onSelect={() =>
-                          onSelect({
-                            cell,
-                            memberId: member.memberId,
-                            name: member.name,
-                            seatNumber: member.seatNumber,
-                            slot,
-                          })
-                        }
-                        pending={pending}
-                        selected={selected}
-                        slot={slot}
-                        tabStop={
-                          tabStopMember?.memberId === member.memberId &&
-                          tabStopSlot === slot
-                        }
-                      />
-                    </td>
-                  );
-                })
-              ) : (
-                <MembershipStageCell
-                  member={member}
-                  onResetRequest={onResetRequest}
-                  pending={pendingResetIds.has(member.memberId)}
-                />
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-      {actionBar}
-    </div>
-  );
-}
-
-function MemberIdentity({
-  disabled,
-  member,
-  onPresenceRequest,
-  presencePending,
-  presenceState,
-  presenceTabStop,
-}: {
-  disabled: boolean;
-  member: StaffAttendanceMember;
-  onPresenceRequest: (member: StaffAttendanceMember) => void;
-  presencePending: boolean;
-  presenceState: PresenceLoadState;
-  presenceTabStop: boolean;
-}) {
-  const currentlyActive = member.presence?.currentlyActive ?? false;
-
-  return (
-    <span className="staff-attendance__member">
-      <b
-        aria-label={
-          member.seatNumber === null
-            ? '좌석 미배정'
-            : `${member.seatNumber}번 좌석`
-        }
-        className={member.seatNumber === null ? 'is-unassigned' : undefined}
-      >
-        {member.seatNumber === null ? '미배정' : member.seatNumber}
-      </b>
-      <span className="staff-attendance__member-copy">
-        <span className="staff-attendance__member-name">
-          <strong>{member.name}</strong>
-          {presenceState === 'ready' &&
-            member.presence !== null &&
-            member.presence.sessionCount > 1 && (
-              <em
-                aria-label={`오늘 ${member.presence.sessionCount}회 입실`}
-                className="staff-attendance__session-count"
-                title={`오늘 ${member.presence.sessionCount}회 입실`}
-              >
-                {member.presence.sessionCount}회
-              </em>
-            )}
-          {member.stage === 'active' && presenceState === 'ready' && (
-            <button
-              aria-busy={presencePending}
-              aria-label={`${member.name} ${currentlyActive ? '수동 퇴실 처리' : '수동 입실 등록'}`}
-              className={cx(
-                'staff-attendance__presence-button',
-                currentlyActive && 'is-checkout',
-              )}
-              disabled={disabled}
-              onClick={() => onPresenceRequest(member)}
-              tabIndex={presenceTabStop ? 0 : -1}
-              type="button"
-            >
-              {presencePending ? '처리 중' : currentlyActive ? '퇴실' : '입실'}
-            </button>
-          )}
-        </span>
-        <MemberPresence member={member} presenceState={presenceState} />
-      </span>
-    </span>
-  );
-}
-
-function MemberPresence({
-  member,
-  presenceState,
-}: {
-  member: StaffAttendanceMember;
-  presenceState: PresenceLoadState;
-}) {
-  if (presenceState !== 'ready') {
-    return (
-      <small className="staff-attendance__member-presence is-muted">
-        {presenceState === 'error' ? '입퇴실 시간 미확인' : '입퇴실 확인 중'}
-      </small>
-    );
-  }
-
-  const { checkedInAt, checkedOutAt, currentlyActive } = member.presence ?? {
-    checkedInAt: null,
-    checkedOutAt: null,
-    currentlyActive: false,
-  };
-
-  return (
-    <small className="staff-attendance__member-presence">
-      <span>
-        <i>입실</i>
-        <PresenceTime value={checkedInAt} />
-      </span>
-      <span aria-hidden="true" className="staff-attendance__time-divider">
-        ·
-      </span>
-      <span>
-        <i>퇴실</i>
-        {currentlyActive ? (
-          <em className="is-active">입실 중</em>
-        ) : (
-          <PresenceTime value={checkedOutAt} />
-        )}
-      </span>
-    </small>
-  );
-}
-
-function PresenceTime({ value }: { value: string | null }) {
-  if (!value) {
-    return <span>—</span>;
-  }
-
-  const epochMs = Date.parse(value);
-
-  if (!Number.isFinite(epochMs)) {
-    return <span>—</span>;
-  }
-
-  return <time dateTime={value}>{formatTimeOfDayFromEpochMs(epochMs)}</time>;
-}
-
-function MembershipStageCell({
-  member,
-  onResetRequest,
-  pending,
-}: {
-  member: StaffAttendanceMember;
-  onResetRequest: (member: StaffAttendanceMember) => void;
-  pending: boolean;
-}) {
-  const joinDate = member.joinDate;
-
-  return (
-    <td className="staff-attendance__membership-stage" colSpan={7}>
-      <span>
-        <strong>
-          {member.stage === 'starts-today' ? '오늘 입소' : '입소 예정'}
-        </strong>
-        {joinDate && (
-          <time dateTime={joinDate}>{formatKoreanDate(joinDate)}</time>
-        )}
-      </span>
-      {member.stage === 'starts-today' ? (
-        <button
-          aria-busy={pending}
-          disabled={pending}
-          onClick={() => onResetRequest(member)}
-          type="button"
-        >
-          {pending ? '시작 중' : '오늘 출석부 시작'}
-        </button>
-      ) : (
-        <small>입소일부터 출석 처리할 수 있어요.</small>
-      )}
-    </td>
-  );
-}
-
-function AttendanceStatus({
-  cell,
-  disabled,
-  future = false,
-  member,
-  onKeyDown,
-  onSelect,
-  pending,
-  selected,
-  slot,
-  tabStop,
-}: {
-  cell: StaffAttendanceCell | undefined;
-  disabled: boolean;
-  future?: boolean;
-  member: StaffAttendanceMember;
-  onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
-  onSelect: () => void;
-  pending: boolean;
-  selected: boolean;
-  slot: OperationalAttendanceSlot;
-  tabStop: boolean;
-}) {
-  const safeCell = cell ?? {
-    label: '미출석',
-    source: 'NONE' as const,
-    state: 'unmarked' as const,
-  };
-  const accessibleLabel = future
-    ? '아직 시작 전'
-    : safeCell.state === 'present'
-      ? '출석 처리'
-      : safeCell.state === 'unmarked'
-        ? '미출석'
-        : safeCell.label;
-
-  return (
-    <button
-      aria-busy={pending}
-      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
-      aria-label={`${member.seatNumber === null ? '미배정' : `${member.seatNumber}번`} ${member.name}, ${slot}교시 ${pending ? '저장 중' : accessibleLabel}. 상태 변경`}
-      aria-pressed={selected}
-      className={cx(
-        'staff-attendance__status',
-        future ? 'is-future' : `is-${safeCell.state}`,
-        selected && 'is-selected',
-        pending && 'is-pending',
-      )}
-      disabled={disabled}
-      id={attendanceCellId(member.memberId, slot)}
-      onClick={onSelect}
-      onFocus={onSelect}
-      onKeyDown={onKeyDown}
-      tabIndex={tabStop ? 0 : -1}
-      title={accessibleLabel}
-      type="button"
-    >
-      {pending ? '···' : future ? '—' : safeCell.label}
-    </button>
-  );
-}
-
-function attendanceCellId(memberId: number, slot: number) {
-  return `staff-attendance-cell-${memberId}-${slot}`;
-}
-
-function nextSeatSelection(
-  current: AttendanceSelection,
-  members: StaffAttendanceMember[],
+function attendanceCellAlreadyHasStatus(
+  cell: StaffAttendanceCell,
+  status: AttendanceSlotCommand['status'],
 ) {
-  const activeMembers = members.filter((member) => member.stage === 'active');
-  const currentIndex = activeMembers.findIndex(
-    (member) => member.memberId === current.memberId,
+  return (
+    (status === 'PRESENT' && cell.state === 'present') ||
+    (status === 'ABSENT' && cell.state === 'unmarked')
   );
-  const nextMember = activeMembers[currentIndex + 1];
-
-  if (!nextMember) {
-    return current;
-  }
-
-  return {
-    cell: nextMember.slots[current.slot - 1] ?? current.cell,
-    memberId: nextMember.memberId,
-    name: nextMember.name,
-    seatNumber: nextMember.seatNumber,
-    slot: current.slot,
-  } satisfies AttendanceSelection;
 }
