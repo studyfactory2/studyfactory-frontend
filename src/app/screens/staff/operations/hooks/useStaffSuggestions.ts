@@ -29,8 +29,8 @@ export function useStaffSuggestions({
     () => new Set(),
   );
   const suggestionQuery = useQuery({
-    queryFn: () => fetchBranchSuggestions(memberId),
-    queryKey: suggestionQueryKeys.branch(ownerKey),
+    queryFn: () => fetchBranchSuggestions(branchId, memberId),
+    queryKey: suggestionQueryKeys.branch(ownerKey, branchId),
     refetchInterval: 30 * 1_000,
     refetchOnWindowFocus: true,
     staleTime: SUGGESTIONS_STALE_TIME_MS,
@@ -55,7 +55,7 @@ export function useStaffSuggestions({
     },
     onSuccess: (updated, suggestion) => {
       queryClient.setQueryData<SuggestionResponse[]>(
-        suggestionQueryKeys.branch(ownerKey),
+        suggestionQueryKeys.branch(ownerKey, branchId),
         (current) =>
           current?.map((suggestion) =>
             suggestion.id === updated.id ? updated : suggestion,

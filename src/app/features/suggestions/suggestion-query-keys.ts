@@ -6,7 +6,8 @@ const root = (ownerKey: SessionOwnerKey) =>
 export const suggestionQueryKeys = {
   /** Every suggestion query for this owner. */
   all: root,
-  /** Everything raised in the caller's own branch — managers only. */
-  branch: (ownerKey: SessionOwnerKey) => [...root(ownerKey), 'branch'] as const,
+  /** Everything raised in one branch — managers only. */
+  branch: (ownerKey: SessionOwnerKey, branchId: number) =>
+    [...root(ownerKey), 'branch', branchId] as const,
   mine: (ownerKey: SessionOwnerKey) => [...root(ownerKey), 'mine'] as const,
 };

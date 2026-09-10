@@ -71,8 +71,8 @@ export function useAttendanceOperations({
     staleTime: OPERATIONS_STALE_TIME_MS,
   });
   const suggestionQuery = useQuery({
-    queryFn: () => fetchBranchSuggestions(memberId),
-    queryKey: suggestionQueryKeys.branch(ownerKey),
+    queryFn: () => fetchBranchSuggestions(branchId, memberId),
+    queryKey: suggestionQueryKeys.branch(ownerKey, branchId),
     refetchInterval: OPERATIONS_REFETCH_MS,
     refetchOnWindowFocus: 'always',
     staleTime: OPERATIONS_STALE_TIME_MS,
@@ -122,7 +122,7 @@ export function useAttendanceOperations({
     onError: (error: Error) => toast(error.message, 'error'),
     onSuccess: (updated) => {
       queryClient.setQueryData<SuggestionResponse[]>(
-        suggestionQueryKeys.branch(ownerKey),
+        suggestionQueryKeys.branch(ownerKey, branchId),
         (current) =>
           current?.map((suggestion) =>
             suggestion.id === updated.id ? updated : suggestion,

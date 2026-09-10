@@ -109,16 +109,17 @@ export type DailySideDishResponse = {
 };
 
 /**
- * Everyone's orders for one day. The server requires manager access and
- * restricts STAFF to their own branch. The client deliberately omits branchId
- * so the server resolves that branch, then validates every returned row.
+ * Everyone's orders for one day in one branch. The server requires manager
+ * access: an ADMIN may name any branch, STAFF is pinned to their own, so the
+ * branch is always sent explicitly and every returned row is validated
+ * against it.
  */
 export async function fetchDailySideDishes(
   date: string,
   branchId: number,
   expectedMemberId: number,
 ) {
-  const query = new URLSearchParams({ date });
+  const query = new URLSearchParams({ branchId: String(branchId), date });
   const response = await apiRequest<DailySideDishResponse[]>(
     `/api/side-dishes/daily?${query}`,
     { expectedMemberId },

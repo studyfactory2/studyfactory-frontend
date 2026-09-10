@@ -74,7 +74,7 @@ export function useStaffHome({
 
   const liveQuery = useQuery({
     queryFn: () => fetchLiveStudyPresence(memberId, branchId),
-    queryKey: studyPresenceQueryKeys.live(ownerKey),
+    queryKey: studyPresenceQueryKeys.live(ownerKey, branchId),
     refetchInterval: LIVE_REFETCH_MS,
     staleTime: LIVE_STALE_TIME_MS,
   });
@@ -111,8 +111,8 @@ export function useStaffHome({
   });
 
   const suggestionQuery = useQuery({
-    queryFn: () => fetchBranchSuggestions(memberId),
-    queryKey: suggestionQueryKeys.branch(ownerKey),
+    queryFn: () => fetchBranchSuggestions(branchId, memberId),
+    queryKey: suggestionQueryKeys.branch(ownerKey, branchId),
     refetchInterval: OPERATIONS_REFETCH_MS,
     refetchOnWindowFocus: 'always',
     staleTime: DAILY_STALE_TIME_MS,

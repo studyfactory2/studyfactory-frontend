@@ -44,14 +44,27 @@ export async function fetchMySuggestions(expectedMemberId: number) {
 }
 
 /**
- * Every suggestion raised in the caller's own branch. This one the backend
- * scopes itself — findByBranchId(currentMember.branchId), no parameter to pass
- * — so there is nothing for the caller to widen and nothing to re-check.
+ * Every suggestion raised in one branch. The branch is always sent: an ADMIN
+ * may read any branch, and STAFF is pinned to their own by the backend, so a
+ * STAFF caller passes the authenticated branch and gets the same list as
+ * before. Every returned row is re-checked against the branch that was asked
+ * for, so a mismatch can never be cached under the wrong key.
  */
-export function fetchBranchSuggestions(expectedMemberId: number) {
-  return apiRequest<SuggestionResponse[]>('/api/suggestions', {
-    expectedMemberId,
-  });
+export async function fetchBranchSuggestions(
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({ branchId: String(branchId) });
+  const response = await apiRequest<SuggestionResponse[]>(
+    `/api/suggestions?${query}`,
+    { expectedMemberId },
+  );
+
+  if (response.some((suggestion) => suggestion.branchId !== branchId)) {
+    throw new ApiRequestError('다른 지점의 요청 내역을 받았습니다.', 409);
+  }
+
+  return response;
 }
 
 /**

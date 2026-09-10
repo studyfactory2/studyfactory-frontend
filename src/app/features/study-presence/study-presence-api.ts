@@ -250,24 +250,25 @@ export type StudyPresenceManagerHistoryResponse = {
 };
 
 /**
- * Every presence session that overlaps one Seoul calendar day in the signed-in
- * operations member's branch. This is intentionally different from `live`:
- * closed sessions remain in the response, so the attendance board can show
- * both the first check-in and the final check-out for the day.
+ * Every presence session that overlaps one Seoul calendar day in one branch.
+ * The branch is sent explicitly: an ADMIN may read any branch, STAFF is
+ * pinned to their own by the backend. This is intentionally different from
+ * `live`: closed sessions remain in the response, so the attendance board can
+ * show both the first check-in and the final check-out for the day.
  */
 export async function fetchDailyStudyPresenceHistory(
   date: string,
   expectedMemberId: number,
-  expectedBranchId: number,
+  branchId: number,
 ) {
-  const query = new URLSearchParams({ date });
+  const query = new URLSearchParams({ branchId: String(branchId), date });
   const response = await apiRequest<StudyPresenceManagerHistoryResponse>(
     `/api/study-presence/history?${query}`,
     { expectedMemberId },
   );
 
   if (
-    response.branchId !== expectedBranchId ||
+    response.branchId !== branchId ||
     response.memberId !== null ||
     response.fromDate !== date ||
     response.toDate !== date
@@ -278,9 +279,7 @@ export async function fetchDailyStudyPresenceHistory(
     );
   }
 
-  if (
-    response.sessions.some((session) => session.branchId !== expectedBranchId)
-  ) {
+  if (response.sessions.some((session) => session.branchId !== branchId)) {
     throw new ApiRequestError(
       '다른 지점의 입퇴실 기록이 포함되어 있습니다.',
       409,
@@ -291,29 +290,28 @@ export async function fetchDailyStudyPresenceHistory(
 }
 
 /**
- * Who is sitting in the branch at this moment. Unlike the other manager reads
- * this one takes no branchId at all — the backend pins it to the caller's own
- * branch — so there is nothing to widen here.
+ * Who is sitting in one branch at this moment. The branch is sent explicitly:
+ * an ADMIN may read any branch, STAFF is pinned to their own by the backend.
+ * Every row is validated against the branch that was asked for.
  */
 export async function fetchLiveStudyPresence(
   expectedMemberId: number,
-  expectedBranchId: number,
+  branchId: number,
 ) {
+  const query = new URLSearchParams({ branchId: String(branchId) });
   const response = await apiRequest<StudyPresenceLiveResponse>(
-    '/api/study-presence/live',
+    `/api/study-presence/live?${query}`,
     { expectedMemberId },
   );
 
-  if (response.branchId !== expectedBranchId) {
+  if (response.branchId !== branchId) {
     throw new ApiRequestError(
       '다른 지점의 실시간 입실 정보를 받았습니다.',
       409,
     );
   }
 
-  if (
-    response.sessions.some((session) => session.branchId !== expectedBranchId)
-  ) {
+  if (response.sessions.some((session) => session.branchId !== branchId)) {
     throw new ApiRequestError(
       '다른 지점의 실시간 입실 정보가 포함되어 있습니다.',
       409,

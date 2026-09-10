@@ -12,12 +12,16 @@ import type { WorkspaceNavigationItem } from './types';
 
 type AppShellProps = {
   children: ReactNode;
+  displayBranchName?: string;
+  headerTools?: ReactNode;
   navigation: WorkspaceNavigationItem[];
   workspaceLabel: string;
 };
 
 export function AppShell({
   children,
+  displayBranchName,
+  headerTools,
   navigation,
   workspaceLabel,
 }: AppShellProps) {
@@ -41,6 +45,7 @@ export function AppShell({
   const branchName =
     branchesQuery.data?.find((branch) => branch.id === session.branchId)
       ?.name ?? '소속 지점';
+  const topbarBranchName = displayBranchName ?? branchName;
   const memberName = session.memberName ?? '회원';
 
   useEffect(() => {
@@ -102,7 +107,12 @@ export function AppShell({
       </aside>
 
       <main className="workspace-shell__main" ref={mainRef} tabIndex={-1}>
-        <header className="workspace-shell__topbar">
+        <header
+          className={cx(
+            'workspace-shell__topbar',
+            headerTools !== undefined && 'workspace-shell__topbar--with-tools',
+          )}
+        >
           <div className="workspace-shell__topbar-title">
             <img
               alt=""
@@ -111,11 +121,14 @@ export function AppShell({
             />
             <div>
               <p>
-                {branchName} <span>·</span> {workspaceLabel}
+                {topbarBranchName} <span>·</span> {workspaceLabel}
               </p>
               <h1>{activeItem.label}</h1>
             </div>
           </div>
+          {headerTools !== undefined && (
+            <div className="workspace-shell__topbar-tools">{headerTools}</div>
+          )}
           <div className="workspace-shell__topbar-account">
             <span aria-hidden="true" className="workspace-shell__avatar">
               {memberName.slice(0, 1).toUpperCase()}

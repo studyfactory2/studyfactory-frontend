@@ -235,6 +235,13 @@
   letter-spacing: var(--tracking-tighter);
 }
 
+.workspace-shell__topbar-tools {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  margin-left: auto;
+}
+
 .workspace-shell__topbar-account {
   display: flex;
   align-items: center;
@@ -342,6 +349,17 @@
 
   .workspace-shell__topbar-account > span:nth-child(2) {
     display: none;
+  }
+
+  .workspace-shell__topbar--with-tools {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  .workspace-shell__topbar-tools {
+    order: 3;
+    flex: 1 0 100%;
+    margin-left: 0;
   }
 
   .workspace-shell__topbar-account .workspace-shell__avatar {
