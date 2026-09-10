@@ -3,6 +3,7 @@ import { useSession } from '../session';
 import { AdminAttendanceScreen } from '../../screens/admin/attendance';
 import { AdminHomeScreen } from '../../screens/admin/AdminHomeScreen';
 import { AdminMembersScreen } from '../../screens/admin/members';
+import { AdminOperationsScreen } from '../../screens/admin/operations';
 import { AdminWorkspaceScreen } from '../../screens/admin/AdminWorkspaceScreen';
 import { AuthScreen } from '../../screens/auth/AuthScreen';
 import { UiKitScreen } from '../../screens/dev/UiKitScreen';
@@ -16,7 +17,6 @@ import { MemberSuggestionsScreen } from '../../screens/member/more/suggestions';
 import { MemberPlans } from '../../screens/member/plans';
 import { MemberStudyScreen } from '../../screens/member/study';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
-import { WorkspacePlaceholderScreen } from '../../screens/workspace/WorkspacePlaceholderScreen';
 import { StaffBeveragesScreen } from '../../screens/staff/beverages';
 import { StaffAttendanceScreen } from '../../screens/staff/attendance';
 import { StaffHomeScreen } from '../../screens/staff/home';
@@ -66,16 +66,7 @@ export function AppRouter() {
           <Route index element={<AdminHomeScreen />} />
           <Route path="members" element={<AdminMembersScreen />} />
           <Route path="attendance" element={<AdminAttendanceScreen />} />
-          <Route
-            path="operations"
-            element={
-              <WorkspacePlaceholderScreen
-                description="사원별 휴가, 기타 휴무와 계획 현황을 관리합니다."
-                eyebrow="ADMIN · OPERATIONS"
-                title="운영"
-              />
-            }
-          />
+          <Route path="operations" element={<AdminOperationsScreen />} />
           <Route path="*" element={<Navigate replace to={appRoutes.admin} />} />
         </Route>
       </Route>
