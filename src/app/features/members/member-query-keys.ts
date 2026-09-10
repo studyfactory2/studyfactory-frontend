@@ -9,4 +9,7 @@ export const memberQueryKeys = {
   branch: (ownerKey: SessionOwnerKey, branchId: number) =>
     [...root(ownerKey), 'branch', branchId] as const,
   me: (ownerKey: SessionOwnerKey) => [...root(ownerKey), 'me'] as const,
+  /** Pre-registered people in one branch who have not signed up yet. */
+  pending: (ownerKey: SessionOwnerKey, branchId: number) =>
+    [...root(ownerKey), 'pending', branchId] as const,
 };

@@ -70,12 +70,21 @@ function AdminWorkspace({
     ? branchesQuery.error.message
     : null;
   const retryBranches = () => void branchesQuery.refetch();
+  /*
+   * The top bar names the operating branch, never the account's branch: while
+   * nothing is resolved it says so, rather than letting the shell fall back to
+   * the authenticated branch and look as if that branch were selected.
+   */
+  const topbarBranchName =
+    selectedBranch?.name ??
+    (branchesQuery.isPending ? '운영 지점 확인 중' : '운영 지점 미선택');
 
   return (
     <AppShell
-      displayBranchName={selectedBranch?.name}
+      displayBranchName={topbarBranchName}
       headerTools={
         <AdminBranchSelector
+          announceError={scope !== null}
           branches={branches}
           errorMessage={errorMessage}
           loading={branchesQuery.isPending}
@@ -88,7 +97,8 @@ function AdminWorkspace({
       workspaceLabel="지점 관리자"
     >
       {scope !== null ? (
-        <Outlet context={scope} />
+        /* Keyed so a branch switch remounts the screen with none of A's state. */
+        <Outlet context={scope} key={scope.selectedBranchId} />
       ) : (
         <AdminBranchScopeState
           authenticatedBranchId={authenticatedBranchId}

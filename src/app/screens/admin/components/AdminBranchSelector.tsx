@@ -5,6 +5,12 @@ import { cx } from '../../../shared/lib/cx';
 import { Spinner } from '../../../shared/ui';
 
 type AdminBranchSelectorProps = {
+  /**
+   * Whether the error block is a live region. False while the workspace's
+   * content area is already announcing the same failure, so a screen reader
+   * hears it once; the visible message and retry button stay either way.
+   */
+  announceError: boolean;
   branches: BranchResponse[];
   errorMessage: string | null;
   loading: boolean;
@@ -21,6 +27,7 @@ type AdminBranchSelectorProps = {
  * around it is styled.
  */
 export function AdminBranchSelector({
+  announceError,
   branches,
   errorMessage,
   loading,
@@ -32,7 +39,10 @@ export function AdminBranchSelector({
 
   if (errorMessage !== null) {
     return (
-      <div className="admin-branch-selector is-error" role="alert">
+      <div
+        className="admin-branch-selector is-error"
+        role={announceError ? 'alert' : undefined}
+      >
         <span className="admin-branch-selector__label">운영 지점</span>
         <span className="admin-branch-selector__message">{errorMessage}</span>
         <button

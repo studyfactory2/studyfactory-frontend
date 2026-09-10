@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useSession } from '../session';
 import { AdminHomeScreen } from '../../screens/admin/AdminHomeScreen';
+import { AdminMembersScreen } from '../../screens/admin/members';
 import { AdminWorkspaceScreen } from '../../screens/admin/AdminWorkspaceScreen';
 import { AuthScreen } from '../../screens/auth/AuthScreen';
 import { UiKitScreen } from '../../screens/dev/UiKitScreen';
@@ -62,16 +63,7 @@ export function AppRouter() {
       <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
         <Route path={appRoutes.admin} element={<AdminWorkspaceScreen />}>
           <Route index element={<AdminHomeScreen />} />
-          <Route
-            path="members"
-            element={
-              <WorkspacePlaceholderScreen
-                description="사전등록 대기와 현재 사원 정보를 지점 단위로 관리합니다."
-                eyebrow="ADMIN · MEMBERS"
-                title="사원 관리"
-              />
-            }
-          />
+          <Route path="members" element={<AdminMembersScreen />} />
           <Route
             path="attendance"
             element={

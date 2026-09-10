@@ -186,6 +186,19 @@
    ============================================================ */
 
 @media (max-width: 768px) {
+  /* The operating-branch selector already names the branch on phones. */
+  .workspace-shell__topbar--with-tools:has(.admin-branch-selector)
+    .workspace-shell__topbar-title
+    p {
+    display: none;
+  }
+
+  .workspace-shell__topbar--with-tools:has(.admin-branch-selector)
+    .workspace-shell__topbar-title
+    h1 {
+    margin-top: 0;
+  }
+
   /* The shell gives the tools their own row here; the pill takes it all. */
   .admin-branch-selector {
     width: 100%;
