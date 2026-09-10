@@ -11,6 +11,7 @@ type AdminAttendanceDateBarProps = {
   onNextDay: () => void;
   onPreviousDay: () => void;
   onToday: () => void;
+  writePending: boolean;
 };
 
 export function AdminAttendanceDateBar({
@@ -23,9 +24,14 @@ export function AdminAttendanceDateBar({
   onNextDay,
   onPreviousDay,
   onToday,
+  writePending,
 }: AdminAttendanceDateBarProps) {
   return (
-    <section aria-label="출석 날짜 선택" className="admin-attendance__date-bar">
+    <section
+      aria-busy={writePending}
+      aria-label="출석 날짜 선택"
+      className="admin-attendance__date-bar"
+    >
       <div className="admin-attendance__date-summary">
         <span aria-hidden="true" className="admin-attendance__date-icon">
           <CalendarDays size={18} />
@@ -42,14 +48,19 @@ export function AdminAttendanceDateBar({
         <button
           aria-label="이전 날짜"
           className="admin-attendance__date-step"
+          disabled={writePending}
           onClick={onPreviousDay}
           type="button"
         >
           <ChevronLeft aria-hidden="true" size={17} />
         </button>
-        <label className="admin-attendance__date-field">
+        <label
+          aria-disabled={writePending}
+          className="admin-attendance__date-field"
+        >
           <span className="admin-attendance__sr-only">조회 날짜</span>
           <input
+            disabled={writePending}
             max={maxDateKey}
             onChange={(event) => onDateChange(event.target.value)}
             type="date"
@@ -59,7 +70,7 @@ export function AdminAttendanceDateBar({
         <button
           aria-label="다음 날짜"
           className="admin-attendance__date-step"
-          disabled={nextDisabled}
+          disabled={writePending || nextDisabled}
           onClick={onNextDay}
           type="button"
         >
@@ -67,7 +78,7 @@ export function AdminAttendanceDateBar({
         </button>
         <button
           className="admin-attendance__today"
-          disabled={isToday}
+          disabled={writePending || isToday}
           onClick={onToday}
           type="button"
         >

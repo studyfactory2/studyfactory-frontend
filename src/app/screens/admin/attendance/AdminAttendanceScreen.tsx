@@ -49,15 +49,16 @@ function AdminAttendanceContent({
 }) {
   const date = useAdminAttendanceDate();
   const clock = useSeoulClock();
+  const clockMatchesSelectedDay =
+    date.isToday && clock.dateKey === date.dateKey;
   const attendance = useAdminAttendance({
     branchId,
     dateKey: date.dateKey,
     isToday: date.isToday,
     memberId,
     ownerKey,
+    writeEnabled: clockMatchesSelectedDay,
   });
-  const clockMatchesSelectedDay =
-    date.isToday && clock.dateKey === date.dateKey;
   const operationalSlot = clockMatchesSelectedDay
     ? getOperationalAttendanceSlot(clock.secondsOfDay)
     : null;
@@ -92,12 +93,14 @@ function AdminAttendanceContent({
         onNextDay={date.onNextDay}
         onPreviousDay={date.onPreviousDay}
         onToday={date.onToday}
+        writePending={attendance.writePending}
       />
 
       <AttendanceBoard
         activeSlot={activeSlot}
         dateKey={date.dateKey}
         errorMessage={attendance.board.errorMessage}
+        interaction={attendance.interaction}
         isToday={date.isToday}
         loading={attendance.board.loading}
         members={attendance.board.members}

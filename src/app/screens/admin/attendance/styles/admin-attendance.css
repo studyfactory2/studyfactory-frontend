@@ -124,6 +124,15 @@
   opacity: 0.42;
 }
 
+.admin-attendance__date-field[aria-disabled='true'] {
+  cursor: default;
+  opacity: 0.52;
+}
+
+.admin-attendance__date-field input:disabled {
+  cursor: default;
+}
+
 .admin-attendance__date-field {
   display: block;
   min-width: 0;
@@ -157,8 +166,18 @@
 }
 
 @media (max-width: 768px) {
+  .workspace-shell__content:has(> .admin-attendance) {
+    padding-top: 18px;
+  }
+
   .admin-attendance {
     gap: var(--space-4);
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-attendance {
+    gap: 12px;
   }
 }
 
@@ -187,13 +206,143 @@
   }
 }
 
-@container admin-attendance (max-width: 400px) {
+@container admin-attendance (max-width: 480px) {
+  .admin-attendance > .ui-screen-header .ui-screen-header__eyebrow,
+  .admin-attendance > .ui-screen-header .ui-screen-header__subtitle {
+    display: none;
+  }
+
+  .admin-attendance > .ui-screen-header .ui-screen-header__title {
+    margin-top: 0;
+    font-size: var(--text-lg);
+  }
+
+  .admin-attendance__date-bar {
+    padding: 8px;
+    border-radius: 14px;
+    gap: 0;
+  }
+
+  .admin-attendance__date-summary {
+    display: none;
+  }
+
   .admin-attendance__date-controls {
-    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    gap: 4px;
+    grid-template-columns: 40px minmax(0, 1fr) 40px 44px;
+  }
+
+  .admin-attendance__date-step,
+  .admin-attendance__today,
+  .admin-attendance__date-field {
+    height: 40px;
   }
 
   .admin-attendance__today {
-    width: 100%;
-    grid-column: 1 / -1;
+    min-width: 0;
+    padding: 0 6px;
+  }
+
+  .admin-attendance__date-field input {
+    min-width: 0;
+    padding: 0 8px;
+  }
+
+  .admin-attendance .staff-attendance__board-head {
+    display: grid;
+    align-items: center;
+    padding: 12px 12px 8px;
+    gap: 8px;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .admin-attendance .staff-attendance__board-title p,
+  .admin-attendance .staff-attendance__board-context time {
+    display: none;
+  }
+
+  .admin-attendance .staff-attendance__board-context {
+    gap: 6px;
+  }
+
+  .admin-attendance .staff-attendance__board-context > p {
+    display: block;
+  }
+
+  .admin-attendance .staff-attendance__refresh {
+    width: 40px;
+    min-height: 40px;
+    justify-content: center;
+    padding: 0;
+    font-size: 0;
+    gap: 0;
+  }
+
+  .admin-attendance .staff-attendance__board-toolbar {
+    padding: 0 10px 8px;
+    gap: 6px;
+  }
+
+  .admin-attendance .staff-attendance__search,
+  .admin-attendance .staff-attendance__filters button {
+    height: 40px;
+    min-height: 40px;
+  }
+
+  .admin-attendance .staff-attendance__scroll-hint {
+    margin: 0 10px 5px;
+  }
+
+  .admin-attendance .staff-attendance__table-frame {
+    max-height: min(62svh, 36rem);
+  }
+
+  .admin-attendance .staff-attendance__table-frame .table-wrap {
+    margin-right: 6px;
+    margin-left: 6px;
+    scroll-padding-left: 8.5rem;
+  }
+
+  .admin-attendance .staff-attendance__table-frame .table {
+    min-width: max(100%, 29rem);
+  }
+
+  .admin-attendance .staff-attendance__table-frame .table th,
+  .admin-attendance .staff-attendance__table-frame .table td {
+    width: 2.875rem;
+    height: 46px;
+  }
+
+  .admin-attendance .staff-attendance__table-frame .table thead th {
+    height: 44px;
+  }
+
+  .admin-attendance
+    .staff-attendance__table-frame
+    .table
+    .staff-attendance__identity-col {
+    width: 8.5rem;
+    min-width: 8.5rem;
+  }
+
+  /* The buttons and aria-pressed state communicate the mode visually. Keep
+     the live copy available to assistive technology without spending a row. */
+  .admin-attendance .staff-attendance__action-target {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    padding: 0;
+    margin: -1px;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .admin-attendance .staff-attendance__action-bar {
+    width: calc(100% - 12px);
+    margin: 6px auto 8px;
+    padding: 4px;
+    border-radius: 12px;
+    gap: 0;
   }
 }

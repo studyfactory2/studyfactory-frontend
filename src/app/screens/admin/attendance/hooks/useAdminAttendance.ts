@@ -14,6 +14,7 @@ import {
 } from '../../../../features/members/members-api';
 import { studyPresenceQueryKeys } from '../../../../features/study-presence/study-presence-query-keys';
 import { fetchDailyStudyPresenceHistory } from '../../../../features/study-presence/study-presence-api';
+import { useAdminAttendanceActions } from './useAdminAttendanceActions';
 
 const BOARD_STALE_TIME_MS = 60 * 1_000;
 const PRESENCE_STALE_TIME_MS = 15 * 1_000;
@@ -26,10 +27,12 @@ type UseAdminAttendanceArgs = {
   isToday: boolean;
   memberId: number;
   ownerKey: SessionOwnerKey;
+  writeEnabled: boolean;
 };
 
 /**
- * Read-only attendance data for one selected Admin branch and Seoul date.
+ * Attendance data for one selected Admin branch and Seoul date. Actions are
+ * exposed only for the actual current Seoul day; past boards stay read-only.
  * The pending request is part of the board's integrity boundary: until it has
  * loaded, the roster cannot safely be called the current member roster.
  */
@@ -39,6 +42,7 @@ export function useAdminAttendance({
   isToday,
   memberId,
   ownerKey,
+  writeEnabled,
 }: UseAdminAttendanceArgs) {
   const boardQuery = useQuery({
     queryFn: () => fetchDailyAttendanceBoard(dateKey, branchId, memberId),
@@ -95,6 +99,16 @@ export function useAdminAttendance({
     [boardQuery.data, currentMemberRoster, presenceQuery.data],
   );
 
+  const attendanceActions = useAdminAttendanceActions({
+    attendanceMembers: members,
+    branchId,
+    dateKey,
+    memberId,
+    ownerKey,
+    roster: currentMemberRoster ?? [],
+    writeEnabled,
+  });
+
   const refresh = useCallback(() => {
     void boardQuery.refetch();
     void presenceQuery.refetch();
@@ -137,10 +151,15 @@ export function useAdminAttendance({
         rosterQuery.isFetching ||
         pendingQuery.isFetching,
     },
+    interaction:
+      writeEnabled && currentMemberRoster !== undefined
+        ? attendanceActions.interaction
+        : undefined,
     presence: {
       errorMessage: presenceQuery.isError ? presenceQuery.error.message : null,
       onRetry: retryPresence,
       ready: presenceQuery.data !== undefined,
     },
+    writePending: attendanceActions.anyPending,
   };
 }
