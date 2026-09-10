@@ -1,17 +1,20 @@
 import { useSession, type SessionOwnerKey } from '../../../core/session';
+import type { BranchResponse } from '../../../features/branches/branches-api';
 import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
 import { AdminMembersToolbar } from './components/AdminMembersToolbar';
+import { CurrentMemberEditorModal } from './components/CurrentMemberEditorModal';
 import { CurrentMemberList } from './components/CurrentMemberList';
 import { PreRegistrationDeleteDialog } from './components/PreRegistrationDeleteDialog';
 import { PreRegistrationEditorModal } from './components/PreRegistrationEditorModal';
 import { PendingRegistrationList } from './components/PendingRegistrationList';
 import { useAdminMemberMutations } from './hooks/useAdminMemberMutations';
 import { useAdminMembers } from './hooks/useAdminMembers';
+import { useCurrentMemberMutations } from './hooks/useCurrentMemberMutations';
 import './styles/admin-members.css';
 
 export function AdminMembersScreen() {
-  const { selectedBranch, selectedBranchId } = useAdminBranchScope();
+  const { branches, selectedBranch, selectedBranchId } = useAdminBranchScope();
   const session = useSession();
 
   if (session.memberId === null || session.ownerKey === null) {
@@ -27,6 +30,7 @@ export function AdminMembersScreen() {
     <AdminMembersContent
       branchId={selectedBranchId}
       branchName={selectedBranch.name}
+      branches={branches}
       key={session.ownerKey}
       memberId={session.memberId}
       ownerKey={session.ownerKey}
@@ -37,11 +41,13 @@ export function AdminMembersScreen() {
 function AdminMembersContent({
   branchId,
   branchName,
+  branches,
   memberId,
   ownerKey,
 }: {
   branchId: number;
   branchName: string;
+  branches: BranchResponse[];
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
@@ -51,6 +57,12 @@ function AdminMembersContent({
     memberId,
     ownerKey,
     registrations: members.registrations,
+  });
+  const currentMutations = useCurrentMemberMutations({
+    branchId,
+    currentMembers: members.currentMembers,
+    memberId,
+    ownerKey,
   });
   const active = members.view === 'current' ? members.current : members.pending;
   /* Zero results are explained by the list itself, with the same clear button. */
@@ -108,6 +120,7 @@ function AdminMembersContent({
             filterActive={members.filterActive}
             loading={members.current.loading}
             onClearFilter={members.onClearFilter}
+            onEdit={currentMutations.onEdit}
             onRetry={members.current.onRetry}
             rows={members.current.rows}
             total={members.current.total}
@@ -127,6 +140,18 @@ function AdminMembersContent({
           />
         )}
       </section>
+
+      <CurrentMemberEditorModal
+        branches={branches}
+        certifications={members.certifications}
+        errorMessage={currentMutations.editor.errorMessage}
+        memberId={memberId}
+        mode={currentMutations.editor.mode}
+        onClose={currentMutations.editor.onClose}
+        onSubmit={currentMutations.editor.onSubmit}
+        ownerKey={ownerKey}
+        saving={currentMutations.editor.saving}
+      />
 
       <PreRegistrationEditorModal
         branchId={branchId}

@@ -2,12 +2,12 @@ import type {
   PreRegistrationInput,
   PreRegistrationResponse,
 } from '../../../../features/members/members-api';
-import type { RoomLayout } from '../../../../features/rooms/rooms-api';
 import {
   BEVERAGE_NAME_MAX_LENGTH,
   BEVERAGE_NOTE_MAX_LENGTH,
 } from '../../../member/more/beverages/model/beverage.types';
 import { hasSeat, type CertificationLookup } from './admin-members';
+import type { SeatChoice } from './member-seat-options';
 
 /* Mirrors the request record: @Size(max = 50) on name, @Size(max = 100) on certification. */
 export const PRE_REGISTRATION_NAME_MAX_LENGTH = 50;
@@ -114,155 +114,6 @@ export function resolveCertificationDraft(
 }
 
 /* ---------- seats ---------- */
-
-export type LayoutSeat = { number: number; roomName: string };
-
-/**
- * A seat is a layout item of type SEAT with a positive integer number; a
- * door or a malformed item is not. Numbers are unique within a branch, so a
- * repeat (two rooms claiming one number) keeps the first and is otherwise
- * ignored. Nothing here assumes how many seats exist or that they are
- * contiguous: 1..58 with 61 and 75 is a perfectly good layout.
- */
-export function listLayoutSeats(rooms: readonly RoomLayout[]): LayoutSeat[] {
-  const seats = new Map<number, LayoutSeat>();
-
-  for (const room of rooms) {
-    for (const item of room.items) {
-      if (
-        item.type === 'SEAT' &&
-        item.number !== null &&
-        Number.isInteger(item.number) &&
-        item.number > 0 &&
-        !seats.has(item.number)
-      ) {
-        seats.set(item.number, { number: item.number, roomName: room.name });
-      }
-    }
-  }
-
-  return [...seats.values()].sort((left, right) => left.number - right.number);
-}
-
-/**
- * Occupancy comes from people, never from `RoomLayoutItem.memberId`, which
- * nothing in the backend maintains. Everyone counts — current and pending,
- * every role — except the record being edited, whose own seat is not
- * "taken" from itself.
- */
-export function collectOccupiedSeats(
-  roster: readonly { id: number; seatNumber: number | null }[],
-  pending: readonly { id: number; seatNumber: number | null }[],
-  exceptMemberId: number | null,
-) {
-  const occupied = new Set<number>();
-
-  for (const person of [...roster, ...pending]) {
-    if (person.id !== exceptMemberId && hasSeat(person.seatNumber)) {
-      occupied.add(person.seatNumber);
-    }
-  }
-
-  return occupied;
-}
-
-export type SeatChoiceState =
-  /** In the layout and nobody's: offered. */
-  | 'available'
-  /** The edited record's own seat, still in the layout. */
-  | 'current'
-  /** The edited record's own seat, which the layout no longer has. */
-  | 'map-missing'
-  /** The draft's seat, no longer offered — taken since, or gone from the layout. */
-  | 'taken';
-
-export type SeatChoice = {
-  number: number;
-  roomName: string | null;
-  state: SeatChoiceState;
-};
-
-type BuildSeatChoicesArgs = {
-  /** The seat the draft currently holds, so the select can still show it. */
-  draftSeat: number | null;
-  /** The edited record's stored seat; null when creating or unassigned. */
-  currentSeat: number | null;
-  /** Null until the layout is known. */
-  layoutSeats: readonly LayoutSeat[] | null;
-  /** Null until the roster and the pending list are both known. */
-  occupied: ReadonlySet<number> | null;
-};
-
-/**
- * Create: real, unoccupied seats. Edit: the same, plus the record's own seat
- * (kept even when the layout lost it, and said so). A draft seat that has
- * dropped out of the offer is kept visible as unselectable so the operator
- * sees why the form will not save rather than watching the value vanish.
- */
-export function buildSeatChoices({
-  currentSeat,
-  draftSeat,
-  layoutSeats,
-  occupied,
-}: BuildSeatChoicesArgs): SeatChoice[] {
-  const choices = new Map<number, SeatChoice>();
-
-  if (currentSeat !== null) {
-    const layoutSeat = layoutSeats?.find((seat) => seat.number === currentSeat);
-
-    choices.set(currentSeat, {
-      number: currentSeat,
-      roomName: layoutSeat?.roomName ?? null,
-      state:
-        layoutSeats !== null && layoutSeat === undefined
-          ? 'map-missing'
-          : 'current',
-    });
-  }
-
-  if (layoutSeats !== null && occupied !== null) {
-    for (const seat of layoutSeats) {
-      if (!occupied.has(seat.number) && !choices.has(seat.number)) {
-        choices.set(seat.number, {
-          number: seat.number,
-          roomName: seat.roomName,
-          state: 'available',
-        });
-      }
-    }
-  }
-
-  if (draftSeat !== null && !choices.has(draftSeat)) {
-    choices.set(draftSeat, {
-      number: draftSeat,
-      roomName: null,
-      state: 'taken',
-    });
-  }
-
-  return [...choices.values()].sort(
-    (left, right) => left.number - right.number,
-  );
-}
-
-export function describeSeatChoice(choice: SeatChoice) {
-  const room = choice.roomName === null ? '' : ` · ${choice.roomName}`;
-
-  switch (choice.state) {
-    case 'available':
-      return `${choice.number}번${room}`;
-    case 'current':
-      return `${choice.number}번${room} (현재)`;
-    case 'map-missing':
-      return `${choice.number}번 · 배치도에 없는 좌석 (현재)`;
-    case 'taken':
-      return `${choice.number}번 · 지금은 선택할 수 없는 좌석`;
-  }
-}
-
-export function describeRegistrationSeat(seatNumber: number | null) {
-  return hasSeat(seatNumber) ? `${seatNumber}번 좌석` : '좌석 미배정';
-}
 
 /* ---------- validation ---------- */
 

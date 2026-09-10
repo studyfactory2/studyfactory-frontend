@@ -12,7 +12,7 @@ import {
   buildSeatChoices,
   collectOccupiedSeats,
   listLayoutSeats,
-} from '../model/pre-registration-form';
+} from '../model/member-seat-options';
 
 /* Same freshness as the screen's roster queries, which these share a cache with. */
 const SEAT_SOURCES_STALE_TIME_MS = 60 * 1_000;
@@ -103,6 +103,8 @@ export function useSeatOptions({
         }
       }
     },
+    /** Also used to protect the branch + name login identity in member edits. */
+    roster: membersQuery.data ?? null,
     /** True once every source is in and seats can be offered. */
     ready: layoutSeats !== null && occupied !== null,
   };

@@ -22,10 +22,10 @@ import {
 import type { PreRegistrationEditorMode } from '../hooks/useAdminMemberMutations';
 import { useSeatOptions } from '../hooks/useSeatOptions';
 import { hasSeat, type CertificationLookup } from '../model/admin-members';
+import { describeSeatChoice } from '../model/member-seat-options';
 import {
   createDrinkDraft,
   createEmptyDraft,
-  describeSeatChoice,
   draftFromRegistration,
   draftSignature,
   hasDraftErrors,

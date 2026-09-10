@@ -48,6 +48,47 @@ export async function fetchBranchMembers(
   return response;
 }
 
+/**
+ * A complete replacement of an existing signed-up member's editable profile.
+ * The backend PATCH is not a merge, so callers must preserve every unchanged
+ * field when constructing this value.
+ */
+export type CurrentMemberInput = {
+  branchId: number;
+  certificationId: number | null;
+  /** YYYY-MM-DD. Unlike a pending registration, a current member requires it. */
+  joinDate: string;
+  name: string;
+  preparingCertifications: string | null;
+  role: MemberRole;
+  seatNumber: number | null;
+};
+
+export async function updateCurrentMember(
+  targetMemberId: number,
+  input: CurrentMemberInput,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<MemberResponse>(
+    `/api/members/${targetMemberId}`,
+    {
+      body: JSON.stringify(input),
+      expectedMemberId,
+      method: 'PATCH',
+    },
+  );
+
+  if (
+    response.id !== targetMemberId ||
+    response.branchId !== input.branchId ||
+    response.role !== input.role
+  ) {
+    throw new ApiRequestError('다른 사원의 수정 응답을 받았습니다.', 409);
+  }
+
+  return response;
+}
+
 export type PreRegistrationResponse = {
   id: number;
   branchId: number;

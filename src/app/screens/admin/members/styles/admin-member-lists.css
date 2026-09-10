@@ -162,7 +162,14 @@
   font-weight: var(--weight-semibold);
 }
 
-/* ---------- pending-row actions ---------- */
+/* ---------- row actions ---------- */
+
+.admin-member-list--current .admin-member-list__head,
+.admin-member-list--current .admin-member-list__row {
+  grid-template-columns:
+    52px minmax(6rem, 1fr) 60px 88px minmax(8.5rem, 1.1fr)
+    minmax(7rem, 1.2fr) 44px;
+}
 
 /* The pending roster carries one more column: what an operator may do to the row. */
 .admin-member-list--pending .admin-member-list__head,
@@ -244,6 +251,14 @@
   }
 
   .admin-member-list--pending .admin-member-list__row {
+    min-height: 72px;
+    grid-template-areas:
+      'seat name role'
+      'seat details actions';
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+  }
+
+  .admin-member-list--current .admin-member-list__row {
     min-height: 72px;
     grid-template-areas:
       'seat name role'
@@ -345,13 +360,13 @@
     padding-top: 2px;
   }
 
-  .admin-member-list__actions {
+  .admin-member-list--pending .admin-member-list__actions {
     display: grid;
     width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .admin-member-list__action {
+  .admin-member-list--pending .admin-member-list__action {
     display: inline-flex;
     width: 100%;
     align-items: center;
@@ -365,7 +380,7 @@
     gap: 6px;
   }
 
-  .admin-member-list__action--danger {
+  .admin-member-list--pending .admin-member-list__action--danger {
     border-color: color-mix(in srgb, var(--danger) 18%, transparent);
     background: var(--danger-soft);
     color: var(--danger-deep);
@@ -376,7 +391,7 @@
     justify-self: end;
   }
 
-  .admin-member-list__action-label {
+  .admin-member-list--pending .admin-member-list__action-label {
     display: inline;
   }
 

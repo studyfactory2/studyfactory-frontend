@@ -1,7 +1,7 @@
 import type { PreRegistrationResponse } from '../../../../features/members/members-api';
 import { Button, Modal } from '../../../../shared/ui';
 import { hasSeat } from '../model/admin-members';
-import { describeRegistrationSeat } from '../model/pre-registration-form';
+import { describeRegistrationSeat } from '../model/member-seat-options';
 
 type PreRegistrationDeleteDialogProps = {
   errorMessage: string | null;

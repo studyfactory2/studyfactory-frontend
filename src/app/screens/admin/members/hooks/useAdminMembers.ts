@@ -154,6 +154,8 @@ export function useAdminMembers({
       rows: visibleCurrent,
       total: currentRows?.length ?? null,
     },
+    /** Complete validated current roster, before search/role filtering. */
+    currentMembers: currentRows,
     filter,
     filterActive: isFilterActive(filter),
     onClearFilter: clearFilter,

@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react';
 import type { MemberResponse } from '../../../../features/members/members-api';
 import { cx } from '../../../../shared/lib/cx';
 import {
@@ -20,6 +21,7 @@ type CurrentMemberListProps = {
   filterActive: boolean;
   loading: boolean;
   onClearFilter: () => void;
+  onEdit: (member: MemberResponse) => void;
   onRetry: () => void;
   rows: MemberResponse[] | null;
   total: number | null;
@@ -31,6 +33,7 @@ export function CurrentMemberList({
   filterActive,
   loading,
   onClearFilter,
+  onEdit,
   onRetry,
   rows,
   total,
@@ -57,6 +60,7 @@ export function CurrentMemberList({
           <span>입사일</span>
           <span>자격증</span>
           <span>준비 중인 자격증</span>
+          <span>관리</span>
         </div>
         <ul className="admin-member-list__rows">
           {(rows ?? []).map((member) => {
@@ -102,6 +106,23 @@ export function CurrentMemberList({
                       preparing.join(' · ')
                     )}
                   </LabelledCell>
+                </span>
+                <span className="admin-member-list__actions">
+                  <button
+                    aria-label={`${member.name} 사원 정보 수정`}
+                    className="admin-member-list__action"
+                    onClick={() => onEdit(member)}
+                    title="수정"
+                    type="button"
+                  >
+                    <Pencil aria-hidden="true" size={15} />
+                    <span
+                      aria-hidden="true"
+                      className="admin-member-list__action-label"
+                    >
+                      수정
+                    </span>
+                  </button>
                 </span>
               </li>
             );
