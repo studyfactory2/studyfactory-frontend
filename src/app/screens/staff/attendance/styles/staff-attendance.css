@@ -1,7 +1,4 @@
-/* Stable screen entrypoint; the attendance board keeps its scoped rules. */
 @import './attendance-operations-cockpit.css';
-@import './attendance-board.css';
-@import './attendance-actions.css';
 
 .staff-attendance {
   display: grid;

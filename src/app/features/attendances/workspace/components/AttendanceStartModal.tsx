@@ -1,8 +1,8 @@
 import { Button, Modal } from '../../../../shared/ui';
-import type { StaffAttendanceMember } from '../model/staff-attendance';
+import type { AttendanceBoardMember } from '../model/attendance-board';
 
 type AttendanceStartModalProps = {
-  member: StaffAttendanceMember | null;
+  member: AttendanceBoardMember | null;
   onClose: () => void;
   onConfirm: () => void;
   pending: boolean;

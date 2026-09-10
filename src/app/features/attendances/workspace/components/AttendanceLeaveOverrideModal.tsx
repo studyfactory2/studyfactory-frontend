@@ -1,5 +1,5 @@
 import { Button, Modal } from '../../../../shared/ui';
-import type { AttendanceSelection } from '../model/staff-attendance';
+import type { AttendanceSelection } from '../model/attendance-board';
 
 type AttendanceLeaveOverrideModalProps = {
   onClose: () => void;

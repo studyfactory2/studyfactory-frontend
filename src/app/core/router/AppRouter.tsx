@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useSession } from '../session';
+import { AdminAttendanceScreen } from '../../screens/admin/attendance';
 import { AdminHomeScreen } from '../../screens/admin/AdminHomeScreen';
 import { AdminMembersScreen } from '../../screens/admin/members';
 import { AdminWorkspaceScreen } from '../../screens/admin/AdminWorkspaceScreen';
@@ -64,16 +65,7 @@ export function AppRouter() {
         <Route path={appRoutes.admin} element={<AdminWorkspaceScreen />}>
           <Route index element={<AdminHomeScreen />} />
           <Route path="members" element={<AdminMembersScreen />} />
-          <Route
-            path="attendance"
-            element={
-              <WorkspacePlaceholderScreen
-                description="출석부, 회원 건의와 반찬 신청 내역을 확인합니다."
-                eyebrow="ADMIN · ATTENDANCE"
-                title="출석"
-              />
-            }
-          />
+          <Route path="attendance" element={<AdminAttendanceScreen />} />
           <Route
             path="operations"
             element={

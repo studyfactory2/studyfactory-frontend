@@ -4,16 +4,17 @@ import { cx } from '../../../../shared/lib/cx';
 import type {
   AttendancePaintMode,
   AttendanceSelectionTiming,
-  StaffAttendanceCell,
-  StaffAttendanceMember,
-} from '../model/staff-attendance';
-import { toAttendanceCellId } from '../model/staff-attendance';
+  AttendanceBoardCell,
+  AttendanceBoardMember,
+} from '../model/attendance-board';
+import { toAttendanceCellId } from '../model/attendance-board';
 
 type AttendanceStatusCellProps = {
-  cell: StaffAttendanceCell | undefined;
+  cell: AttendanceBoardCell | undefined;
   disabled: boolean;
+  interactive: boolean;
   mode: AttendancePaintMode;
-  member: StaffAttendanceMember;
+  member: AttendanceBoardMember;
   onActivate: () => void;
   onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
   onSelect: () => void;
@@ -27,6 +28,7 @@ type AttendanceStatusCellProps = {
 export function AttendanceStatusCell({
   cell,
   disabled,
+  interactive,
   mode,
   member,
   onActivate,
@@ -66,20 +68,36 @@ export function AttendanceStatusCell({
       ? `${modeLabel}으로 바로 처리`
       : '처리할 상태를 선택하기 위해 선택';
   const visuallyPendingPeriod = future && safeCell.state === 'unmarked';
+  const className = cx(
+    'staff-attendance__status',
+    visuallyPendingPeriod ? 'is-future' : `is-${safeCell.state}`,
+    interactive ? selected && 'is-selected' : 'is-readonly',
+    interactive && mode && !future && 'is-mode-target',
+    pending && 'is-pending',
+  );
+  const content = pending
+    ? '···'
+    : visuallyPendingPeriod
+      ? '—'
+      : safeCell.label;
+  const identityLabel = `${member.seatNumber === null ? '미배정' : `${member.seatNumber}번`} ${member.name}, ${slot}교시 ${statusLabel}`;
+
+  if (!interactive) {
+    return (
+      <span className={className} title={statusLabel}>
+        <span aria-hidden="true">{content}</span>
+        <span className="staff-attendance__sr-only">{identityLabel}</span>
+      </span>
+    );
+  }
 
   return (
     <button
       aria-busy={pending}
       aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
-      aria-label={`${member.seatNumber === null ? '미배정' : `${member.seatNumber}번`} ${member.name}, ${slot}교시 ${statusLabel}. ${activationLabel}`}
+      aria-label={`${identityLabel}. ${activationLabel}`}
       aria-pressed={selected}
-      className={cx(
-        'staff-attendance__status',
-        visuallyPendingPeriod ? 'is-future' : `is-${safeCell.state}`,
-        selected && 'is-selected',
-        mode && !future && 'is-mode-target',
-        pending && 'is-pending',
-      )}
+      className={className}
       disabled={disabled || future}
       id={toAttendanceCellId(member.memberId, slot)}
       onClick={onActivate}
@@ -89,7 +107,7 @@ export function AttendanceStatusCell({
       title={future ? `${statusLabel} · 시작 전` : statusLabel}
       type="button"
     >
-      {pending ? '···' : visuallyPendingPeriod ? '—' : safeCell.label}
+      {content}
     </button>
   );
 }

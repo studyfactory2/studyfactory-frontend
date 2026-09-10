@@ -18,23 +18,23 @@ export type AttendanceCellState = 'absent' | 'leave' | 'present' | 'unmarked';
 export type AttendanceMemberStage = 'active' | 'starts-today' | 'future';
 export type AttendanceSelectionTiming = 'current' | 'future' | 'past';
 
-export type StaffAttendanceCell = {
+export type AttendanceBoardCell = {
   label: string;
   source: AttendanceSlotSource;
   state: AttendanceCellState;
 };
 
-export type StaffAttendanceMember = {
+export type AttendanceBoardMember = {
   joinDate: string | null;
   memberId: number;
   name: string;
-  presence: StaffAttendancePresence | null;
+  presence: AttendanceBoardPresence | null;
   seatNumber: number | null;
-  slots: StaffAttendanceCell[];
+  slots: AttendanceBoardCell[];
   stage: AttendanceMemberStage;
 };
 
-export type StaffAttendancePresence = {
+export type AttendanceBoardPresence = {
   activeSessionId: number | null;
   checkedInAt: string | null;
   checkedOutAt: string | null;
@@ -43,7 +43,7 @@ export type StaffAttendancePresence = {
 };
 
 export type AttendanceSelection = {
-  cell: StaffAttendanceCell;
+  cell: AttendanceBoardCell;
   memberId: number;
   name: string;
   seatNumber: number | null;
@@ -59,7 +59,7 @@ export function toAttendanceCellKey(memberId: number, slot: number) {
 }
 
 export function toAttendanceCellId(memberId: number, slot: number) {
-  return `staff-attendance-cell-${memberId}-${slot}`;
+  return `attendance-board-cell-${memberId}-${slot}`;
 }
 
 export function toAttendanceSelectionTiming(
@@ -88,7 +88,7 @@ export function buildAttendanceMembers(
   board: DailyAttendanceBoard | undefined,
   history: StudyPresenceManagerHistoryResponse | undefined,
   roster: MemberResponse[] | undefined,
-): StaffAttendanceMember[] {
+): AttendanceBoardMember[] {
   if (!board || !roster) {
     return [];
   }
@@ -160,7 +160,7 @@ function toMemberStage(
 export function buildDailyMemberPresence(
   sessions: StudyPresenceManagerSessionResponse[],
 ) {
-  const byMemberId = new Map<number, StaffAttendancePresence>();
+  const byMemberId = new Map<number, AttendanceBoardPresence>();
   const seenSessionIds = new Set<number>();
 
   for (const session of sessions) {
@@ -238,7 +238,7 @@ function laterTimestamp(current: string | null, candidate: string) {
 function toAttendanceCell(
   value: string,
   source: AttendanceSlotSource,
-): StaffAttendanceCell {
+): AttendanceBoardCell {
   if (source === 'MANAGER_ABSENT') {
     return { label: 'X', source, state: 'absent' };
   }

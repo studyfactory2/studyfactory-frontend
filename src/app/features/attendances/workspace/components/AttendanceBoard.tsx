@@ -14,14 +14,14 @@ import type {
   AttendancePaintMode,
   AttendanceSelection,
   AttendanceSlotCommand,
-  StaffAttendanceCell,
-  StaffAttendanceMember,
-} from '../model/staff-attendance';
+  AttendanceBoardCell,
+  AttendanceBoardMember,
+} from '../model/attendance-board';
 import {
   toAttendanceCellId,
   toAttendanceCellKey,
   toAttendanceSelectionTiming,
-} from '../model/staff-attendance';
+} from '../model/attendance-board';
 import { AttendanceLeaveOverrideModal } from './AttendanceLeaveOverrideModal';
 import type { AttendancePresenceLoadState } from './AttendanceMemberIdentity';
 import { AttendancePaintDock } from './AttendancePaintDock';
@@ -48,12 +48,7 @@ type DatedDialogTarget = {
   dateKey: string;
 };
 
-type AttendanceBoardProps = {
-  activeSlot: OperationalAttendanceSlot | null;
-  dateKey: string;
-  errorMessage: string | null;
-  loading: boolean;
-  members: StaffAttendanceMember[];
+export type AttendanceBoardInteraction = {
   onManualCheckIn: (
     memberId: number,
     input: StudyPresenceManualCheckInInput,
@@ -65,17 +60,27 @@ type AttendanceBoardProps = {
     onSuccess?: () => void,
   ) => void;
   onResetMember: (memberId: number, onSuccess?: () => void) => void;
-  onRefresh: () => void;
-  onRetry: () => void;
   onUpdateSlot: (
     command: AttendanceSlotCommand,
     onSuccess?: () => void,
   ) => void;
-  operationalSlot: OperationalAttendanceSlot | null;
   pendingCellKeys: ReadonlySet<string>;
   pendingMemberIds: ReadonlySet<number>;
   pendingPresenceMemberIds: ReadonlySet<number>;
   pendingResetIds: ReadonlySet<number>;
+};
+
+type AttendanceBoardProps = {
+  activeSlot: OperationalAttendanceSlot | null;
+  dateKey: string;
+  errorMessage: string | null;
+  interaction?: AttendanceBoardInteraction;
+  isToday: boolean;
+  loading: boolean;
+  members: AttendanceBoardMember[];
+  onRefresh: () => void;
+  onRetry: () => void;
+  operationalSlot: OperationalAttendanceSlot | null;
   periodLabel: string;
   presenceErrorMessage: string | null;
   presenceOnRetry: () => void;
@@ -88,19 +93,13 @@ export function AttendanceBoard({
   activeSlot,
   dateKey,
   errorMessage,
+  interaction,
+  isToday,
   loading,
   members,
-  onManualCheckIn,
-  onManualCheckOut,
-  onResetMember,
   onRefresh,
   onRetry,
-  onUpdateSlot,
   operationalSlot,
-  pendingCellKeys,
-  pendingMemberIds,
-  pendingPresenceMemberIds,
-  pendingResetIds,
   periodLabel,
   presenceErrorMessage,
   presenceOnRetry,
@@ -129,6 +128,11 @@ export function AttendanceBoard({
     selectionState?.dateKey === dateKey ? selectionState.value : null;
   const paintMode =
     paintModeState?.dateKey === dateKey ? paintModeState.value : null;
+  const pendingCellKeys = interaction?.pendingCellKeys ?? EMPTY_STRING_SET;
+  const pendingMemberIds = interaction?.pendingMemberIds ?? EMPTY_NUMBER_SET;
+  const pendingPresenceMemberIds =
+    interaction?.pendingPresenceMemberIds ?? EMPTY_NUMBER_SET;
+  const pendingResetIds = interaction?.pendingResetIds ?? EMPTY_NUMBER_SET;
 
   /* A Seoul date rollover invalidates every interaction target. Period
      changes intentionally do not: one selected paint mode lasts all day. */
@@ -145,8 +149,14 @@ export function AttendanceBoard({
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const filterSlot: OperationalAttendanceSlot = operationalSlot ?? 7;
+  const readOnlyUnmarkedSlotCount =
+    !isToday || operationalSlot === null ? 7 : (activeSlot ?? 0);
+  const unmarkedFilterDisabled =
+    interaction !== undefined
+      ? activeSlot === null
+      : readOnlyUnmarkedSlotCount === 0;
   const effectiveFilter =
-    activeSlot === null && filter === 'unmarked' ? 'all' : filter;
+    unmarkedFilterDisabled && filter === 'unmarked' ? 'all' : filter;
   const presenceState: AttendancePresenceLoadState = presenceReady
     ? 'ready'
     : presenceErrorMessage
@@ -167,15 +177,29 @@ export function AttendanceBoard({
         effectiveFilter === 'all' ||
         (effectiveFilter === 'leave' &&
           member.stage === 'active' &&
-          member.slots[filterSlot - 1]?.state === 'leave') ||
+          (interaction === undefined
+            ? member.slots.some((cell) => cell.state === 'leave')
+            : member.slots[filterSlot - 1]?.state === 'leave')) ||
         (effectiveFilter === 'unmarked' &&
-          activeSlot !== null &&
           member.stage === 'active' &&
-          member.slots[filterSlot - 1]?.state === 'unmarked');
+          (interaction === undefined
+            ? member.slots
+                .slice(0, readOnlyUnmarkedSlotCount)
+                .some((cell) => cell.state === 'unmarked')
+            : activeSlot !== null &&
+              member.slots[filterSlot - 1]?.state === 'unmarked'));
 
       return matchesQuery && matchesFilter;
     });
-  }, [activeSlot, effectiveFilter, filterSlot, members, query]);
+  }, [
+    activeSlot,
+    effectiveFilter,
+    filterSlot,
+    interaction,
+    members,
+    query,
+    readOnlyUnmarkedSlotCount,
+  ]);
 
   const selectedMember = currentSelection
     ? visibleMembers.find(
@@ -260,6 +284,7 @@ export function AttendanceBoard({
     closeDialog?: 'leave' | 'reason',
   ) => {
     if (
+      interaction === undefined ||
       !targetSelection ||
       pendingMemberIds.has(targetSelection.memberId) ||
       toAttendanceSelectionTiming(
@@ -311,7 +336,7 @@ export function AttendanceBoard({
         }
       : undefined;
 
-    onUpdateSlot(
+    interaction.onUpdateSlot(
       {
         memberId: targetSelection.memberId,
         reason,
@@ -327,6 +352,7 @@ export function AttendanceBoard({
     mode: ActivePaintMode,
   ) => {
     if (
+      interaction === undefined ||
       pendingMemberIds.has(targetSelection.memberId) ||
       toAttendanceSelectionTiming(
         targetSelection.slot,
@@ -364,7 +390,9 @@ export function AttendanceBoard({
   };
 
   const paintDock =
-    ready && visibleMembers.some((member) => member.stage === 'active') ? (
+    interaction !== undefined &&
+    ready &&
+    visibleMembers.some((member) => member.stage === 'active') ? (
       <AttendancePaintDock
         mode={paintMode}
         onExit={() => setPaintModeState(null)}
@@ -414,7 +442,11 @@ export function AttendanceBoard({
           </div>
         </header>
 
-        {loading && <SectionLoading label="오늘 출석부를 불러오고 있어요." />}
+        {loading && (
+          <SectionLoading
+            label={`${isToday ? '오늘 ' : ''}출석부를 불러오고 있어요.`}
+          />
+        )}
         {errorMessage && (
           <SectionError message={errorMessage} onRetry={onRetry} />
         )}
@@ -459,8 +491,14 @@ export function AttendanceBoard({
                 />
                 <FilterButton
                   active={effectiveFilter === 'unmarked'}
-                  disabled={activeSlot === null}
-                  label={`${filterSlot}교시 미확인`}
+                  disabled={unmarkedFilterDisabled}
+                  label={
+                    interaction === undefined
+                      ? isToday && activeSlot !== null
+                        ? `${activeSlot}교시까지 미확인`
+                        : '미확인 있음'
+                      : `${filterSlot}교시 미확인`
+                  }
                   onClick={() => {
                     setFilter('unmarked');
                     setPresenceMemberId(null);
@@ -469,7 +507,11 @@ export function AttendanceBoard({
                 />
                 <FilterButton
                   active={effectiveFilter === 'leave'}
-                  label={`${filterSlot}교시 휴무`}
+                  label={
+                    interaction === undefined
+                      ? '휴무 있음'
+                      : `${filterSlot}교시 휴무`
+                  }
                   onClick={() => {
                     setFilter('leave');
                     setPresenceMemberId(null);
@@ -484,7 +526,7 @@ export function AttendanceBoard({
                 <SectionEmpty
                   title={
                     members.length === 0
-                      ? '오늘 출석부에 표시할 회원이 없어요.'
+                      ? `${isToday ? '오늘' : '선택한 날짜의'} 출석부에 표시할 회원이 없어요.`
                       : '조건에 맞는 회원이 없어요.'
                   }
                 >
@@ -498,7 +540,9 @@ export function AttendanceBoard({
             ) : (
               <AttendanceTable
                 activeSlot={activeSlot}
+                dateKey={dateKey}
                 dock={paintDock}
+                interactive={interaction !== undefined}
                 members={visibleMembers}
                 mode={paintMode}
                 onActivate={(nextSelection) => {
@@ -527,74 +571,85 @@ export function AttendanceBoard({
           </>
         )}
       </Card>
-      <AttendanceReasonModal
-        onClose={() => setReasonTarget(null)}
-        onSubmit={(reason) =>
-          submitStatus('OTHER', reason, activeSelection, 'reason')
-        }
-        open={reasonOpen}
-        pending={selectedPending}
-        selection={activeSelection}
-      />
-      <AttendanceLeaveOverrideModal
-        onClose={() => setLeaveOverrideTarget(null)}
-        onConfirm={() =>
-          submitStatus('ABSENT', undefined, activeSelection, 'leave')
-        }
-        pending={selectedPending}
-        selection={leaveOverrideOpen ? activeSelection : null}
-      />
-      <AttendancePresenceModal
-        dateKey={dateKey}
-        member={presenceTarget}
-        onCheckIn={(input) => {
-          if (!presenceTarget) {
-            return;
-          }
+      {interaction !== undefined && (
+        <>
+          <AttendanceReasonModal
+            onClose={() => setReasonTarget(null)}
+            onSubmit={(reason) =>
+              submitStatus('OTHER', reason, activeSelection, 'reason')
+            }
+            open={reasonOpen}
+            pending={selectedPending}
+            selection={activeSelection}
+          />
+          <AttendanceLeaveOverrideModal
+            onClose={() => setLeaveOverrideTarget(null)}
+            onConfirm={() =>
+              submitStatus('ABSENT', undefined, activeSelection, 'leave')
+            }
+            pending={selectedPending}
+            selection={leaveOverrideOpen ? activeSelection : null}
+          />
+          <AttendancePresenceModal
+            dateKey={dateKey}
+            member={presenceTarget}
+            onCheckIn={(input) => {
+              if (!presenceTarget) {
+                return;
+              }
 
-          onManualCheckIn(presenceTarget.memberId, input, () =>
-            setPresenceMemberId(null),
-          );
-        }}
-        onCheckOut={() => {
-          const sessionId = presenceTarget?.presence?.activeSessionId;
+              interaction.onManualCheckIn(presenceTarget.memberId, input, () =>
+                setPresenceMemberId(null),
+              );
+            }}
+            onCheckOut={() => {
+              const sessionId = presenceTarget?.presence?.activeSessionId;
 
-          if (
-            !presenceTarget ||
-            sessionId === null ||
-            sessionId === undefined
-          ) {
-            return;
-          }
+              if (
+                !presenceTarget ||
+                sessionId === null ||
+                sessionId === undefined
+              ) {
+                return;
+              }
 
-          onManualCheckOut(presenceTarget.memberId, sessionId, () =>
-            setPresenceMemberId(null),
-          );
-        }}
-        onClose={() => setPresenceMemberId(null)}
-        pending={
-          presenceTarget
-            ? pendingPresenceMemberIds.has(presenceTarget.memberId)
-            : false
-        }
-      />
-      <AttendanceStartModal
-        member={startTarget}
-        onClose={() => setStartMemberId(null)}
-        onConfirm={() => {
-          if (!startTarget || pendingResetIds.has(startTarget.memberId)) {
-            return;
-          }
+              interaction.onManualCheckOut(
+                presenceTarget.memberId,
+                sessionId,
+                () => setPresenceMemberId(null),
+              );
+            }}
+            onClose={() => setPresenceMemberId(null)}
+            pending={
+              presenceTarget
+                ? pendingPresenceMemberIds.has(presenceTarget.memberId)
+                : false
+            }
+          />
+          <AttendanceStartModal
+            member={startTarget}
+            onClose={() => setStartMemberId(null)}
+            onConfirm={() => {
+              if (!startTarget || pendingResetIds.has(startTarget.memberId)) {
+                return;
+              }
 
-          onResetMember(startTarget.memberId, () => setStartMemberId(null));
-        }}
-        pending={
-          startTarget ? pendingResetIds.has(startTarget.memberId) : false
-        }
-      />
+              interaction.onResetMember(startTarget.memberId, () =>
+                setStartMemberId(null),
+              );
+            }}
+            pending={
+              startTarget ? pendingResetIds.has(startTarget.memberId) : false
+            }
+          />
+        </>
+      )}
     </>
   );
 }
+
+const EMPTY_NUMBER_SET: ReadonlySet<number> = new Set();
+const EMPTY_STRING_SET: ReadonlySet<string> = new Set();
 
 function FilterButton({
   active,
@@ -621,7 +676,7 @@ function FilterButton({
 }
 
 function attendanceCellAlreadyHasStatus(
-  cell: StaffAttendanceCell,
+  cell: AttendanceBoardCell,
   status: AttendanceSlotCommand['status'],
 ) {
   return (

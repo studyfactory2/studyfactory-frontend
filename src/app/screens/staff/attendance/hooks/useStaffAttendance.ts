@@ -24,7 +24,7 @@ import {
   buildAttendanceMembers,
   toAttendanceCellKey,
   type AttendanceSlotCommand,
-} from '../model/staff-attendance';
+} from '../../../../features/attendances/workspace/model/attendance-board';
 
 const BOARD_STALE_TIME_MS = 60 * 1_000;
 const ATTENDANCE_REFETCH_MS = 30 * 1_000;

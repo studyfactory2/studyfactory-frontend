@@ -6,11 +6,11 @@ import {
   formatTimeOfDayFromEpochMs,
 } from '../../../../shared/lib/seoul-date';
 import { Button, Field, Modal, Textarea } from '../../../../shared/ui';
-import type { StaffAttendanceMember } from '../model/staff-attendance';
+import type { AttendanceBoardMember } from '../model/attendance-board';
 
 type AttendancePresenceModalProps = {
   dateKey: string;
-  member: StaffAttendanceMember | null;
+  member: AttendanceBoardMember | null;
   onCheckIn: (input: StudyPresenceManualCheckInInput) => void;
   onCheckOut: () => void;
   onClose: () => void;
@@ -77,7 +77,7 @@ function ManualCheckInForm({
 }: {
   dateKey: string;
   inputRef: RefObject<HTMLInputElement | null>;
-  member: StaffAttendanceMember;
+  member: AttendanceBoardMember;
   onClose: () => void;
   onSubmit: (input: StudyPresenceManualCheckInInput) => void;
   pending: boolean;
@@ -177,7 +177,7 @@ function ManualCheckInForm({
   );
 }
 
-function ManualCheckOutCopy({ member }: { member: StaffAttendanceMember }) {
+function ManualCheckOutCopy({ member }: { member: AttendanceBoardMember }) {
   const checkedInAt = member.presence?.checkedInAt;
   const checkedInAtMs = checkedInAt ? Date.parse(checkedInAt) : Number.NaN;
 

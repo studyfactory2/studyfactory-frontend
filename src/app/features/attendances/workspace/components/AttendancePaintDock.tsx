@@ -1,5 +1,5 @@
 import { cx } from '../../../../shared/lib/cx';
-import type { AttendancePaintMode } from '../model/staff-attendance';
+import type { AttendancePaintMode } from '../model/attendance-board';
 
 const PAINT_OPTIONS = [
   { label: '출석', mark: 'O', status: 'PRESENT' },

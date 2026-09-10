@@ -8,11 +8,11 @@ import {
   ATTENDANCE_SLOTS,
   type AttendancePaintMode,
   type AttendanceSelection,
-  type StaffAttendanceMember,
+  type AttendanceBoardMember,
   toAttendanceCellId,
   toAttendanceCellKey,
   toAttendanceSelectionTiming,
-} from '../model/staff-attendance';
+} from '../model/attendance-board';
 import {
   AttendanceMemberIdentity,
   type AttendancePresenceLoadState,
@@ -21,12 +21,14 @@ import { AttendanceStatusCell } from './AttendanceStatusCell';
 
 type AttendanceTableProps = {
   activeSlot: OperationalAttendanceSlot | null;
+  dateKey: string;
   dock: ReactNode;
-  members: StaffAttendanceMember[];
+  interactive: boolean;
+  members: AttendanceBoardMember[];
   mode: AttendancePaintMode;
   onActivate: (selection: AttendanceSelection) => void;
-  onPresenceRequest: (member: StaffAttendanceMember) => void;
-  onResetRequest: (member: StaffAttendanceMember) => void;
+  onPresenceRequest: (member: AttendanceBoardMember) => void;
+  onResetRequest: (member: AttendanceBoardMember) => void;
   onSelect: (selection: AttendanceSelection) => void;
   operationalSlot: OperationalAttendanceSlot | null;
   pendingCellKeys: ReadonlySet<string>;
@@ -39,7 +41,9 @@ type AttendanceTableProps = {
 
 export function AttendanceTable({
   activeSlot,
+  dateKey,
   dock,
+  interactive,
   members,
   mode,
   onActivate,
@@ -57,15 +61,19 @@ export function AttendanceTable({
   const frameRef = useRef<HTMLDivElement>(null);
   const identityHeaderRef = useRef<HTMLTableCellElement>(null);
   const operationalHeaderRef = useRef<HTMLTableCellElement>(null);
-  const activeMembers = members.filter((member) => member.stage === 'active');
+  const activeMembers = interactive
+    ? members.filter((member) => member.stage === 'active')
+    : [];
   const navigableMembers = activeMembers.filter(
     (member) => !pendingMemberIds.has(member.memberId),
   );
-  const editableSlots = ATTENDANCE_SLOTS.filter(
-    (slot) =>
-      toAttendanceSelectionTiming(slot, activeSlot, operationalSlot) !==
-      'future',
-  );
+  const editableSlots = interactive
+    ? ATTENDANCE_SLOTS.filter(
+        (slot) =>
+          toAttendanceSelectionTiming(slot, activeSlot, operationalSlot) !==
+          'future',
+      )
+    : [];
   const selectedTabMember = selection
     ? navigableMembers.find((member) => member.memberId === selection.memberId)
     : undefined;
@@ -132,7 +140,7 @@ export function AttendanceTable({
 
   const navigateCell = (
     event: KeyboardEvent<HTMLButtonElement>,
-    member: StaffAttendanceMember,
+    member: AttendanceBoardMember,
     slot: OperationalAttendanceSlot,
   ) => {
     let nextMember = member;
@@ -190,8 +198,8 @@ export function AttendanceTable({
       </p>
       <Table>
         <caption className="staff-attendance__sr-only">
-          좌석 순서 회원과 미배정 회원의 오늘 입퇴실 시각, 1교시부터 7교시까지의
-          출석 상태
+          {formatKoreanDate(dateKey)} 좌석 순서 회원과 미배정 회원의 입퇴실
+          시각, 1교시부터 7교시까지의 출석 상태
         </caption>
         <thead>
           <tr>
@@ -201,9 +209,7 @@ export function AttendanceTable({
               scope="col"
             >
               <span>회원</span>
-              <small className="staff-attendance__identity-note">
-                오늘 입·퇴실
-              </small>
+              <small className="staff-attendance__identity-note">입·퇴실</small>
             </th>
             {ATTENDANCE_SLOTS.map((slot) => (
               <th
@@ -236,7 +242,9 @@ export function AttendanceTable({
             >
               <th className="staff-attendance__identity-col" scope="row">
                 <AttendanceMemberIdentity
+                  dateKey={dateKey}
                   disabled={pendingMemberIds.has(member.memberId)}
+                  interactive={interactive}
                   member={member}
                   onPresenceRequest={onPresenceRequest}
                   presencePending={pendingPresenceMemberIds.has(
@@ -278,6 +286,7 @@ export function AttendanceTable({
                       <AttendanceStatusCell
                         cell={cell}
                         disabled={pendingMemberIds.has(member.memberId)}
+                        interactive={interactive}
                         mode={mode}
                         member={member}
                         onActivate={() => onActivate(target)}
@@ -297,6 +306,7 @@ export function AttendanceTable({
                 })
               ) : (
                 <MembershipStageCell
+                  interactive={interactive}
                   member={member}
                   onResetRequest={onResetRequest}
                   pending={pendingResetIds.has(member.memberId)}
@@ -306,18 +316,20 @@ export function AttendanceTable({
           ))}
         </tbody>
       </Table>
-      {dock}
+      {interactive ? dock : null}
     </div>
   );
 }
 
 function MembershipStageCell({
+  interactive,
   member,
   onResetRequest,
   pending,
 }: {
-  member: StaffAttendanceMember;
-  onResetRequest: (member: StaffAttendanceMember) => void;
+  interactive: boolean;
+  member: AttendanceBoardMember;
+  onResetRequest: (member: AttendanceBoardMember) => void;
   pending: boolean;
 }) {
   const joinDate = member.joinDate;
@@ -326,23 +338,23 @@ function MembershipStageCell({
     <td className="staff-attendance__membership-stage" colSpan={7}>
       <span>
         <strong>
-          {member.stage === 'starts-today' ? '오늘 입소' : '입소 예정'}
+          {member.stage === 'starts-today' ? '해당일 입사' : '입사 예정'}
         </strong>
         {joinDate && (
           <time dateTime={joinDate}>{formatKoreanDate(joinDate)}</time>
         )}
       </span>
-      {member.stage === 'starts-today' ? (
+      {interactive && member.stage === 'starts-today' ? (
         <button
           aria-busy={pending}
           disabled={pending}
           onClick={() => onResetRequest(member)}
           type="button"
         >
-          {pending ? '시작 중' : '오늘 출석부 시작'}
+          {pending ? '시작 중' : '출석부 시작'}
         </button>
       ) : (
-        <small>입소일부터 출석 처리할 수 있어요.</small>
+        <small>입사일부터 출석 기록이 표시돼요.</small>
       )}
     </td>
   );

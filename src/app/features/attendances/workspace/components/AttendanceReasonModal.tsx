@@ -6,7 +6,7 @@ import {
   type RefObject,
 } from 'react';
 import { Button, Field, Input, Modal } from '../../../../shared/ui';
-import type { AttendanceSelection } from '../model/staff-attendance';
+import type { AttendanceSelection } from '../model/attendance-board';
 
 const QUICK_REASONS = ['지각', '외출', '시험', '컨디션'] as const;
 

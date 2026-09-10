@@ -1,19 +1,26 @@
 import { cx } from '../../../../shared/lib/cx';
-import { formatTimeOfDayFromEpochMs } from '../../../../shared/lib/seoul-date';
-import type { StaffAttendanceMember } from '../model/staff-attendance';
+import {
+  formatKoreanDate,
+  formatTimeOfDayFromEpochMs,
+} from '../../../../shared/lib/seoul-date';
+import type { AttendanceBoardMember } from '../model/attendance-board';
 
 export type AttendancePresenceLoadState = 'error' | 'loading' | 'ready';
 
 type AttendanceMemberIdentityProps = {
+  dateKey: string;
   disabled: boolean;
-  member: StaffAttendanceMember;
-  onPresenceRequest: (member: StaffAttendanceMember) => void;
+  interactive: boolean;
+  member: AttendanceBoardMember;
+  onPresenceRequest: (member: AttendanceBoardMember) => void;
   presencePending: boolean;
   presenceState: AttendancePresenceLoadState;
 };
 
 export function AttendanceMemberIdentity({
+  dateKey,
   disabled,
+  interactive,
   member,
   onPresenceRequest,
   presencePending,
@@ -40,28 +47,34 @@ export function AttendanceMemberIdentity({
             member.presence !== null &&
             member.presence.sessionCount > 1 && (
               <em
-                aria-label={`오늘 ${member.presence.sessionCount}회 입실`}
+                aria-label={`${formatKoreanDate(dateKey)} ${member.presence.sessionCount}회 입실`}
                 className="staff-attendance__session-count"
-                title={`오늘 ${member.presence.sessionCount}회 입실`}
+                title={`${formatKoreanDate(dateKey)} ${member.presence.sessionCount}회 입실`}
               >
                 {member.presence.sessionCount}회
               </em>
             )}
-          {member.stage === 'active' && presenceState === 'ready' && (
-            <button
-              aria-busy={presencePending}
-              aria-label={`${member.name} ${currentlyActive ? '수동 퇴실 처리' : '수동 입실 등록'}`}
-              className={cx(
-                'staff-attendance__presence-button',
-                currentlyActive && 'is-checkout',
-              )}
-              disabled={disabled}
-              onClick={() => onPresenceRequest(member)}
-              type="button"
-            >
-              {presencePending ? '처리 중' : currentlyActive ? '퇴실' : '입실'}
-            </button>
-          )}
+          {interactive &&
+            member.stage === 'active' &&
+            presenceState === 'ready' && (
+              <button
+                aria-busy={presencePending}
+                aria-label={`${member.name} ${currentlyActive ? '수동 퇴실 처리' : '수동 입실 등록'}`}
+                className={cx(
+                  'staff-attendance__presence-button',
+                  currentlyActive && 'is-checkout',
+                )}
+                disabled={disabled}
+                onClick={() => onPresenceRequest(member)}
+                type="button"
+              >
+                {presencePending
+                  ? '처리 중'
+                  : currentlyActive
+                    ? '퇴실'
+                    : '입실'}
+              </button>
+            )}
         </span>
         <MemberPresence member={member} presenceState={presenceState} />
       </span>
@@ -73,7 +86,7 @@ function MemberPresence({
   member,
   presenceState,
 }: {
-  member: StaffAttendanceMember;
+  member: AttendanceBoardMember;
   presenceState: AttendancePresenceLoadState;
 }) {
   if (presenceState !== 'ready') {

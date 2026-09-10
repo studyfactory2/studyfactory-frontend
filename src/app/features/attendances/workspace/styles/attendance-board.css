@@ -506,7 +506,12 @@
   white-space: nowrap;
 }
 
-.staff-attendance__status:hover:not(:disabled) {
+.staff-attendance__status.is-readonly {
+  cursor: default;
+  transition: none;
+}
+
+button.staff-attendance__status:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: inset 0 0 0 1px rgb(var(--brand-forest-rgb) / 24%);
 }
