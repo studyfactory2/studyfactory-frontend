@@ -171,6 +171,8 @@ export function useAdminMembers({
     refreshing:
       (membersQuery.isFetching && membersQuery.data !== undefined) ||
       (pendingQuery.isFetching && pendingQuery.data !== undefined),
+    /** The pending list exactly as validated for this branch; writes check their target against it. */
+    registrations: pendingQuery.data ?? null,
     view,
   };
 }

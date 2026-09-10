@@ -54,7 +54,7 @@ export function CurrentMemberList({
           <span>좌석</span>
           <span>이름</span>
           <span>역할</span>
-          <span>입회일</span>
+          <span>입사일</span>
           <span>자격증</span>
           <span>준비 중인 자격증</span>
         </div>
@@ -72,7 +72,7 @@ export function CurrentMemberList({
                 <span className="admin-member-list__details">
                   <LabelledCell
                     className="admin-member-list__date"
-                    label="입회일"
+                    label="입사일"
                   >
                     {member.joinDate === null ? (
                       <em className="admin-member-list__muted">미정</em>

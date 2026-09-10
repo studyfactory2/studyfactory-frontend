@@ -1,6 +1,6 @@
-import { RefreshCw, Search } from 'lucide-react';
+import { RefreshCw, Search, UserPlus } from 'lucide-react';
 import { cx } from '../../../../shared/lib/cx';
-import { Input, Select } from '../../../../shared/ui';
+import { Button, Input, Select } from '../../../../shared/ui';
 import {
   ROLE_FILTERS,
   type AdminMemberFilter,
@@ -11,6 +11,7 @@ import {
 type AdminMembersToolbarProps = {
   counts: { current: number | null; pending: number | null };
   filter: AdminMemberFilter;
+  onCreate: () => void;
   onQueryChange: (query: string) => void;
   onRefresh: () => void;
   onRoleChange: (role: AdminMemberRoleFilter) => void;
@@ -36,6 +37,7 @@ function isRoleFilter(value: string): value is AdminMemberRoleFilter {
 export function AdminMembersToolbar({
   counts,
   filter,
+  onCreate,
   onQueryChange,
   onRefresh,
   onRoleChange,
@@ -119,6 +121,16 @@ export function AdminMembersToolbar({
         >
           <RefreshCw aria-hidden="true" size={16} />
         </button>
+        <Button
+          aria-label="회원 사전등록"
+          className="admin-members__create"
+          onClick={onCreate}
+          size="sm"
+          title="회원 사전등록"
+        >
+          <UserPlus aria-hidden="true" size={16} />
+          <span className="admin-members__create-label">회원 사전등록</span>
+        </Button>
       </div>
     </div>
   );

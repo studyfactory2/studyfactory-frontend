@@ -134,7 +134,7 @@ export function VerifyPane({ onLoginClick, onVerified }: VerifyPaneProps) {
             >
               <span>{member.name}</span>
               <small>
-                좌석 {member.seatNumber ?? '미정'} · 입사예정일{' '}
+                좌석 {member.seatNumber ?? '미정'} · 입사 예정일{' '}
                 {member.expectedJoinDate ?? '-'}
               </small>
             </button>

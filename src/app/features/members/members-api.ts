@@ -87,3 +87,105 @@ export async function fetchPendingPreRegistrations(
 
   return response;
 }
+
+/**
+ * What an operator decides about one pending MEMBER. The branch and the role
+ * are deliberately not part of it: the branch is the operator's selected
+ * branch and the role is always MEMBER, both supplied by the write functions.
+ */
+export type PreRegistrationInput = {
+  name: string;
+  seatNumber: number | null;
+  /** YYYY-MM-DD, or null when undecided. */
+  expectedJoinDate: string | null;
+  /** The certification's name, which the backend resolves or creates. */
+  certification: string | null;
+  /** Drink names, one per line, in serving order. */
+  drinkSetting: string;
+  /** Note per drink name. Always sent, `{}` included, so the legacy `drinkNote` path is never taken. */
+  drinkNotes: Record<string, string>;
+};
+
+/**
+ * PATCH here is a complete replacement, not a merge — the backend rewrites
+ * every column from the request — so every field is sent every time, and the
+ * legacy `drinkNote` and the response-only `certificationId` never are.
+ */
+function toPreRegistrationBody(branchId: number, input: PreRegistrationInput) {
+  return {
+    branchId,
+    name: input.name,
+    role: 'MEMBER' as const,
+    seatNumber: input.seatNumber,
+    expectedJoinDate: input.expectedJoinDate,
+    certification: input.certification,
+    drinkSetting: input.drinkSetting,
+    drinkNotes: input.drinkNotes,
+  };
+}
+
+export async function createPendingMember(
+  branchId: number,
+  input: PreRegistrationInput,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<PreRegistrationResponse>(
+    '/api/pre-registrations',
+    {
+      body: JSON.stringify(toPreRegistrationBody(branchId, input)),
+      expectedMemberId,
+      method: 'POST',
+    },
+  );
+
+  if (response.branchId !== branchId || response.role !== 'MEMBER') {
+    throw new ApiRequestError(
+      '다른 지점이나 다른 역할의 사전등록 응답을 받았습니다.',
+      409,
+    );
+  }
+
+  return response;
+}
+
+export async function updatePendingMember(
+  memberId: number,
+  branchId: number,
+  input: PreRegistrationInput,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<PreRegistrationResponse>(
+    `/api/pre-registrations/${memberId}`,
+    {
+      body: JSON.stringify(toPreRegistrationBody(branchId, input)),
+      expectedMemberId,
+      method: 'PATCH',
+    },
+  );
+
+  if (
+    response.id !== memberId ||
+    response.branchId !== branchId ||
+    response.role !== 'MEMBER'
+  ) {
+    throw new ApiRequestError('다른 사전등록의 응답을 받았습니다.', 409);
+  }
+
+  return response;
+}
+
+/**
+ * Removes a pending pre-registration and, server-side, the drink preference
+ * stored with it. Only `/api/pre-registrations` is used: the backend refuses
+ * it for anyone who has already signed up, which is the guarantee this
+ * screen relies on — `DELETE /api/members/{id}` is never called from here.
+ */
+export async function deletePendingMember(
+  memberId: number,
+  expectedMemberId: number,
+) {
+  await apiRequest<null>(`/api/pre-registrations/${memberId}`, {
+    expectedMemberId,
+    method: 'DELETE',
+  });
+}

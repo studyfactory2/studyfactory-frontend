@@ -3,7 +3,10 @@ import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
 import { AdminMembersToolbar } from './components/AdminMembersToolbar';
 import { CurrentMemberList } from './components/CurrentMemberList';
+import { PreRegistrationDeleteDialog } from './components/PreRegistrationDeleteDialog';
+import { PreRegistrationEditorModal } from './components/PreRegistrationEditorModal';
 import { PendingRegistrationList } from './components/PendingRegistrationList';
+import { useAdminMemberMutations } from './hooks/useAdminMemberMutations';
 import { useAdminMembers } from './hooks/useAdminMembers';
 import './styles/admin-members.css';
 
@@ -43,6 +46,12 @@ function AdminMembersContent({
   ownerKey: SessionOwnerKey;
 }) {
   const members = useAdminMembers({ branchId, memberId, ownerKey });
+  const mutations = useAdminMemberMutations({
+    branchId,
+    memberId,
+    ownerKey,
+    registrations: members.registrations,
+  });
   const active = members.view === 'current' ? members.current : members.pending;
   /* Zero results are explained by the list itself, with the same clear button. */
   const resultCount =
@@ -61,6 +70,7 @@ function AdminMembersContent({
       <AdminMembersToolbar
         counts={members.counts}
         filter={members.filter}
+        onCreate={mutations.onCreate}
         onQueryChange={members.onQueryChange}
         onRefresh={members.onRefresh}
         onRoleChange={members.onRoleChange}
@@ -109,12 +119,35 @@ function AdminMembersContent({
             filterActive={members.filterActive}
             loading={members.pending.loading}
             onClearFilter={members.onClearFilter}
+            onDelete={mutations.onDelete}
+            onEdit={mutations.onEdit}
             onRetry={members.pending.onRetry}
             rows={members.pending.rows}
             total={members.pending.total}
           />
         )}
       </section>
+
+      <PreRegistrationEditorModal
+        branchId={branchId}
+        branchName={branchName}
+        certifications={members.certifications}
+        errorMessage={mutations.editor.errorMessage}
+        memberId={memberId}
+        mode={mutations.editor.mode}
+        onClose={mutations.editor.onClose}
+        onSubmit={mutations.editor.onSubmit}
+        ownerKey={ownerKey}
+        saving={mutations.editor.saving}
+      />
+
+      <PreRegistrationDeleteDialog
+        errorMessage={mutations.deletion.errorMessage}
+        onClose={mutations.deletion.onClose}
+        onConfirm={mutations.deletion.onConfirm}
+        pending={mutations.deletion.pending}
+        registration={mutations.deletion.registration}
+      />
     </div>
   );
 }

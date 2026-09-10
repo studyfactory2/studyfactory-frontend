@@ -86,7 +86,7 @@ export function PasswordPane({
           <dd>{member.seatNumber ?? '미정'}</dd>
         </div>
         <div>
-          <dt>입사예정일</dt>
+          <dt>입사 예정일</dt>
           <dd>{member.expectedJoinDate ?? '-'}</dd>
         </div>
       </dl>
