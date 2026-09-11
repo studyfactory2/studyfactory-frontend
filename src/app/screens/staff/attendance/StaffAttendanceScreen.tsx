@@ -2,10 +2,12 @@ import { useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../core/session';
 import type { SessionOwnerKey } from '../../../core/session';
 import { AttendanceBoard } from '../../../features/attendances/workspace/components/AttendanceBoard';
+import {
+  ManagerOperationsOverview,
+  useManagerOperations,
+} from '../../../features/manager-operations';
 import { EmptyState } from '../../../shared/ui';
-import { AttendanceOperationsOverview } from './components/AttendanceOperationsOverview';
 import { useStaffAttendance } from './hooks/useStaffAttendance';
-import { useAttendanceOperations } from './hooks/useAttendanceOperations';
 import '../../../features/attendances/workspace/styles/attendance-workspace.css';
 import './styles/staff-attendance.css';
 
@@ -45,7 +47,7 @@ function StaffAttendanceContent({
 }) {
   const [searchParams] = useSearchParams();
   const attendance = useStaffAttendance({ branchId, memberId, ownerKey });
-  const operations = useAttendanceOperations({
+  const operations = useManagerOperations({
     branchId,
     dateKey: attendance.today.dateKey,
     memberId,
@@ -54,7 +56,7 @@ function StaffAttendanceContent({
 
   return (
     <div className="staff-attendance">
-      <AttendanceOperationsOverview
+      <ManagerOperationsOverview
         initialSection={toCockpitSection(searchParams.get('panel'))}
         operations={operations}
       />

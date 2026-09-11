@@ -1,6 +1,13 @@
+import { useState } from 'react';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import { getOperationalAttendanceSlot } from '../../../features/attendances/attendance-rules';
 import { AttendanceBoard } from '../../../features/attendances/workspace/components/AttendanceBoard';
+import {
+  ManagerOperationsOverview,
+  ManagerOperationsWorkspace,
+  type ManagerOperationsView,
+  useManagerOperations,
+} from '../../../features/manager-operations';
 import { useSeoulClock } from '../../../shared/hooks/useSeoulClock';
 import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
@@ -47,8 +54,16 @@ function AdminAttendanceContent({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
+  const [operationsView, setOperationsView] =
+    useState<ManagerOperationsView | null>(null);
   const date = useAdminAttendanceDate();
   const clock = useSeoulClock();
+  const operations = useManagerOperations({
+    branchId,
+    dateKey: clock.dateKey,
+    memberId,
+    ownerKey,
+  });
   const clockMatchesSelectedDay =
     date.isToday && clock.dateKey === date.dateKey;
   const attendance = useAdminAttendance({
@@ -79,9 +94,34 @@ function AdminAttendanceContent({
     <div className="admin-attendance">
       <ScreenHeader
         eyebrow="ADMIN · ATTENDANCE"
-        subtitle={`${branchName} · 날짜별 교시 출석과 입퇴실 시각을 확인해요.`}
+        subtitle={`${branchName} · 오늘 운영과 날짜별 교시 출석을 한곳에서 확인해요.`}
         title="출석 기록"
       />
+
+      <ManagerOperationsOverview
+        onManageRequests={() => setOperationsView('member-requests')}
+        onManageTasks={() => setOperationsView('tasks')}
+        operations={operations}
+      />
+
+      {operationsView && (
+        <ManagerOperationsWorkspace
+          activeView={operationsView}
+          onClose={() => {
+            const closingView = operationsView;
+
+            operations.todos.date.onGoToday();
+            setOperationsView(null);
+            window.requestAnimationFrame(() => {
+              document
+                .getElementById(`manager-operations-manage-${closingView}`)
+                ?.focus();
+            });
+          }}
+          onViewChange={setOperationsView}
+          operations={operations}
+        />
+      )}
 
       <AdminAttendanceDateBar
         branchName={branchName}
@@ -104,7 +144,10 @@ function AdminAttendanceContent({
         isToday={date.isToday}
         loading={attendance.board.loading}
         members={attendance.board.members}
-        onRefresh={attendance.freshness.onRefresh}
+        onRefresh={() => {
+          attendance.freshness.onRefresh();
+          operations.onRefresh();
+        }}
         onRetry={attendance.board.onRetry}
         operationalSlot={operationalSlot}
         periodLabel={periodLabel}

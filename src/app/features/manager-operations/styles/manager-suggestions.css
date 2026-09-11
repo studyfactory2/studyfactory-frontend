@@ -1,4 +1,4 @@
-.staff-operations__suggestion-filter {
+.manager-work__suggestion-filter {
   display: grid;
   padding: 10px var(--space-5);
   border-bottom: 1px solid var(--brand-line);
@@ -7,7 +7,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.staff-operations__suggestion-filter button {
+.manager-work__suggestion-filter button {
   min-height: 38px;
   padding: 0 10px;
   border: 0;
@@ -20,18 +20,18 @@
   font-weight: var(--weight-bold);
 }
 
-.staff-operations__suggestion-filter button span {
+.manager-work__suggestion-filter button span {
   margin-left: 3px;
   font-variant-numeric: tabular-nums;
 }
 
-.staff-operations__suggestion-filter button.is-active {
+.manager-work__suggestion-filter button.is-active {
   background: var(--paper);
   box-shadow: 0 2px 8px rgb(var(--brand-ink-rgb) / 7%);
   color: var(--brand-forest);
 }
 
-.staff-operations__suggestion-list {
+.manager-work__suggestion-list {
   display: grid;
   margin: 0;
   padding: 0;
@@ -39,7 +39,7 @@
   list-style: none;
 }
 
-.staff-operations__suggestion-list > li {
+.manager-work__suggestion-list > li {
   display: grid;
   gap: 10px;
   padding: 13px 14px;
@@ -48,24 +48,24 @@
   background: var(--paper);
 }
 
-.staff-operations__suggestion-list > li.is-resolved {
+.manager-work__suggestion-list > li.is-resolved {
   background: rgb(var(--brand-forest-rgb) / 3%);
 }
 
-.staff-operations__suggestion-list header {
+.manager-work__suggestion-list header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
 }
 
-.staff-operations__suggestion-list header > span {
+.manager-work__suggestion-list header > span {
   display: grid;
   min-width: 0;
   gap: 2px;
 }
 
-.staff-operations__suggestion-list header strong {
+.manager-work__suggestion-list header strong {
   overflow: hidden;
   color: var(--brand-ink);
   font-size: var(--text-sm);
@@ -74,13 +74,13 @@
   white-space: nowrap;
 }
 
-.staff-operations__suggestion-list header small {
+.manager-work__suggestion-list header small {
   color: var(--brand-muted);
   font-size: var(--text-3xs);
   font-variant-numeric: tabular-nums;
 }
 
-.staff-operations__suggestion-list > li > p {
+.manager-work__suggestion-list > li > p {
   margin: 0;
   color: var(--brand-ink-soft);
   font-size: var(--text-xs);
@@ -89,20 +89,20 @@
   white-space: pre-wrap;
 }
 
-.staff-operations__suggestion-resolver {
+.manager-work__suggestion-resolver {
   color: var(--brand-muted);
   font-size: var(--text-3xs);
   font-weight: var(--weight-semibold);
 }
 
-.staff-operations__suggestion-list .btn__label {
+.manager-work__suggestion-list .btn__label {
   display: inline-flex;
   align-items: center;
   gap: 5px;
 }
 
-@container staff-operations (min-width: 58rem) {
-  .staff-operations__suggestion-list {
+@container manager-work (min-width: 58rem) {
+  .manager-work__suggestion-list {
     max-height: 46rem;
     overflow-y: auto;
     padding-right: 2px;
@@ -111,8 +111,8 @@
   }
 }
 
-@container staff-operations (max-width: 34rem) {
-  .staff-operations__suggestion-filter {
+@container manager-work (max-width: 34rem) {
+  .manager-work__suggestion-filter {
     padding-right: var(--space-4);
     padding-left: var(--space-4);
   }

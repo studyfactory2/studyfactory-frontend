@@ -3,7 +3,7 @@ import { apiRequest, ApiRequestError } from '../../core/api/api-client';
 export type TodoPriority = 'NORMAL' | 'URGENT';
 
 /**
- * MANUAL is a staff member typing one in. The other two are raised by the
+ * MANUAL is a manager typing one in. The other two are raised by the
  * backend — a new member needing setup, or a suggestion being turned into work
  * — so they arrive mixed into the same list and are worth telling apart.
  */

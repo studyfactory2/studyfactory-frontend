@@ -8,17 +8,18 @@ import {
   Utensils,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { cx } from '../../../../shared/lib/cx';
+import { cx } from '../../../shared/lib/cx';
 
-export type AttendanceCockpitSectionId =
+export type ManagerOperationsSectionId =
   'tasks' | 'member-requests' | 'side-dish-orders';
 
-export type AttendanceCockpitTone =
+export type ManagerOperationsTone =
   'neutral' | 'urgent' | 'positive' | 'special';
 
-export type AttendanceCockpitAction = {
+export type ManagerOperationsAction = {
   ariaLabel?: string;
   disabled?: boolean;
+  id?: string;
   label: string;
   loading?: boolean;
   onClick: () => void;
@@ -26,45 +27,45 @@ export type AttendanceCockpitAction = {
   tone?: 'primary' | 'quiet' | 'positive';
 };
 
-export type AttendanceCockpitPreview = {
-  action?: AttendanceCockpitAction;
+export type ManagerOperationsPreview = {
+  action?: ManagerOperationsAction;
   badge?: string;
   description?: string;
   id: number | string;
   meta?: string;
   title: string;
-  tone?: AttendanceCockpitTone;
+  tone?: ManagerOperationsTone;
 };
 
-export type AttendanceCockpitSectionData = {
-  actions?: readonly AttendanceCockpitAction[];
+export type ManagerOperationsSectionData = {
+  actions?: readonly ManagerOperationsAction[];
   count: number | null;
   countLabel: string;
   emptyMessage: string;
   errorMessage?: null | string;
   loading?: boolean;
-  previews: readonly AttendanceCockpitPreview[];
+  previews: readonly ManagerOperationsPreview[];
   summary?: string;
 };
 
-export type AttendanceOperationsCockpitProps = {
-  activeSection: AttendanceCockpitSectionId | null;
+export type ManagerOperationsCockpitProps = {
+  activeSection: ManagerOperationsSectionId | null;
   className?: string;
-  memberRequests: AttendanceCockpitSectionData;
-  memberSideDishOrders: AttendanceCockpitSectionData;
-  onRetry?: (section: AttendanceCockpitSectionId) => void;
-  onSectionChange: (section: AttendanceCockpitSectionId | null) => void;
-  todayTasks: AttendanceCockpitSectionData;
+  memberRequests: ManagerOperationsSectionData;
+  memberSideDishOrders: ManagerOperationsSectionData;
+  onRetry?: (section: ManagerOperationsSectionId) => void;
+  onSectionChange: (section: ManagerOperationsSectionId | null) => void;
+  todayTasks: ManagerOperationsSectionData;
 };
 
-type CockpitSectionDefinition = {
-  data: AttendanceCockpitSectionData;
+type ManagerOperationsSectionDefinition = {
+  data: ManagerOperationsSectionData;
   icon: LucideIcon;
-  id: AttendanceCockpitSectionId;
+  id: ManagerOperationsSectionId;
   label: string;
 };
 
-export function AttendanceOperationsCockpit({
+export function ManagerOperationsCockpit({
   activeSection,
   className,
   memberRequests,
@@ -72,8 +73,8 @@ export function AttendanceOperationsCockpit({
   onRetry,
   onSectionChange,
   todayTasks,
-}: AttendanceOperationsCockpitProps) {
-  const sections: readonly CockpitSectionDefinition[] = [
+}: ManagerOperationsCockpitProps) {
+  const sections: readonly ManagerOperationsSectionDefinition[] = [
     {
       data: todayTasks,
       icon: ListChecks,
@@ -98,11 +99,11 @@ export function AttendanceOperationsCockpit({
   return (
     <section
       aria-label="출석 운영 현황"
-      className={cx('staff-attendance-cockpit', className)}
+      className={cx('manager-operations-cockpit', className)}
     >
       <div
         aria-label="수시 확인 항목"
-        className="staff-attendance-cockpit__overview"
+        className="manager-operations-cockpit__overview"
         role="group"
       >
         {sections.map((section) => {
@@ -121,34 +122,34 @@ export function AttendanceOperationsCockpit({
           return (
             <button
               aria-controls={
-                active ? `attendance-cockpit-panel-${section.id}` : undefined
+                active ? `manager-operations-panel-${section.id}` : undefined
               }
               aria-expanded={active}
               aria-label={`${section.label}, ${summaryStatus}, ${countStatus}`}
               className={cx(
-                'staff-attendance-cockpit__summary',
+                'manager-operations-cockpit__summary',
                 `is-${section.id}`,
                 active && 'is-active',
                 section.data.errorMessage && 'has-error',
               )}
-              id={`attendance-cockpit-trigger-${section.id}`}
+              id={`manager-operations-trigger-${section.id}`}
               key={section.id}
               onClick={() => onSectionChange(active ? null : section.id)}
               type="button"
             >
               <span
                 aria-hidden="true"
-                className="staff-attendance-cockpit__summary-icon"
+                className="manager-operations-cockpit__summary-icon"
               >
                 <Icon size={18} strokeWidth={1.9} />
               </span>
 
-              <span className="staff-attendance-cockpit__summary-copy">
+              <span className="manager-operations-cockpit__summary-copy">
                 <strong>{section.label}</strong>
                 <small>{summaryStatus}</small>
               </span>
 
-              <span className="staff-attendance-cockpit__summary-count">
+              <span className="manager-operations-cockpit__summary-count">
                 <b>
                   {section.data.count === null
                     ? '—'
@@ -161,7 +162,7 @@ export function AttendanceOperationsCockpit({
 
               <ChevronDown
                 aria-hidden="true"
-                className="staff-attendance-cockpit__summary-chevron"
+                className="manager-operations-cockpit__summary-chevron"
                 size={17}
               />
             </button>
@@ -170,8 +171,8 @@ export function AttendanceOperationsCockpit({
       </div>
 
       {selected && (
-        <CockpitPanel
-          labelledBy={`attendance-cockpit-trigger-${selected.id}`}
+        <ManagerOperationsPanel
+          labelledBy={`manager-operations-trigger-${selected.id}`}
           onRetry={onRetry ? () => onRetry(selected.id) : undefined}
           section={selected}
         />
@@ -180,25 +181,25 @@ export function AttendanceOperationsCockpit({
   );
 }
 
-function CockpitPanel({
+function ManagerOperationsPanel({
   labelledBy,
   onRetry,
   section,
 }: {
   labelledBy: string;
   onRetry?: () => void;
-  section: CockpitSectionDefinition;
+  section: ManagerOperationsSectionDefinition;
 }) {
   const { data } = section;
 
   return (
     <div
       aria-labelledby={labelledBy}
-      className="staff-attendance-cockpit__panel"
-      id={`attendance-cockpit-panel-${section.id}`}
+      className="manager-operations-cockpit__panel"
+      id={`manager-operations-panel-${section.id}`}
       role="region"
     >
-      <header className="staff-attendance-cockpit__panel-header">
+      <header className="manager-operations-cockpit__panel-header">
         <span>
           <strong>{section.label}</strong>
           <small>
@@ -210,9 +211,9 @@ function CockpitPanel({
         </span>
 
         {data.actions && data.actions.length > 0 && (
-          <div className="staff-attendance-cockpit__panel-actions">
+          <div className="manager-operations-cockpit__panel-actions">
             {data.actions.map((action) => (
-              <CockpitAction
+              <ManagerOperationsActionButton
                 action={action}
                 key={`${section.id}-${action.label}`}
               />
@@ -223,11 +224,11 @@ function CockpitPanel({
 
       <div
         aria-busy={data.loading}
-        className="staff-attendance-cockpit__panel-body"
+        className="manager-operations-cockpit__panel-body"
       >
         {data.errorMessage && (
           <div
-            className="staff-attendance-cockpit__state is-error"
+            className="manager-operations-cockpit__state is-error"
             role="alert"
           >
             <CircleAlert aria-hidden="true" size={19} />
@@ -241,7 +242,7 @@ function CockpitPanel({
         )}
 
         {!data.errorMessage && data.loading ? (
-          <div className="staff-attendance-cockpit__state" role="status">
+          <div className="manager-operations-cockpit__state" role="status">
             <LoaderCircle
               aria-hidden="true"
               className="is-spinning"
@@ -250,21 +251,21 @@ function CockpitPanel({
             <span>{section.label}을 불러오는 중이에요.</span>
           </div>
         ) : !data.errorMessage && data.previews.length === 0 ? (
-          <div className="staff-attendance-cockpit__state">
+          <div className="manager-operations-cockpit__state">
             <Inbox aria-hidden="true" size={19} />
             <span>{data.emptyMessage}</span>
           </div>
         ) : data.previews.length > 0 ? (
-          <ul className="staff-attendance-cockpit__preview-list">
+          <ul className="manager-operations-cockpit__preview-list">
             {data.previews.map((preview) => (
               <li
                 className={cx(
-                  'staff-attendance-cockpit__preview',
+                  'manager-operations-cockpit__preview',
                   `is-${preview.tone ?? 'neutral'}`,
                 )}
                 key={preview.id}
               >
-                <span className="staff-attendance-cockpit__preview-copy">
+                <span className="manager-operations-cockpit__preview-copy">
                   <span>
                     <strong>{preview.title}</strong>
                     {preview.badge && <em>{preview.badge}</em>}
@@ -274,7 +275,10 @@ function CockpitPanel({
                 </span>
 
                 {preview.action && (
-                  <CockpitAction action={preview.action} compact />
+                  <ManagerOperationsActionButton
+                    action={preview.action}
+                    compact
+                  />
                 )}
               </li>
             ))}
@@ -285,11 +289,11 @@ function CockpitPanel({
   );
 }
 
-function CockpitAction({
+function ManagerOperationsActionButton({
   action,
   compact = false,
 }: {
-  action: AttendanceCockpitAction;
+  action: ManagerOperationsAction;
   compact?: boolean;
 }) {
   return (
@@ -298,11 +302,12 @@ function CockpitAction({
       aria-label={action.ariaLabel}
       aria-pressed={action.pressed}
       className={cx(
-        'staff-attendance-cockpit__action',
+        'manager-operations-cockpit__action',
         `is-${action.tone ?? 'quiet'}`,
         compact && 'is-compact',
       )}
       disabled={action.disabled || action.loading}
+      id={action.id}
       onClick={action.onClick}
       type="button"
     >

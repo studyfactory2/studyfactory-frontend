@@ -1,41 +1,60 @@
 import { useState } from 'react';
-import type { useAttendanceOperations } from '../hooks/useAttendanceOperations';
+import type { useManagerOperations } from '../hooks/useManagerOperations';
 import {
-  ATTENDANCE_SUGGESTION_LABELS,
+  SUGGESTION_CATEGORY_LABELS,
   formatAttendanceRequestDate,
   formatAttendanceWon,
   getAttendanceTodoMeta,
   getSideDishMenuLabel,
-} from '../model/attendance-operations';
+} from '../model/manager-operations';
 import {
-  AttendanceOperationsCockpit,
-  type AttendanceCockpitSectionData,
-  type AttendanceCockpitSectionId,
-} from './AttendanceOperationsCockpit';
+  ManagerOperationsCockpit,
+  type ManagerOperationsSectionData,
+  type ManagerOperationsSectionId,
+} from './ManagerOperationsCockpit';
 
-export function AttendanceOperationsOverview({
+export function ManagerOperationsOverview({
   initialSection = null,
+  onManageRequests,
+  onManageTasks,
   operations,
 }: {
-  initialSection?: AttendanceCockpitSectionId | null;
-  operations: ReturnType<typeof useAttendanceOperations>;
+  initialSection?: ManagerOperationsSectionId | null;
+  onManageRequests?: () => void;
+  onManageTasks?: () => void;
+  operations: ReturnType<typeof useManagerOperations>;
 }) {
   const [activeSection, setActiveSection] =
-    useState<AttendanceCockpitSectionId | null>(initialSection);
+    useState<ManagerOperationsSectionId | null>(initialSection);
 
-  const todayTasks: AttendanceCockpitSectionData = {
-    count: operations.todos.ready ? operations.todos.rows.length : null,
+  const todayTasks: ManagerOperationsSectionData = {
+    actions: onManageTasks
+      ? [
+          {
+            id: 'manager-operations-manage-tasks',
+            label: '전체 관리',
+            onClick: onManageTasks,
+            tone: 'primary',
+          },
+        ]
+      : undefined,
+    count: operations.todos.today.ready
+      ? operations.todos.today.active.length
+      : null,
     countLabel: '건',
     emptyMessage: '오늘 남은 업무가 없어요.',
-    errorMessage: operations.todos.errorMessage,
-    loading: operations.todos.loading,
-    previews: operations.todos.rows.map((todo) => ({
+    errorMessage: operations.todos.today.errorMessage,
+    loading: operations.todos.today.loading,
+    previews: operations.todos.today.active.map((todo) => ({
       action: {
         ariaLabel: `${todo.content} 완료`,
+        disabled: operations.todos.saving,
         label: '완료',
-        loading: operations.todos.pendingIds.has(todo.id),
+        loading: operations.todos.completingId === todo.id,
         onClick: () =>
-          operations.todos.onComplete(todo, () => focusCockpitTrigger('tasks')),
+          operations.todos.onToggle(todo, () =>
+            focusManagerOperationsTrigger('tasks'),
+          ),
         tone: 'positive',
       },
       badge: todo.priority === 'URGENT' ? '긴급' : undefined,
@@ -45,35 +64,46 @@ export function AttendanceOperationsOverview({
       tone: todo.priority === 'URGENT' ? 'urgent' : 'neutral',
     })),
     summary:
-      operations.todos.ready && operations.todos.urgentCount > 0
-        ? `긴급 ${operations.todos.urgentCount}건`
-        : operations.todos.ready
-          ? operations.todos.rows.length > 0
-            ? `남은 업무 ${operations.todos.rows.length}건`
+      operations.todos.today.ready &&
+      operations.todos.today.active.some((todo) => todo.priority === 'URGENT')
+        ? `긴급 ${operations.todos.today.active.filter((todo) => todo.priority === 'URGENT').length}건`
+        : operations.todos.today.ready
+          ? operations.todos.today.active.length > 0
+            ? `남은 업무 ${operations.todos.today.active.length}건`
             : '모두 완료'
           : undefined,
   };
 
-  const memberRequests: AttendanceCockpitSectionData = {
+  const memberRequests: ManagerOperationsSectionData = {
+    actions: onManageRequests
+      ? [
+          {
+            id: 'manager-operations-manage-member-requests',
+            label: '전체 관리',
+            onClick: onManageRequests,
+            tone: 'primary',
+          },
+        ]
+      : undefined,
     count: operations.suggestions.ready
-      ? operations.suggestions.rows.length
+      ? operations.suggestions.open.length
       : null,
     countLabel: '건',
     emptyMessage: '처리할 회원 요청이 없어요.',
     errorMessage: operations.suggestions.errorMessage,
     loading: operations.suggestions.loading,
-    previews: operations.suggestions.rows.map((suggestion) => ({
+    previews: operations.suggestions.open.map((suggestion) => ({
       action: {
         ariaLabel: `${suggestion.memberName ?? '회원'} 요청 처리 완료`,
         label: '처리 완료',
-        loading: operations.suggestions.pendingIds.has(suggestion.id),
+        loading: operations.suggestions.savingIds.has(suggestion.id),
         onClick: () =>
-          operations.suggestions.onResolve(suggestion, () =>
-            focusCockpitTrigger('member-requests'),
+          operations.suggestions.onToggle(suggestion, () =>
+            focusManagerOperationsTrigger('member-requests'),
           ),
         tone: 'primary',
       },
-      badge: ATTENDANCE_SUGGESTION_LABELS[suggestion.category],
+      badge: SUGGESTION_CATEGORY_LABELS[suggestion.category],
       description: suggestion.content,
       id: suggestion.id,
       meta: formatAttendanceRequestDate(suggestion.createdAt),
@@ -81,8 +111,8 @@ export function AttendanceOperationsOverview({
       tone: 'special',
     })),
     summary: operations.suggestions.ready
-      ? operations.suggestions.rows.length > 0
-        ? `미처리 ${operations.suggestions.rows.length}건`
+      ? operations.suggestions.open.length > 0
+        ? `미처리 ${operations.suggestions.open.length}건`
         : '미처리 없음'
       : undefined,
   };
@@ -97,7 +127,7 @@ export function AttendanceOperationsOverview({
       order,
     })),
   ];
-  const memberSideDishOrders: AttendanceCockpitSectionData = {
+  const memberSideDishOrders: ManagerOperationsSectionData = {
     count: operations.meals.ready ? mealOrders.length : null,
     countLabel: '건',
     emptyMessage: '오늘 접수된 회원 반찬 신청이 없어요.',
@@ -110,7 +140,7 @@ export function AttendanceOperationsOverview({
       meta: formatAttendanceWon(order.totalPrice),
       title:
         order.seatNumber === null
-          ? order.memberName
+          ? `미배정 · ${order.memberName}`
           : `${order.seatNumber}번 · ${order.memberName}`,
       tone: mealLabel === '점심' ? 'positive' : 'special',
     })),
@@ -120,13 +150,13 @@ export function AttendanceOperationsOverview({
   };
 
   return (
-    <AttendanceOperationsCockpit
+    <ManagerOperationsCockpit
       activeSection={activeSection}
       memberRequests={memberRequests}
       memberSideDishOrders={memberSideDishOrders}
       onRetry={(section) => {
         if (section === 'tasks') {
-          operations.todos.onRetry();
+          operations.todos.today.onRetry();
         } else if (section === 'member-requests') {
           operations.suggestions.onRetry();
         } else {
@@ -139,8 +169,8 @@ export function AttendanceOperationsOverview({
   );
 }
 
-function focusCockpitTrigger(section: AttendanceCockpitSectionId) {
+function focusManagerOperationsTrigger(section: ManagerOperationsSectionId) {
   window.requestAnimationFrame(() => {
-    document.getElementById(`attendance-cockpit-trigger-${section}`)?.focus();
+    document.getElementById(`manager-operations-trigger-${section}`)?.focus();
   });
 }

@@ -1,4 +1,4 @@
-.staff-attendance-cockpit {
+.manager-operations-cockpit {
   --cockpit-accent: var(--brand-forest);
   min-width: 0;
   overflow: hidden;
@@ -8,16 +8,16 @@
   box-shadow:
     0 1px 2px rgb(var(--brand-ink-rgb) / 2%),
     0 7px 20px rgb(var(--brand-ink-rgb) / 4%);
-  container-name: attendance-cockpit;
+  container-name: manager-operations-cockpit;
   container-type: inline-size;
 }
 
-.staff-attendance-cockpit__overview {
+.manager-operations-cockpit__overview {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.staff-attendance-cockpit__summary {
+.manager-operations-cockpit__summary {
   --cockpit-accent: var(--brand-gold-text);
   --cockpit-accent-soft: var(--special-soft);
   position: relative;
@@ -40,21 +40,21 @@
     color 0.16s ease;
 }
 
-.staff-attendance-cockpit__summary.is-member-requests {
+.manager-operations-cockpit__summary.is-member-requests {
   --cockpit-accent: var(--accent-deep);
   --cockpit-accent-soft: var(--accent-soft);
 }
 
-.staff-attendance-cockpit__summary.is-side-dish-orders {
+.manager-operations-cockpit__summary.is-side-dish-orders {
   --cockpit-accent: var(--positive-deep);
   --cockpit-accent-soft: var(--positive-soft);
 }
 
-.staff-attendance-cockpit__summary:last-child {
+.manager-operations-cockpit__summary:last-child {
   border-right: 0;
 }
 
-.staff-attendance-cockpit__summary::after {
+.manager-operations-cockpit__summary::after {
   position: absolute;
   right: 13px;
   bottom: 0;
@@ -70,25 +70,25 @@
     transform 0.16s ease;
 }
 
-.staff-attendance-cockpit__summary:hover,
-.staff-attendance-cockpit__summary.is-active {
+.manager-operations-cockpit__summary:hover,
+.manager-operations-cockpit__summary.is-active {
   background: rgb(var(--brand-forest-rgb) / 3%);
 }
 
-.staff-attendance-cockpit__summary.is-active::after {
+.manager-operations-cockpit__summary.is-active::after {
   opacity: 1;
   transform: scaleX(1);
 }
 
-.staff-attendance-cockpit__summary:focus-visible,
-.staff-attendance-cockpit__action:focus-visible,
-.staff-attendance-cockpit__state button:focus-visible {
+.manager-operations-cockpit__summary:focus-visible,
+.manager-operations-cockpit__action:focus-visible,
+.manager-operations-cockpit__state button:focus-visible {
   z-index: 1;
   outline: 2px solid var(--accent);
   outline-offset: -3px;
 }
 
-.staff-attendance-cockpit__summary-icon {
+.manager-operations-cockpit__summary-icon {
   display: grid;
   width: 30px;
   height: 30px;
@@ -98,13 +98,13 @@
   place-items: center;
 }
 
-.staff-attendance-cockpit__summary-copy {
+.manager-operations-cockpit__summary-copy {
   display: grid;
   min-width: 0;
   gap: 1px;
 }
 
-.staff-attendance-cockpit__summary-copy strong {
+.manager-operations-cockpit__summary-copy strong {
   overflow: hidden;
   font-size: var(--text-xs);
   font-weight: var(--weight-extrabold);
@@ -113,7 +113,7 @@
   white-space: nowrap;
 }
 
-.staff-attendance-cockpit__summary-copy small {
+.manager-operations-cockpit__summary-copy small {
   overflow: hidden;
   color: var(--brand-muted);
   font-size: var(--text-3xs);
@@ -122,13 +122,13 @@
   white-space: nowrap;
 }
 
-.staff-attendance-cockpit__summary.has-error
-  .staff-attendance-cockpit__summary-copy
+.manager-operations-cockpit__summary.has-error
+  .manager-operations-cockpit__summary-copy
   small {
   color: var(--danger-deep);
 }
 
-.staff-attendance-cockpit__summary-count {
+.manager-operations-cockpit__summary-count {
   display: inline-flex;
   align-items: baseline;
   color: var(--cockpit-accent);
@@ -137,34 +137,34 @@
   white-space: nowrap;
 }
 
-.staff-attendance-cockpit__summary-count b {
+.manager-operations-cockpit__summary-count b {
   font-size: var(--text-lg);
   font-weight: var(--weight-extrabold);
   letter-spacing: var(--tracking-tighter);
 }
 
-.staff-attendance-cockpit__summary-count small {
+.manager-operations-cockpit__summary-count small {
   font-size: var(--text-3xs);
   font-weight: var(--weight-bold);
 }
 
-.staff-attendance-cockpit__summary-chevron {
+.manager-operations-cockpit__summary-chevron {
   color: var(--brand-muted);
   transition: transform 0.16s ease;
 }
 
-.staff-attendance-cockpit__summary.is-active
-  .staff-attendance-cockpit__summary-chevron {
+.manager-operations-cockpit__summary.is-active
+  .manager-operations-cockpit__summary-chevron {
   color: var(--cockpit-accent);
   transform: rotate(180deg);
 }
 
-.staff-attendance-cockpit__panel {
+.manager-operations-cockpit__panel {
   border-top: 1px solid rgb(var(--brand-ink-rgb) / 7%);
   background: rgb(var(--brand-forest-rgb) / 1.8%);
 }
 
-.staff-attendance-cockpit__panel-header {
+.manager-operations-cockpit__panel-header {
   display: flex;
   min-height: 50px;
   align-items: center;
@@ -174,21 +174,21 @@
   gap: var(--space-3);
 }
 
-.staff-attendance-cockpit__panel-header > span {
+.manager-operations-cockpit__panel-header > span {
   display: flex;
   min-width: 0;
   align-items: baseline;
   gap: 8px;
 }
 
-.staff-attendance-cockpit__panel-header strong {
+.manager-operations-cockpit__panel-header strong {
   color: var(--brand-ink);
   font-size: var(--text-sm);
   font-weight: var(--weight-extrabold);
   white-space: nowrap;
 }
 
-.staff-attendance-cockpit__panel-header small {
+.manager-operations-cockpit__panel-header small {
   overflow: hidden;
   color: var(--brand-muted);
   font-size: var(--text-3xs);
@@ -197,15 +197,15 @@
   white-space: nowrap;
 }
 
-.staff-attendance-cockpit__panel-actions {
+.manager-operations-cockpit__panel-actions {
   display: flex;
   flex: none;
   align-items: center;
   gap: 6px;
 }
 
-.staff-attendance-cockpit__action,
-.staff-attendance-cockpit__state button {
+.manager-operations-cockpit__action,
+.manager-operations-cockpit__state button {
   display: inline-flex;
   min-height: 34px;
   align-items: center;
@@ -223,44 +223,44 @@
   white-space: nowrap;
 }
 
-.staff-attendance-cockpit__action.is-primary {
+.manager-operations-cockpit__action.is-primary {
   border-color: var(--brand-forest);
   background: var(--brand-forest);
   color: var(--brand-ivory);
 }
 
-.staff-attendance-cockpit__action.is-positive {
+.manager-operations-cockpit__action.is-positive {
   border-color: rgb(var(--positive-rgb) / 28%);
   background: var(--positive-soft);
   color: var(--positive-deep);
 }
 
-.staff-attendance-cockpit__action:hover:not(:disabled),
-.staff-attendance-cockpit__state button:hover:not(:disabled) {
+.manager-operations-cockpit__action:hover:not(:disabled),
+.manager-operations-cockpit__state button:hover:not(:disabled) {
   border-color: rgb(var(--brand-forest-rgb) / 30%);
   color: var(--brand-forest);
 }
 
-.staff-attendance-cockpit__action.is-primary:hover:not(:disabled) {
+.manager-operations-cockpit__action.is-primary:hover:not(:disabled) {
   border-color: var(--brand-forest-light);
   background: var(--brand-forest-light);
   color: var(--brand-ivory);
 }
 
-.staff-attendance-cockpit__action:disabled,
-.staff-attendance-cockpit__state button:disabled {
+.manager-operations-cockpit__action:disabled,
+.manager-operations-cockpit__state button:disabled {
   cursor: wait;
   opacity: 0.58;
 }
 
-.staff-attendance-cockpit__panel-body {
+.manager-operations-cockpit__panel-body {
   display: grid;
   min-width: 0;
   padding: var(--space-3) var(--space-4) var(--space-4);
   gap: 8px;
 }
 
-.staff-attendance-cockpit__preview-list {
+.manager-operations-cockpit__preview-list {
   display: grid;
   max-height: min(34svh, 16rem);
   margin: 0;
@@ -273,7 +273,7 @@
   scrollbar-width: thin;
 }
 
-.staff-attendance-cockpit__preview {
+.manager-operations-cockpit__preview {
   --preview-accent: rgb(var(--brand-forest-rgb) / 22%);
   display: flex;
   min-width: 0;
@@ -288,32 +288,32 @@
   gap: 9px;
 }
 
-.staff-attendance-cockpit__preview.is-urgent {
+.manager-operations-cockpit__preview.is-urgent {
   --preview-accent: var(--danger);
 }
 
-.staff-attendance-cockpit__preview.is-positive {
+.manager-operations-cockpit__preview.is-positive {
   --preview-accent: var(--positive);
 }
 
-.staff-attendance-cockpit__preview.is-special {
+.manager-operations-cockpit__preview.is-special {
   --preview-accent: var(--brand-gold);
 }
 
-.staff-attendance-cockpit__preview-copy {
+.manager-operations-cockpit__preview-copy {
   display: grid;
   min-width: 0;
   gap: 3px;
 }
 
-.staff-attendance-cockpit__preview-copy > span {
+.manager-operations-cockpit__preview-copy > span {
   display: flex;
   min-width: 0;
   align-items: center;
   gap: 6px;
 }
 
-.staff-attendance-cockpit__preview-copy strong {
+.manager-operations-cockpit__preview-copy strong {
   min-width: 0;
   overflow: hidden;
   color: var(--brand-ink);
@@ -323,7 +323,7 @@
   white-space: nowrap;
 }
 
-.staff-attendance-cockpit__preview-copy em {
+.manager-operations-cockpit__preview-copy em {
   flex: none;
   padding: 2px 6px;
   border-radius: var(--radius-pill);
@@ -334,7 +334,7 @@
   font-weight: var(--weight-extrabold);
 }
 
-.staff-attendance-cockpit__preview-copy p {
+.manager-operations-cockpit__preview-copy p {
   display: -webkit-box;
   margin: 0;
   overflow: hidden;
@@ -346,7 +346,7 @@
   -webkit-line-clamp: 2;
 }
 
-.staff-attendance-cockpit__preview-copy small {
+.manager-operations-cockpit__preview-copy small {
   overflow: hidden;
   color: var(--brand-muted);
   font-size: var(--text-3xs);
@@ -356,13 +356,13 @@
   white-space: nowrap;
 }
 
-.staff-attendance-cockpit__action.is-compact {
+.manager-operations-cockpit__action.is-compact {
   min-height: 32px;
   flex: none;
   padding: 0 9px;
 }
 
-.staff-attendance-cockpit__state {
+.manager-operations-cockpit__state {
   display: flex;
   min-height: 66px;
   align-items: center;
@@ -377,51 +377,51 @@
   text-align: center;
 }
 
-.staff-attendance-cockpit__state.is-error {
+.manager-operations-cockpit__state.is-error {
   background: var(--danger-soft);
   color: var(--danger-deep);
 }
 
-.staff-attendance-cockpit__state.is-error button {
+.manager-operations-cockpit__state.is-error button {
   margin-left: 4px;
   border-color: color-mix(in srgb, var(--danger) 28%, transparent);
   color: var(--danger-deep);
 }
 
-.staff-attendance-cockpit .is-spinning {
-  animation: staff-attendance-cockpit-spin 0.8s linear infinite;
+.manager-operations-cockpit .is-spinning {
+  animation: manager-operations-cockpit-spin 0.8s linear infinite;
 }
 
-@keyframes staff-attendance-cockpit-spin {
+@keyframes manager-operations-cockpit-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@container attendance-cockpit (max-width: 52rem) {
-  .staff-attendance-cockpit__summary {
+@container manager-operations-cockpit (max-width: 52rem) {
+  .manager-operations-cockpit__summary {
     min-height: 60px;
     padding: 8px 10px;
     gap: 7px;
     grid-template-columns: 28px minmax(0, 1fr) auto;
   }
 
-  .staff-attendance-cockpit__summary-icon {
+  .manager-operations-cockpit__summary-icon {
     width: 28px;
     height: 28px;
   }
 
-  .staff-attendance-cockpit__summary-chevron {
+  .manager-operations-cockpit__summary-chevron {
     display: none;
   }
 
-  .staff-attendance-cockpit__preview-list {
+  .manager-operations-cockpit__preview-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@container attendance-cockpit (max-width: 34rem) {
-  .staff-attendance-cockpit__summary {
+@container manager-operations-cockpit (max-width: 34rem) {
+  .manager-operations-cockpit__summary {
     min-height: 56px;
     justify-items: stretch;
     padding: 8px;
@@ -430,76 +430,76 @@
     text-align: left;
   }
 
-  .staff-attendance-cockpit__summary::after {
+  .manager-operations-cockpit__summary::after {
     right: 8px;
     left: 8px;
   }
 
-  .staff-attendance-cockpit__summary-icon {
+  .manager-operations-cockpit__summary-icon {
     display: none;
   }
 
-  .staff-attendance-cockpit__summary-copy {
+  .manager-operations-cockpit__summary-copy {
     justify-items: start;
   }
 
-  .staff-attendance-cockpit__summary-copy strong {
+  .manager-operations-cockpit__summary-copy strong {
     max-width: 100%;
     font-size: var(--text-2xs);
     letter-spacing: 0;
   }
 
-  .staff-attendance-cockpit__summary-copy small {
+  .manager-operations-cockpit__summary-copy small {
     display: none;
   }
 
-  .staff-attendance-cockpit__summary-count b {
+  .manager-operations-cockpit__summary-count b {
     font-size: var(--text-md);
   }
 
-  .staff-attendance-cockpit__panel-header {
+  .manager-operations-cockpit__panel-header {
     align-items: stretch;
     flex-direction: column;
     padding: 9px var(--space-3);
   }
 
-  .staff-attendance-cockpit__panel-header > span {
+  .manager-operations-cockpit__panel-header > span {
     display: grid;
     gap: 2px;
   }
 
-  .staff-attendance-cockpit__panel-actions {
+  .manager-operations-cockpit__panel-actions {
     flex-wrap: wrap;
     justify-content: flex-start;
   }
 
-  .staff-attendance-cockpit__panel-body {
+  .manager-operations-cockpit__panel-body {
     padding: 9px var(--space-3) var(--space-3);
   }
 
-  .staff-attendance-cockpit__preview-list {
+  .manager-operations-cockpit__preview-list {
     max-height: min(38svh, 18rem);
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .staff-attendance-cockpit__preview {
+  .manager-operations-cockpit__preview {
     min-height: 66px;
   }
 
-  .staff-attendance-cockpit__action.is-compact {
+  .manager-operations-cockpit__action.is-compact {
     min-height: 42px;
   }
 
-  .staff-attendance-cockpit__state {
+  .manager-operations-cockpit__state {
     min-height: 58px;
     padding: 10px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .staff-attendance-cockpit__summary::after,
-  .staff-attendance-cockpit__summary-chevron,
-  .staff-attendance-cockpit .is-spinning {
+  .manager-operations-cockpit__summary::after,
+  .manager-operations-cockpit__summary-chevron,
+  .manager-operations-cockpit .is-spinning {
     animation: none;
     transition: none;
   }

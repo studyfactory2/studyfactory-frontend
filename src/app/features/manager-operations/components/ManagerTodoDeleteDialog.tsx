@@ -1,7 +1,7 @@
-import type { TodoResponse } from '../../../../features/todos/todos-api';
-import { Button, Modal } from '../../../../shared/ui';
+import type { TodoResponse } from '../../todos/todos-api';
+import { Button, Modal } from '../../../shared/ui';
 
-export function TodoDeleteDialog({
+export function ManagerTodoDeleteDialog({
   onClose,
   onConfirm,
   openTodo,
@@ -14,13 +14,14 @@ export function TodoDeleteDialog({
 }) {
   return (
     <Modal
+      closeDisabled={saving}
       onClose={onClose}
       open={openTodo !== null}
       size="sm"
       title="할 일 삭제"
     >
       {openTodo && (
-        <div className="staff-operations__delete-dialog">
+        <div className="manager-work__delete-dialog">
           <p>이 할 일을 삭제할까요?</p>
           <blockquote>{openTodo.content}</blockquote>
           <div>

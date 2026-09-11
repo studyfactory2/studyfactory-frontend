@@ -1,5 +1,3 @@
-@import './attendance-operations-cockpit.css';
-
 .staff-attendance {
   display: grid;
   min-width: 0;

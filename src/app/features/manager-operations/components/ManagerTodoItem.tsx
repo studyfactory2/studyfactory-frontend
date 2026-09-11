@@ -6,12 +6,12 @@ import {
   Pencil,
   Trash2,
 } from 'lucide-react';
-import type { TodoResponse } from '../../../../features/todos/todos-api';
-import { cx } from '../../../../shared/lib/cx';
-import { Badge, Button, Input } from '../../../../shared/ui';
-import { getTodoMeta, TODO_SOURCE_LABELS } from '../model/staff-operations';
+import type { TodoResponse } from '../../todos/todos-api';
+import { cx } from '../../../shared/lib/cx';
+import { Badge, Button, Input } from '../../../shared/ui';
+import { getTodoMeta, TODO_SOURCE_LABELS } from '../model/manager-operations';
 
-export function TodoItem({
+export function ManagerTodoItem({
   onAddReply,
   onDelete,
   onToggle,
@@ -73,19 +73,19 @@ export function TodoItem({
   return (
     <li
       className={cx(
-        'staff-operations__todo',
+        'manager-work__todo',
         todo.priority === 'URGENT' && 'is-urgent',
         todo.completed && 'is-completed',
       )}
     >
-      <div className="staff-operations__todo-main">
+      <div className="manager-work__todo-main">
         <button
           aria-label={todo.completed ? '할 일 다시 열기' : '할 일 완료'}
           aria-pressed={todo.completed}
-          className="staff-operations__todo-check"
+          className="manager-work__todo-check"
           data-todo-toggle
           disabled={saving}
-          id={`staff-operations-todo-toggle-${todo.id}`}
+          id={`manager-work-todo-toggle-${todo.id}`}
           onClick={(event) => {
             const controls = Array.from(
               event.currentTarget
@@ -100,15 +100,15 @@ export function TodoItem({
             onToggle(todo, () => {
               window.requestAnimationFrame(() => {
                 const sameControl = document.getElementById(
-                  `staff-operations-todo-toggle-${todo.id}`,
+                  `manager-work-todo-toggle-${todo.id}`,
                 );
                 const adjacentControl = adjacentId
                   ? document.getElementById(adjacentId)
                   : null;
                 const fallback = document.getElementById(
                   todo.completed
-                    ? 'staff-operations-completed-toggle'
-                    : 'staff-operations-todo-composer-input',
+                    ? 'manager-work-completed-toggle'
+                    : 'manager-work-todo-composer-input',
                 );
 
                 (sameControl ?? adjacentControl ?? fallback)?.focus();
@@ -120,8 +120,8 @@ export function TodoItem({
           <Check aria-hidden="true" size={15} strokeWidth={3} />
         </button>
 
-        <div className="staff-operations__todo-copy">
-          <span className="staff-operations__todo-badges">
+        <div className="manager-work__todo-copy">
+          <span className="manager-work__todo-badges">
             <Badge tone={todo.priority === 'URGENT' ? 'danger' : 'neutral'}>
               {todo.priority === 'URGENT' ? '긴급' : '일반'}
             </Badge>
@@ -132,7 +132,7 @@ export function TodoItem({
 
           {editing ? (
             <form
-              className="staff-operations__todo-inline-form"
+              className="manager-work__todo-inline-form"
               onSubmit={(event) => {
                 event.preventDefault();
                 submitEdit();
@@ -167,7 +167,7 @@ export function TodoItem({
             <p>{todo.content}</p>
           )}
 
-          <span className="staff-operations__todo-meta">
+          <span className="manager-work__todo-meta">
             {getTodoMeta(todo)}
             {todo.replies.length > 0 && ` · 답글 ${todo.replies.length}개`}
           </span>
@@ -176,7 +176,7 @@ export function TodoItem({
         <button
           aria-expanded={expanded}
           aria-label="할 일 상세 보기"
-          className={cx('staff-operations__todo-expand', expanded && 'is-open')}
+          className={cx('manager-work__todo-expand', expanded && 'is-open')}
           onClick={() => setExpanded((current) => !current)}
           type="button"
         >
@@ -185,12 +185,12 @@ export function TodoItem({
       </div>
 
       {expanded && (
-        <div className="staff-operations__todo-detail">
+        <div className="manager-work__todo-detail">
           {todo.replies.length > 0 && (
-            <ul className="staff-operations__todo-replies">
+            <ul className="manager-work__todo-replies">
               {todo.replies.map((reply) => (
                 <li key={reply.id}>
-                  <strong>{reply.memberName ?? '스텝'}</strong>
+                  <strong>{reply.memberName ?? '운영자'}</strong>
                   <p>{reply.content}</p>
                 </li>
               ))}
@@ -198,11 +198,11 @@ export function TodoItem({
           )}
 
           {lockedSource ? (
-            <p className="staff-operations__todo-locked-note">
+            <p className="manager-work__todo-locked-note">
               신규 회원 정보에서 자동 갱신되는 항목이에요.
             </p>
           ) : (
-            <div className="staff-operations__todo-actions">
+            <div className="manager-work__todo-actions">
               <button
                 disabled={saving}
                 onClick={() => {
@@ -240,7 +240,7 @@ export function TodoItem({
 
           {replying && !lockedSource && (
             <form
-              className="staff-operations__todo-inline-form is-reply"
+              className="manager-work__todo-inline-form is-reply"
               onSubmit={(event) => {
                 event.preventDefault();
                 submitReply();

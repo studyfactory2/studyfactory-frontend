@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
+import {
+  ManagerSuggestionInbox,
+  ManagerTodoBoard,
+  useManagerSuggestions,
+  useManagerTodos,
+} from '../../../features/manager-operations';
 import { useSeoulToday } from '../../../shared/hooks/useSeoulToday';
 import {
   formatKoreanDate,
@@ -14,12 +20,8 @@ import { StaffLeavePanel } from './components/StaffLeavePanel';
 import { StaffSideDishPanel } from './components/StaffSideDishPanel';
 import { StaffSchedulePanel } from './components/StaffSchedulePanel';
 import { StaffSeatPanel } from './components/StaffSeatPanel';
-import { SuggestionInbox } from './components/SuggestionInbox';
-import { TodoBoard } from './components/TodoBoard';
-import { useStaffSuggestions } from './hooks/useStaffSuggestions';
 import { useStaffSchedule } from './hooks/useStaffSchedule';
 import { useStaffSeats } from './hooks/useStaffSeats';
-import { useStaffTodos } from './hooks/useStaffTodos';
 import './styles/staff-operations.css';
 
 export function StaffOperationsScreen() {
@@ -158,13 +160,15 @@ function StaffWorkView({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
-  const todos = useStaffTodos({ branchId, memberId, ownerKey });
-  const suggestions = useStaffSuggestions({ branchId, memberId, ownerKey });
+  const todos = useManagerTodos({ branchId, memberId, ownerKey });
+  const suggestions = useManagerSuggestions({ branchId, memberId, ownerKey });
 
   return (
-    <div className="staff-operations__work-grid">
-      <TodoBoard todos={todos} />
-      <SuggestionInbox suggestions={suggestions} />
+    <div className="manager-work">
+      <div className="manager-work__grid">
+        <ManagerTodoBoard todos={todos} />
+        <ManagerSuggestionInbox suggestions={suggestions} />
+      </div>
     </div>
   );
 }

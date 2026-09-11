@@ -1,18 +1,18 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { SessionOwnerKey } from '../../../../core/session';
-import { suggestionQueryKeys } from '../../../../features/suggestions/suggestion-query-keys';
+import type { SessionOwnerKey } from '../../../core/session';
+import { suggestionQueryKeys } from '../../suggestions/suggestion-query-keys';
 import {
   fetchBranchSuggestions,
   toggleSuggestionResolution,
   type SuggestionResponse,
-} from '../../../../features/suggestions/suggestions-api';
-import { useToast } from '../../../../shared/ui';
-import { orderSuggestions } from '../model/staff-operations';
+} from '../../suggestions/suggestions-api';
+import { useToast } from '../../../shared/ui';
+import { orderSuggestions } from '../model/manager-operations';
 
 const SUGGESTIONS_STALE_TIME_MS = 30 * 1_000;
 
-export function useStaffSuggestions({
+export function useManagerSuggestions({
   branchId,
   memberId,
   ownerKey,
@@ -32,7 +32,7 @@ export function useStaffSuggestions({
     queryFn: () => fetchBranchSuggestions(branchId, memberId),
     queryKey: suggestionQueryKeys.branch(ownerKey, branchId),
     refetchInterval: 30 * 1_000,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: 'always',
     staleTime: SUGGESTIONS_STALE_TIME_MS,
   });
 

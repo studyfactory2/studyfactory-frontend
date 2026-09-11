@@ -1,4 +1,4 @@
-.staff-operations__datebar {
+.manager-work__datebar {
   display: grid;
   align-items: center;
   gap: 5px;
@@ -8,7 +8,7 @@
   grid-template-columns: 38px minmax(0, 1fr) 38px auto;
 }
 
-.staff-operations__datebar > button {
+.manager-work__datebar > button {
   display: grid;
   width: 38px;
   height: 38px;
@@ -20,12 +20,12 @@
   place-items: center;
 }
 
-.staff-operations__datebar > button:hover:not(:disabled) {
+.manager-work__datebar > button:hover:not(:disabled) {
   border-color: rgb(var(--brand-forest-rgb) / 30%);
   color: var(--brand-forest);
 }
 
-.staff-operations__datebar > strong {
+.manager-work__datebar > strong {
   display: inline-flex;
   min-width: 0;
   align-items: center;
@@ -38,7 +38,7 @@
   text-align: center;
 }
 
-.staff-operations__datebar > strong small {
+.manager-work__datebar > strong small {
   padding: 2px 7px;
   border-radius: var(--radius-pill);
   background: var(--positive-soft);
@@ -46,7 +46,7 @@
   font-size: var(--text-3xs);
 }
 
-.staff-operations__datebar > .staff-operations__datebar-today {
+.manager-work__datebar > .manager-work__datebar-today {
   width: auto;
   padding: 0 12px;
   color: var(--brand-forest);
@@ -55,14 +55,14 @@
   white-space: nowrap;
 }
 
-.staff-operations__datebar > .staff-operations__datebar-today:disabled {
+.manager-work__datebar > .manager-work__datebar-today:disabled {
   background: transparent;
   color: var(--brand-muted);
   cursor: default;
   opacity: 0.68;
 }
 
-.staff-operations__todo-composer {
+.manager-work__todo-composer {
   display: grid;
   align-items: center;
   gap: 8px;
@@ -71,7 +71,7 @@
   grid-template-columns: minmax(0, 1fr) auto auto;
 }
 
-.staff-operations__urgent-toggle {
+.manager-work__urgent-toggle {
   display: inline-flex;
   min-height: var(--control-height-sm);
   align-items: center;
@@ -87,13 +87,13 @@
   font-weight: var(--weight-bold);
 }
 
-.staff-operations__urgent-toggle.is-active {
+.manager-work__urgent-toggle.is-active {
   border-color: color-mix(in srgb, var(--danger) 35%, transparent);
   background: var(--danger-soft);
   color: var(--danger-deep);
 }
 
-.staff-operations__todo-list {
+.manager-work__todo-list {
   display: grid;
   margin: 0;
   padding: 0;
@@ -101,7 +101,7 @@
   list-style: none;
 }
 
-.staff-operations__todo {
+.manager-work__todo {
   overflow: hidden;
   border: 1px solid var(--brand-line);
   border-radius: 14px;
@@ -109,18 +109,18 @@
   box-shadow: inset 3px 0 0 rgb(var(--brand-forest-rgb) / 18%);
 }
 
-.staff-operations__todo.is-urgent {
+.manager-work__todo.is-urgent {
   border-color: color-mix(in srgb, var(--danger) 24%, var(--brand-line));
   box-shadow: inset 3px 0 0 var(--danger);
 }
 
-.staff-operations__todo.is-completed {
+.manager-work__todo.is-completed {
   background: rgb(var(--brand-forest-rgb) / 2%);
   box-shadow: none;
   opacity: 0.78;
 }
 
-.staff-operations__todo-main {
+.manager-work__todo-main {
   display: grid;
   min-height: 76px;
   align-items: center;
@@ -129,8 +129,8 @@
   grid-template-columns: 42px minmax(0, 1fr) 40px;
 }
 
-.staff-operations__todo-check,
-.staff-operations__todo-expand {
+.manager-work__todo-check,
+.manager-work__todo-expand {
   display: grid;
   width: 40px;
   height: 40px;
@@ -142,49 +142,49 @@
   place-items: center;
 }
 
-.staff-operations__todo-check:hover:not(:disabled) {
+.manager-work__todo-check:hover:not(:disabled) {
   border-color: var(--positive);
   color: var(--positive-deep);
 }
 
-.staff-operations__todo-check[aria-pressed='true'] {
+.manager-work__todo-check[aria-pressed='true'] {
   border-color: var(--positive-deep);
   background: var(--positive-deep);
   color: var(--paper);
 }
 
-.staff-operations__todo-check:disabled,
-.staff-operations__todo-expand:disabled {
+.manager-work__todo-check:disabled,
+.manager-work__todo-expand:disabled {
   cursor: wait;
   opacity: 0.5;
 }
 
-.staff-operations__todo-expand svg {
+.manager-work__todo-expand svg {
   transition: transform 0.16s ease;
 }
 
-.staff-operations__todo-expand.is-open svg {
+.manager-work__todo-expand.is-open svg {
   transform: rotate(180deg);
 }
 
-.staff-operations__todo-copy {
+.manager-work__todo-copy {
   display: grid;
   min-width: 0;
   gap: 6px;
 }
 
-.staff-operations__todo-badges {
+.manager-work__todo-badges {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
 }
 
-.staff-operations__todo-badges .ui-badge {
+.manager-work__todo-badges .ui-badge {
   padding: 2px 7px;
   font-size: var(--text-3xs);
 }
 
-.staff-operations__todo-copy > p {
+.manager-work__todo-copy > p {
   margin: 0;
   color: var(--brand-ink);
   font-size: var(--text-sm);
@@ -193,29 +193,29 @@
   overflow-wrap: anywhere;
 }
 
-.staff-operations__todo.is-completed .staff-operations__todo-copy > p {
+.manager-work__todo.is-completed .manager-work__todo-copy > p {
   color: var(--brand-muted);
   text-decoration: line-through;
 }
 
-.staff-operations__todo-meta {
+.manager-work__todo-meta {
   color: var(--brand-muted);
   font-size: var(--text-3xs);
 }
 
-.staff-operations__todo-detail {
+.manager-work__todo-detail {
   display: grid;
   gap: 10px;
   padding: 0 var(--space-4) var(--space-4) 66px;
 }
 
-.staff-operations__todo-actions {
+.manager-work__todo-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 7px;
 }
 
-.staff-operations__todo-actions button {
+.manager-work__todo-actions button {
   display: inline-flex;
   min-height: 38px;
   align-items: center;
@@ -231,32 +231,32 @@
   font-weight: var(--weight-bold);
 }
 
-.staff-operations__todo-actions button:hover:not(:disabled) {
+.manager-work__todo-actions button:hover:not(:disabled) {
   border-color: rgb(var(--brand-forest-rgb) / 28%);
   color: var(--brand-forest);
 }
 
-.staff-operations__todo-actions button.is-danger {
+.manager-work__todo-actions button.is-danger {
   color: var(--danger-deep);
 }
 
-.staff-operations__todo-actions button:disabled {
+.manager-work__todo-actions button:disabled {
   cursor: wait;
   opacity: 0.5;
 }
 
-.staff-operations__todo-inline-form {
+.manager-work__todo-inline-form {
   display: grid;
   align-items: center;
   gap: 7px;
   grid-template-columns: minmax(0, 1fr) auto auto;
 }
 
-.staff-operations__todo-inline-form.is-reply {
+.manager-work__todo-inline-form.is-reply {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.staff-operations__todo-replies {
+.manager-work__todo-replies {
   display: grid;
   margin: 0;
   padding: 0;
@@ -264,7 +264,7 @@
   list-style: none;
 }
 
-.staff-operations__todo-replies li {
+.manager-work__todo-replies li {
   display: grid;
   gap: 2px;
   padding: 9px 11px;
@@ -272,14 +272,14 @@
   background: rgb(var(--brand-forest-rgb) / 5%);
 }
 
-.staff-operations__todo-replies strong {
+.manager-work__todo-replies strong {
   color: var(--brand-ink-soft);
   font-size: var(--text-3xs);
   font-weight: var(--weight-extrabold);
 }
 
-.staff-operations__todo-replies p,
-.staff-operations__todo-locked-note {
+.manager-work__todo-replies p,
+.manager-work__todo-locked-note {
   margin: 0;
   color: var(--brand-muted);
   font-size: var(--text-xs);
@@ -287,14 +287,14 @@
   overflow-wrap: anywhere;
 }
 
-.staff-operations__completed {
+.manager-work__completed {
   display: grid;
   gap: 9px;
   padding-top: 4px;
   border-top: 1px solid var(--brand-line);
 }
 
-.staff-operations__completed > button {
+.manager-work__completed > button {
   display: inline-flex;
   min-height: 42px;
   align-items: center;
@@ -309,27 +309,27 @@
   font-weight: var(--weight-bold);
 }
 
-.staff-operations__completed > button svg {
+.manager-work__completed > button svg {
   transition: transform 0.16s ease;
 }
 
-.staff-operations__completed > button svg.is-open {
+.manager-work__completed > button svg.is-open {
   transform: rotate(90deg);
 }
 
-.staff-operations__delete-dialog {
+.manager-work__delete-dialog {
   display: grid;
   gap: var(--space-4);
 }
 
-.staff-operations__delete-dialog > p {
+.manager-work__delete-dialog > p {
   margin: 0;
   color: var(--brand-ink);
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
 }
 
-.staff-operations__delete-dialog blockquote {
+.manager-work__delete-dialog blockquote {
   margin: 0;
   padding: 12px 14px;
   border-left: 3px solid var(--danger);
@@ -340,54 +340,54 @@
   line-height: var(--leading-normal);
 }
 
-.staff-operations__delete-dialog > div {
+.manager-work__delete-dialog > div {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
 }
 
-@container staff-operations (max-width: 34rem) {
-  .staff-operations__datebar,
-  .staff-operations__todo-composer {
+@container manager-work (max-width: 34rem) {
+  .manager-work__datebar,
+  .manager-work__todo-composer {
     padding-right: var(--space-4);
     padding-left: var(--space-4);
   }
 
-  .staff-operations__todo-composer {
+  .manager-work__todo-composer {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .staff-operations__todo-composer > .control {
+  .manager-work__todo-composer > .control {
     grid-column: 1 / -1;
   }
 
-  .staff-operations__todo-composer > .btn {
+  .manager-work__todo-composer > .btn {
     min-width: 78px;
   }
 
-  .staff-operations__todo-main {
+  .manager-work__todo-main {
     gap: 8px;
     padding-left: 10px;
     grid-template-columns: 40px minmax(0, 1fr) 38px;
   }
 
-  .staff-operations__todo-detail {
+  .manager-work__todo-detail {
     padding-left: 58px;
   }
 
-  .staff-operations__todo-inline-form,
-  .staff-operations__todo-inline-form.is-reply {
+  .manager-work__todo-inline-form,
+  .manager-work__todo-inline-form.is-reply {
     grid-template-columns: minmax(0, 1fr) auto;
   }
 
-  .staff-operations__todo-inline-form > .control {
+  .manager-work__todo-inline-form > .control {
     grid-column: 1 / -1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .staff-operations__todo-expand svg,
-  .staff-operations__completed > button svg {
+  .manager-work__todo-expand svg,
+  .manager-work__completed > button svg {
     transition: none;
   }
 }

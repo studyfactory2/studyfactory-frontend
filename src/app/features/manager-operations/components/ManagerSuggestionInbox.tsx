@@ -5,7 +5,7 @@ import {
   RefreshCw,
   RotateCcw,
 } from 'lucide-react';
-import { cx } from '../../../../shared/lib/cx';
+import { cx } from '../../../shared/lib/cx';
 import {
   Badge,
   Button,
@@ -13,30 +13,30 @@ import {
   SectionEmpty,
   SectionError,
   SectionLoading,
-} from '../../../../shared/ui';
-import type { useStaffSuggestions } from '../hooks/useStaffSuggestions';
+} from '../../../shared/ui';
+import type { useManagerSuggestions } from '../hooks/useManagerSuggestions';
 import {
   formatServerLocalDate,
   SUGGESTION_CATEGORY_LABELS,
-} from '../model/staff-operations';
+} from '../model/manager-operations';
 
 type SuggestionFilter = 'open' | 'resolved';
 
-export function SuggestionInbox({
+export function ManagerSuggestionInbox({
   suggestions,
 }: {
-  suggestions: ReturnType<typeof useStaffSuggestions>;
+  suggestions: ReturnType<typeof useManagerSuggestions>;
 }) {
   const [filter, setFilter] = useState<SuggestionFilter>('open');
   const rows = filter === 'open' ? suggestions.open : suggestions.resolved;
 
   return (
     <Card
-      className="staff-operations__panel staff-operations__suggestions"
+      className="manager-work__panel manager-work__suggestions"
       padding="none"
     >
-      <header className="staff-operations__panel-header">
-        <span className="staff-operations__panel-title">
+      <header className="manager-work__panel-header">
+        <span className="manager-work__panel-title">
           <i aria-hidden="true">
             <MessageCircle size={18} />
           </i>
@@ -48,7 +48,7 @@ export function SuggestionInbox({
         <button
           aria-label="회원 요청 새로고침"
           className={cx(
-            'staff-operations__refresh',
+            'manager-work__refresh',
             suggestions.refreshing && 'is-refreshing',
           )}
           disabled={suggestions.refreshing}
@@ -61,12 +61,12 @@ export function SuggestionInbox({
 
       <div
         aria-label="회원 요청 상태"
-        className="staff-operations__suggestion-filter"
+        className="manager-work__suggestion-filter"
       >
         <button
           aria-pressed={filter === 'open'}
           className={cx(filter === 'open' && 'is-active')}
-          id="staff-operations-suggestion-filter-open"
+          id="manager-work-suggestion-filter-open"
           onClick={() => setFilter('open')}
           type="button"
         >
@@ -75,7 +75,7 @@ export function SuggestionInbox({
         <button
           aria-pressed={filter === 'resolved'}
           className={cx(filter === 'resolved' && 'is-active')}
-          id="staff-operations-suggestion-filter-resolved"
+          id="manager-work-suggestion-filter-resolved"
           onClick={() => setFilter('resolved')}
           type="button"
         >
@@ -83,7 +83,7 @@ export function SuggestionInbox({
         </button>
       </div>
 
-      <div className="staff-operations__panel-body">
+      <div className="manager-work__panel-body">
         {suggestions.errorMessage && (
           <SectionError
             message={suggestions.errorMessage}
@@ -108,7 +108,7 @@ export function SuggestionInbox({
             </p>
           </SectionEmpty>
         ) : (
-          <ul className="staff-operations__suggestion-list">
+          <ul className="manager-work__suggestion-list">
             {rows.map((suggestion) => {
               const resolving = suggestions.savingIds.has(suggestion.id);
 
@@ -142,14 +142,14 @@ export function SuggestionInbox({
                   <p>{suggestion.content}</p>
 
                   {suggestion.isResolved && suggestion.resolvedByMemberName && (
-                    <span className="staff-operations__suggestion-resolver">
+                    <span className="manager-work__suggestion-resolver">
                       {suggestion.resolvedByMemberName} 처리
                     </span>
                   )}
 
                   <Button
                     full
-                    id={`staff-operations-suggestion-action-${suggestion.id}`}
+                    id={`manager-work-suggestion-action-${suggestion.id}`}
                     loading={resolving}
                     onClick={() => {
                       const index = rows.findIndex(
@@ -160,15 +160,15 @@ export function SuggestionInbox({
                       suggestions.onToggle(suggestion, () => {
                         window.requestAnimationFrame(() => {
                           const sameControl = document.getElementById(
-                            `staff-operations-suggestion-action-${suggestion.id}`,
+                            `manager-work-suggestion-action-${suggestion.id}`,
                           );
                           const adjacentControl = adjacent
                             ? document.getElementById(
-                                `staff-operations-suggestion-action-${adjacent.id}`,
+                                `manager-work-suggestion-action-${adjacent.id}`,
                               )
                             : null;
                           const fallback = document.getElementById(
-                            `staff-operations-suggestion-filter-${filter}`,
+                            `manager-work-suggestion-filter-${filter}`,
                           );
 
                           (sameControl ?? adjacentControl ?? fallback)?.focus();

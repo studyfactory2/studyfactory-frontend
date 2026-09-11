@@ -124,13 +124,6 @@
   outline-offset: 2px;
 }
 
-.staff-operations__work-grid {
-  display: grid;
-  min-width: 0;
-  align-items: start;
-  gap: var(--space-5);
-}
-
 .staff-operations__panel {
   min-width: 0;
   overflow: hidden;
@@ -218,12 +211,6 @@
 @keyframes staff-operations-spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-@container staff-operations (min-width: 58rem) {
-  .staff-operations__work-grid {
-    grid-template-columns: minmax(0, 1.65fr) minmax(19rem, 0.85fr);
   }
 }
 
