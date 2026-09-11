@@ -1,10 +1,9 @@
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
-import { AdminDailyLeaveOverview } from './components/AdminDailyLeaveOverview';
 import { AdminDoorQrPanel } from './components/AdminDoorQrPanel';
+import { AdminLeaveWorkspace } from './components/AdminLeaveWorkspace';
 import { AdminStaffSchedulePanel } from './components/AdminStaffSchedulePanel';
-import { useAdminDailyLeaves } from './hooks/useAdminDailyLeaves';
 import { useAdminDoorQr } from './hooks/useAdminDoorQr';
 import { useAdminStaffSchedule } from './hooks/useAdminStaffSchedule';
 import './styles/admin-operations.css';
@@ -47,7 +46,6 @@ function AdminOperationsContent({
   ownerKey: SessionOwnerKey;
 }) {
   const doorQr = useAdminDoorQr({ branchId, memberId, ownerKey });
-  const leaves = useAdminDailyLeaves({ branchId, memberId, ownerKey });
   const staffSchedule = useAdminStaffSchedule({
     branchId,
     memberId,
@@ -67,7 +65,12 @@ function AdminOperationsContent({
         branchName={branchName}
         schedule={staffSchedule}
       />
-      <AdminDailyLeaveOverview branchName={branchName} leaves={leaves} />
+      <AdminLeaveWorkspace
+        branchId={branchId}
+        branchName={branchName}
+        memberId={memberId}
+        ownerKey={ownerKey}
+      />
     </div>
   );
 }

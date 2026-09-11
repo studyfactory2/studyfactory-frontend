@@ -13,4 +13,36 @@ export const leaveQueryKeys = {
     ['private', ownerKey, 'leaves', 'myPlan', year, month] as const,
   myPlans: (ownerKey: SessionOwnerKey) =>
     ['private', ownerKey, 'leaves', 'myPlan'] as const,
+  memberMonth: (
+    ownerKey: SessionOwnerKey,
+    branchId: number,
+    memberId: number,
+    year: number,
+    month: number,
+  ) =>
+    [
+      'private',
+      ownerKey,
+      'leaves',
+      'memberMonth',
+      branchId,
+      memberId,
+      year,
+      month,
+    ] as const,
+  memberSpecial: (
+    ownerKey: SessionOwnerKey,
+    branchId: number,
+    memberId: number,
+  ) =>
+    [
+      'private',
+      ownerKey,
+      'leaves',
+      'memberSpecial',
+      branchId,
+      memberId,
+    ] as const,
+  fixed: (ownerKey: SessionOwnerKey, branchId: number) =>
+    ['private', ownerKey, 'leaves', 'fixed', branchId] as const,
 };

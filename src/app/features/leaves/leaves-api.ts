@@ -1,4 +1,10 @@
 import { apiRequest, ApiRequestError } from '../../core/api/api-client';
+import {
+  getMonthEndKey,
+  getMonthStartKey,
+  getWeekdayName,
+  type WeekdayName,
+} from '../../shared/lib/seoul-date';
 
 export type MemberLeavePlanSource = 'FIXED_LEAVE' | 'LEAVE' | 'SPECIAL_LEAVE';
 
@@ -79,6 +85,68 @@ export type DailyLeaveStatusResponse = {
   requestedAfterEight: boolean | null;
 };
 
+export type MonthlyLeaveCalendarResponse = {
+  leaveDate: string;
+  label: string;
+  source: MemberLeavePlanSource | string;
+  slots: string;
+};
+
+export type SpecialLeaveResponse = {
+  id: number;
+  memberId: number;
+  branchId: number;
+  leaveDate: string;
+  slots: string;
+  reason: string;
+  customReason: string | null;
+  recurring: boolean;
+  createdByMemberId: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SpecialLeaveCreateInput = {
+  customReason: string | null;
+  leaveDates: string[];
+  reason: string;
+  slots: number[];
+};
+
+export type FixedLeaveDayOfWeek = WeekdayName;
+
+export type FixedLeaveResponse = {
+  id: number;
+  memberId: number;
+  branchId: number;
+  dayOfWeek: FixedLeaveDayOfWeek;
+  slots: string;
+  reason: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FixedLeaveManagementResponse = Omit<
+  FixedLeaveResponse,
+  'active'
+> & {
+  memberName: string;
+};
+
+export type FixedLeaveCreateInput = {
+  /** The backend stores only this date's weekday, not an effective date. */
+  leaveDate: string;
+  reason: string;
+  slots: number[];
+};
+
+export type FixedLeaveGenerationResponse = {
+  startDate: string;
+  endDate: string;
+  createdCount: number;
+};
+
 /**
  * Everyone's leave for one day.
  *
@@ -107,4 +175,189 @@ export async function fetchDailyLeaveStatuses(
   }
 
   return response;
+}
+
+export async function fetchMemberMonthlyLeaves(
+  targetMemberId: number,
+  year: number,
+  month: number,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({
+    memberId: String(targetMemberId),
+    month: String(month),
+    year: String(year),
+  });
+  const response = await apiRequest<MonthlyLeaveCalendarResponse[]>(
+    `/api/leaves/monthly-calendar?${query}`,
+    { expectedMemberId },
+  );
+  const monthStart = getMonthStartKey(year, month);
+  const monthEnd = getMonthEndKey(year, month);
+
+  if (
+    response.some(
+      (row) =>
+        !isDateKey(row.leaveDate) ||
+        row.leaveDate < monthStart ||
+        row.leaveDate > monthEnd,
+    )
+  ) {
+    throw new ApiRequestError('다른 달의 휴무 달력을 받았습니다.', 409);
+  }
+
+  return response;
+}
+
+export async function fetchMemberSpecialLeaves(
+  targetMemberId: number,
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({ memberId: String(targetMemberId) });
+  const response = await apiRequest<SpecialLeaveResponse[]>(
+    `/api/leaves/special?${query}`,
+    { expectedMemberId },
+  );
+
+  if (
+    response.some(
+      (row) => row.memberId !== targetMemberId || row.branchId !== branchId,
+    )
+  ) {
+    throw new ApiRequestError('다른 회원의 특별 휴무를 받았습니다.', 409);
+  }
+
+  return response;
+}
+
+export async function createMemberSpecialLeaves(
+  targetMemberId: number,
+  branchId: number,
+  input: SpecialLeaveCreateInput,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<SpecialLeaveResponse[]>(
+    '/api/leaves/special',
+    {
+      body: JSON.stringify({
+        ...input,
+        memberId: targetMemberId,
+        recurring: false,
+      }),
+      expectedMemberId,
+      method: 'POST',
+    },
+  );
+  const requestedDates = new Set(input.leaveDates);
+
+  if (
+    response.some(
+      (row) =>
+        row.memberId !== targetMemberId ||
+        row.branchId !== branchId ||
+        row.recurring ||
+        !requestedDates.has(row.leaveDate),
+    )
+  ) {
+    throw new ApiRequestError('다른 회원의 특별 휴무 응답을 받았습니다.', 409);
+  }
+
+  return response;
+}
+
+export function deleteMemberSpecialLeaveSlot(
+  specialLeaveId: number,
+  slot: number,
+  expectedMemberId: number,
+) {
+  return apiRequest<null>(
+    `/api/leaves/special/${specialLeaveId}/slots/${slot}`,
+    { expectedMemberId, method: 'DELETE' },
+  );
+}
+
+export async function fetchFixedLeaves(
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({ branchId: String(branchId) });
+  const response = await apiRequest<FixedLeaveManagementResponse[]>(
+    `/api/leaves/fixed?${query}`,
+    { expectedMemberId },
+  );
+
+  if (response.some((row) => row.branchId !== branchId)) {
+    throw new ApiRequestError('다른 지점의 고정 휴무를 받았습니다.', 409);
+  }
+
+  return response;
+}
+
+export async function createMemberFixedLeave(
+  targetMemberId: number,
+  branchId: number,
+  input: FixedLeaveCreateInput,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<FixedLeaveResponse>('/api/leaves/fixed', {
+    body: JSON.stringify({ ...input, memberId: targetMemberId }),
+    expectedMemberId,
+    method: 'POST',
+  });
+
+  if (
+    response.memberId !== targetMemberId ||
+    response.branchId !== branchId ||
+    !response.active ||
+    response.dayOfWeek !== getWeekdayName(input.leaveDate)
+  ) {
+    throw new ApiRequestError('다른 회원의 고정 휴무 응답을 받았습니다.', 409);
+  }
+
+  return response;
+}
+
+export function deleteMemberFixedLeave(
+  fixedLeaveId: number,
+  expectedMemberId: number,
+) {
+  return apiRequest<null>(`/api/leaves/fixed/${fixedLeaveId}`, {
+    expectedMemberId,
+    method: 'DELETE',
+  });
+}
+
+export async function generateFixedLeaves(expectedMemberId: number) {
+  const response = await apiRequest<FixedLeaveGenerationResponse>(
+    '/api/leaves/fixed/generate',
+    { expectedMemberId, method: 'POST' },
+  );
+
+  if (
+    !isDateKey(response.startDate) ||
+    !isDateKey(response.endDate) ||
+    response.startDate > response.endDate ||
+    !Number.isInteger(response.createdCount) ||
+    response.createdCount < 0
+  ) {
+    throw new ApiRequestError('고정 휴무 생성 응답을 확인해 주세요.', 409);
+  }
+
+  return response;
+}
+
+function isDateKey(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const [year, month, day] = value.split('-').map(Number);
+  const candidate = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    candidate.getUTCFullYear() === year &&
+    candidate.getUTCMonth() === month - 1 &&
+    candidate.getUTCDate() === day
+  );
 }

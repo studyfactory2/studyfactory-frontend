@@ -4,6 +4,7 @@ import type {
   MemberResponse,
   PreRegistrationResponse,
 } from '../../../../features/members/members-api';
+import { excludePendingMembers } from '../../../../features/members/member-roster';
 
 export type AdminMembersView = 'current' | 'pending';
 
@@ -51,9 +52,7 @@ export function splitCurrentMembers(
   members: MemberResponse[],
   pending: PreRegistrationResponse[],
 ) {
-  const pendingIds = new Set(pending.map((registration) => registration.id));
-
-  return members.filter((member) => !pendingIds.has(member.id));
+  return excludePendingMembers(members, pending);
 }
 
 /* Positive seats first in room order; everyone without a desk after them. */
