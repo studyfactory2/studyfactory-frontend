@@ -10,6 +10,7 @@ import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
 import { AdminDoorQrPanel } from './components/AdminDoorQrPanel';
 import { AdminLeaveWorkspace } from './components/AdminLeaveWorkspace';
+import { AdminOperationsNav } from './components/AdminOperationsNav';
 import { AdminStaffSchedulePanel } from './components/AdminStaffSchedulePanel';
 import { useAdminDoorQr } from './hooks/useAdminDoorQr';
 import { useAdminStaffSchedule } from './hooks/useAdminStaffSchedule';
@@ -156,6 +157,8 @@ function AdminOperationsOverview({
         subtitle={`${branchName} · 출입 QR, 근무표와 날짜별 휴무 현황을 관리해요.`}
         title="운영 관리"
       />
+
+      <AdminOperationsNav />
 
       <AdminDoorQrPanel branchName={branchName} doorQr={doorQr} />
       <AdminStaffSchedulePanel

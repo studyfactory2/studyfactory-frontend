@@ -7,7 +7,11 @@ import {
   type RefObject,
 } from 'react';
 import { Building2, Plus, Trash2 } from 'lucide-react';
-import type { SessionOwnerKey } from '../../../../core/session';
+import {
+  MEMBER_ROLES,
+  type MemberRole,
+  type SessionOwnerKey,
+} from '../../../../core/session';
 import { DRINK_QUICK_PICKS } from '../../../../features/beverages/beverage-rules';
 import type {
   PreRegistrationInput,
@@ -21,7 +25,11 @@ import {
 } from '../../../member/more/beverages/model/beverage.types';
 import type { PreRegistrationEditorMode } from '../hooks/useAdminMemberMutations';
 import { useSeatOptions } from '../hooks/useSeatOptions';
-import { hasSeat, type CertificationLookup } from '../model/admin-members';
+import {
+  hasSeat,
+  ROLE_LABELS,
+  type CertificationLookup,
+} from '../model/admin-members';
 import { describeSeatChoice } from '../model/member-seat-options';
 import {
   createDrinkDraft,
@@ -54,7 +62,7 @@ type PreRegistrationEditorModalProps = {
 };
 
 /**
- * One form for creating and editing a pending MEMBER pre-registration. The
+ * One form for creating and editing a pending account. The
  * modal owns the frame and the focus; the form below owns the draft, which
  * lives only while the modal is open and is keyed by the record, so a roster
  * refetch in the background never resets what the operator is typing.
@@ -252,6 +260,29 @@ function EditorForm({
               type="text"
               value={draft.name}
             />
+          )}
+        </Field>
+
+        <Field
+          hint="회원은 직접 가입할 수 있어요. 스탭·관리자는 계정 활성화 기능이 추가되기 전까지 등록 대기로 남아요."
+          label="역할"
+          required
+        >
+          {(id) => (
+            <Select
+              disabled={saving}
+              id={id}
+              onChange={(event) =>
+                patch({ role: event.target.value as MemberRole })
+              }
+              value={draft.role}
+            >
+              {MEMBER_ROLES.map((role) => (
+                <option key={role} value={role}>
+                  {ROLE_LABELS[role]}
+                </option>
+              ))}
+            </Select>
           )}
         </Field>
 

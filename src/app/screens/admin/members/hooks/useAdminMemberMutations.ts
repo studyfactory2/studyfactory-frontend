@@ -21,7 +21,7 @@ export type PreRegistrationEditorMode =
   | { kind: 'edit'; registration: PreRegistrationResponse };
 
 const STALE_TARGET_MESSAGE =
-  '이 사전등록은 더 이상 이 지점의 등록 대기 목록에 없어요. 목록을 새로고침한 뒤 다시 확인해 주세요.';
+  '이 사전등록 정보가 변경되었거나 더 이상 등록 대기 목록에 없어요. 목록에서 다시 열어 확인해 주세요.';
 
 type UseAdminMemberMutationsArgs = {
   branchId: number;
@@ -41,7 +41,7 @@ function errorMessage(error: unknown) {
  * The three writes this screen makes, and the editor and delete-dialog state
  * around them. Every write goes to the branch the operator selected, never
  * to the account's own branch, and a target is accepted only while the
- * selected branch's pending list still returns it as a MEMBER — a row that
+ * selected branch's pending list still returns it — a row that
  * signed up or was deleted elsewhere is refused before the request is sent.
  */
 export function useAdminMemberMutations({
@@ -80,7 +80,8 @@ export function useAdminMemberMutations({
       (candidate) =>
         candidate.id === registration.id &&
         candidate.branchId === branchId &&
-        candidate.role === 'MEMBER',
+        candidate.role === registration.role &&
+        candidate.updatedAt === registration.updatedAt,
     );
 
   /*

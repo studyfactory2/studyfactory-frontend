@@ -6,10 +6,10 @@ import {
   SectionEmpty,
   SectionError,
   SectionLoading,
-} from '../../../../shared/ui';
-import { cx } from '../../../../shared/lib/cx';
-import { formatDrinkList } from '../model/staff-beverages';
-import type { RoomCell, RoomView } from '../model/staff-beverages';
+} from '../../../shared/ui';
+import { cx } from '../../../shared/lib/cx';
+import { formatDrinkList } from '../model/manager-beverages';
+import type { RoomCell, RoomView } from '../model/manager-beverages';
 
 type BeverageRoomMapProps = {
   errorMessage: string | null;

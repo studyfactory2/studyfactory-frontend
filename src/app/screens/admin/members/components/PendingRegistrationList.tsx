@@ -115,54 +115,37 @@ export function PendingRegistrationList({
                     )}
                   </LabelledCell>
                 </span>
-                {/*
-                 * Only a pending MEMBER can be changed here: that is the one
-                 * role the public signup accepts. A pending 스탭/관리자 row is
-                 * shown, and marked as read-only rather than given a control
-                 * that would fail.
-                 */}
                 <span className="admin-member-list__actions">
-                  {registration.role === 'MEMBER' ? (
-                    <>
-                      <button
-                        aria-label={`${registration.name} 사전등록 수정`}
-                        className="admin-member-list__action"
-                        onClick={() => onEdit(registration)}
-                        title="수정"
-                        type="button"
-                      >
-                        <Pencil aria-hidden="true" size={15} />
-                        <span
-                          aria-hidden="true"
-                          className="admin-member-list__action-label"
-                        >
-                          수정
-                        </span>
-                      </button>
-                      <button
-                        aria-label={`${registration.name} 사전등록 삭제`}
-                        className="admin-member-list__action admin-member-list__action--danger"
-                        onClick={() => onDelete(registration)}
-                        title="삭제"
-                        type="button"
-                      >
-                        <Trash2 aria-hidden="true" size={15} />
-                        <span
-                          aria-hidden="true"
-                          className="admin-member-list__action-label"
-                        >
-                          삭제
-                        </span>
-                      </button>
-                    </>
-                  ) : (
+                  <button
+                    aria-label={`${registration.name} 사전등록 수정`}
+                    className="admin-member-list__action"
+                    onClick={() => onEdit(registration)}
+                    title="수정"
+                    type="button"
+                  >
+                    <Pencil aria-hidden="true" size={15} />
                     <span
-                      className="admin-member-list__readonly"
-                      title="스탭·관리자 사전등록은 이 화면에서 수정할 수 없어요."
+                      aria-hidden="true"
+                      className="admin-member-list__action-label"
                     >
-                      읽기 전용
+                      수정
                     </span>
-                  )}
+                  </button>
+                  <button
+                    aria-label={`${registration.name} 사전등록 삭제`}
+                    className="admin-member-list__action admin-member-list__action--danger"
+                    onClick={() => onDelete(registration)}
+                    title="삭제"
+                    type="button"
+                  >
+                    <Trash2 aria-hidden="true" size={15} />
+                    <span
+                      aria-hidden="true"
+                      className="admin-member-list__action-label"
+                    >
+                      삭제
+                    </span>
+                  </button>
                 </span>
               </li>
             );

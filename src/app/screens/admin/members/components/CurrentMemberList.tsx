@@ -1,4 +1,4 @@
-import { Pencil } from 'lucide-react';
+import { BookOpenCheck, Pencil } from 'lucide-react';
 import type { MemberResponse } from '../../../../features/members/members-api';
 import { cx } from '../../../../shared/lib/cx';
 import {
@@ -23,6 +23,7 @@ type CurrentMemberListProps = {
   onClearFilter: () => void;
   onEdit: (member: MemberResponse) => void;
   onRetry: () => void;
+  onViewPlan: (member: MemberResponse) => void;
   rows: MemberResponse[] | null;
   total: number | null;
 };
@@ -35,6 +36,7 @@ export function CurrentMemberList({
   onClearFilter,
   onEdit,
   onRetry,
+  onViewPlan,
   rows,
   total,
 }: CurrentMemberListProps) {
@@ -108,6 +110,23 @@ export function CurrentMemberList({
                   </LabelledCell>
                 </span>
                 <span className="admin-member-list__actions">
+                  {member.role === 'MEMBER' && (
+                    <button
+                      aria-label={`${member.name} 회원 주간 계획 보기`}
+                      className="admin-member-list__action"
+                      onClick={() => onViewPlan(member)}
+                      title="주간 계획"
+                      type="button"
+                    >
+                      <BookOpenCheck aria-hidden="true" size={15} />
+                      <span
+                        aria-hidden="true"
+                        className="admin-member-list__action-label"
+                      >
+                        계획
+                      </span>
+                    </button>
+                  )}
                   <button
                     aria-label={`${member.name} 사원 정보 수정`}
                     className="admin-member-list__action"

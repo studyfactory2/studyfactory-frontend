@@ -129,11 +129,7 @@ export async function fetchPendingPreRegistrations(
   return response;
 }
 
-/**
- * What an operator decides about one pending MEMBER. The branch and the role
- * are deliberately not part of it: the branch is the operator's selected
- * branch and the role is always MEMBER, both supplied by the write functions.
- */
+/** What an Admin decides about one pending account in the selected branch. */
 export type PreRegistrationInput = {
   name: string;
   seatNumber: number | null;
@@ -145,6 +141,7 @@ export type PreRegistrationInput = {
   drinkSetting: string;
   /** Note per drink name. Always sent, `{}` included, so the legacy `drinkNote` path is never taken. */
   drinkNotes: Record<string, string>;
+  role: MemberRole;
 };
 
 /**
@@ -156,7 +153,7 @@ function toPreRegistrationBody(branchId: number, input: PreRegistrationInput) {
   return {
     branchId,
     name: input.name,
-    role: 'MEMBER' as const,
+    role: input.role,
     seatNumber: input.seatNumber,
     expectedJoinDate: input.expectedJoinDate,
     certification: input.certification,
@@ -179,9 +176,9 @@ export async function createPendingMember(
     },
   );
 
-  if (response.branchId !== branchId || response.role !== 'MEMBER') {
+  if (response.branchId !== branchId || response.role !== input.role) {
     throw new ApiRequestError(
-      '다른 지점이나 다른 역할의 사전등록 응답을 받았습니다.',
+      '다른 지점이나 역할의 사전등록 응답을 받았습니다.',
       409,
     );
   }
@@ -207,7 +204,7 @@ export async function updatePendingMember(
   if (
     response.id !== memberId ||
     response.branchId !== branchId ||
-    response.role !== 'MEMBER'
+    response.role !== input.role
   ) {
     throw new ApiRequestError('다른 사전등록의 응답을 받았습니다.', 409);
   }

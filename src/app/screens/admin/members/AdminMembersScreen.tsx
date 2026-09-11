@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import type { BranchResponse } from '../../../features/branches/branches-api';
+import type { MemberResponse } from '../../../features/members/members-api';
 import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
 import { AdminMembersToolbar } from './components/AdminMembersToolbar';
 import { CurrentMemberEditorModal } from './components/CurrentMemberEditorModal';
 import { CurrentMemberList } from './components/CurrentMemberList';
+import { MemberWeeklyPlanViewer } from './components/MemberWeeklyPlanViewer';
 import { PreRegistrationDeleteDialog } from './components/PreRegistrationDeleteDialog';
 import { PreRegistrationEditorModal } from './components/PreRegistrationEditorModal';
 import { PendingRegistrationList } from './components/PendingRegistrationList';
@@ -64,6 +67,7 @@ function AdminMembersContent({
     memberId,
     ownerKey,
   });
+  const [planMember, setPlanMember] = useState<MemberResponse | null>(null);
   const active = members.view === 'current' ? members.current : members.pending;
   /* Zero results are explained by the list itself, with the same clear button. */
   const resultCount =
@@ -122,6 +126,7 @@ function AdminMembersContent({
             onClearFilter={members.onClearFilter}
             onEdit={currentMutations.onEdit}
             onRetry={members.current.onRetry}
+            onViewPlan={setPlanMember}
             rows={members.current.rows}
             total={members.current.total}
           />
@@ -140,6 +145,16 @@ function AdminMembersContent({
           />
         )}
       </section>
+
+      {planMember !== null && (
+        <MemberWeeklyPlanViewer
+          key={`${planMember.branchId}:${planMember.id}`}
+          member={planMember}
+          onClose={() => setPlanMember(null)}
+          operatorMemberId={memberId}
+          ownerKey={ownerKey}
+        />
+      )}
 
       <CurrentMemberEditorModal
         branches={branches}

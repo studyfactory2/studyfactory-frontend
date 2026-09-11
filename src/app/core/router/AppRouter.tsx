@@ -3,7 +3,10 @@ import { useSession } from '../session';
 import { AdminAttendanceScreen } from '../../screens/admin/attendance';
 import { AdminHomeScreen } from '../../screens/admin/AdminHomeScreen';
 import { AdminMembersScreen } from '../../screens/admin/members';
-import { AdminOperationsScreen } from '../../screens/admin/operations';
+import {
+  AdminBeveragesScreen,
+  AdminOperationsScreen,
+} from '../../screens/admin/operations';
 import { AdminWorkspaceScreen } from '../../screens/admin/AdminWorkspaceScreen';
 import { AuthScreen } from '../../screens/auth/AuthScreen';
 import { UiKitScreen } from '../../screens/dev/UiKitScreen';
@@ -67,6 +70,10 @@ export function AppRouter() {
           <Route path="members" element={<AdminMembersScreen />} />
           <Route path="attendance" element={<AdminAttendanceScreen />} />
           <Route path="operations" element={<AdminOperationsScreen />} />
+          <Route
+            path="operations/beverages"
+            element={<AdminBeveragesScreen />}
+          />
           <Route path="*" element={<Navigate replace to={appRoutes.admin} />} />
         </Route>
       </Route>

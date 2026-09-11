@@ -1,28 +1,28 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { SessionOwnerKey } from '../../../../core/session';
-import { attendanceQueryKeys } from '../../../../features/attendances/attendance-query-keys';
-import { fetchDailyAttendanceBoard } from '../../../../features/attendances/attendances-api';
-import { beverageQueryKeys } from '../../../../features/beverages/beverage-query-keys';
-import { buildMakingBoard } from '../../../../features/beverages/beverage-rules';
+import type { SessionOwnerKey } from '../../../core/session';
+import { attendanceQueryKeys } from '../../attendances/attendance-query-keys';
+import { fetchDailyAttendanceBoard } from '../../attendances/attendances-api';
+import { beverageQueryKeys } from '../../beverages/beverage-query-keys';
+import { buildMakingBoard } from '../../beverages/beverage-rules';
 import {
   fetchMemberBeverages,
   replaceMemberBeverageItems,
   type BeverageItemInput,
-} from '../../../../features/beverages/beverages-api';
-import { leaveQueryKeys } from '../../../../features/leaves/leave-query-keys';
-import { fetchDailyLeaveStatuses } from '../../../../features/leaves/leaves-api';
-import { roomQueryKeys } from '../../../../features/rooms/room-query-keys';
-import { fetchRoomLayouts } from '../../../../features/rooms/rooms-api';
-import { useSeoulToday } from '../../../../shared/hooks/useSeoulToday';
-import { formatTimeOfDayFromEpochMs } from '../../../../shared/lib/seoul-date';
-import { useToast } from '../../../../shared/ui';
+} from '../../beverages/beverages-api';
+import { leaveQueryKeys } from '../../leaves/leave-query-keys';
+import { fetchDailyLeaveStatuses } from '../../leaves/leaves-api';
+import { roomQueryKeys } from '../../rooms/room-query-keys';
+import { fetchRoomLayouts } from '../../rooms/rooms-api';
+import { useSeoulToday } from '../../../shared/hooks/useSeoulToday';
+import { formatTimeOfDayFromEpochMs } from '../../../shared/lib/seoul-date';
+import { useToast } from '../../../shared/ui';
 import {
   buildRoomViews,
   findLateLeaves,
   findTodayChanges,
   findUnseatedDrinkers,
-} from '../model/staff-beverages';
+} from '../model/manager-beverages';
 
 const DAILY_STALE_TIME_MS = 60 * 1_000;
 const LIVE_REFETCH_MS = 60 * 1_000;
@@ -37,17 +37,17 @@ export type BeverageEditorTarget = {
   seatNumber: number | null;
 };
 
-type UseStaffBeveragesArgs = {
+type UseManagerBeveragesArgs = {
   branchId: number;
   memberId: number;
   ownerKey: SessionOwnerKey;
 };
 
-export function useStaffBeverages({
+export function useManagerBeverages({
   branchId,
   memberId,
   ownerKey,
-}: UseStaffBeveragesArgs) {
+}: UseManagerBeveragesArgs) {
   const today = useSeoulToday();
   const queryClient = useQueryClient();
   const { toast } = useToast();

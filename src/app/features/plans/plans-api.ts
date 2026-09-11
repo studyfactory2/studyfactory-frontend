@@ -58,6 +58,31 @@ export async function fetchWeeklyPlan(
   return validateWeeklyPlanResponse(response, expectedMemberId, weekStartDate);
 }
 
+/**
+ * Read-only manager view of one member's weekly plan. The target branch is
+ * checked as well as the member and week so an Admin changing operating branch
+ * cannot silently render a response from the previous branch.
+ */
+export async function fetchMemberWeeklyPlan(
+  targetMemberId: number,
+  targetBranchId: number,
+  weekStartDate: string,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({ weekStartDate });
+  const response = await apiRequest<WeeklyPlanResponse>(
+    `/api/weekly-plans/members/${targetMemberId}?${query}`,
+    { expectedMemberId },
+  );
+
+  return validateWeeklyPlanResponse(
+    response,
+    targetMemberId,
+    weekStartDate,
+    targetBranchId,
+  );
+}
+
 export async function saveWeeklyPlan(
   request: WeeklyPlanSaveRequest,
   expectedMemberId: number,
@@ -111,10 +136,12 @@ function validateWeeklyPlanResponse(
   response: WeeklyPlanResponse,
   expectedMemberId: number,
   expectedWeekStartDate: string,
+  expectedBranchId?: number,
 ) {
   if (
     response.memberId !== expectedMemberId ||
-    response.weekStartDate !== expectedWeekStartDate
+    response.weekStartDate !== expectedWeekStartDate ||
+    (expectedBranchId !== undefined && response.branchId !== expectedBranchId)
   ) {
     throw invalidPlanResponseError();
   }

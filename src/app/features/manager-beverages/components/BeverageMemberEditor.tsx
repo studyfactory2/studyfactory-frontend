@@ -3,12 +3,12 @@ import { Plus, Trash2 } from 'lucide-react';
 import {
   BEVERAGE_NAME_MAX_LENGTH,
   BEVERAGE_NOTE_MAX_LENGTH,
-} from '../../../member/more/beverages/model/beverage.types';
-import { DRINK_QUICK_PICKS } from '../../../../features/beverages/beverage-rules';
-import type { BeverageItemInput } from '../../../../features/beverages/beverages-api';
-import { Button, Input, Modal } from '../../../../shared/ui';
-import { formatMemberLabel } from '../model/staff-beverages';
-import type { BeverageEditorTarget } from '../hooks/useStaffBeverages';
+} from '../../beverages/beverage-constraints';
+import { DRINK_QUICK_PICKS } from '../../beverages/beverage-rules';
+import type { BeverageItemInput } from '../../beverages/beverages-api';
+import { Button, Input, Modal } from '../../../shared/ui';
+import { formatMemberLabel } from '../model/manager-beverages';
+import type { BeverageEditorTarget } from '../hooks/useManagerBeverages';
 
 type BeverageMemberEditorProps = {
   onClose: () => void;

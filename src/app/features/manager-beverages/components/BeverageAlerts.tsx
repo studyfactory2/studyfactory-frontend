@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 import { Check, Pencil, RotateCcw } from 'lucide-react';
-import { Card, CardHeader, Spinner } from '../../../../shared/ui';
-import { cx } from '../../../../shared/lib/cx';
+import { Card, CardHeader, Spinner } from '../../../shared/ui';
+import { cx } from '../../../shared/lib/cx';
 import {
   formatDrinkList,
   type BeverageAlert,
   type UnseatedDrinker,
-} from '../model/staff-beverages';
+} from '../model/manager-beverages';
 
 type BeverageAlertsProps = {
   changes: BeverageAlert[];

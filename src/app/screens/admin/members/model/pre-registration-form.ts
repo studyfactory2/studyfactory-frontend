@@ -2,6 +2,7 @@ import type {
   PreRegistrationInput,
   PreRegistrationResponse,
 } from '../../../../features/members/members-api';
+import type { MemberRole } from '../../../../core/session';
 import {
   BEVERAGE_NAME_MAX_LENGTH,
   BEVERAGE_NOTE_MAX_LENGTH,
@@ -36,6 +37,7 @@ export type PreRegistrationDraft = {
   /** YYYY-MM-DD from the date input, or '' when undecided. */
   expectedJoinDate: string;
   name: string;
+  role: MemberRole;
   seatNumber: number | null;
 };
 
@@ -51,6 +53,7 @@ export function createEmptyDraft(): PreRegistrationDraft {
     drinks: [],
     expectedJoinDate: '',
     name: '',
+    role: 'MEMBER',
     seatNumber: null,
   };
 }
@@ -87,6 +90,7 @@ export function draftFromRegistration(
     ),
     expectedJoinDate: registration.expectedJoinDate ?? '',
     name: registration.name,
+    role: registration.role,
     seatNumber: hasSeat(registration.seatNumber)
       ? registration.seatNumber
       : null,
@@ -291,6 +295,7 @@ export function toPreRegistrationInput(
     expectedJoinDate:
       draft.expectedJoinDate === '' ? null : draft.expectedJoinDate,
     name: draft.name.trim(),
+    role: draft.role,
     seatNumber: draft.seatNumber,
   };
 }
@@ -299,6 +304,7 @@ export function toPreRegistrationInput(
 export function draftSignature(draft: PreRegistrationDraft) {
   return JSON.stringify([
     draft.name.trim(),
+    draft.role,
     draft.expectedJoinDate,
     draft.certification.kind === 'text'
       ? draft.certification.value.trim()

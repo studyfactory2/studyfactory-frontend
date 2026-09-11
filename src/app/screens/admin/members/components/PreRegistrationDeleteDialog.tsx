@@ -1,6 +1,6 @@
 import type { PreRegistrationResponse } from '../../../../features/members/members-api';
 import { Button, Modal } from '../../../../shared/ui';
-import { hasSeat } from '../model/admin-members';
+import { hasSeat, ROLE_LABELS } from '../model/admin-members';
 import { describeRegistrationSeat } from '../model/member-seat-options';
 
 type PreRegistrationDeleteDialogProps = {
@@ -14,8 +14,8 @@ type PreRegistrationDeleteDialogProps = {
 /**
  * Names exactly what goes: this person's pending registration, including the
  * seat it held and the drink preference stored with it. Nothing about a
- * signed-up member can reach this dialog — it opens only for pending MEMBER
- * rows and the delete is refused server-side for anyone who has signed up.
+ * signed-up member can reach this dialog — it opens only for pending rows and
+ * the delete is refused server-side for anyone who has signed up.
  */
 export function PreRegistrationDeleteDialog({
   errorMessage,
@@ -48,6 +48,7 @@ export function PreRegistrationDeleteDialog({
         <div className="pre-registration-delete">
           <p className="pre-registration-delete__target">
             <strong>{registration.name}</strong>
+            <span>{ROLE_LABELS[registration.role]}</span>
             <span>{describeRegistrationSeat(registration.seatNumber)}</span>
           </p>
           <p className="pre-registration-delete__copy">

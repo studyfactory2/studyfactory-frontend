@@ -31,6 +31,7 @@ export const adminRoutes = {
   home: appRoutes.admin,
   members: `${appRoutes.admin}/members`,
   operations: `${appRoutes.admin}/operations`,
+  operationsBeverages: `${appRoutes.admin}/operations/beverages`,
 } as const;
 
 export function getRoleHomePath(role: MemberRole) {

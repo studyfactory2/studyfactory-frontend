@@ -1,4 +1,4 @@
-/* Stable entrypoint; implementation stays component-scoped inside this folder. */
+/* Stable entrypoint for the shared Admin and Staff beverage workspace. */
 @import './staff-beverages-layout.css';
 @import './staff-beverages-making.css';
 @import './staff-beverages-room-map.css';

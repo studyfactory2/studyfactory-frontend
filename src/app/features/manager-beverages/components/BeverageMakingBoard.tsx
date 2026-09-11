@@ -4,9 +4,9 @@ import {
   SectionEmpty,
   SectionError,
   SectionLoading,
-} from '../../../../shared/ui';
-import { cx } from '../../../../shared/lib/cx';
-import { formatMemberLabel, type DrinkCount } from '../model/staff-beverages';
+} from '../../../shared/ui';
+import { cx } from '../../../shared/lib/cx';
+import { formatMemberLabel, type DrinkCount } from '../model/manager-beverages';
 
 type BeverageMakingBoardProps = {
   cup: DrinkCount[];

@@ -168,7 +168,7 @@
 .admin-member-list--current .admin-member-list__row {
   grid-template-columns:
     52px minmax(6rem, 1fr) 60px 88px minmax(8.5rem, 1.1fr)
-    minmax(7rem, 1.2fr) 44px;
+    minmax(7rem, 1.2fr) 76px;
 }
 
 /* The pending roster carries one more column: what an operator may do to the row. */
@@ -215,14 +215,6 @@
 
 .admin-member-list__action-label {
   display: none;
-}
-
-/* A pending 스탭/관리자 row: shown, not editable here, and says so. */
-.admin-member-list__readonly {
-  color: var(--brand-muted);
-  font-size: var(--text-2xs);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap;
 }
 
 /* ============================================================
@@ -384,11 +376,6 @@
     border-color: color-mix(in srgb, var(--danger) 18%, transparent);
     background: var(--danger-soft);
     color: var(--danger-deep);
-  }
-
-  .admin-member-list__readonly {
-    grid-column: 1 / -1;
-    justify-self: end;
   }
 
   .admin-member-list--pending .admin-member-list__action-label {

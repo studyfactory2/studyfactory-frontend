@@ -1,17 +1,14 @@
-import type { DailyAttendanceBoard } from '../../../../features/attendances/attendances-api';
+import type { DailyAttendanceBoard } from '../../attendances/attendances-api';
 import {
   formatMemberLabel,
   hasJoinedByDate,
   isExcludedDrink,
   isTumblerDrink,
   morningLeaveMemberIds,
-} from '../../../../features/beverages/beverage-rules';
-import type { MemberBeverageResponse } from '../../../../features/beverages/beverages-api';
-import type { DailyLeaveStatusResponse } from '../../../../features/leaves/leaves-api';
-import type {
-  RoomLayout,
-  RoomLayoutItem,
-} from '../../../../features/rooms/rooms-api';
+} from '../../beverages/beverage-rules';
+import type { MemberBeverageResponse } from '../../beverages/beverages-api';
+import type { DailyLeaveStatusResponse } from '../../leaves/leaves-api';
+import type { RoomLayout, RoomLayoutItem } from '../../rooms/rooms-api';
 import { toSeoulDateKey } from './seoul-date';
 
 /*
@@ -27,7 +24,7 @@ export {
   type DrinkCount,
   type DrinkServing,
   type MakingBoard,
-} from '../../../../features/beverages/beverage-rules';
+} from '../../beverages/beverage-rules';
 
 /**
  * Leave asked for between eight and nine lands after the drinks are already
