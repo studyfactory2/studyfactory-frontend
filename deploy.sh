@@ -5,7 +5,7 @@ umask 077
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 APP_DIR="${APP_DIR:-${SCRIPT_DIR}}"
-DEPLOY_ENV_FILE="${DEPLOY_ENV_FILE:-${APP_DIR}/.env.deploy}"
+DEPLOY_ENV_FILE="${DEPLOY_ENV_FILE:-${APP_DIR}/.env.production}"
 
 usage() {
   cat <<'EOF'
@@ -31,7 +31,7 @@ if [[ "${1:-}" == "--help" ]]; then
 fi
 
 if [[ ! -f "${DEPLOY_ENV_FILE}" ]]; then
-  fail "${DEPLOY_ENV_FILE} is missing. Copy .env.deploy.example and configure it first."
+  fail "${DEPLOY_ENV_FILE} is missing. Create it on the production host first."
 fi
 
 set -a

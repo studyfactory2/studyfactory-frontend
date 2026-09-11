@@ -37,7 +37,7 @@ require_command() {
 
 require_value() {
   local name="$1"
-  [[ -n "${!name:-}" ]] || fail "${name} is required in .env.deploy."
+  [[ -n "${!name:-}" ]] || fail "${name} is required in ${DEPLOY_ENV_FILE}."
 }
 
 validate_release_id() {
