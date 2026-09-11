@@ -1,4 +1,5 @@
 import { apiRequest, ApiRequestError } from '../../core/api/api-client';
+import { parseStudyPresenceQrToken } from './study-presence-qr';
 
 export type StudyPresenceSessionResponse = {
   sessionId: number | null;
@@ -15,6 +16,11 @@ export type StudyPresenceStatusResponse = {
 };
 
 export type StudyPresenceQrAction = 'checkIn' | 'checkOut';
+
+export type StudyPresenceDoorQrResponse = {
+  branchId: number;
+  qrToken: string;
+};
 
 export type StudyPresenceDurationResponse = {
   totalSeconds: number;
@@ -59,6 +65,41 @@ export async function fetchMyStudyPresence(
 
   if (branchId !== null && branchId !== expectedBranchId) {
     throw new ApiRequestError('다른 지점의 입실 정보를 받았습니다.', 409);
+  }
+
+  return response;
+}
+
+/**
+ * Returns the permanent entrance QR token for the selected branch.
+ *
+ * The endpoint is ADMIN-only. The response is checked before it is ever
+ * rendered so a delayed or malformed response cannot be labelled as another
+ * branch's entrance code.
+ */
+export async function fetchStudyPresenceDoorQr(
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const query = new URLSearchParams({ branchId: String(branchId) });
+  const response = await apiRequest<StudyPresenceDoorQrResponse>(
+    `/api/study-presence/door-qr?${query}`,
+    { expectedMemberId },
+  );
+  const parsedToken =
+    typeof response.qrToken === 'string'
+      ? parseStudyPresenceQrToken(response.qrToken)
+      : null;
+
+  if (
+    response.branchId !== branchId ||
+    parsedToken === null ||
+    parsedToken !== response.qrToken
+  ) {
+    throw new ApiRequestError(
+      '요청한 지점과 다른 출입 QR 정보를 받았습니다.',
+      409,
+    );
   }
 
   return response;

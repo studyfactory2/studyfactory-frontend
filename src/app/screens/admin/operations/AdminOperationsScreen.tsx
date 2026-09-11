@@ -2,7 +2,9 @@ import { useSession, type SessionOwnerKey } from '../../../core/session';
 import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
 import { AdminDailyLeaveOverview } from './components/AdminDailyLeaveOverview';
+import { AdminDoorQrPanel } from './components/AdminDoorQrPanel';
 import { useAdminDailyLeaves } from './hooks/useAdminDailyLeaves';
+import { useAdminDoorQr } from './hooks/useAdminDoorQr';
 import './styles/admin-operations.css';
 
 export function AdminOperationsScreen() {
@@ -40,16 +42,18 @@ function AdminOperationsContent({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
+  const doorQr = useAdminDoorQr({ branchId, memberId, ownerKey });
   const leaves = useAdminDailyLeaves({ branchId, memberId, ownerKey });
 
   return (
     <div className="admin-operations">
       <ScreenHeader
         eyebrow="ADMIN · OPERATIONS"
-        subtitle={`${branchName} · 날짜별 휴무 신청과 지점 등록 현황을 확인해요.`}
+        subtitle={`${branchName} · 출입 QR과 날짜별 휴무 현황을 관리해요.`}
         title="운영 관리"
       />
 
+      <AdminDoorQrPanel branchName={branchName} doorQr={doorQr} />
       <AdminDailyLeaveOverview branchName={branchName} leaves={leaves} />
     </div>
   );

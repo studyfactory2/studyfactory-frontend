@@ -20,5 +20,8 @@ export const studyPresenceQueryKeys = {
   /** Who is sitting in one branch right now — managers only. */
   live: (ownerKey: SessionOwnerKey, branchId: number) =>
     [...root(ownerKey), 'live', branchId] as const,
+  /** Permanent entrance QR for one branch — ADMIN only. */
+  doorQr: (ownerKey: SessionOwnerKey, branchId: number) =>
+    [...root(ownerKey), 'doorQr', branchId] as const,
   me: (ownerKey: SessionOwnerKey) => [...root(ownerKey), 'me'] as const,
 };

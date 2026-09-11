@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { Button, Modal, Spinner } from '../../../../shared/ui';
 import { cx } from '../../../../shared/lib/cx';
-import { parseStudyPresenceQrToken } from '../model/home.qr';
+import { parseStudyPresenceQrToken } from '../../../../features/study-presence/study-presence-qr';
 import '../styles/HomeQrPresence.css';
 
 type HomeQrPresenceProps = {

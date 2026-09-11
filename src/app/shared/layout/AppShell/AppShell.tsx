@@ -67,7 +67,6 @@ export function AppShell({
           to={navigation[0].to}
         >
           <picture className="workspace-shell__brand-mark">
-            <source media="(max-width: 1023px)" srcSet="/favicon.svg" />
             <img alt="" src="/study-factory-logo.png" />
           </picture>
           <span className="workspace-shell__brand-copy">
@@ -117,7 +116,7 @@ export function AppShell({
             <img
               alt=""
               className="workspace-shell__topbar-mark"
-              src="/favicon.svg"
+              src="/study-factory-logo.png"
             />
             <div>
               <p>

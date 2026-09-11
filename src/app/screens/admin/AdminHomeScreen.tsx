@@ -4,7 +4,7 @@ import { WorkspaceHomeScreen } from '../workspace/WorkspaceHomeScreen';
 const descriptions = [
   '사전등록과 현재 사원 현황을 관리해요.',
   '출석과 현장 요청을 한곳에서 확인해요.',
-  '휴무와 계획 등 지점 운영 업무를 관리해요.',
+  '출입 QR과 휴무 등 지점 운영 업무를 관리해요.',
 ];
 
 export function AdminHomeScreen() {
