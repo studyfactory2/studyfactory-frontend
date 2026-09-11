@@ -6,7 +6,6 @@ import { formatKoreanDate } from '../../../../shared/lib/seoul-date';
 import { Table } from '../../../../shared/ui';
 import {
   ATTENDANCE_SLOTS,
-  type AttendancePaintMode,
   type AttendanceSelection,
   type AttendanceBoardMember,
   toAttendanceCellId,
@@ -25,7 +24,6 @@ type AttendanceTableProps = {
   dock: ReactNode;
   interactive: boolean;
   members: AttendanceBoardMember[];
-  mode: AttendancePaintMode;
   onActivate: (selection: AttendanceSelection) => void;
   onPresenceRequest: (member: AttendanceBoardMember) => void;
   onResetRequest: (member: AttendanceBoardMember) => void;
@@ -45,7 +43,6 @@ export function AttendanceTable({
   dock,
   interactive,
   members,
-  mode,
   onActivate,
   onPresenceRequest,
   onResetRequest,
@@ -213,10 +210,7 @@ export function AttendanceTable({
             </th>
             {ATTENDANCE_SLOTS.map((slot) => (
               <th
-                className={cx(
-                  operationalSlot === slot && 'is-operational',
-                  mode && activeSlot === slot && 'is-marking-mode',
-                )}
+                className={cx(operationalSlot === slot && 'is-operational')}
                 key={slot}
                 ref={
                   operationalSlot === slot ? operationalHeaderRef : undefined
@@ -279,7 +273,6 @@ export function AttendanceTable({
                     <td
                       className={cx(
                         operationalSlot === slot && 'is-operational',
-                        mode && activeSlot === slot && 'is-marking-mode',
                       )}
                       key={slot}
                     >
@@ -287,7 +280,6 @@ export function AttendanceTable({
                         cell={cell}
                         disabled={pendingMemberIds.has(member.memberId)}
                         interactive={interactive}
-                        mode={mode}
                         member={member}
                         onActivate={() => onActivate(target)}
                         onKeyDown={(event) => navigateCell(event, member, slot)}

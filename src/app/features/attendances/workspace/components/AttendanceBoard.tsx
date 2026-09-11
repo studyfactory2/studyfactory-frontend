@@ -11,36 +11,30 @@ import {
   SectionLoading,
 } from '../../../../shared/ui';
 import type {
-  AttendancePaintMode,
   AttendanceSelection,
   AttendanceSlotCommand,
   AttendanceBoardCell,
   AttendanceBoardMember,
 } from '../model/attendance-board';
 import {
+  ATTENDANCE_SLOTS,
   toAttendanceCellId,
   toAttendanceCellKey,
   toAttendanceSelectionTiming,
 } from '../model/attendance-board';
+import { AttendanceCommandDock } from './AttendanceCommandDock';
 import { AttendanceLeaveOverrideModal } from './AttendanceLeaveOverrideModal';
 import type { AttendancePresenceLoadState } from './AttendanceMemberIdentity';
-import { AttendancePaintDock } from './AttendancePaintDock';
 import { AttendancePresenceModal } from './AttendancePresenceModal';
 import { AttendanceReasonModal } from './AttendanceReasonModal';
 import { AttendanceStartModal } from './AttendanceStartModal';
 import { AttendanceTable } from './AttendanceTable';
 
 type AttendanceFilter = 'all' | 'leave' | 'unmarked';
-type ActivePaintMode = Exclude<AttendancePaintMode, null>;
 
 type DatedSelection = {
   dateKey: string;
   value: AttendanceSelection;
-};
-
-type DatedPaintMode = {
-  dateKey: string;
-  value: ActivePaintMode;
 };
 
 type DatedDialogTarget = {
@@ -114,9 +108,6 @@ export function AttendanceBoard({
   const [selectionState, setSelectionState] = useState<DatedSelection | null>(
     null,
   );
-  const [paintModeState, setPaintModeState] = useState<DatedPaintMode | null>(
-    null,
-  );
   const [leaveOverrideTarget, setLeaveOverrideTarget] =
     useState<DatedDialogTarget | null>(null);
   const [presenceMemberId, setPresenceMemberId] = useState<number | null>(null);
@@ -126,21 +117,18 @@ export function AttendanceBoard({
   const [startMemberId, setStartMemberId] = useState<number | null>(null);
   const currentSelection =
     selectionState?.dateKey === dateKey ? selectionState.value : null;
-  const paintMode =
-    paintModeState?.dateKey === dateKey ? paintModeState.value : null;
+  const selectedMemberId = currentSelection?.memberId ?? null;
   const pendingCellKeys = interaction?.pendingCellKeys ?? EMPTY_STRING_SET;
   const pendingMemberIds = interaction?.pendingMemberIds ?? EMPTY_NUMBER_SET;
   const pendingPresenceMemberIds =
     interaction?.pendingPresenceMemberIds ?? EMPTY_NUMBER_SET;
   const pendingResetIds = interaction?.pendingResetIds ?? EMPTY_NUMBER_SET;
 
-  /* A Seoul date rollover invalidates every interaction target. Period
-     changes intentionally do not: one selected paint mode lasts all day. */
+  /* A Seoul date rollover invalidates every interaction target. */
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     dateKeyRef.current = dateKey;
     setSelectionState(null);
-    setPaintModeState(null);
     setLeaveOverrideTarget(null);
     setReasonTarget(null);
     setPresenceMemberId(null);
@@ -174,6 +162,7 @@ export function AttendanceBoard({
           ? '미배정'.includes(normalizedQuery)
           : String(member.seatNumber).includes(normalizedQuery));
       const matchesFilter =
+        member.memberId === selectedMemberId ||
         effectiveFilter === 'all' ||
         (effectiveFilter === 'leave' &&
           member.stage === 'active' &&
@@ -199,6 +188,7 @@ export function AttendanceBoard({
     members,
     query,
     readOnlyUnmarkedSlotCount,
+    selectedMemberId,
   ]);
 
   const selectedMember = currentSelection
@@ -245,33 +235,38 @@ export function AttendanceBoard({
     ? pendingMemberIds.has(activeSelection.memberId)
     : false;
 
-  useEffect(() => {
-    if (paintMode === null) {
-      return;
-    }
-
-    const exitPaintMode = (event: KeyboardEvent) => {
-      if (
-        event.key === 'Escape' &&
-        !leaveOverrideOpen &&
-        !reasonOpen &&
-        presenceMemberId === null &&
-        startMemberId === null
-      ) {
-        setPaintModeState(null);
-      }
-    };
-
-    window.addEventListener('keydown', exitPaintMode);
-
-    return () => window.removeEventListener('keydown', exitPaintMode);
-  }, [
-    leaveOverrideOpen,
-    paintMode,
-    presenceMemberId,
-    reasonOpen,
-    startMemberId,
-  ]);
+  const commandSequence = useMemo(
+    () =>
+      ATTENDANCE_SLOTS.filter(
+        (slot) =>
+          toAttendanceSelectionTiming(slot, activeSlot, operationalSlot) !==
+          'future',
+      ).flatMap((slot) =>
+        visibleMembers
+          .filter(
+            (member) =>
+              member.stage === 'active' &&
+              !pendingMemberIds.has(member.memberId),
+          )
+          .map((member) => ({
+            cell: member.slots[slot - 1],
+            memberId: member.memberId,
+            name: member.name,
+            seatNumber: member.seatNumber,
+            slot,
+          })),
+      ),
+    [activeSlot, operationalSlot, pendingMemberIds, visibleMembers],
+  );
+  const commandIndex = activeSelection
+    ? commandSequence.findIndex(
+        (selection) =>
+          selection.memberId === activeSelection.memberId &&
+          selection.slot === activeSelection.slot,
+      )
+    : -1;
+  const nextSelection =
+    commandIndex >= 0 ? (commandSequence[commandIndex + 1] ?? null) : null;
 
   const selectCell = (nextSelection: AttendanceSelection) => {
     setSelectionState({ dateKey, value: nextSelection });
@@ -347,62 +342,74 @@ export function AttendanceBoard({
     );
   };
 
-  const requestPaint = (
-    targetSelection: AttendanceSelection,
-    mode: ActivePaintMode,
-  ) => {
+  const requestStatus = (status: AttendanceSlotCommand['status']) => {
     if (
       interaction === undefined ||
-      pendingMemberIds.has(targetSelection.memberId) ||
+      !activeSelection ||
+      pendingMemberIds.has(activeSelection.memberId) ||
       toAttendanceSelectionTiming(
-        targetSelection.slot,
+        activeSelection.slot,
         activeSlot,
         operationalSlot,
       ) === 'future' ||
-      attendanceCellAlreadyHasStatus(targetSelection.cell, mode)
+      attendanceCellAlreadyHasStatus(activeSelection.cell, status)
     ) {
       return;
     }
 
-    if (mode === 'OTHER') {
+    if (status === 'OTHER') {
       setReasonTarget({
         cellKey: toAttendanceCellKey(
-          targetSelection.memberId,
-          targetSelection.slot,
+          activeSelection.memberId,
+          activeSelection.slot,
         ),
         dateKey,
       });
       return;
     }
 
-    if (mode === 'ABSENT' && targetSelection.cell.source === 'MEMBER_LEAVE') {
+    if (status === 'ABSENT' && activeSelection.cell.source === 'MEMBER_LEAVE') {
       setLeaveOverrideTarget({
         cellKey: toAttendanceCellKey(
-          targetSelection.memberId,
-          targetSelection.slot,
+          activeSelection.memberId,
+          activeSelection.slot,
         ),
         dateKey,
       });
       return;
     }
 
-    submitStatus(mode, undefined, targetSelection);
+    submitStatus(status, undefined, activeSelection);
   };
 
-  const paintDock =
+  const advanceSelection = () => {
+    if (!nextSelection) {
+      return;
+    }
+
+    selectCell(nextSelection);
+    window.requestAnimationFrame(() => {
+      const nextCell = document.getElementById(
+        toAttendanceCellId(nextSelection.memberId, nextSelection.slot),
+      );
+
+      nextCell?.focus({ preventScroll: true });
+      nextCell?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    });
+  };
+
+  const commandDock =
     interaction !== undefined &&
     ready &&
     visibleMembers.some((member) => member.stage === 'active') ? (
-      <AttendancePaintDock
-        mode={paintMode}
-        onExit={() => setPaintModeState(null)}
-        onModeChange={(nextMode) =>
-          setPaintModeState((current) =>
-            current?.dateKey === dateKey && current.value === nextMode
-              ? current
-              : { dateKey, value: nextMode },
-          )
-        }
+      <AttendanceCommandDock
+        canAdvance={nextSelection !== null}
+        onAdvance={advanceSelection}
+        onMarkAbsent={() => requestStatus('ABSENT')}
+        onMarkOther={() => requestStatus('OTHER')}
+        onMarkPresent={() => requestStatus('PRESENT')}
+        pending={selectedPending}
+        selection={activeSelection}
       />
     ) : null;
 
@@ -541,18 +548,13 @@ export function AttendanceBoard({
               <AttendanceTable
                 activeSlot={activeSlot}
                 dateKey={dateKey}
-                dock={paintDock}
+                dock={commandDock}
                 interactive={interaction !== undefined}
                 members={visibleMembers}
-                mode={paintMode}
                 onActivate={(nextSelection) => {
                   setLeaveOverrideTarget(null);
                   setReasonTarget(null);
                   selectCell(nextSelection);
-
-                  if (paintMode) {
-                    requestPaint(nextSelection, paintMode);
-                  }
                 }}
                 onPresenceRequest={(member) =>
                   setPresenceMemberId(member.memberId)

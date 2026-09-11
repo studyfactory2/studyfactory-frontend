@@ -52,8 +52,6 @@ export type AttendanceSelection = {
 
 export type AttendanceSlotCommand = Omit<AttendanceSlotUpdateInput, 'date'>;
 
-export type AttendancePaintMode = AttendanceSlotCommand['status'] | null;
-
 export function toAttendanceCellKey(memberId: number, slot: number) {
   return `${memberId}:${slot}`;
 }

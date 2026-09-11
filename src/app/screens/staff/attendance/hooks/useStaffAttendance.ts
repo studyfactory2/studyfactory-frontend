@@ -289,15 +289,18 @@ export function useStaffAttendance({
       input: StudyPresenceManualCheckInInput,
       onSuccess?: () => void,
     ) => {
-      const reason = input.reason.trim();
+      const reason = input.reason?.trim();
 
-      if (!input.checkedInAt || reason.length === 0 || reason.length > 200) {
+      if (!input.checkedInAt || (reason?.length ?? 0) > 200) {
         return;
       }
 
       startManualPresenceAction(
         {
-          input: { checkedInAt: input.checkedInAt, reason },
+          input: {
+            checkedInAt: input.checkedInAt,
+            ...(reason ? { reason } : {}),
+          },
           memberId: targetMemberId,
           type: 'check-in',
         },

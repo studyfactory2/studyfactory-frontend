@@ -325,8 +325,8 @@
     min-width: 8.5rem;
   }
 
-  /* The buttons and aria-pressed state communicate the mode visually. Keep
-     the live copy available to assistive technology without spending a row. */
+  /* The selected cell stays announced to assistive technology without
+     spending another visible row in the compact mobile command dock. */
   .admin-attendance .staff-attendance__action-target {
     position: absolute;
     width: 1px;

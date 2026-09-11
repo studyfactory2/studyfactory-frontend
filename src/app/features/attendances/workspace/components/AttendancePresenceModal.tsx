@@ -91,11 +91,7 @@ function ManualCheckInForm({
   const timeError = validateCheckInTime(checkedInAt, checkedInAtMs, dateKey);
   const trimmedReason = reason.trim();
   const reasonError =
-    trimmedReason.length === 0
-      ? '수동 입실 사유를 입력해 주세요.'
-      : trimmedReason.length > 200
-        ? '사유는 200자를 넘을 수 없어요.'
-        : null;
+    trimmedReason.length > 200 ? '사유는 200자를 넘을 수 없어요.' : null;
   const canSubmit = timeError === null && reasonError === null;
   const maximum = currentSeoulDateTimeValue();
 
@@ -109,7 +105,7 @@ function ManualCheckInForm({
 
     onSubmit({
       checkedInAt: new Date(checkedInAtMs).toISOString(),
-      reason: trimmedReason,
+      ...(trimmedReason ? { reason: trimmedReason } : {}),
     });
   };
 
@@ -147,9 +143,8 @@ function ManualCheckInForm({
 
       <Field
         error={submitted ? (reasonError ?? undefined) : undefined}
-        hint={`${reason.length}/200 · 예: QR 미인식, 휴대전화 미소지`}
-        label="입실 사유"
-        required
+        hint={`${reason.length}/200 · 필요한 경우에만 남겨 주세요.`}
+        label="입실 사유 (선택)"
       >
         {(id) => (
           <Textarea
@@ -158,7 +153,7 @@ function ManualCheckInForm({
             id={id}
             maxLength={200}
             onChange={(event) => setReason(event.target.value)}
-            placeholder="수동으로 등록하는 이유를 남겨 주세요."
+            placeholder="예: QR 미인식, 휴대전화 미소지"
             rows={3}
             value={reason}
           />

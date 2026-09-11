@@ -23,11 +23,6 @@
     border-color 0.15s ease;
 }
 
-.staff-attendance__action-bar.is-mode-active {
-  border-color: rgb(var(--brand-forest-rgb) / 20%);
-  background: rgb(var(--brand-ivory-rgb) / 96%);
-}
-
 .staff-attendance__action-target {
   min-width: 0;
   flex: 1 1 auto;
@@ -40,11 +35,6 @@
   line-height: var(--leading-snug);
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.staff-attendance__action-bar.is-mode-active .staff-attendance__action-target {
-  color: var(--brand-forest);
-  font-weight: var(--weight-extrabold);
 }
 
 .staff-attendance__action-buttons {
@@ -124,45 +114,13 @@
   color: var(--danger-deep);
 }
 
-.staff-attendance__action-buttons .is-present.is-active,
-.staff-attendance__action-buttons .is-absent.is-active,
-.staff-attendance__action-buttons .is-other.is-active {
-  transform: translateY(-1px);
-  box-shadow:
-    0 0 0 2px rgb(var(--brand-ivory-rgb) / 92%),
-    0 5px 13px rgb(var(--brand-ink-rgb) / 13%);
-}
-
-.staff-attendance__action-buttons .is-present.is-active {
-  border-color: var(--brand-forest);
-  background: var(--brand-forest);
-  color: var(--brand-ivory);
-}
-
-.staff-attendance__action-buttons .is-absent.is-active {
-  border-color: var(--danger-deep);
-  background: var(--danger-deep);
-  color: var(--brand-ivory);
-}
-
 .staff-attendance__action-buttons .is-other {
   border-color: rgb(var(--brand-gold-rgb) / 30%);
   background: var(--special-soft);
   color: var(--special-deep);
 }
 
-.staff-attendance__action-buttons .is-other.is-active {
-  border-color: var(--special-deep);
-  background: var(--special-deep);
-  color: var(--brand-ivory);
-}
-
-.staff-attendance__action-buttons button.is-active:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.staff-attendance__action-buttons .is-clear {
+.staff-attendance__action-buttons .is-next {
   width: 44px;
   min-width: 44px;
   flex: 0 0 auto;
@@ -312,7 +270,7 @@
     padding: 0 6px;
   }
 
-  .staff-attendance__action-buttons .is-clear {
+  .staff-attendance__action-buttons .is-next {
     width: auto;
     min-width: 0;
   }

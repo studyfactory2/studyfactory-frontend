@@ -228,6 +228,7 @@
   background: var(--paper);
   overscroll-behavior: contain;
   scroll-padding-left: 11.75rem;
+  scroll-padding-top: 3.25rem;
   scrollbar-width: thin;
   touch-action: pan-x pan-y;
 }
@@ -317,20 +318,9 @@
     inset 0 -1px 0 rgb(var(--brand-ink-rgb) / 8%);
 }
 
-.staff-attendance__table-frame .table th.is-marking-mode {
-  color: var(--positive-deep);
-  box-shadow:
-    inset 0 2px 0 var(--brand-forest),
-    inset 0 -1px 0 rgb(var(--brand-ink-rgb) / 8%);
-}
-
 .staff-attendance__table-frame .table td.is-operational {
   background: rgb(var(--positive-soft-rgb) / 28%);
   box-shadow: inset 1px 0 0 rgb(var(--positive-rgb) / 7%);
-}
-
-.staff-attendance__table-frame .table td.is-marking-mode {
-  background: rgb(var(--positive-soft-rgb) / 42%);
 }
 
 .staff-attendance__table-frame .table tbody tr:hover td.is-operational {
@@ -566,14 +556,6 @@ button.staff-attendance__status:hover:not(:disabled) {
   box-shadow: none;
   color: var(--brand-muted);
   font-weight: var(--weight-semibold);
-}
-
-.staff-attendance__status.is-mode-target:not(:disabled) {
-  box-shadow: inset 0 0 0 1px rgb(var(--brand-forest-rgb) / 24%);
-}
-
-.staff-attendance__status.is-mode-target:hover:not(:disabled) {
-  box-shadow: inset 0 0 0 2px rgb(var(--brand-forest-rgb) / 34%);
 }
 
 .staff-attendance__status:focus-visible {

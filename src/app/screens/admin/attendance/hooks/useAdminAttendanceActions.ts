@@ -116,7 +116,7 @@ export function useAdminAttendanceActions({
       onSuccess?: () => void,
     ) => {
       const member = validateMember(targetMemberId, 'active');
-      const reason = input.reason.trim();
+      const reason = input.reason?.trim();
       const checkedInAtMs = Date.parse(input.checkedInAt);
 
       if (!member) {
@@ -129,16 +129,18 @@ export function useAdminAttendanceActions({
         !Number.isFinite(checkedInAtMs) ||
         checkedInAtMs > Date.now() ||
         getSeoulToday(new Date(checkedInAtMs)).dateKey !== dateKey ||
-        reason.length === 0 ||
-        reason.length > 200
+        (reason?.length ?? 0) > 200
       ) {
-        toast('입실 시각과 수동 등록 사유를 다시 확인해 주세요.', 'error');
+        toast('입실 시각과 선택 사유를 다시 확인해 주세요.', 'error');
         return;
       }
 
       mutationRuntime.runPresence(
         {
-          input: { checkedInAt: input.checkedInAt, reason },
+          input: {
+            checkedInAt: input.checkedInAt,
+            ...(reason ? { reason } : {}),
+          },
           targetMemberId,
           type: 'check-in',
         },

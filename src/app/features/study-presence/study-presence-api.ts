@@ -189,7 +189,7 @@ export type StudyPresenceManagerSessionResponse = {
 
 export type StudyPresenceManualCheckInInput = {
   checkedInAt: string;
-  reason: string;
+  reason?: string;
 };
 
 /**

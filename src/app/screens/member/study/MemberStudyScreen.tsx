@@ -148,22 +148,6 @@ function MemberStudyReport({
             <StudyDayDetail row={study.selectedRow} />
           )}
         </section>
-
-        <section
-          aria-labelledby="member-study-rule-title"
-          className="member-study__card member-study__rule"
-        >
-          <header className="member-study__card-header">
-            <h3 id="member-study-rule-title">시간 표기 규칙</h3>
-          </header>
-          <p>
-            정규 공부는 교시 시간에 입실해 있는 동안 자동으로 인정돼요. 휴식
-            공부는 입실 상태에서 <b>휴식시간 공부 시작</b>을 직접 눌러 진행한
-            구간만 인정되고, 그냥 머물러 있는 시간은 포함되지 않아요. 휴가로
-            제외된 교시는 계산에서 빠지며, 모든 날짜와 시각은 서울(Asia/Seoul)
-            기준이에요.
-          </p>
-        </section>
       </div>
     </div>
   );
