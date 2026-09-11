@@ -25,13 +25,13 @@ import {
 } from '../../../../shared/ui';
 import type { AdminFixedLeavesState } from '../hooks/useAdminFixedLeaves';
 import {
-  ADMIN_LEAVE_REASONS,
-  ADMIN_LEAVE_SLOTS,
+  MANAGER_LEAVE_REASONS,
+  MANAGER_LEAVE_SLOTS,
   FIXED_LEAVE_WEEKDAYS,
   formatLeaveSlots,
   toFixedLeaveWeekdayLabel,
   toNextDateForWeekday,
-} from '../model/admin-leave-management';
+} from '../../../../features/leaves/leave-management-model';
 
 export function AdminFixedLeavePanel({
   branchName,
@@ -197,7 +197,7 @@ export function AdminFixedLeavePanel({
             <fieldset className="admin-fixed-leave__slots">
               <legend>교시</legend>
               <div>
-                {ADMIN_LEAVE_SLOTS.map((slot) => (
+                {MANAGER_LEAVE_SLOTS.map((slot) => (
                   <button
                     aria-pressed={selectedSlots.has(slot)}
                     className={cx(selectedSlots.has(slot) && 'is-selected')}
@@ -213,15 +213,15 @@ export function AdminFixedLeavePanel({
                 className="admin-fixed-leave__all-slots"
                 onClick={() => {
                   setSelectedSlots(
-                    selectedSlots.size === ADMIN_LEAVE_SLOTS.length
+                    selectedSlots.size === MANAGER_LEAVE_SLOTS.length
                       ? new Set()
-                      : new Set(ADMIN_LEAVE_SLOTS),
+                      : new Set(MANAGER_LEAVE_SLOTS),
                   );
                   setFormError(null);
                 }}
                 type="button"
               >
-                {selectedSlots.size === ADMIN_LEAVE_SLOTS.length
+                {selectedSlots.size === MANAGER_LEAVE_SLOTS.length
                   ? '전체 해제'
                   : '전체 선택'}
               </button>
@@ -238,7 +238,7 @@ export function AdminFixedLeavePanel({
                   value={reason}
                 >
                   <option value="">사유 선택</option>
-                  {ADMIN_LEAVE_REASONS.map((option) => (
+                  {MANAGER_LEAVE_REASONS.map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>

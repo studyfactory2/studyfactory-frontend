@@ -1,4 +1,5 @@
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { staffRoutes } from '../../../core/router/routes';
 import { useSession } from '../../../core/session';
 import type { SessionOwnerKey } from '../../../core/session';
 import { AttendanceBoard } from '../../../features/attendances/workspace/components/AttendanceBoard';
@@ -6,6 +7,7 @@ import {
   ManagerOperationsOverview,
   useManagerOperations,
 } from '../../../features/manager-operations';
+import { createManagerLeaveSearch } from '../../../features/manager-leaves';
 import { EmptyState } from '../../../shared/ui';
 import { useStaffAttendance } from './hooks/useStaffAttendance';
 import '../../../features/attendances/workspace/styles/attendance-workspace.css';
@@ -45,6 +47,7 @@ function StaffAttendanceContent({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const attendance = useStaffAttendance({ branchId, memberId, ownerKey });
   const operations = useManagerOperations({
@@ -68,6 +71,11 @@ function StaffAttendanceContent({
         isToday
         loading={attendance.board.loading}
         members={attendance.board.members}
+        onManageLeave={(target) => {
+          navigate(
+            `${staffRoutes.operations}?${createManagerLeaveSearch(target)}`,
+          );
+        }}
         onRefresh={() => {
           attendance.freshness.onRefresh();
           operations.onRefresh();

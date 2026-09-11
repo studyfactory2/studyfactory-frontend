@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { CalendarDays, CalendarRange, Repeat2 } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CalendarRange, Repeat2 } from 'lucide-react';
 import type { SessionOwnerKey } from '../../../../core/session';
+import {
+  ManagerMemberLeaveView,
+  type ManagerLeaveRouteContext,
+} from '../../../../features/manager-leaves';
 import { cx } from '../../../../shared/lib/cx';
 import { AdminDailyLeaveOverview } from './AdminDailyLeaveOverview';
 import { AdminFixedLeavePanel } from './AdminFixedLeavePanel';
-import { AdminMemberLeavePanel } from './AdminMemberLeavePanel';
 import { useAdminDailyLeaves } from '../hooks/useAdminDailyLeaves';
 import { useAdminFixedLeaves } from '../hooks/useAdminFixedLeaves';
-import { useAdminMemberLeaves } from '../hooks/useAdminMemberLeaves';
 import '../styles/admin-leave-management.css';
 
 type AdminLeaveView = 'daily' | 'fixed' | 'member';
@@ -21,12 +23,15 @@ const ADMIN_LEAVE_VIEWS = [
 type AdminLeaveWorkspaceProps = {
   branchId: number;
   branchName: string;
+  directContext?: ManagerLeaveRouteContext;
   memberId: number;
+  onExitDirect?: () => void;
   ownerKey: SessionOwnerKey;
 };
 
 export function AdminLeaveWorkspace(props: AdminLeaveWorkspaceProps) {
   const [view, setView] = useState<AdminLeaveView>('daily');
+  const direct = props.directContext !== undefined;
 
   return (
     <section className="admin-leave-workspace">
@@ -41,38 +46,60 @@ export function AdminLeaveWorkspace(props: AdminLeaveWorkspaceProps) {
           </div>
         </div>
 
-        <nav
-          aria-label="휴무 관리 보기"
-          className="admin-leave-workspace__tabs"
-          role="tablist"
-        >
-          {ADMIN_LEAVE_VIEWS.map(({ icon: Icon, label, value }) => (
-            <button
-              aria-controls="admin-leave-panel"
-              aria-selected={view === value}
-              className={cx(view === value && 'is-active')}
-              id={`admin-leave-tab-${value}`}
-              key={value}
-              onClick={() => setView(value)}
-              role="tab"
-              type="button"
-            >
-              <Icon aria-hidden="true" size={16} />
-              {label}
-            </button>
-          ))}
-        </nav>
+        {direct ? (
+          <button
+            className="admin-leave-workspace__exit"
+            onClick={props.onExitDirect}
+            type="button"
+          >
+            <ArrowLeft aria-hidden="true" size={16} />
+            운영 전체 보기
+          </button>
+        ) : (
+          <nav
+            aria-label="휴무 관리 보기"
+            className="admin-leave-workspace__tabs"
+            role="tablist"
+          >
+            {ADMIN_LEAVE_VIEWS.map(({ icon: Icon, label, value }) => (
+              <button
+                aria-controls="admin-leave-panel"
+                aria-selected={view === value}
+                className={cx(view === value && 'is-active')}
+                id={`admin-leave-tab-${value}`}
+                key={value}
+                onClick={() => setView(value)}
+                role="tab"
+                type="button"
+              >
+                <Icon aria-hidden="true" size={16} />
+                {label}
+              </button>
+            ))}
+          </nav>
+        )}
       </div>
 
       <div
-        aria-labelledby={`admin-leave-tab-${view}`}
+        aria-labelledby={direct ? undefined : `admin-leave-tab-${view}`}
         className="admin-leave-workspace__panel"
         id="admin-leave-panel"
-        role="tabpanel"
+        role={direct ? undefined : 'tabpanel'}
       >
-        {view === 'daily' && <AdminDailyLeaveView {...props} />}
-        {view === 'member' && <AdminMemberLeaveView {...props} />}
-        {view === 'fixed' && <AdminFixedLeaveView {...props} />}
+        {direct ? (
+          <ManagerMemberLeaveView
+            branchId={props.branchId}
+            context={props.directContext}
+            memberId={props.memberId}
+            ownerKey={props.ownerKey}
+          />
+        ) : (
+          <>
+            {view === 'daily' && <AdminDailyLeaveView {...props} />}
+            {view === 'member' && <AdminMemberLeaveView {...props} />}
+            {view === 'fixed' && <AdminFixedLeaveView {...props} />}
+          </>
+        )}
       </div>
     </section>
   );
@@ -87,9 +114,13 @@ function AdminDailyLeaveView(props: AdminLeaveWorkspaceProps) {
 }
 
 function AdminMemberLeaveView(props: AdminLeaveWorkspaceProps) {
-  const leaves = useAdminMemberLeaves(props);
-
-  return <AdminMemberLeavePanel leaves={leaves} />;
+  return (
+    <ManagerMemberLeaveView
+      branchId={props.branchId}
+      memberId={props.memberId}
+      ownerKey={props.ownerKey}
+    />
+  );
 }
 
 function AdminFixedLeaveView(props: AdminLeaveWorkspaceProps) {

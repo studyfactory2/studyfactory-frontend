@@ -23,6 +23,14 @@
     border-color 0.15s ease;
 }
 
+.staff-attendance__action-context {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 6px;
+}
+
 .staff-attendance__action-target {
   min-width: 0;
   flex: 1 1 auto;
@@ -35,6 +43,40 @@
   line-height: var(--leading-snug);
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.staff-attendance__leave-shortcut {
+  display: inline-flex;
+  min-height: 34px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border: 1px solid rgb(var(--brand-forest-rgb) / 18%);
+  border-radius: var(--radius-control);
+  background: rgb(var(--brand-forest-rgb) / 8%);
+  color: var(--brand-forest);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-extrabold);
+  gap: 5px;
+  white-space: nowrap;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.staff-attendance__leave-shortcut:hover {
+  border-color: rgb(var(--brand-forest-rgb) / 28%);
+  background: rgb(var(--brand-forest-rgb) / 12%);
+  transform: translateY(-1px);
+}
+
+.staff-attendance__leave-shortcut:focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring);
 }
 
 .staff-attendance__action-buttons {
@@ -258,6 +300,15 @@
     font-size: var(--text-3xs);
   }
 
+  .staff-attendance__action-context {
+    min-height: 44px;
+  }
+
+  .staff-attendance__leave-shortcut {
+    min-height: 44px;
+    padding: 0 8px;
+  }
+
   .staff-attendance__action-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr 1.2fr 42px;
@@ -284,6 +335,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .staff-attendance__action-bar,
+  .staff-attendance__leave-shortcut,
   .staff-attendance__action-buttons button,
   .staff-attendance__membership-stage button,
   .staff-attendance__reason-picks button {

@@ -3,18 +3,18 @@ import type {
   FixedLeaveManagementResponse,
   MonthlyLeaveCalendarResponse,
   SpecialLeaveResponse,
-} from '../../../../features/leaves/leaves-api';
-import type { MemberResponse } from '../../../../features/members/members-api';
+} from './leaves-api';
+import type { MemberResponse } from '../members/members-api';
 import {
   addDays,
   getDayOfMonth,
   getWeekdayName,
   listMonthGridCells,
-} from '../../../../shared/lib/seoul-date';
+} from '../../shared/lib/seoul-date';
 
-export const ADMIN_LEAVE_SLOTS = [1, 2, 3, 4, 5, 6, 7] as const;
+export const MANAGER_LEAVE_SLOTS = [1, 2, 3, 4, 5, 6, 7] as const;
 
-export const ADMIN_LEAVE_REASONS = [
+export const MANAGER_LEAVE_REASONS = [
   '지각',
   '병원',
   '카페',
@@ -46,22 +46,22 @@ export const FIXED_LEAVE_WEEKDAYS: ReadonlyArray<{
   { label: '일', value: 'SUNDAY' },
 ];
 
-export type AdminLeaveCalendarEntry = {
+export type ManagerLeaveCalendarEntry = {
   key: string;
   label: string;
   source: 'own' | 'special';
   slotsLabel: string;
 };
 
-export type AdminLeaveCalendarCell = {
+export type ManagerLeaveCalendarCell = {
   dateKey: string;
   dayOfMonth: number;
-  entries: AdminLeaveCalendarEntry[];
+  entries: ManagerLeaveCalendarEntry[];
   inMonth: boolean;
   isToday: boolean;
 };
 
-export type AdminSpecialLeaveSlot = {
+export type ManagerSpecialLeaveSlot = {
   dateKey: string;
   id: number;
   key: string;
@@ -70,7 +70,7 @@ export type AdminSpecialLeaveSlot = {
   slot: number;
 };
 
-export function sortAdminLeaveMembers(members: MemberResponse[]) {
+export function sortManagerLeaveMembers(members: MemberResponse[]) {
   return [...members].sort(
     (left, right) =>
       (left.seatNumber ?? Number.MAX_SAFE_INTEGER) -
@@ -80,7 +80,7 @@ export function sortAdminLeaveMembers(members: MemberResponse[]) {
   );
 }
 
-export function buildAdminLeaveCalendarCells({
+export function buildManagerLeaveCalendarCells({
   month,
   rows,
   todayKey,
@@ -91,7 +91,7 @@ export function buildAdminLeaveCalendarCells({
   todayKey: string;
   year: number;
 }) {
-  const entriesByDate = new Map<string, AdminLeaveCalendarEntry[]>();
+  const entriesByDate = new Map<string, ManagerLeaveCalendarEntry[]>();
 
   rows.forEach((row, index) => {
     const current = entriesByDate.get(row.leaveDate) ?? [];
@@ -105,7 +105,7 @@ export function buildAdminLeaveCalendarCells({
     entriesByDate.set(row.leaveDate, current);
   });
 
-  return listMonthGridCells(year, month).map<AdminLeaveCalendarCell>(
+  return listMonthGridCells(year, month).map<ManagerLeaveCalendarCell>(
     (cell) => ({
       dateKey: cell.dateKey,
       dayOfMonth: getDayOfMonth(cell.dateKey),
@@ -118,7 +118,7 @@ export function buildAdminLeaveCalendarCells({
 
 export function expandSpecialLeaveSlots(entries: SpecialLeaveResponse[]) {
   return entries
-    .flatMap<AdminSpecialLeaveSlot>((entry) =>
+    .flatMap<ManagerSpecialLeaveSlot>((entry) =>
       parseLeaveSlots(entry.slots).map((slot) => ({
         dateKey: entry.leaveDate,
         id: entry.id,

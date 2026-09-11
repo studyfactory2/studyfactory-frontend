@@ -1,5 +1,11 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
+import {
+  ManagerMemberLeaveView,
+  readManagerLeaveRoute,
+  removeManagerLeaveSearch,
+} from '../../../features/manager-leaves';
 import {
   ManagerSuggestionInbox,
   ManagerTodoBoard,
@@ -63,7 +69,20 @@ function StaffOperationsContent({
   ownerKey: SessionOwnerKey;
 }) {
   const today = useSeoulToday();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const directLeaveContext = readManagerLeaveRoute(searchParams);
   const [activeView, setActiveView] = useState<OperationsView>('work');
+  const visibleView = directLeaveContext === null ? activeView : 'member-leave';
+
+  const changeView = (nextView: OperationsView) => {
+    setActiveView(nextView);
+
+    if (directLeaveContext !== null) {
+      setSearchParams(removeManagerLeaveSearch(searchParams), {
+        replace: true,
+      });
+    }
+  };
 
   return (
     <div className="staff-operations">
@@ -76,20 +95,27 @@ function StaffOperationsContent({
         <strong>{formatKoreanDate(today.dateKey)}</strong>
       </header>
 
-      <OperationsTabs active={activeView} onChange={setActiveView} />
+      <OperationsTabs active={visibleView} onChange={changeView} />
 
       <section>
-        {activeView === 'work' ? (
+        {visibleView === 'work' ? (
           <StaffWorkView
             branchId={branchId}
             memberId={memberId}
             ownerKey={ownerKey}
           />
-        ) : activeView === 'leave' ? (
+        ) : visibleView === 'leave' ? (
           <StaffLeavePanel memberId={memberId} ownerKey={ownerKey} />
-        ) : activeView === 'meals' ? (
+        ) : visibleView === 'member-leave' ? (
+          <ManagerMemberLeaveView
+            branchId={branchId}
+            context={directLeaveContext}
+            memberId={memberId}
+            ownerKey={ownerKey}
+          />
+        ) : visibleView === 'meals' ? (
           <StaffSideDishPanel memberId={memberId} ownerKey={ownerKey} />
-        ) : activeView === 'schedule' ? (
+        ) : visibleView === 'schedule' ? (
           <StaffScheduleView
             branchId={branchId}
             memberId={memberId}

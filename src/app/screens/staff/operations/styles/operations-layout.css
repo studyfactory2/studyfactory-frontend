@@ -58,7 +58,7 @@
   background: rgb(var(--card-rgb) / 72%);
   box-shadow: var(--elev-1);
   gap: 5px;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .staff-operations__tab {
@@ -214,16 +214,7 @@
   }
 }
 
-@container staff-operations (max-width: 34rem) {
-  .staff-operations__intro {
-    align-items: flex-start;
-  }
-
-  .staff-operations__intro > strong {
-    padding-top: 17px;
-    font-size: var(--text-xs);
-  }
-
+@container staff-operations (max-width: 56rem) {
   .staff-operations__tabs {
     grid-template-columns: repeat(6, minmax(0, 1fr));
   }
@@ -237,13 +228,16 @@
   .staff-operations__tab small {
     display: none;
   }
+}
 
-  .staff-operations__tab:nth-child(4) {
-    grid-column: 2 / span 2;
+@container staff-operations (max-width: 34rem) {
+  .staff-operations__intro {
+    align-items: flex-start;
   }
 
-  .staff-operations__tab:nth-child(5) {
-    grid-column: 4 / span 2;
+  .staff-operations__intro > strong {
+    padding-top: 17px;
+    font-size: var(--text-xs);
   }
 
   .staff-operations__panel-header {

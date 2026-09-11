@@ -3,13 +3,13 @@ import {
   SEOUL_WEEKDAY_LABELS,
   formatKoreanDate,
   formatKoreanMonth,
-} from '../../../../shared/lib/seoul-date';
-import { cx } from '../../../../shared/lib/cx';
-import type { AdminLeaveCalendarCell } from '../model/admin-leave-management';
-import '../styles/admin-leave-calendar.css';
+} from '../../../shared/lib/seoul-date';
+import { cx } from '../../../shared/lib/cx';
+import type { ManagerLeaveCalendarCell } from '../../leaves/leave-management-model';
+import '../styles/manager-leave-calendar.css';
 
-type AdminLeaveCalendarProps = {
-  cells: AdminLeaveCalendarCell[];
+type ManagerLeaveCalendarProps = {
+  cells: ManagerLeaveCalendarCell[];
   currentMonth: boolean;
   month: number;
   onCurrentMonth: () => void;
@@ -20,7 +20,7 @@ type AdminLeaveCalendarProps = {
   year: number;
 };
 
-export function AdminLeaveCalendar({
+export function ManagerLeaveCalendar({
   cells,
   currentMonth,
   month,
@@ -30,10 +30,10 @@ export function AdminLeaveCalendar({
   onToggleDate,
   selectedDates,
   year,
-}: AdminLeaveCalendarProps) {
+}: ManagerLeaveCalendarProps) {
   return (
-    <section className="admin-leave-calendar">
-      <header className="admin-leave-calendar__header">
+    <section className="manager-leave-calendar">
+      <header className="manager-leave-calendar__header">
         <button aria-label="이전 달" onClick={onPreviousMonth} type="button">
           <ChevronLeft aria-hidden="true" size={18} />
         </button>
@@ -42,7 +42,7 @@ export function AdminLeaveCalendar({
           <ChevronRight aria-hidden="true" size={18} />
         </button>
         <button
-          className="admin-leave-calendar__current"
+          className="manager-leave-calendar__current"
           disabled={currentMonth}
           onClick={onCurrentMonth}
           type="button"
@@ -51,13 +51,13 @@ export function AdminLeaveCalendar({
         </button>
       </header>
 
-      <div aria-hidden="true" className="admin-leave-calendar__weekdays">
+      <div aria-hidden="true" className="manager-leave-calendar__weekdays">
         {SEOUL_WEEKDAY_LABELS.map((label) => (
           <span key={label}>{label}</span>
         ))}
       </div>
 
-      <ul className="admin-leave-calendar__grid">
+      <ul className="manager-leave-calendar__grid">
         {cells.map((cell) => {
           const selected = selectedDates.has(cell.dateKey);
           const visibleEntries = cell.entries.slice(0, 2);
@@ -69,7 +69,7 @@ export function AdminLeaveCalendar({
                 aria-label={toCalendarDayLabel(cell)}
                 aria-pressed={selected}
                 className={cx(
-                  'admin-leave-calendar__day',
+                  'manager-leave-calendar__day',
                   !cell.inMonth && 'is-outside',
                   cell.isToday && 'is-today',
                   selected && 'is-selected',
@@ -78,13 +78,13 @@ export function AdminLeaveCalendar({
                 onClick={() => onToggleDate(cell.dateKey)}
                 type="button"
               >
-                <span className="admin-leave-calendar__number">
+                <span className="manager-leave-calendar__number">
                   {cell.dayOfMonth}
                 </span>
                 {visibleEntries.map((entry) => (
                   <span
                     className={cx(
-                      'admin-leave-calendar__entry',
+                      'manager-leave-calendar__entry',
                       `is-${entry.source}`,
                     )}
                     key={entry.key}
@@ -94,7 +94,7 @@ export function AdminLeaveCalendar({
                   </span>
                 ))}
                 {remainingCount > 0 && (
-                  <span className="admin-leave-calendar__more">
+                  <span className="manager-leave-calendar__more">
                     +{remainingCount}
                   </span>
                 )}
@@ -107,7 +107,7 @@ export function AdminLeaveCalendar({
   );
 }
 
-function toCalendarDayLabel(cell: AdminLeaveCalendarCell) {
+function toCalendarDayLabel(cell: ManagerLeaveCalendarCell) {
   const dateLabel = formatKoreanDate(cell.dateKey);
 
   if (!cell.inMonth) {

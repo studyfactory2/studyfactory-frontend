@@ -3,12 +3,14 @@ import {
   Armchair,
   CalendarClock,
   CalendarDays,
+  CalendarRange,
   ListChecks,
   Utensils,
 } from 'lucide-react';
 import { cx } from '../../../../shared/lib/cx';
 
-export type OperationsView = 'leave' | 'meals' | 'schedule' | 'seats' | 'work';
+export type OperationsView =
+  'leave' | 'meals' | 'member-leave' | 'schedule' | 'seats' | 'work';
 
 const TABS: readonly {
   description: string;
@@ -27,6 +29,12 @@ const TABS: readonly {
     icon: CalendarDays,
     label: '내 휴무',
     value: 'leave',
+  },
+  {
+    description: '회원 날짜 · 교시',
+    icon: CalendarRange,
+    label: '회원 휴무',
+    value: 'member-leave',
   },
   {
     description: '점심 · 저녁',

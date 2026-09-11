@@ -64,6 +64,12 @@ export type AttendanceBoardInteraction = {
   pendingResetIds: ReadonlySet<number>;
 };
 
+export type AttendanceLeaveManagementTarget = {
+  dateKey: string;
+  memberId: number;
+  slot: OperationalAttendanceSlot;
+};
+
 type AttendanceBoardProps = {
   activeSlot: OperationalAttendanceSlot | null;
   dateKey: string;
@@ -72,6 +78,7 @@ type AttendanceBoardProps = {
   isToday: boolean;
   loading: boolean;
   members: AttendanceBoardMember[];
+  onManageLeave?: (target: AttendanceLeaveManagementTarget) => void;
   onRefresh: () => void;
   onRetry: () => void;
   operationalSlot: OperationalAttendanceSlot | null;
@@ -91,6 +98,7 @@ export function AttendanceBoard({
   isToday,
   loading,
   members,
+  onManageLeave,
   onRefresh,
   onRetry,
   operationalSlot,
@@ -405,6 +413,16 @@ export function AttendanceBoard({
       <AttendanceCommandDock
         canAdvance={nextSelection !== null}
         onAdvance={advanceSelection}
+        onManageLeave={
+          activeSelection && onManageLeave
+            ? () =>
+                onManageLeave({
+                  dateKey,
+                  memberId: activeSelection.memberId,
+                  slot: activeSelection.slot,
+                })
+            : undefined
+        }
         onMarkAbsent={() => requestStatus('ABSENT')}
         onMarkOther={() => requestStatus('OTHER')}
         onMarkPresent={() => requestStatus('PRESENT')}

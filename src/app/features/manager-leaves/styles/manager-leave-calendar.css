@@ -1,4 +1,4 @@
-.admin-leave-calendar {
+.manager-leave-calendar {
   min-width: 0;
   overflow: hidden;
   border: 1px solid rgb(var(--brand-ink-rgb) / 9%);
@@ -6,7 +6,7 @@
   background: var(--paper);
 }
 
-.admin-leave-calendar__header {
+.manager-leave-calendar__header {
   display: grid;
   min-height: 52px;
   align-items: center;
@@ -16,7 +16,7 @@
   grid-template-columns: 34px minmax(0, 1fr) 34px auto;
 }
 
-.admin-leave-calendar__header > button {
+.manager-leave-calendar__header > button {
   display: grid;
   height: 34px;
   padding: 0;
@@ -29,20 +29,20 @@
   place-items: center;
 }
 
-.admin-leave-calendar__header > button:hover:not(:disabled) {
+.manager-leave-calendar__header > button:hover:not(:disabled) {
   border-color: rgb(var(--brand-forest-rgb) / 30%);
   color: var(--brand-forest);
 }
 
-.admin-leave-calendar__header > button:focus-visible,
-.admin-leave-calendar__day:focus-visible {
+.manager-leave-calendar__header > button:focus-visible,
+.manager-leave-calendar__day:focus-visible {
   z-index: 1;
   outline: none;
   border-color: var(--accent);
   box-shadow: var(--focus-ring);
 }
 
-.admin-leave-calendar__header > strong {
+.manager-leave-calendar__header > strong {
   color: var(--brand-ink);
   font-size: var(--text-md);
   font-variant-numeric: tabular-nums;
@@ -50,7 +50,7 @@
   text-align: center;
 }
 
-.admin-leave-calendar__header .admin-leave-calendar__current {
+.manager-leave-calendar__header .manager-leave-calendar__current {
   width: auto;
   padding: 0 10px;
   color: var(--brand-forest);
@@ -58,57 +58,57 @@
   font-weight: var(--weight-bold);
 }
 
-.admin-leave-calendar__header .admin-leave-calendar__current:disabled {
+.manager-leave-calendar__header .manager-leave-calendar__current:disabled {
   color: var(--brand-muted);
   cursor: default;
   opacity: 0.45;
 }
 
-.admin-leave-calendar__weekdays,
-.admin-leave-calendar__grid {
+.manager-leave-calendar__weekdays,
+.manager-leave-calendar__grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
-.admin-leave-calendar__weekdays {
+.manager-leave-calendar__weekdays {
   min-height: 30px;
   align-items: center;
   border-bottom: 1px solid rgb(var(--brand-ink-rgb) / 7%);
   background: rgb(var(--brand-paper-rgb) / 62%);
 }
 
-.admin-leave-calendar__weekdays span {
+.manager-leave-calendar__weekdays span {
   color: var(--brand-muted);
   font-size: var(--text-3xs);
   font-weight: var(--weight-bold);
   text-align: center;
 }
 
-.admin-leave-calendar__weekdays span:first-child {
+.manager-leave-calendar__weekdays span:first-child {
   color: var(--danger-deep);
 }
 
-.admin-leave-calendar__grid {
+.manager-leave-calendar__grid {
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
-.admin-leave-calendar__grid > li {
+.manager-leave-calendar__grid > li {
   min-width: 0;
   border-right: 1px solid rgb(var(--brand-ink-rgb) / 6%);
   border-bottom: 1px solid rgb(var(--brand-ink-rgb) / 6%);
 }
 
-.admin-leave-calendar__grid > li:nth-child(7n) {
+.manager-leave-calendar__grid > li:nth-child(7n) {
   border-right: 0;
 }
 
-.admin-leave-calendar__grid > li:nth-last-child(-n + 7) {
+.manager-leave-calendar__grid > li:nth-last-child(-n + 7) {
   border-bottom: 0;
 }
 
-.admin-leave-calendar__day {
+.manager-leave-calendar__day {
   position: relative;
   display: flex;
   width: 100%;
@@ -125,22 +125,22 @@
   text-align: left;
 }
 
-.admin-leave-calendar__day:hover:not(:disabled) {
+.manager-leave-calendar__day:hover:not(:disabled) {
   background: rgb(var(--brand-forest-rgb) / 4%);
 }
 
-.admin-leave-calendar__day.is-outside {
+.manager-leave-calendar__day.is-outside {
   background: rgb(var(--brand-paper-rgb) / 42%);
   cursor: default;
   opacity: 0.28;
 }
 
-.admin-leave-calendar__day.is-selected {
+.manager-leave-calendar__day.is-selected {
   background: rgb(var(--brand-forest-rgb) / 10%);
   box-shadow: inset 0 0 0 2px var(--brand-forest);
 }
 
-.admin-leave-calendar__number {
+.manager-leave-calendar__number {
   display: grid;
   width: 23px;
   height: 23px;
@@ -153,18 +153,18 @@
   place-items: center;
 }
 
-.admin-leave-calendar__day.is-today .admin-leave-calendar__number {
+.manager-leave-calendar__day.is-today .manager-leave-calendar__number {
   background: var(--accent-soft);
   color: var(--accent-deep);
   font-weight: var(--weight-extrabold);
 }
 
-.admin-leave-calendar__day.is-selected .admin-leave-calendar__number {
+.manager-leave-calendar__day.is-selected .manager-leave-calendar__number {
   background: var(--brand-forest);
   color: var(--paper);
 }
 
-.admin-leave-calendar__entry {
+.manager-leave-calendar__entry {
   display: block;
   overflow: hidden;
   padding: 2px 5px;
@@ -176,59 +176,59 @@
   white-space: nowrap;
 }
 
-.admin-leave-calendar__entry.is-own {
+.manager-leave-calendar__entry.is-own {
   background: var(--positive-soft);
   color: var(--positive-deep);
 }
 
-.admin-leave-calendar__entry.is-special {
+.manager-leave-calendar__entry.is-special {
   background: var(--special-soft);
   color: var(--special-deep);
 }
 
-.admin-leave-calendar__more {
+.manager-leave-calendar__more {
   color: var(--brand-muted);
   font-size: var(--text-3xs);
   font-weight: var(--weight-bold);
   text-align: right;
 }
 
-@container admin-operations (max-width: 620px) {
-  .admin-leave-calendar__header {
-    min-height: 46px;
-    grid-template-columns: 32px minmax(0, 1fr) 32px auto;
+@container (max-width: 620px) {
+  .manager-leave-calendar__header {
+    min-height: 48px;
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
   }
 
-  .admin-leave-calendar__header > button {
-    height: 32px;
+  .manager-leave-calendar__header > button {
+    height: 40px;
   }
 
-  .admin-leave-calendar__header > strong {
+  .manager-leave-calendar__header > strong {
     font-size: var(--text-sm);
   }
 
-  .admin-leave-calendar__header .admin-leave-calendar__current {
-    padding: 0 8px;
+  .manager-leave-calendar__header .manager-leave-calendar__current {
+    display: none;
   }
 
-  .admin-leave-calendar__weekdays {
+  .manager-leave-calendar__weekdays {
     min-height: 27px;
   }
 
-  .admin-leave-calendar__day {
+  .manager-leave-calendar__day {
     min-height: 56px;
     padding: 4px;
     align-items: center;
     gap: 2px;
   }
 
-  .admin-leave-calendar__number {
+  .manager-leave-calendar__number {
     width: 21px;
     height: 21px;
     font-size: var(--text-3xs);
   }
 
-  .admin-leave-calendar__entry {
+  .manager-leave-calendar__entry {
     width: 100%;
     padding: 1px 2px;
     border-radius: 4px;
@@ -237,18 +237,14 @@
     text-align: center;
   }
 
-  .admin-leave-calendar__more {
+  .manager-leave-calendar__more {
     font-size: 8px;
     line-height: 1;
   }
 }
 
-@container admin-operations (max-width: 380px) {
-  .admin-leave-calendar__header {
-    grid-template-columns: 30px minmax(0, 1fr) 30px;
-  }
-
-  .admin-leave-calendar__header .admin-leave-calendar__current {
-    display: none;
+@container (max-width: 380px) {
+  .manager-leave-calendar__header {
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
   }
 }

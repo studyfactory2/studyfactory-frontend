@@ -19,9 +19,9 @@ import { excludePendingMembers } from '../../../../features/members/member-roste
 import { studyTimeQueryKeys } from '../../../../features/study-time/study-time-query-keys';
 import { useToast } from '../../../../shared/ui';
 import {
-  sortAdminLeaveMembers,
+  sortManagerLeaveMembers,
   sortFixedLeaves,
-} from '../model/admin-leave-management';
+} from '../../../../features/leaves/leave-management-model';
 
 const FIXED_STALE_TIME_MS = 60 * 1_000;
 const ROSTER_STALE_TIME_MS = 5 * 60 * 1_000;
@@ -64,7 +64,7 @@ export function useAdminFixedLeaves({
       return [];
     }
 
-    return sortAdminLeaveMembers(
+    return sortManagerLeaveMembers(
       excludePendingMembers(rosterQuery.data, pendingQuery.data),
     );
   }, [pendingQuery.data, rosterQuery.data]);

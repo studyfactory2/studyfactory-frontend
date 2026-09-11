@@ -1,40 +1,42 @@
 import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { SessionOwnerKey } from '../../../../core/session';
-import { attendanceQueryKeys } from '../../../../features/attendances/attendance-query-keys';
-import { leaveQueryKeys } from '../../../../features/leaves/leave-query-keys';
+import type { SessionOwnerKey } from '../../../core/session';
+import { attendanceQueryKeys } from '../../attendances/attendance-query-keys';
+import { leaveQueryKeys } from '../../leaves/leave-query-keys';
 import {
   createMemberSpecialLeaves,
   deleteMemberSpecialLeaveSlot,
   fetchMemberMonthlyLeaves,
   fetchMemberSpecialLeaves,
   type SpecialLeaveCreateInput,
-} from '../../../../features/leaves/leaves-api';
-import { memberQueryKeys } from '../../../../features/members/member-query-keys';
+} from '../../leaves/leaves-api';
+import { memberQueryKeys } from '../../members/member-query-keys';
 import {
   fetchBranchMembers,
   fetchPendingPreRegistrations,
-} from '../../../../features/members/members-api';
-import { excludePendingMembers } from '../../../../features/members/member-roster';
-import { studyTimeQueryKeys } from '../../../../features/study-time/study-time-query-keys';
-import { useSeoulToday } from '../../../../shared/hooks/useSeoulToday';
+} from '../../members/members-api';
+import { excludePendingMembers } from '../../members/member-roster';
+import { studyTimeQueryKeys } from '../../study-time/study-time-query-keys';
+import { useSeoulToday } from '../../../shared/hooks/useSeoulToday';
 import {
   getNextMonth,
   getPreviousMonth,
   type SeoulMonth,
-} from '../../../../shared/lib/seoul-date';
-import { useToast } from '../../../../shared/ui';
+} from '../../../shared/lib/seoul-date';
+import { useToast } from '../../../shared/ui';
 import {
-  buildAdminLeaveCalendarCells,
+  buildManagerLeaveCalendarCells,
   expandSpecialLeaveSlots,
-  sortAdminLeaveMembers,
-} from '../model/admin-leave-management';
+  sortManagerLeaveMembers,
+} from '../../leaves/leave-management-model';
 
 const ROSTER_STALE_TIME_MS = 5 * 60 * 1_000;
 const LEAVE_STALE_TIME_MS = 60 * 1_000;
 
-type UseAdminMemberLeavesArgs = {
+export type UseManagerMemberLeavesArgs = {
   branchId: number;
+  initialDateKey?: string | null;
+  initialMemberId?: number | null;
   memberId: number;
   ownerKey: SessionOwnerKey;
 };
@@ -51,19 +53,22 @@ type DeleteOperation = {
   targetMemberId: number;
 };
 
-export function useAdminMemberLeaves({
+export function useManagerMemberLeaves({
   branchId,
+  initialDateKey = null,
+  initialMemberId = null,
   memberId,
   ownerKey,
-}: UseAdminMemberLeavesArgs) {
+}: UseManagerMemberLeavesArgs) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const today = useSeoulToday();
-  const [month, setMonth] = useState<SeoulMonth>(() => ({
-    month: today.month,
-    year: today.year,
-  }));
-  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
+  const [month, setMonth] = useState<SeoulMonth>(() =>
+    toInitialMonth(initialDateKey, today),
+  );
+  const [selectedMemberId, setSelectedMemberId] = useState<number | null>(
+    initialMemberId,
+  );
   const rosterQuery = useQuery({
     queryFn: () => fetchBranchMembers(branchId, memberId),
     queryKey: memberQueryKeys.branch(ownerKey, branchId),
@@ -79,14 +84,15 @@ export function useAdminMemberLeaves({
       return [];
     }
 
-    return sortAdminLeaveMembers(
+    return sortManagerLeaveMembers(
       excludePendingMembers(rosterQuery.data, pendingQuery.data),
     );
   }, [pendingQuery.data, rosterQuery.data]);
   const selectedMember =
-    members.find((candidate) => candidate.id === selectedMemberId) ??
-    members[0] ??
-    null;
+    selectedMemberId === null
+      ? (members[0] ?? null)
+      : (members.find((candidate) => candidate.id === selectedMemberId) ??
+        null);
   const targetMemberId = selectedMember?.id ?? null;
   const monthlyQuery = useQuery({
     enabled: targetMemberId !== null,
@@ -183,7 +189,7 @@ export function useAdminMemberLeaves({
 
   return {
     calendar: {
-      cells: buildAdminLeaveCalendarCells({
+      cells: buildManagerLeaveCalendarCells({
         month: month.month,
         rows: monthlyQuery.data ?? [],
         todayKey: today.dateKey,
@@ -244,6 +250,11 @@ export function useAdminMemberLeaves({
       items: members,
       onChange: selectMember,
       selected: selectedMember,
+      unavailable:
+        selectedMemberId !== null &&
+        rosterQuery.isSuccess &&
+        pendingQuery.isSuccess &&
+        selectedMember === null,
     },
     request: {
       errorMessage: rosterQuery.isError
@@ -266,4 +277,30 @@ export function useAdminMemberLeaves({
   };
 }
 
-export type AdminMemberLeavesState = ReturnType<typeof useAdminMemberLeaves>;
+export type ManagerMemberLeavesState = ReturnType<
+  typeof useManagerMemberLeaves
+>;
+
+function toInitialMonth(
+  dateKey: string | null,
+  fallback: SeoulMonth,
+): SeoulMonth {
+  const match = dateKey?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  if (!match) {
+    return { month: fallback.month, year: fallback.year };
+  }
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  const valid =
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() + 1 === month &&
+    parsed.getUTCDate() === day;
+
+  return valid && month >= 1 && month <= 12
+    ? { month, year }
+    : { month: fallback.month, year: fallback.year };
+}

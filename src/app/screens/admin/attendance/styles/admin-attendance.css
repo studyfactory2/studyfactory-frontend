@@ -325,17 +325,8 @@
     min-width: 8.5rem;
   }
 
-  /* The selected cell stays announced to assistive technology without
-     spending another visible row in the compact mobile command dock. */
-  .admin-attendance .staff-attendance__action-target {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    padding: 0;
-    margin: -1px;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
+  .admin-attendance .staff-attendance__action-context {
+    min-height: 32px;
   }
 
   .admin-attendance .staff-attendance__action-bar {

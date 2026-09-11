@@ -1,9 +1,10 @@
-import { CornerDownLeft } from 'lucide-react';
+import { CalendarRange, CornerDownLeft } from 'lucide-react';
 import type { AttendanceSelection } from '../model/attendance-board';
 
 type AttendanceCommandDockProps = {
   canAdvance: boolean;
   onAdvance: () => void;
+  onManageLeave?: () => void;
   onMarkAbsent: () => void;
   onMarkOther: () => void;
   onMarkPresent: () => void;
@@ -14,6 +15,7 @@ type AttendanceCommandDockProps = {
 export function AttendanceCommandDock({
   canAdvance,
   onAdvance,
+  onManageLeave,
   onMarkAbsent,
   onMarkOther,
   onMarkPresent,
@@ -31,9 +33,21 @@ export function AttendanceCommandDock({
       className="staff-attendance__action-bar"
       role="region"
     >
-      <p aria-live="polite" className="staff-attendance__action-target">
-        {targetLabel}
-      </p>
+      <div className="staff-attendance__action-context">
+        <p aria-live="polite" className="staff-attendance__action-target">
+          {targetLabel}
+        </p>
+        {selection !== null && onManageLeave && (
+          <button
+            className="staff-attendance__leave-shortcut"
+            onClick={onManageLeave}
+            type="button"
+          >
+            <CalendarRange aria-hidden="true" size={14} />
+            <span>휴무 관리</span>
+          </button>
+        )}
+      </div>
 
       <div
         aria-label="출석 처리 명령"
