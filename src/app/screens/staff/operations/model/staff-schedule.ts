@@ -1,14 +1,21 @@
-import type {
-  StaffScheduleDayOfWeek,
-  StaffScheduleResponse,
-  StaffScheduleShift,
-  StaffScheduleTaskType,
-} from '../../../../features/staff-schedules/staff-schedules-api';
+import type { StaffScheduleResponse } from '../../../../features/staff-schedules/staff-schedules-api';
+import type { StaffScheduleDayOfWeek } from '../../../../features/staff-schedules/staff-schedules-api';
+import {
+  STAFF_SCHEDULE_DAYS,
+  STAFF_SCHEDULE_DUTIES,
+  formatScheduleShift,
+  formatScheduleTask,
+  toStaffScheduleKey,
+  type StaffScheduleDuty,
+} from '../../../../features/staff-schedules/staff-schedule-grid';
 
-export type StaffScheduleDuty = {
-  shift: StaffScheduleShift;
-  taskType: StaffScheduleTaskType;
+export {
+  STAFF_SCHEDULE_DUTIES,
+  formatScheduleShift,
+  formatScheduleTask,
+  toStaffScheduleKey,
 };
+export type { StaffScheduleDuty };
 
 export type StaffScheduleDay = {
   dayOfWeek: StaffScheduleDayOfWeek;
@@ -18,36 +25,6 @@ export type StaffScheduleDay = {
       workerName: string;
     }
   >;
-};
-
-export const STAFF_SCHEDULE_DUTIES: readonly StaffScheduleDuty[] = [
-  { shift: 'MORNING', taskType: 'DISHWASHING' },
-  { shift: 'MORNING', taskType: 'SERVE' },
-  { shift: 'AFTERNOON', taskType: 'DISHWASHING' },
-  { shift: 'AFTERNOON', taskType: 'SERVE' },
-];
-
-const STAFF_SCHEDULE_DAYS: readonly {
-  dayOfWeek: StaffScheduleDayOfWeek;
-  label: string;
-}[] = [
-  { dayOfWeek: 'MONDAY', label: '월' },
-  { dayOfWeek: 'TUESDAY', label: '화' },
-  { dayOfWeek: 'WEDNESDAY', label: '수' },
-  { dayOfWeek: 'THURSDAY', label: '목' },
-  { dayOfWeek: 'FRIDAY', label: '금' },
-  { dayOfWeek: 'SATURDAY', label: '토' },
-  { dayOfWeek: 'SUNDAY', label: '일' },
-];
-
-const SHIFT_LABELS: Record<StaffScheduleShift, string> = {
-  AFTERNOON: '오후',
-  MORNING: '오전',
-};
-
-const TASK_LABELS: Record<StaffScheduleTaskType, string> = {
-  DISHWASHING: '설거지',
-  SERVE: '서빙',
 };
 
 export function buildStaffScheduleDays(
@@ -109,22 +86,6 @@ export function isOwnScheduleWorker(
     worker !== '' &&
     worker === normaliseWorkerName(memberName)
   );
-}
-
-export function formatScheduleShift(shift: StaffScheduleShift) {
-  return SHIFT_LABELS[shift];
-}
-
-export function formatScheduleTask(taskType: StaffScheduleTaskType) {
-  return TASK_LABELS[taskType];
-}
-
-export function toStaffScheduleKey(
-  dayOfWeek: StaffScheduleDayOfWeek,
-  shift: StaffScheduleShift,
-  taskType: string,
-) {
-  return `${dayOfWeek}:${shift}:${taskType}`;
 }
 
 function normaliseWorkerName(value: string) {

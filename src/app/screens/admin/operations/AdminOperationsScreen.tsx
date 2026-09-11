@@ -3,9 +3,13 @@ import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
 import { AdminDailyLeaveOverview } from './components/AdminDailyLeaveOverview';
 import { AdminDoorQrPanel } from './components/AdminDoorQrPanel';
+import { AdminStaffSchedulePanel } from './components/AdminStaffSchedulePanel';
 import { useAdminDailyLeaves } from './hooks/useAdminDailyLeaves';
 import { useAdminDoorQr } from './hooks/useAdminDoorQr';
+import { useAdminStaffSchedule } from './hooks/useAdminStaffSchedule';
 import './styles/admin-operations.css';
+import './styles/admin-staff-schedule.css';
+import './styles/admin-staff-schedule-editor.css';
 
 export function AdminOperationsScreen() {
   const { selectedBranch, selectedBranchId } = useAdminBranchScope();
@@ -44,16 +48,25 @@ function AdminOperationsContent({
 }) {
   const doorQr = useAdminDoorQr({ branchId, memberId, ownerKey });
   const leaves = useAdminDailyLeaves({ branchId, memberId, ownerKey });
+  const staffSchedule = useAdminStaffSchedule({
+    branchId,
+    memberId,
+    ownerKey,
+  });
 
   return (
     <div className="admin-operations">
       <ScreenHeader
         eyebrow="ADMIN · OPERATIONS"
-        subtitle={`${branchName} · 출입 QR과 날짜별 휴무 현황을 관리해요.`}
+        subtitle={`${branchName} · 출입 QR, 근무표와 날짜별 휴무 현황을 관리해요.`}
         title="운영 관리"
       />
 
       <AdminDoorQrPanel branchName={branchName} doorQr={doorQr} />
+      <AdminStaffSchedulePanel
+        branchName={branchName}
+        schedule={staffSchedule}
+      />
       <AdminDailyLeaveOverview branchName={branchName} leaves={leaves} />
     </div>
   );

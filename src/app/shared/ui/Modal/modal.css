@@ -29,6 +29,11 @@
   max-width: 480px;
 }
 
+.modal__panel--lg {
+  max-width: 920px;
+  max-height: min(90svh, 780px);
+}
+
 .modal__header {
   display: flex;
   align-items: center;

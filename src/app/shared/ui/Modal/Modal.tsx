@@ -13,7 +13,8 @@ type ModalProps = {
   initialFocusRef?: RefObject<HTMLElement | null>;
   onClose: () => void;
   open: boolean;
-  size?: 'sm' | 'md';
+  panelClassName?: string;
+  size?: 'sm' | 'md' | 'lg';
   title: string;
 };
 
@@ -24,6 +25,7 @@ export function Modal({
   initialFocusRef,
   onClose,
   open,
+  panelClassName,
   size = 'md',
   title,
 }: ModalProps) {
@@ -136,7 +138,7 @@ export function Modal({
       <div
         aria-labelledby={titleId}
         aria-modal="true"
-        className={cx('modal__panel', `modal__panel--${size}`)}
+        className={cx('modal__panel', `modal__panel--${size}`, panelClassName)}
         ref={panelRef}
         role="dialog"
         tabIndex={-1}
