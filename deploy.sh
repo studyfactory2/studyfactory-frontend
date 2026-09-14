@@ -312,6 +312,7 @@ build_release() {
     -w /app \
     "${BUILD_IMAGE}" \
     bash -lc '
+      set -Eeuo pipefail
       node -e '\''
         const http = require("http");
         const request = http.request({
@@ -339,7 +340,7 @@ build_release() {
       yarn build
       cp -a dist/. /output/
       chown -R "${HOST_UID}:${HOST_GID}" /output
-    ' >&2
+    ' >&2 || fail 'containerized frontend validation/build failed.'
 
   jq -n \
     --arg commit "${release_id}" \
@@ -374,7 +375,6 @@ download_archive() {
   mkdir -p "${archive_dir}"
   aws s3 cp "s3://${S3_BUCKET_NAME}/${archive_key}/" "${archive_dir}/" \
     --recursive \
-    --expected-bucket-owner "${EXPECTED_AWS_ACCOUNT_ID}" \
     --only-show-errors >&2
   [[ "$(jq -er '.commit' "${archive_dir}/_complete.json")" == "${release_id}" ]] ||
     fail 'archive completion marker does not match the requested release.'

@@ -41,6 +41,14 @@ require_value() {
   [[ -n "${!name:-}" ]] || fail "${name} is required."
 }
 
+verify_expected_bucket_owner() {
+  aws s3api head-bucket \
+    --bucket "${S3_BUCKET_NAME}" \
+    --expected-bucket-owner "${EXPECTED_AWS_ACCOUNT_ID}" \
+    >/dev/null ||
+    fail "the target S3 bucket is not owned by the expected AWS account."
+}
+
 validate_inputs() {
   [[ $# -eq 3 ]] ||
     fail "usage: publish.sh <deploy|rollback> <dist-directory> <release-sha>"
@@ -98,7 +106,6 @@ upload_file() {
   aws s3 cp \
     "${source_file}" \
     "s3://${S3_BUCKET_NAME}/${object_key}" \
-    --expected-bucket-owner "${EXPECTED_AWS_ACCOUNT_ID}" \
     --only-show-errors \
     --cache-control "${cache_control}" \
     --content-type "${content_type}"
@@ -140,7 +147,6 @@ validate_archive_marker() {
   aws s3 cp \
     "s3://${S3_BUCKET_NAME}/${RELEASE_PREFIX}/${RELEASE_ID}/_complete.json" \
     "${marker_file}" \
-    --expected-bucket-owner "${EXPECTED_AWS_ACCOUNT_ID}" \
     --only-show-errors
   jq -e \
     --arg commit "${RELEASE_ID}" \
@@ -164,7 +170,6 @@ archive_release() {
     "${DIST_DIR}/" \
     "s3://${S3_BUCKET_NAME}/${archive_key}/" \
     --recursive \
-    --expected-bucket-owner "${EXPECTED_AWS_ACCOUNT_ID}" \
     --only-show-errors \
     --cache-control 'no-store'
 
@@ -337,6 +342,7 @@ require_command grep
 require_command tr
 
 validate_inputs "$@"
+verify_expected_bucket_owner
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/studyfactory-frontend-publish.XXXXXX")"
 
 if [[ "${MODE}" == 'deploy' ]]; then
