@@ -82,7 +82,12 @@ export function BeverageRoomMap({
             whole card and nobody serves 2작업실 from the 1작업실 sheet. Rows
             with no seat in them are aisles and collapse to the aisle height.
           */}
-          <div className={cx('staff-bev__floor', `is-${selected.tone}`)}>
+          <div
+            aria-label={`${selected.name} 서빙 좌석표`}
+            className={cx('staff-bev__floor', `is-${selected.tone}`)}
+            role="region"
+            tabIndex={0}
+          >
             <div
               className="staff-bev__grid"
               style={

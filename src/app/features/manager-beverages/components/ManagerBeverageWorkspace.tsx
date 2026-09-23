@@ -1,3 +1,4 @@
+import { useId, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import type { SessionOwnerKey } from '../../../core/session';
 import { cx } from '../../../shared/lib/cx';
@@ -16,6 +17,8 @@ type ManagerBeverageWorkspaceProps = {
   ownerKey: SessionOwnerKey;
 };
 
+type CompactView = 'making' | 'map' | 'alerts';
+
 /** The shared operational board used by both Staff and Admin branch scopes. */
 export function ManagerBeverageWorkspace({
   branchId,
@@ -24,6 +27,26 @@ export function ManagerBeverageWorkspace({
 }: ManagerBeverageWorkspaceProps) {
   const { alerts, editor, freshness, making, room, today } =
     useManagerBeverages({ branchId, memberId, ownerKey });
+  const [compactView, setCompactView] = useState<CompactView>('making');
+  const workspaceId = useId();
+  const alertsFailed = Boolean(
+    alerts.changesErrorMessage ||
+    alerts.lateLeavesErrorMessage ||
+    alerts.unseatedErrorMessage,
+  );
+  const alertsReady =
+    alerts.changesReady && alerts.lateLeavesReady && alerts.unseatedReady;
+  const alertStatus = alertsFailed
+    ? '확인 실패'
+    : alertsReady
+      ? `${alerts.changes.length + alerts.lateLeaves.length + alerts.unseated.length}건`
+      : '확인 중';
+
+  const views: { key: CompactView; label: string; status?: string }[] = [
+    { key: 'making', label: '제조 목록' },
+    { key: 'map', label: '서빙 좌석표' },
+    { key: 'alerts', label: '확인 필요', status: alertStatus },
+  ];
 
   return (
     <div className="staff-bev">
@@ -95,40 +118,70 @@ export function ManagerBeverageWorkspace({
         </div>
       </Instrument>
 
-      <div className="staff-bev__body">
+      <div
+        aria-label="음료 작업 보기"
+        className="staff-bev__view-switch"
+        role="group"
+      >
+        {views.map((view) => (
+          <button
+            aria-controls={`${workspaceId}-${view.key}`}
+            aria-pressed={compactView === view.key}
+            key={view.key}
+            onClick={() => setCompactView(view.key)}
+            type="button"
+          >
+            <span>{view.label}</span>
+            {view.status && (
+              <small
+                aria-live="polite"
+                className={cx(alertsFailed && 'is-error')}
+              >
+                {view.status}
+              </small>
+            )}
+          </button>
+        ))}
+      </div>
+
+      <div className="staff-bev__body" data-view={compactView}>
         <aside aria-label="음료 작업" className="staff-bev__rail">
-          <BeverageMakingBoard
-            cup={making.cup}
-            cupToMake={making.cupToMake}
-            errorMessage={making.errorMessage}
-            loading={making.loading}
-            onOpenEditor={editor.onOpen}
-            onRetry={making.onRetry}
-            ready={making.ready}
-            tumbler={making.tumbler}
-            tumblerToMake={making.tumblerToMake}
-          />
-          <BeverageAlerts
-            changes={alerts.changes}
-            changesErrorMessage={alerts.changesErrorMessage}
-            changesLoading={alerts.changesLoading}
-            changesOnRetry={alerts.changesOnRetry}
-            changesReady={alerts.changesReady}
-            lateLeaves={alerts.lateLeaves}
-            lateLeavesErrorMessage={alerts.lateLeavesErrorMessage}
-            lateLeavesLoading={alerts.lateLeavesLoading}
-            lateLeavesOnRetry={alerts.lateLeavesOnRetry}
-            lateLeavesReady={alerts.lateLeavesReady}
-            onOpenEditor={editor.onOpen}
-            unseated={alerts.unseated}
-            unseatedErrorMessage={alerts.unseatedErrorMessage}
-            unseatedLoading={alerts.unseatedLoading}
-            unseatedOnRetry={alerts.unseatedOnRetry}
-            unseatedReady={alerts.unseatedReady}
-          />
+          <div className="staff-bev__making-panel" id={`${workspaceId}-making`}>
+            <BeverageMakingBoard
+              cup={making.cup}
+              cupToMake={making.cupToMake}
+              errorMessage={making.errorMessage}
+              loading={making.loading}
+              onOpenEditor={editor.onOpen}
+              onRetry={making.onRetry}
+              ready={making.ready}
+              tumbler={making.tumbler}
+              tumblerToMake={making.tumblerToMake}
+            />
+          </div>
+          <div className="staff-bev__alerts-panel" id={`${workspaceId}-alerts`}>
+            <BeverageAlerts
+              changes={alerts.changes}
+              changesErrorMessage={alerts.changesErrorMessage}
+              changesLoading={alerts.changesLoading}
+              changesOnRetry={alerts.changesOnRetry}
+              changesReady={alerts.changesReady}
+              lateLeaves={alerts.lateLeaves}
+              lateLeavesErrorMessage={alerts.lateLeavesErrorMessage}
+              lateLeavesLoading={alerts.lateLeavesLoading}
+              lateLeavesOnRetry={alerts.lateLeavesOnRetry}
+              lateLeavesReady={alerts.lateLeavesReady}
+              onOpenEditor={editor.onOpen}
+              unseated={alerts.unseated}
+              unseatedErrorMessage={alerts.unseatedErrorMessage}
+              unseatedLoading={alerts.unseatedLoading}
+              unseatedOnRetry={alerts.unseatedOnRetry}
+              unseatedReady={alerts.unseatedReady}
+            />
+          </div>
         </aside>
 
-        <div className="staff-bev__map-panel">
+        <div className="staff-bev__map-panel" id={`${workspaceId}-map`}>
           <BeverageRoomMap
             errorMessage={room.errorMessage}
             loading={room.loading}

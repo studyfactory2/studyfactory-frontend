@@ -1,3 +1,5 @@
+import { useId, useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -141,23 +143,54 @@ function DrinkRow({
   group: DrinkCount;
   onOpenEditor: (memberId: number) => void;
 }) {
-  return (
-    <li className="staff-bev__drink">
-      <div className="staff-bev__drink-head">
-        <span className="staff-bev__drink-name">{group.name}</span>
-        <span className="staff-bev__drink-count">
-          <b>{group.toMake}</b>
-          {/*
-            The deduction is shown rather than folded away: someone counting
-            cups against the member list needs to see why the two differ.
-          */}
-          {group.deduction > 0 && (
-            <em title={`휴무 ${group.deduction}명 제외`}>−{group.deduction}</em>
-          )}
-        </span>
-      </div>
+  const [expanded, setExpanded] = useState(false);
+  const servingsId = useId();
+  const noteCount = group.servings.filter(
+    (serving) => serving.note && !serving.deducted,
+  ).length;
+  const summary = (
+    <>
+      <span className="staff-bev__drink-name">{group.name}</span>
+      <span className="staff-bev__drink-count">
+        <b>{group.toMake}</b>
+        {/* The deduction explains why the count differs from the roster. */}
+        {group.deduction > 0 && (
+          <em title={`휴무 ${group.deduction}명 제외`}>−{group.deduction}</em>
+        )}
+      </span>
+    </>
+  );
 
-      <ul className="staff-bev__seats">
+  return (
+    <li className={cx('staff-bev__drink', expanded && 'is-expanded')}>
+      <div className="staff-bev__drink-head">{summary}</div>
+      <button
+        aria-controls={servingsId}
+        aria-expanded={expanded}
+        aria-label={`${group.name} ${group.toMake}잔${
+          group.deduction > 0 ? `, 휴무 ${group.deduction}명 제외` : ''
+        }${noteCount > 0 ? `, 메모 ${noteCount}개` : ''}, 명단 ${
+          expanded ? '접기' : '보기'
+        }`}
+        className="staff-bev__drink-toggle"
+        onClick={() => setExpanded((current) => !current)}
+        type="button"
+      >
+        <span className="staff-bev__drink-head">{summary}</span>
+        <span className="staff-bev__drink-toggle-meta">
+          {noteCount > 0 && (
+            <span className="staff-bev__drink-note-count">
+              메모 {noteCount}개
+            </span>
+          )}
+          <span className="staff-bev__drink-toggle-action">
+            명단 {expanded ? '접기' : '보기'}
+            <ChevronDown aria-hidden="true" size={14} />
+          </span>
+        </span>
+      </button>
+
+      <ul className="staff-bev__seats" id={servingsId}>
         {group.servings.map((serving, index) => (
           <li
             className={cx(
