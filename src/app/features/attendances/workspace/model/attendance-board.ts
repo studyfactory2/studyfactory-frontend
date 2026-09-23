@@ -11,6 +11,10 @@ import type {
 } from '../../../../features/study-presence/study-presence-api';
 import type { MemberResponse } from '../../../../features/members/members-api';
 import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
+import {
+  isAttendanceRole,
+  type AttendanceTargetRole,
+} from './attendance-targets';
 
 export const ATTENDANCE_SLOTS = [1, 2, 3, 4, 5, 6, 7] as const;
 
@@ -29,6 +33,7 @@ export type AttendanceBoardMember = {
   memberId: number;
   name: string;
   presence: AttendanceBoardPresence | null;
+  role: AttendanceTargetRole;
   seatNumber: number | null;
   slots: AttendanceBoardCell[];
   stage: AttendanceMemberStage;
@@ -91,45 +96,57 @@ export function buildAttendanceMembers(
     return [];
   }
 
-  const memberIds = new Set(
-    roster
-      .filter((member) => member.role === 'MEMBER')
-      .map((member) => member.id),
-  );
+  const memberRoles = new Map<number, AttendanceTargetRole>();
+
+  for (const member of roster) {
+    if (isAttendanceRole(member.role)) {
+      memberRoles.set(member.id, member.role);
+    }
+  }
   const presenceByMemberId = history
     ? buildDailyMemberPresence(history.sessions)
     : null;
 
   return board.rows
-    .filter(
-      (row): row is typeof row & { memberId: number } =>
-        row.memberId !== null && memberIds.has(row.memberId),
-    )
-    .map((row) => ({
-      joinDate: row.joinDate,
-      memberId: row.memberId,
-      name: row.name,
-      presence:
-        presenceByMemberId?.get(row.memberId) ??
-        (history
-          ? {
-              activeSessionId: null,
-              checkedInAt: null,
-              checkedOutAt: null,
-              currentlyActive: false,
-              sessionCount: 0,
-            }
-          : null),
-      seatNumber:
-        row.seatNumber !== null && row.seatNumber > 0 ? row.seatNumber : null,
-      slots: ATTENDANCE_SLOTS.map((slot) =>
-        toAttendanceCell(
-          row.slots[slot - 1] ?? ATTENDANCE_BLANK,
-          row.slotSources[slot - 1] ?? 'NONE',
-        ),
-      ),
-      stage: toMemberStage(row.joinDate, board.date),
-    }))
+    .flatMap((row) => {
+      const role =
+        row.memberId === null ? undefined : memberRoles.get(row.memberId);
+
+      if (row.memberId === null || role === undefined) {
+        return [];
+      }
+
+      return [
+        {
+          joinDate: row.joinDate,
+          memberId: row.memberId,
+          name: row.name,
+          presence:
+            presenceByMemberId?.get(row.memberId) ??
+            (history
+              ? {
+                  activeSessionId: null,
+                  checkedInAt: null,
+                  checkedOutAt: null,
+                  currentlyActive: false,
+                  sessionCount: 0,
+                }
+              : null),
+          role,
+          seatNumber:
+            row.seatNumber !== null && row.seatNumber > 0
+              ? row.seatNumber
+              : null,
+          slots: ATTENDANCE_SLOTS.map((slot) =>
+            toAttendanceCell(
+              row.slots[slot - 1] ?? ATTENDANCE_BLANK,
+              row.slotSources[slot - 1] ?? 'NONE',
+            ),
+          ),
+          stage: toMemberStage(row.joinDate, board.date),
+        },
+      ];
+    })
     .sort(
       (left, right) =>
         (left.seatNumber ?? Number.MAX_SAFE_INTEGER) -

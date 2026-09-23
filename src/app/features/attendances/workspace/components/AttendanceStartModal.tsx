@@ -29,7 +29,7 @@ export function AttendanceStartModal({
       onClose={pending ? () => undefined : onClose}
       open={member !== null}
       size="sm"
-      title="신규 회원 출석 시작"
+      title="신규 사원 출석 시작"
     >
       {member && (
         <div className="staff-attendance__start-copy">
@@ -38,8 +38,8 @@ export function AttendanceStartModal({
             {member.name}
           </strong>
           <p>
-            오늘의 기존 출석과 일일 휴무 기록을 비우고 이 회원의 출석부를
-            시작합니다. 고정 휴무는 유지되며, 이 작업은 오늘 입소 회원에게만
+            오늘의 기존 출석과 일일 휴무 기록을 비우고 이 사원의 출석부를
+            시작합니다. 고정 휴무는 유지되며, 이 작업은 오늘 입사 사원에게만
             사용할 수 있어요.
           </p>
         </div>

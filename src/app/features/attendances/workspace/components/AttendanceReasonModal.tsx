@@ -92,7 +92,7 @@ function ReasonForm({
       <p>이 교시에 표시할 사유를 선택하거나 직접 입력하세요.</p>
       {replacesMemberLeave && (
         <div className="staff-attendance__leave-warning" role="alert">
-          <strong>회원 휴무 신청 전체가 취소됩니다.</strong>
+          <strong>휴무 신청 전체가 취소됩니다.</strong>
           <span>
             현재 {selection.cell.label} 신청은 여러 교시에 연결될 수 있어요.
             저장하면 {selection.slot}교시만 새 사유로 바뀌고, 연결된 다른 교시는

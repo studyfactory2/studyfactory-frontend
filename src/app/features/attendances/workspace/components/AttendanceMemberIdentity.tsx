@@ -3,6 +3,7 @@ import {
   formatKoreanDate,
   formatTimeOfDayFromEpochMs,
 } from '../../../../shared/lib/seoul-date';
+import { Badge } from '../../../../shared/ui';
 import type { AttendanceBoardMember } from '../model/attendance-board';
 
 export type AttendancePresenceLoadState = 'error' | 'loading' | 'ready';
@@ -27,6 +28,9 @@ export function AttendanceMemberIdentity({
   presenceState,
 }: AttendanceMemberIdentityProps) {
   const currentlyActive = member.presence?.currentlyActive ?? false;
+  const canManagePresence =
+    member.role === 'MEMBER' ||
+    (member.presence?.activeSessionId ?? null) !== null;
 
   return (
     <span className="staff-attendance__member">
@@ -43,6 +47,11 @@ export function AttendanceMemberIdentity({
       <span className="staff-attendance__member-copy">
         <span className="staff-attendance__member-name">
           <strong>{member.name}</strong>
+          {member.role === 'STAFF' && (
+            <Badge className="staff-attendance__role-badge" tone="accent">
+              스태프
+            </Badge>
+          )}
           {presenceState === 'ready' &&
             member.presence !== null &&
             member.presence.sessionCount > 1 && (
@@ -55,6 +64,7 @@ export function AttendanceMemberIdentity({
               </em>
             )}
           {interactive &&
+            canManagePresence &&
             member.stage === 'active' &&
             presenceState === 'ready' && (
               <button

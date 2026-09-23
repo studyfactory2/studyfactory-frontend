@@ -7,6 +7,7 @@ import type {
   AttendanceSlotCommand,
 } from '../../../../features/attendances/workspace/model/attendance-board';
 import type { MemberResponse } from '../../../../features/members/members-api';
+import { findAttendanceTarget } from '../../../../features/attendances/workspace/model/attendance-targets';
 import type { StudyPresenceManualCheckInInput } from '../../../../features/study-presence/study-presence-api';
 import { getSeoulToday } from '../../../../shared/lib/seoul-date';
 import { useToast } from '../../../../shared/ui';
@@ -44,23 +45,6 @@ export function useAdminAttendanceActions({
     ownerKey,
     writeEnabled,
   });
-  const allowedMemberById = useMemo(
-    () =>
-      new Map(
-        roster
-          .filter(
-            (member) =>
-              member.branchId === branchId && member.role === 'MEMBER',
-          )
-          .map((member) => [member.id, member] as const),
-      ),
-    [branchId, roster],
-  );
-  const attendanceMemberById = useMemo(
-    () => new Map(attendanceMembers.map((member) => [member.memberId, member])),
-    [attendanceMembers],
-  );
-
   const validateMember = useCallback(
     (targetMemberId: number, stage: AttendanceMemberStage) => {
       if (!isWritableToday({ dateKey, writeEnabled })) {
@@ -68,16 +52,22 @@ export function useAdminAttendanceActions({
         return null;
       }
 
-      const member = attendanceMemberById.get(targetMemberId);
+      const member = findAttendanceTarget(
+        roster,
+        attendanceMembers,
+        branchId,
+        targetMemberId,
+        stage,
+      );
 
-      if (!allowedMemberById.has(targetMemberId) || member?.stage !== stage) {
-        toast('현재 지점의 출석 대상 회원인지 다시 확인해 주세요.', 'error');
+      if (!member) {
+        toast('현재 지점의 출석 대상 사원인지 다시 확인해 주세요.', 'error');
         return null;
       }
 
       return member;
     },
-    [allowedMemberById, attendanceMemberById, dateKey, toast, writeEnabled],
+    [roster, attendanceMembers, branchId, dateKey, toast, writeEnabled],
   );
 
   const updateSlot = useCallback(
@@ -99,14 +89,17 @@ export function useAdminAttendanceActions({
         return;
       }
 
-      if (allowedMemberById.get(targetMemberId)?.joinDate !== dateKey) {
-        toast('오늘 입사한 회원인지 다시 확인해 주세요.', 'error');
+      if (
+        roster.find((candidate) => candidate.id === targetMemberId)
+          ?.joinDate !== dateKey
+      ) {
+        toast('오늘 입사한 사원인지 다시 확인해 주세요.', 'error');
         return;
       }
 
       mutationRuntime.runReset(targetMemberId, onSuccess);
     },
-    [allowedMemberById, dateKey, mutationRuntime, toast, validateMember],
+    [roster, dateKey, mutationRuntime, toast, validateMember],
   );
 
   const manualCheckIn = useCallback(
@@ -120,6 +113,11 @@ export function useAdminAttendanceActions({
       const checkedInAtMs = Date.parse(input.checkedInAt);
 
       if (!member) {
+        return;
+      }
+
+      if (member.role !== 'MEMBER') {
+        toast('스태프 입실은 QR로 등록해 주세요.', 'error');
         return;
       }
 

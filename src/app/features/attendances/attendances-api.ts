@@ -52,14 +52,11 @@ export type AttendanceDailyResetInput = {
 /**
  * The board is seat-shaped rather than member-shaped: it returns a row for
  * every seat from 1 to at least 102 — name "공석", memberId null — and then
- * appends any member who has no seat. Anything counting people has to filter on
- * memberId first, which is why model/staff-home.ts does that once and nothing
- * else touches raw rows.
+ * appends people without seats. Attendance screens join non-null member IDs
+ * with the branch roster to identify MEMBER and STAFF targets.
  *
- * branchId is always sent. The backend's resolveBranchId falls back to the
- * caller's own branch when it is omitted, but applies no scope check when it is
- * present, so sending the session's own branch is both the correct request and
- * the one that cannot widen by accident.
+ * branchId is always sent explicitly. The server allows ADMIN to select a
+ * branch and restricts STAFF to their own branch.
  */
 export async function fetchDailyAttendanceBoard(
   date: string,

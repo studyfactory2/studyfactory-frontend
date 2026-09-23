@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test:seoul-date": "node --experimental-strip-types --test scripts/seoul-date-boundary.test.mjs",
-    "test:registration": "node --experimental-strip-types --test scripts/registration-flow.test.mjs"
+    "test:registration": "node --experimental-strip-types --test scripts/registration-flow.test.mjs",
+    "test:attendance": "node --experimental-strip-types --test scripts/attendance-targets.test.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.102.8",

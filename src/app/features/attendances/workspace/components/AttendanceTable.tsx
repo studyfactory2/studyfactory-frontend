@@ -195,7 +195,7 @@ export function AttendanceTable({
       </p>
       <Table>
         <caption className="staff-attendance__sr-only">
-          {formatKoreanDate(dateKey)} 좌석 순서 회원과 미배정 회원의 입퇴실
+          {formatKoreanDate(dateKey)} 좌석 순서 사원과 미배정 사원의 입퇴실
           시각, 1교시부터 7교시까지의 출석 상태
         </caption>
         <thead>
@@ -205,7 +205,7 @@ export function AttendanceTable({
               ref={identityHeaderRef}
               scope="col"
             >
-              <span>회원</span>
+              <span>사원</span>
               <small className="staff-attendance__identity-note">입·퇴실</small>
             </th>
             {ATTENDANCE_SLOTS.map((slot) => (

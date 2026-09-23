@@ -8,6 +8,7 @@ import {
   type AttendanceBoardMember,
 } from '../../../../features/attendances/workspace/model/attendance-board';
 import { memberQueryKeys } from '../../../../features/members/member-query-keys';
+import { selectAttendanceRoster } from '../../../../features/attendances/workspace/model/attendance-targets';
 import {
   fetchBranchMembers,
   fetchPendingPreRegistrations,
@@ -84,10 +85,8 @@ export function useAdminAttendance({
       pendingQuery.data.map((registration) => registration.id),
     );
 
-    return rosterQuery.data.filter(
-      (member) => member.role === 'MEMBER' && !pendingMemberIds.has(member.id),
-    );
-  }, [pendingQuery.data, rosterQuery.data]);
+    return selectAttendanceRoster(rosterQuery.data, branchId, pendingMemberIds);
+  }, [branchId, pendingQuery.data, rosterQuery.data]);
 
   const members = useMemo<AttendanceBoardMember[]>(
     () =>

@@ -238,6 +238,7 @@ export async function manualCheckOutStudyPresenceSession(
 
   assertManagerPresenceResponse(response, {
     active: false,
+    allowStaff: true,
     branchId: expectedBranchId,
     memberId: targetMemberId,
     sessionId,
@@ -250,6 +251,7 @@ function assertManagerPresenceResponse(
   response: StudyPresenceManagerSessionResponse,
   expected: {
     active: boolean;
+    allowStaff?: boolean;
     branchId: number;
     memberId: number;
     sessionId?: number;
@@ -258,7 +260,8 @@ function assertManagerPresenceResponse(
   if (
     response.branchId !== expected.branchId ||
     response.memberId !== expected.memberId ||
-    response.memberRole !== 'MEMBER' ||
+    (response.memberRole !== 'MEMBER' &&
+      !(expected.allowStaff && response.memberRole === 'STAFF')) ||
     response.currentlyActive !== expected.active ||
     (expected.sessionId !== undefined &&
       response.sessionId !== expected.sessionId)

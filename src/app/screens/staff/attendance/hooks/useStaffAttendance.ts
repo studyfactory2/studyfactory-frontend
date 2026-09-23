@@ -19,12 +19,18 @@ import { memberQueryKeys } from '../../../../features/members/member-query-keys'
 import { fetchBranchMembers } from '../../../../features/members/members-api';
 import { useSeoulClock } from '../../../../shared/hooks/useSeoulClock';
 import { useSeoulToday } from '../../../../shared/hooks/useSeoulToday';
+import { getSeoulToday } from '../../../../shared/lib/seoul-date';
 import { useToast } from '../../../../shared/ui';
 import {
   buildAttendanceMembers,
   toAttendanceCellKey,
+  type AttendanceMemberStage,
   type AttendanceSlotCommand,
 } from '../../../../features/attendances/workspace/model/attendance-board';
+import {
+  findAttendanceTarget,
+  selectAttendanceRoster,
+} from '../../../../features/attendances/workspace/model/attendance-targets';
 
 const BOARD_STALE_TIME_MS = 60 * 1_000;
 const ATTENDANCE_REFETCH_MS = 30 * 1_000;
@@ -115,14 +121,42 @@ export function useStaffAttendance({
     staleTime: ROSTER_STALE_TIME_MS,
   });
 
+  const attendanceRoster = useMemo(
+    () => selectAttendanceRoster(rosterQuery.data, branchId),
+    [branchId, rosterQuery.data],
+  );
   const members = useMemo(
     () =>
       buildAttendanceMembers(
         boardQuery.data,
         presenceQuery.data,
-        rosterQuery.data,
+        attendanceRoster,
       ),
-    [boardQuery.data, presenceQuery.data, rosterQuery.data],
+    [attendanceRoster, boardQuery.data, presenceQuery.data],
+  );
+
+  const validateMember = useCallback(
+    (targetMemberId: number, stage: AttendanceMemberStage) => {
+      if (today.dateKey !== getSeoulToday().dateKey) {
+        toast('오늘 출석부에서만 처리할 수 있어요.', 'error');
+        return null;
+      }
+
+      const target = findAttendanceTarget(
+        attendanceRoster ?? [],
+        members,
+        branchId,
+        targetMemberId,
+        stage,
+      );
+
+      if (!target) {
+        toast('현재 지점의 출석 대상 사원인지 다시 확인해 주세요.', 'error');
+      }
+
+      return target;
+    },
+    [attendanceRoster, members, branchId, today.dateKey, toast],
   );
 
   const slotMutation = useMutation({
@@ -160,7 +194,7 @@ export function useStaffAttendance({
       ),
     onError: (error: Error) => toast(error.message, 'error'),
     onSuccess: () => {
-      toast('신규 회원의 오늘 출석부를 시작했어요.', 'success');
+      toast('신규 사원의 오늘 출석부를 시작했어요.', 'success');
     },
     onSettled: async (_result, error, targetMemberId) => {
       try {
@@ -229,6 +263,10 @@ export function useStaffAttendance({
 
   const updateSlot = useCallback(
     (command: AttendanceSlotCommand, onSuccess?: () => void) => {
+      if (!validateMember(command.memberId, 'active')) {
+        return;
+      }
+
       const key = toAttendanceCellKey(command.memberId, command.slot);
 
       if (pendingMemberIdsRef.current.has(command.memberId)) {
@@ -244,11 +282,23 @@ export function useStaffAttendance({
       setPendingMemberIds(new Set(pendingMemberIdsRef.current));
       slotMutation.mutate(command);
     },
-    [slotMutation],
+    [slotMutation, validateMember],
   );
 
   const resetMember = useCallback(
     (targetMemberId: number, onSuccess?: () => void) => {
+      if (!validateMember(targetMemberId, 'starts-today')) {
+        return;
+      }
+
+      if (
+        attendanceRoster?.find((candidate) => candidate.id === targetMemberId)
+          ?.joinDate !== today.dateKey
+      ) {
+        toast('오늘 입사한 사원인지 다시 확인해 주세요.', 'error');
+        return;
+      }
+
       if (pendingMemberIdsRef.current.has(targetMemberId)) {
         return;
       }
@@ -262,7 +312,7 @@ export function useStaffAttendance({
       setPendingMemberIds(new Set(pendingMemberIdsRef.current));
       resetMutation.mutate(targetMemberId);
     },
-    [resetMutation],
+    [attendanceRoster, resetMutation, today.dateKey, toast, validateMember],
   );
 
   const startManualPresenceAction = useCallback(
@@ -289,9 +339,28 @@ export function useStaffAttendance({
       input: StudyPresenceManualCheckInInput,
       onSuccess?: () => void,
     ) => {
+      const target = validateMember(targetMemberId, 'active');
       const reason = input.reason?.trim();
+      const checkedInAtMs = Date.parse(input.checkedInAt);
 
-      if (!input.checkedInAt || (reason?.length ?? 0) > 200) {
+      if (!target) {
+        return;
+      }
+
+      if (target.role !== 'MEMBER') {
+        toast('스태프 입실은 QR로 등록해 주세요.', 'error');
+        return;
+      }
+
+      if (
+        target.presence === null ||
+        target.presence.currentlyActive ||
+        !Number.isFinite(checkedInAtMs) ||
+        checkedInAtMs > Date.now() ||
+        getSeoulToday(new Date(checkedInAtMs)).dateKey !== today.dateKey ||
+        (reason?.length ?? 0) > 200
+      ) {
+        toast('입실 시각과 선택 사유를 다시 확인해 주세요.', 'error');
         return;
       }
 
@@ -307,16 +376,31 @@ export function useStaffAttendance({
         onSuccess,
       );
     },
-    [startManualPresenceAction],
+    [startManualPresenceAction, today.dateKey, toast, validateMember],
   );
 
   const manualCheckOut = useCallback(
-    (targetMemberId: number, sessionId: number, onSuccess?: () => void) =>
+    (targetMemberId: number, sessionId: number, onSuccess?: () => void) => {
+      const target = validateMember(targetMemberId, 'active');
+
+      if (!target) {
+        return;
+      }
+
+      if (
+        !target.presence?.currentlyActive ||
+        target.presence.activeSessionId !== sessionId
+      ) {
+        toast('현재 입실 세션을 다시 확인해 주세요.', 'error');
+        return;
+      }
+
       startManualPresenceAction(
         { memberId: targetMemberId, sessionId, type: 'check-out' },
         onSuccess,
-      ),
-    [startManualPresenceAction],
+      );
+    },
+    [startManualPresenceAction, toast, validateMember],
   );
 
   const refresh = useCallback(() => {

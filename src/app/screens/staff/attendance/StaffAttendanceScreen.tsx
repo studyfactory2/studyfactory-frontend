@@ -31,6 +31,7 @@ export function StaffAttendanceScreen() {
 
   return (
     <StaffAttendanceContent
+      key={`${session.ownerKey}:${session.branchId}`}
       branchId={session.branchId}
       memberId={session.memberId}
       ownerKey={session.ownerKey}

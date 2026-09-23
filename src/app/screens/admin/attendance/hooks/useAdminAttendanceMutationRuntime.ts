@@ -178,7 +178,7 @@ export function useAdminAttendanceMutationRuntime({
     },
     onSuccess: (_result, operation) => {
       if (operationIsCurrent(mountedRef, currentScopeRef, operation)) {
-        toast('신규 회원의 오늘 출석부를 시작했어요.', 'success');
+        toast('신규 사원의 오늘 출석부를 시작했어요.', 'success');
       }
     },
     onSettled: async (_result, error, operation) => {

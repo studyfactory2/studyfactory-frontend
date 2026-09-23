@@ -384,6 +384,13 @@
   white-space: nowrap;
 }
 
+.staff-attendance__role-badge.ui-badge {
+  flex: 0 0 auto;
+  padding: 2px 4px;
+  font-size: 0.58rem;
+  white-space: nowrap;
+}
+
 .staff-attendance__member-presence {
   display: flex;
   max-width: 100%;

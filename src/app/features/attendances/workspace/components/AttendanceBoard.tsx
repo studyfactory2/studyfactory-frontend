@@ -237,7 +237,10 @@ export function AttendanceBoard({
       ? null
       : (members.find(
           (member) =>
-            member.memberId === presenceMemberId && member.stage === 'active',
+            member.memberId === presenceMemberId &&
+            (member.role === 'MEMBER' ||
+              (member.presence?.activeSessionId ?? null) !== null) &&
+            member.stage === 'active',
         ) ?? null);
   const selectedPending = activeSelection
     ? pendingMemberIds.has(activeSelection.memberId)
@@ -485,7 +488,7 @@ export function AttendanceBoard({
             )}
             <div className="staff-attendance__board-toolbar">
               <label className="staff-attendance__search" htmlFor={searchId}>
-                <span className="staff-attendance__sr-only">회원 검색</span>
+                <span className="staff-attendance__sr-only">사원 검색</span>
                 <Search aria-hidden="true" size={17} />
                 <input
                   autoComplete="off"
@@ -551,8 +554,8 @@ export function AttendanceBoard({
                 <SectionEmpty
                   title={
                     members.length === 0
-                      ? `${isToday ? '오늘' : '선택한 날짜의'} 출석부에 표시할 회원이 없어요.`
-                      : '조건에 맞는 회원이 없어요.'
+                      ? `${isToday ? '오늘' : '선택한 날짜의'} 출석부에 표시할 사원이 없어요.`
+                      : '조건에 맞는 사원이 없어요.'
                   }
                 >
                   <p>

@@ -29,7 +29,7 @@ export function AttendanceLeaveOverrideModal({
       onClose={pending ? () => undefined : onClose}
       open={selection !== null}
       size="sm"
-      title="회원 휴무 신청 변경 확인"
+      title="휴무 신청 변경 확인"
     >
       {selection && (
         <div className="staff-attendance__leave-override-copy">
@@ -40,7 +40,7 @@ export function AttendanceLeaveOverrideModal({
             {selection.name} · {selection.slot}교시
           </strong>
           <p>
-            현재 <b>{selection.cell.label}</b> 회원 신청은 여러 교시에 연결될 수
+            현재 <b>{selection.cell.label}</b> 휴무 신청은 여러 교시에 연결될 수
             있어요. 계속하면 신청 전체가 취소되고 선택한 교시는 미출석(X)으로
             바뀝니다. 연결된 다른 교시도 미출석으로 돌아갈 수 있습니다.
           </p>
