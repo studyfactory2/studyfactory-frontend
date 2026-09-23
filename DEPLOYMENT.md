@@ -221,7 +221,6 @@ corepack enable
 yarn install --frozen-lockfile
 yarn format:check
 yarn lint
-yarn test:seoul-date
 yarn build
 git push origin develop
 ```

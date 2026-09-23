@@ -23,6 +23,7 @@ import {
 /* A roster changes when someone is registered or signs up, not by the minute. */
 const ROSTER_STALE_TIME_MS = 60 * 1_000;
 const CERTIFICATIONS_STALE_TIME_MS = 30 * 60 * 1_000;
+const MEMBERS_PER_PAGE = 20;
 
 type UseAdminMembersArgs = {
   branchId: number;
@@ -43,6 +44,7 @@ export function useAdminMembers({
   const [view, setView] = useState<AdminMembersView>('current');
   const [query, setQuery] = useState('');
   const [role, setRole] = useState<AdminMemberRoleFilter>('ALL');
+  const [page, setPage] = useState(1);
 
   const membersQuery = useQuery({
     queryFn: () => fetchBranchMembers(branchId, memberId),
@@ -92,6 +94,19 @@ export function useAdminMembers({
     [filter, pendingRows],
   );
 
+  /* Search and sort the complete roster before taking the visible page. */
+  const matchingRows = view === 'current' ? visibleCurrent : visiblePending;
+  const matchingTotal = matchingRows?.length ?? 0;
+  const pageCount = Math.max(1, Math.ceil(matchingTotal / MEMBERS_PER_PAGE));
+  const currentPage = Math.min(page, pageCount);
+  const pageOffset = (currentPage - 1) * MEMBERS_PER_PAGE;
+
+  /* Persist a clamp after removal, so a later refresh cannot resurrect an
+     out-of-range page. Branch/session changes already remount this hook. */
+  if (matchingRows !== null && page !== currentPage) {
+    setPage(currentPage);
+  }
+
   const certificationLookup = useMemo(
     () =>
       buildCertificationLookup(
@@ -112,6 +127,7 @@ export function useAdminMembers({
   const clearFilter = () => {
     setQuery('');
     setRole('ALL');
+    setPage(1);
   };
 
   const refreshRoster = () => {
@@ -151,7 +167,10 @@ export function useAdminMembers({
           : `등록 대기 목록을 불러오지 못해 현재 사원을 나눌 수 없어요. ${pendingError}`),
       loading: membersQuery.isPending || pendingQuery.isPending,
       onRetry: refreshRoster,
-      rows: visibleCurrent,
+      filteredTotal: visibleCurrent?.length ?? null,
+      rows:
+        visibleCurrent?.slice(pageOffset, pageOffset + MEMBERS_PER_PAGE) ??
+        null,
       total: currentRows?.length ?? null,
     },
     /** Complete validated current roster, before search/role filtering. */
@@ -159,15 +178,37 @@ export function useAdminMembers({
     filter,
     filterActive: isFilterActive(filter),
     onClearFilter: clearFilter,
-    onQueryChange: setQuery,
+    onQueryChange: (nextQuery: string) => {
+      setQuery(nextQuery);
+      setPage(1);
+    },
     onRefresh: refresh,
-    onRoleChange: setRole,
-    onViewChange: setView,
+    onRoleChange: (nextRole: AdminMemberRoleFilter) => {
+      setRole(nextRole);
+      setPage(1);
+    },
+    onViewChange: (nextView: AdminMembersView) => {
+      setView(nextView);
+      setPage(1);
+    },
+    pagination: {
+      end: Math.min(pageOffset + MEMBERS_PER_PAGE, matchingTotal),
+      onPageChange: (nextPage: number) => {
+        setPage(Math.max(1, Math.min(nextPage, pageCount)));
+      },
+      page: currentPage,
+      pageCount,
+      start: matchingTotal === 0 ? 0 : pageOffset + 1,
+      total: matchingTotal,
+    },
     pending: {
       errorMessage: pendingError,
       loading: pendingQuery.isPending,
       onRetry: () => void pendingQuery.refetch(),
-      rows: visiblePending,
+      filteredTotal: visiblePending?.length ?? null,
+      rows:
+        visiblePending?.slice(pageOffset, pageOffset + MEMBERS_PER_PAGE) ??
+        null,
       total: pendingRows?.length ?? null,
     },
     refreshing:

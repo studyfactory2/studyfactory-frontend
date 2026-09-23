@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import type { BranchResponse } from '../../../features/branches/branches-api';
 import type { MemberResponse } from '../../../features/members/members-api';
 import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
 import { AdminMembersToolbar } from './components/AdminMembersToolbar';
+import { AdminMembersPagination } from './components/AdminMembersPagination';
 import { CurrentMemberEditorModal } from './components/CurrentMemberEditorModal';
 import { CurrentMemberList } from './components/CurrentMemberList';
 import { MemberWeeklyPlanViewer } from './components/MemberWeeklyPlanViewer';
@@ -69,12 +70,21 @@ function AdminMembersContent({
     ownerKey,
   });
   const [planMember, setPlanMember] = useState<MemberResponse | null>(null);
+  const listRef = useRef<HTMLElement>(null);
   const active = members.view === 'current' ? members.current : members.pending;
   /* Zero results are explained by the list itself, with the same clear button. */
   const resultCount =
-    members.filterActive && active.rows !== null && active.rows.length > 0
-      ? active.rows.length
+    members.filterActive &&
+    active.filteredTotal !== null &&
+    active.filteredTotal > 0
+      ? active.filteredTotal
       : null;
+
+  const changePage = (page: number) => {
+    members.pagination.onPageChange(page);
+    listRef.current?.focus({ preventScroll: true });
+    listRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
+  };
 
   return (
     <div className="admin-members">
@@ -117,6 +127,8 @@ function AdminMembersContent({
       <section
         aria-label={members.view === 'current' ? '현재 사원' : '등록 대기'}
         className="admin-members__list"
+        ref={listRef}
+        tabIndex={-1}
       >
         {members.view === 'current' ? (
           <CurrentMemberList
@@ -147,6 +159,15 @@ function AdminMembersContent({
           />
         )}
       </section>
+
+      {!active.loading &&
+        active.errorMessage === null &&
+        active.rows !== null && (
+          <AdminMembersPagination
+            {...members.pagination}
+            onPageChange={changePage}
+          />
+        )}
 
       {planMember !== null && (
         <MemberWeeklyPlanViewer

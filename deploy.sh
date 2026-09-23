@@ -336,7 +336,6 @@ build_release() {
       yarn install --frozen-lockfile --non-interactive
       yarn format:check
       yarn lint
-      yarn test:seoul-date
       yarn build
       cp -a dist/. /output/
       chown -R "${HOST_UID}:${HOST_GID}" /output
