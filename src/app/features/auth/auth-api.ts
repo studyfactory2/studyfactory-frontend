@@ -1,4 +1,4 @@
-import { apiRequest } from '../../core/api/api-client';
+import { apiRequest, ApiRequestError } from '../../core/api/api-client';
 
 export type LoginRequest = {
   branchId: number;
@@ -21,6 +21,7 @@ export function login(request: LoginRequest) {
 export type PreRegistrationVerifyRequest = {
   branchId: number;
   name: string;
+  registrationCode?: string;
 };
 
 export type PreRegistrationVerifyResponse = {
@@ -37,6 +38,7 @@ export type PreRegistrationVerifyResponse = {
 export type SignupRequest = {
   memberId: number;
   password: string;
+  registrationCode?: string;
 };
 
 export type SignupResponse = {
@@ -48,16 +50,31 @@ export type SignupResponse = {
   joinDate: string | null;
 };
 
-export function verifyPreRegistration(request: PreRegistrationVerifyRequest) {
-  return apiRequest<PreRegistrationVerifyResponse[]>(
+export async function verifyPreRegistration(
+  request: PreRegistrationVerifyRequest,
+  signal?: AbortSignal,
+) {
+  const members = await apiRequest<PreRegistrationVerifyResponse[]>(
     '/api/members/pre-registration/verify',
-    { body: JSON.stringify(request), method: 'POST' },
+    { body: JSON.stringify(request), method: 'POST', signal },
   );
+
+  if (
+    members.some(
+      (member) =>
+        member.branchId !== request.branchId || member.name !== request.name,
+    )
+  ) {
+    throw new ApiRequestError('요청한 사전등록 정보와 응답이 다릅니다.', 409);
+  }
+
+  return members;
 }
 
-export function signup(request: SignupRequest) {
+export function signup(request: SignupRequest, signal?: AbortSignal) {
   return apiRequest<SignupResponse>('/api/members/signup', {
     body: JSON.stringify(request),
     method: 'POST',
+    signal,
   });
 }

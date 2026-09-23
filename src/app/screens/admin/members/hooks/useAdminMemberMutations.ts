@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiRequestError } from '../../../../core/api/api-client';
 import type { SessionOwnerKey } from '../../../../core/session';
@@ -8,12 +8,14 @@ import { memberQueryKeys } from '../../../../features/members/member-query-keys'
 import {
   createPendingMember,
   deletePendingMember,
+  reissueRegistrationCode,
   updatePendingMember,
   type PreRegistrationInput,
   type PreRegistrationResponse,
 } from '../../../../features/members/members-api';
 import { roomQueryKeys } from '../../../../features/rooms/room-query-keys';
 import { useToast } from '../../../../shared/ui';
+import type { RegistrationCodeDialogState } from '../model/registration-code';
 
 export type PreRegistrationEditorMode =
   | { kind: 'closed' }
@@ -38,11 +40,8 @@ function errorMessage(error: unknown) {
 }
 
 /**
- * The three writes this screen makes, and the editor and delete-dialog state
- * around them. Every write goes to the branch the operator selected, never
- * to the account's own branch, and a target is accepted only while the
- * selected branch's pending list still returns it — a row that
- * signed up or was deleted elsewhere is refused before the request is sent.
+ * The containing screen is keyed by owner and branch. Code-bearing responses
+ * stay only in this mounted screen, never in React Query's mutation cache.
  */
 export function useAdminMemberMutations({
   branchId,
@@ -52,27 +51,34 @@ export function useAdminMemberMutations({
 }: UseAdminMemberMutationsArgs) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const mounted = useRef(false);
+  const savingInFlight = useRef(false);
+  const codeInFlight = useRef(false);
   const [mode, setMode] = useState<PreRegistrationEditorMode>({
     kind: 'closed',
   });
   const [editorError, setEditorError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const [deletionTarget, setDeletionTarget] =
     useState<PreRegistrationResponse | null>(null);
   const [deletionError, setDeletionError] = useState<string | null>(null);
+  const [codeDialog, setCodeDialog] = useState<RegistrationCodeDialogState>({
+    kind: 'closed',
+  });
+  const [codeError, setCodeError] = useState<string | null>(null);
+  const [codePending, setCodePending] = useState(false);
 
-  const createMutation = useMutation({
-    mutationFn: (input: PreRegistrationInput) =>
-      createPendingMember(branchId, input, memberId),
-  });
-  const updateMutation = useMutation({
-    mutationFn: ({ id, input }: { id: number; input: PreRegistrationInput }) =>
-      updatePendingMember(id, branchId, input, memberId),
-  });
+  useEffect(() => {
+    mounted.current = true;
+
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   const deleteMutation = useMutation({
     mutationFn: (id: number) => deletePendingMember(id, memberId),
   });
-
-  const saving = createMutation.isPending || updateMutation.isPending;
 
   const isEditableNow = (registration: PreRegistrationResponse) =>
     registrations !== null &&
@@ -84,11 +90,7 @@ export function useAdminMemberMutations({
         candidate.updatedAt === registration.updatedAt,
     );
 
-  /*
-   * Only the selected owner + branch is refreshed. `invalidateQueries`
-   * resolves even when a refetch fails — the list then shows its own error
-   * with a retry — so a refresh problem can never read as a failed write.
-   */
+  /* A refresh failure is shown by the list, not mistaken for a failed write. */
   const refreshAfterWrite = async (certificationsToo: boolean) => {
     await Promise.all([
       queryClient.invalidateQueries({
@@ -113,7 +115,6 @@ export function useAdminMemberMutations({
     ]);
   };
 
-  /* A seat conflict means the roster moved under the draft: refresh what the seat list is built from. */
   const refreshSeatSources = () =>
     Promise.all([
       queryClient.invalidateQueries({
@@ -143,7 +144,7 @@ export function useAdminMemberMutations({
   };
 
   const closeEditor = () => {
-    if (saving) {
+    if (savingInFlight.current) {
       return;
     }
 
@@ -152,43 +153,69 @@ export function useAdminMemberMutations({
   };
 
   const submitEditor = async (input: PreRegistrationInput) => {
-    if (mode.kind === 'closed' || saving) {
+    if (mode.kind === 'closed' || savingInFlight.current) {
       return;
     }
 
     setEditorError(null);
 
+    if (mode.kind === 'edit' && !isEditableNow(mode.registration)) {
+      setEditorError(STALE_TARGET_MESSAGE);
+      return;
+    }
+
+    savingInFlight.current = true;
+    setSaving(true);
+
     try {
-      if (mode.kind === 'create') {
-        const created = await createMutation.mutateAsync(input);
+      const registration =
+        mode.kind === 'create'
+          ? await createPendingMember(branchId, input, memberId)
+          : await updatePendingMember(
+              mode.registration.id,
+              branchId,
+              input,
+              memberId,
+            );
 
-        toast(`${created.name} 님을 사전등록했어요.`, 'success');
-      } else {
-        if (!isEditableNow(mode.registration)) {
-          setEditorError(STALE_TARGET_MESSAGE);
-          return;
+      if (mounted.current) {
+        setMode({ kind: 'closed' });
+
+        if (registration.role === 'STAFF' || registration.role === 'ADMIN') {
+          setCodeError(null);
+          setCodeDialog({
+            kind: 'issued',
+            name: registration.name,
+            role: registration.role,
+            code: registration.registrationCode,
+            expiresAt: registration.registrationCodeExpiresAt,
+          });
+        } else {
+          toast(
+            mode.kind === 'create'
+              ? `${registration.name} 님을 사전등록했어요.`
+              : `${registration.name} 님의 사전등록을 수정했어요.`,
+            'success',
+          );
         }
-
-        const updated = await updateMutation.mutateAsync({
-          id: mode.registration.id,
-          input,
-        });
-
-        toast(`${updated.name} 님의 사전등록을 수정했어요.`, 'success');
       }
+
+      await refreshAfterWrite(true);
     } catch (error) {
-      /* The draft stays open with its values; the message explains. */
-      setEditorError(errorMessage(error));
+      if (mounted.current) {
+        setEditorError(errorMessage(error));
+      }
 
       if (error instanceof ApiRequestError && error.status === 409) {
         void refreshSeatSources();
       }
+    } finally {
+      savingInFlight.current = false;
 
-      return;
+      if (mounted.current) {
+        setSaving(false);
+      }
     }
-
-    setMode({ kind: 'closed' });
-    await refreshAfterWrite(true);
   };
 
   const openDeletion = (registration: PreRegistrationResponse) => {
@@ -225,16 +252,91 @@ export function useAdminMemberMutations({
     try {
       await deleteMutation.mutateAsync(deletionTarget.id);
     } catch (error) {
-      setDeletionError(errorMessage(error));
+      if (mounted.current) {
+        setDeletionError(errorMessage(error));
+      }
+
       return;
     }
 
-    toast(`${deletionTarget.name} 님의 사전등록을 삭제했어요.`, 'success');
-    setDeletionTarget(null);
+    if (mounted.current) {
+      toast(`${deletionTarget.name} 님의 사전등록을 삭제했어요.`, 'success');
+      setDeletionTarget(null);
+    }
+
     await refreshAfterWrite(false);
   };
 
+  const openCodeReissue = (registration: PreRegistrationResponse) => {
+    if (registration.role === 'MEMBER' || !isEditableNow(registration)) {
+      toast(STALE_TARGET_MESSAGE, 'error');
+      return;
+    }
+
+    setCodeError(null);
+    setCodeDialog({ kind: 'confirm', registration });
+  };
+
+  const closeCodeDialog = () => {
+    if (codeInFlight.current) {
+      return;
+    }
+
+    setCodeError(null);
+    setCodeDialog({ kind: 'closed' });
+  };
+
+  const confirmCodeReissue = async () => {
+    if (codeDialog.kind !== 'confirm' || codeInFlight.current) {
+      return;
+    }
+
+    const { registration } = codeDialog;
+    setCodeError(null);
+
+    if (registration.role === 'MEMBER' || !isEditableNow(registration)) {
+      setCodeError(STALE_TARGET_MESSAGE);
+      return;
+    }
+
+    codeInFlight.current = true;
+    setCodePending(true);
+
+    try {
+      const issued = await reissueRegistrationCode(registration.id, memberId);
+
+      if (mounted.current) {
+        setCodeDialog({
+          kind: 'issued',
+          name: registration.name,
+          role: registration.role,
+          code: issued.registrationCode,
+          expiresAt: issued.registrationCodeExpiresAt,
+        });
+      }
+
+      await refreshAfterWrite(false);
+    } catch (error) {
+      if (mounted.current) {
+        setCodeError(errorMessage(error));
+      }
+    } finally {
+      codeInFlight.current = false;
+
+      if (mounted.current) {
+        setCodePending(false);
+      }
+    }
+  };
+
   return {
+    registrationCode: {
+      state: codeDialog,
+      errorMessage: codeError,
+      onClose: closeCodeDialog,
+      onConfirm: () => void confirmCodeReissue(),
+      pending: codePending,
+    },
     deletion: {
       errorMessage: deletionError,
       onClose: closeDeletion,
@@ -250,6 +352,7 @@ export function useAdminMemberMutations({
       saving,
     },
     onCreate: openCreate,
+    onReissueCode: openCodeReissue,
     onDelete: openDeletion,
     onEdit: openEdit,
   };

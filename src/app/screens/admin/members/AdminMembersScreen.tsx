@@ -8,6 +8,7 @@ import { AdminMembersToolbar } from './components/AdminMembersToolbar';
 import { CurrentMemberEditorModal } from './components/CurrentMemberEditorModal';
 import { CurrentMemberList } from './components/CurrentMemberList';
 import { MemberWeeklyPlanViewer } from './components/MemberWeeklyPlanViewer';
+import { PreRegistrationCodeDialog } from './components/PreRegistrationCodeDialog';
 import { PreRegistrationDeleteDialog } from './components/PreRegistrationDeleteDialog';
 import { PreRegistrationEditorModal } from './components/PreRegistrationEditorModal';
 import { PendingRegistrationList } from './components/PendingRegistrationList';
@@ -34,7 +35,7 @@ export function AdminMembersScreen() {
       branchId={selectedBranchId}
       branchName={selectedBranch.name}
       branches={branches}
-      key={session.ownerKey}
+      key={`${session.ownerKey}:${selectedBranchId}`}
       memberId={session.memberId}
       ownerKey={session.ownerKey}
     />
@@ -136,6 +137,7 @@ function AdminMembersContent({
             errorMessage={members.pending.errorMessage}
             filterActive={members.filterActive}
             loading={members.pending.loading}
+            onReissueCode={mutations.onReissueCode}
             onClearFilter={members.onClearFilter}
             onDelete={mutations.onDelete}
             onEdit={mutations.onEdit}
@@ -187,6 +189,15 @@ function AdminMembersContent({
         onConfirm={mutations.deletion.onConfirm}
         pending={mutations.deletion.pending}
         registration={mutations.deletion.registration}
+      />
+
+      <PreRegistrationCodeDialog
+        branchName={branchName}
+        errorMessage={mutations.registrationCode.errorMessage}
+        onClose={mutations.registrationCode.onClose}
+        onConfirm={mutations.registrationCode.onConfirm}
+        pending={mutations.registrationCode.pending}
+        state={mutations.registrationCode.state}
       />
     </div>
   );

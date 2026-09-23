@@ -18,7 +18,7 @@ export type AdminMemberFilter = {
 export const ROLE_LABELS: Record<MemberRole, string> = {
   ADMIN: '관리자',
   MEMBER: '회원',
-  STAFF: '스탭',
+  STAFF: '스태프',
 };
 
 export const ROLE_FILTERS: readonly {
@@ -27,7 +27,7 @@ export const ROLE_FILTERS: readonly {
 }[] = [
   { label: '전체', value: 'ALL' },
   { label: '회원', value: 'MEMBER' },
-  { label: '스탭', value: 'STAFF' },
+  { label: '스태프', value: 'STAFF' },
   { label: '관리자', value: 'ADMIN' },
 ];
 

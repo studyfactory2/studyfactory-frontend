@@ -23,6 +23,7 @@ type LoginPaneProps = {
   initialBranchId?: number;
   initialName?: string;
   onRegisterClick: () => void;
+  onStaffRegisterClick: () => void;
 };
 
 const LAST_BRANCH_ID_KEY = 'studyfactory.lastBranchId';
@@ -31,6 +32,7 @@ export function LoginPane({
   initialBranchId,
   initialName = '',
   onRegisterClick,
+  onStaffRegisterClick,
 }: LoginPaneProps) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -191,10 +193,20 @@ export function LoginPane({
 
       <button
         className="auth-pane__switch"
+        disabled={loginMutation.isPending}
         onClick={onRegisterClick}
         type="button"
       >
         처음 이용하시나요? <strong>사원등록</strong>
+      </button>
+
+      <button
+        className="auth-pane__switch"
+        disabled={loginMutation.isPending}
+        onClick={onStaffRegisterClick}
+        type="button"
+      >
+        등록 코드를 받으셨나요? <strong>스태프·관리자 등록</strong>
       </button>
 
       <InstallPrompt />

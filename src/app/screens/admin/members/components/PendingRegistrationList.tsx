@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from 'lucide-react';
+import { KeyRound, Pencil, Trash2 } from 'lucide-react';
 import type { PreRegistrationResponse } from '../../../../features/members/members-api';
 import {
   formatDottedDate,
@@ -19,6 +19,7 @@ type PendingRegistrationListProps = {
   errorMessage: string | null;
   filterActive: boolean;
   loading: boolean;
+  onReissueCode: (registration: PreRegistrationResponse) => void;
   onClearFilter: () => void;
   onDelete: (registration: PreRegistrationResponse) => void;
   onEdit: (registration: PreRegistrationResponse) => void;
@@ -32,6 +33,7 @@ export function PendingRegistrationList({
   errorMessage,
   filterActive,
   loading,
+  onReissueCode,
   onClearFilter,
   onDelete,
   onEdit,
@@ -116,6 +118,23 @@ export function PendingRegistrationList({
                   </LabelledCell>
                 </span>
                 <span className="admin-member-list__actions">
+                  {registration.role !== 'MEMBER' && (
+                    <button
+                      aria-label={`${registration.name} 등록 코드 재발급`}
+                      className="admin-member-list__action admin-member-list__action--code"
+                      onClick={() => onReissueCode(registration)}
+                      title="등록 코드 재발급"
+                      type="button"
+                    >
+                      <KeyRound aria-hidden="true" size={15} />
+                      <span
+                        aria-hidden="true"
+                        className="admin-member-list__action-label"
+                      >
+                        코드 재발급
+                      </span>
+                    </button>
+                  )}
                   <button
                     aria-label={`${registration.name} 사전등록 수정`}
                     className="admin-member-list__action"

@@ -1,7 +1,10 @@
 import type { FocusEvent } from 'react';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import type { PreRegistrationVerifyResponse } from '../../features/auth/auth-api';
+import type {
+  RegistrationKind,
+  VerifiedRegistration,
+} from '../../features/auth/registration-flow';
 import { useSession } from '../../core/session';
 import { useToast } from '../../shared/ui';
 import { getRoleHomePath } from '../../core/router/routes';
@@ -22,8 +25,10 @@ export function AuthScreen() {
   const session = useSession();
   const { toast } = useToast();
   const [mode, setMode] = useState<AuthMode>('login');
-  const [verifiedMember, setVerifiedMember] =
-    useState<PreRegistrationVerifyResponse | null>(null);
+  const [registrationKind, setRegistrationKind] =
+    useState<RegistrationKind>('member');
+  const [verifiedRegistration, setVerifiedRegistration] =
+    useState<VerifiedRegistration | null>(null);
   const [prefillName, setPrefillName] = useState('');
   const [prefillBranchId, setPrefillBranchId] = useState<number>();
   const [focusedFieldIndex, setFocusedFieldIndex] = useState(0);
@@ -34,18 +39,19 @@ export function AuthScreen() {
 
   const openLogin = () => {
     setMode('login');
-    setVerifiedMember(null);
+    setVerifiedRegistration(null);
     setFocusedFieldIndex(0);
   };
 
-  const openVerify = () => {
+  const openVerify = (kind: RegistrationKind) => {
+    setRegistrationKind(kind);
     setMode('verify');
-    setVerifiedMember(null);
+    setVerifiedRegistration(null);
     setFocusedFieldIndex(0);
   };
 
-  const handleVerified = (member: PreRegistrationVerifyResponse) => {
-    setVerifiedMember(member);
+  const handleVerified = (registration: VerifiedRegistration) => {
+    setVerifiedRegistration(registration);
     setMode('password');
     setFocusedFieldIndex(0);
   };
@@ -115,18 +121,20 @@ export function AuthScreen() {
                 initialBranchId={prefillBranchId}
                 initialName={prefillName}
                 key={`login-${prefillBranchId ?? 'none'}-${prefillName}`}
-                onRegisterClick={openVerify}
+                onRegisterClick={() => openVerify('member')}
+                onStaffRegisterClick={() => openVerify('privileged')}
               />
-            ) : mode === 'password' && verifiedMember ? (
+            ) : mode === 'password' && verifiedRegistration ? (
               <PasswordPane
                 key="password"
-                member={verifiedMember}
-                onBackClick={openVerify}
+                verified={verifiedRegistration}
+                onBackClick={() => openVerify(registrationKind)}
                 onSignupComplete={handleSignupComplete}
               />
             ) : (
               <VerifyPane
                 key="verify"
+                kind={registrationKind}
                 onLoginClick={openLogin}
                 onVerified={handleVerified}
               />

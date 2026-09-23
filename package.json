@@ -11,7 +11,8 @@
     "format:check": "prettier --check src",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:seoul-date": "node --experimental-strip-types --test scripts/seoul-date-boundary.test.mjs"
+    "test:seoul-date": "node --experimental-strip-types --test scripts/seoul-date-boundary.test.mjs",
+    "test:registration": "node --experimental-strip-types --test scripts/registration-flow.test.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.102.8",

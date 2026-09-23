@@ -103,6 +103,8 @@ export type PreRegistrationResponse = {
   drinkNotes: Record<string, string>;
   createdAt: string | null;
   updatedAt: string | null;
+  registrationCode: string | null;
+  registrationCodeExpiresAt: string | null;
 };
 
 /**
@@ -126,7 +128,11 @@ export async function fetchPendingPreRegistrations(
     throw new ApiRequestError('다른 지점의 사전등록 목록을 받았습니다.', 409);
   }
 
-  return response;
+  return response.map((registration) => ({
+    ...registration,
+    registrationCode: null,
+    registrationCodeExpiresAt: null,
+  }));
 }
 
 /** What an Admin decides about one pending account in the selected branch. */
@@ -210,6 +216,21 @@ export async function updatePendingMember(
   }
 
   return response;
+}
+
+export type RegistrationCodeIssueResponse = {
+  registrationCode: string;
+  registrationCodeExpiresAt: string;
+};
+
+export function reissueRegistrationCode(
+  memberId: number,
+  expectedMemberId: number,
+) {
+  return apiRequest<RegistrationCodeIssueResponse>(
+    `/api/pre-registrations/${memberId}/registration-code`,
+    { expectedMemberId, method: 'POST' },
+  );
 }
 
 /**
