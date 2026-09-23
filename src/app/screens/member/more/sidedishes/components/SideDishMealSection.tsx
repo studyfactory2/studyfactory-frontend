@@ -67,6 +67,7 @@ export function SideDishMealSection({
       {status === 'open' && (
         <Button
           className="member-sidedishes__meal-add"
+          disabled={saving}
           full
           onClick={() => onOpenComposer(meal.value)}
           variant="subtle"

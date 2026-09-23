@@ -1,0 +1,72 @@
+.member-sidedishes__restaurant {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  padding: 18px 20px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-card);
+  background: var(--card);
+  color: var(--brand-ink);
+}
+
+.member-sidedishes__restaurant > div {
+  display: grid;
+  gap: 5px;
+}
+
+.member-sidedishes__restaurant span,
+.member-sidedishes__restaurant p {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+}
+
+.member-sidedishes__restaurant strong {
+  font-size: var(--text-md);
+}
+
+.member-sidedishes__restaurant a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  color: var(--brand-forest);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.member-sidedishes__restaurant p {
+  flex-basis: 100%;
+  margin: 0;
+  line-height: var(--leading-normal);
+}
+
+.member-sidedishes__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.member-sidedishes__cancel-copy {
+  display: grid;
+  gap: 12px;
+  overflow-wrap: anywhere;
+}
+
+.member-sidedishes__cancel-copy p {
+  margin: 0;
+}
+
+.member-sidedishes__cancel-copy small {
+  color: var(--brand-muted);
+}
+
+.member-sidedishes__cancel-copy [role='alert'] {
+  color: var(--danger);
+}

@@ -8,7 +8,7 @@ export type SideDishResponse = {
   branchId: number;
   mealDate: string;
   mealType: MealType;
-  /** Stored as one string, "메뉴명: 가격". */
+  /** One basket, with newline-separated "메뉴명: 가격" entries. */
   items: string;
   totalPrice: number;
   createdAt: string | null;
@@ -17,7 +17,8 @@ export type SideDishResponse = {
 
 /**
  * The backend rejects a request whose itemPrice differs from its totalPrice,
- * so a single price is sent in both fields. Quantity does not exist yet.
+ * so the basket total is sent in both fields. menuName carries the legacy
+ * newline-separated basket; one submission creates one cancellable record.
  */
 export function createMySideDish(
   {

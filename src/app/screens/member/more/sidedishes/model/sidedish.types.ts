@@ -27,10 +27,9 @@ export const MEAL_OPTIONS: readonly MealOption[] = [
 export type MealStatus = 'closed' | 'open' | 'past';
 
 /**
- * The cutoff only applies to today: the backend leaves future dates open and
- * refuses past ones outright. Cancelling is held to the same rule even though
- * the backend does not check it, so a member cannot drop a meal the kitchen
- * has already started.
+ * The server checks today's creation cutoff only. This UI additionally blocks
+ * past dates and applies the cutoff to cancellation; server-side cancellation
+ * deadlines and refunds are separate backend capabilities.
  */
 export function getMealStatus({
   dateKey,

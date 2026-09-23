@@ -3,15 +3,15 @@ import type { SideDishResponse } from '../../../../../features/side-dishes/side-
 const priceFormatter = new Intl.NumberFormat('ko-KR');
 
 /**
- * Orders are stored as one string, "메뉴명: 가격", built by the backend from
- * the menu name and the price. Only the part before the first colon is the
- * name; the authoritative price is the numeric totalPrice field.
+ * Legacy baskets store one "메뉴명: 가격" entry per line. Keep every dish
+ * visible; the authoritative order total is the numeric totalPrice field.
  */
 export function getSideDishMenuName(order: SideDishResponse) {
-  const [name] = order.items.split(':');
-  const trimmed = (name ?? '').trim();
-
-  return trimmed.length > 0 ? trimmed : order.items.trim();
+  return order.items
+    .split(/\r?\n/)
+    .map((line) => line.replace(/:\s*\d[\d,]*\s*원?\s*$/, '').trim())
+    .filter(Boolean)
+    .join(' · ');
 }
 
 export function formatWon(price: number) {

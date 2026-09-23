@@ -3,6 +3,8 @@ import type { SessionOwnerKey } from '../../../../core/session';
 import { formatKoreanMonth } from '../../../../shared/lib/seoul-date';
 import { Card, SectionError, SectionLoading } from '../../../../shared/ui';
 import { SideDishComposerModal } from '../../../member/more/sidedishes/components/SideDishComposerModal';
+import { SideDishCancelModal } from '../../../member/more/sidedishes/components/SideDishCancelModal';
+import { SideDishRestaurantNotice } from '../../../member/more/sidedishes/components/SideDishRestaurantNotice';
 import { SideDishDateBar } from '../../../member/more/sidedishes/components/SideDishDateBar';
 import { SideDishMealSection } from '../../../member/more/sidedishes/components/SideDishMealSection';
 import { SideDishMonthPanel } from '../../../member/more/sidedishes/components/SideDishMonthPanel';
@@ -29,6 +31,8 @@ export function StaffSideDishPanel({
           <p>점심은 10:45, 저녁은 16:30까지 신청할 수 있어요 · 서울 기준</p>
         </div>
       </header>
+
+      <SideDishRestaurantNotice />
 
       <div className="staff-operations__request-grid is-meals">
         <Card className="staff-operations__request-card">
@@ -75,9 +79,17 @@ export function StaffSideDishPanel({
       </div>
 
       <SideDishComposerModal
+        mealDate={sideDishes.composingDate}
         mealType={sideDishes.composingMeal}
         onClose={sideDishes.onCloseComposer}
         onSubmit={sideDishes.onSubmit}
+        saving={sideDishes.saving}
+        orderingOpen={sideDishes.orderingOpen}
+        errorMessage={sideDishes.createError}
+        submissionUncertain={sideDishes.submissionUncertain}
+      />
+      <SideDishCancelModal
+        {...sideDishes.cancellation}
         saving={sideDishes.saving}
       />
     </div>

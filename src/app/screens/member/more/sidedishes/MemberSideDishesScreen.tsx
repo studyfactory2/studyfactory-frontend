@@ -7,6 +7,8 @@ import {
   SectionLoading,
 } from '../../../../shared/ui';
 import { SideDishComposerModal } from './components/SideDishComposerModal';
+import { SideDishCancelModal } from './components/SideDishCancelModal';
+import { SideDishRestaurantNotice } from './components/SideDishRestaurantNotice';
 import { SideDishMonthPanel } from './components/SideDishMonthPanel';
 import { SideDishDateBar } from './components/SideDishDateBar';
 import { SideDishMealSection } from './components/SideDishMealSection';
@@ -47,6 +49,8 @@ function MemberSideDishes({
         subtitle="점심은 10:45, 저녁은 16:30까지 신청할 수 있어요 · 서울 기준"
         title="반찬"
       />
+
+      <SideDishRestaurantNotice />
 
       {/* The day on the left, the month on the right — the order-dates call
        * that already draws the date-bar dot pays for the whole rail. */}
@@ -98,9 +102,17 @@ function MemberSideDishes({
       </div>
 
       <SideDishComposerModal
+        mealDate={sideDishes.composingDate}
         mealType={sideDishes.composingMeal}
         onClose={sideDishes.onCloseComposer}
         onSubmit={sideDishes.onSubmit}
+        saving={sideDishes.saving}
+        orderingOpen={sideDishes.orderingOpen}
+        errorMessage={sideDishes.createError}
+        submissionUncertain={sideDishes.submissionUncertain}
+      />
+      <SideDishCancelModal
+        {...sideDishes.cancellation}
         saving={sideDishes.saving}
       />
     </section>

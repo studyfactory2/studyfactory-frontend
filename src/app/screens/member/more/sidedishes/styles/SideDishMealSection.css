@@ -68,6 +68,7 @@
 }
 
 .member-sidedishes__meal-order strong {
+  overflow-wrap: anywhere;
   color: var(--brand-ink);
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
