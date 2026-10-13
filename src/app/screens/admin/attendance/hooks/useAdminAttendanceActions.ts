@@ -5,7 +5,9 @@ import type {
   AttendanceBoardMember,
   AttendanceMemberStage,
   AttendanceSlotCommand,
+  AttendanceReasonCommand,
 } from '../../../../features/attendances/workspace/model/attendance-board';
+import { validateAttendanceReasonCommand } from '../../../../features/attendances/workspace/model/attendance-board';
 import type { MemberResponse } from '../../../../features/members/members-api';
 import { findAttendanceTarget } from '../../../../features/attendances/workspace/model/attendance-targets';
 import type { StudyPresenceManualCheckInInput } from '../../../../features/study-presence/study-presence-api';
@@ -102,6 +104,26 @@ export function useAdminAttendanceActions({
     [roster, dateKey, mutationRuntime, toast, validateMember],
   );
 
+  const applyReason = useCallback(
+    (command: AttendanceReasonCommand, onSuccess?: () => void) => {
+      const member = validateMember(command.memberId, 'active');
+      if (!member) {
+        return;
+      }
+      const error = validateAttendanceReasonCommand(
+        command,
+        getSeoulToday().dateKey,
+        member.joinDate,
+      );
+      if (error) {
+        toast(error, 'error');
+        return;
+      }
+      mutationRuntime.runReason(command, onSuccess);
+    },
+    [mutationRuntime, toast, validateMember],
+  );
+
   const manualCheckIn = useCallback(
     (
       targetMemberId: number,
@@ -174,12 +196,20 @@ export function useAdminAttendanceActions({
       onManualCheckOut: manualCheckOut,
       onResetMember: resetMember,
       onUpdateSlot: updateSlot,
+      onApplyReason: applyReason,
       pendingCellKeys: mutationRuntime.pendingCellKeys,
       pendingMemberIds: mutationRuntime.pendingMemberIds,
       pendingPresenceMemberIds: mutationRuntime.pendingPresenceMemberIds,
       pendingResetIds: mutationRuntime.pendingResetIds,
     }),
-    [manualCheckIn, manualCheckOut, mutationRuntime, resetMember, updateSlot],
+    [
+      applyReason,
+      manualCheckIn,
+      manualCheckOut,
+      mutationRuntime,
+      resetMember,
+      updateSlot,
+    ],
   );
 
   return {

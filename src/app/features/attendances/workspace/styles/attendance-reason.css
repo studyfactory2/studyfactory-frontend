@@ -1,0 +1,167 @@
+.attendance-reason form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.attendance-reason fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.attendance-reason legend {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 0;
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+.attendance-reason legend span {
+  float: right;
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+}
+
+.attendance-reason__intro,
+.attendance-reason__summary p {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+}
+
+.attendance-reason fieldset button {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-control);
+  background: var(--card);
+  color: var(--brand-ink-soft);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+}
+
+.attendance-reason fieldset button[aria-pressed='true'] {
+  border-color: var(--brand-forest);
+  background: var(--brand-forest);
+  color: var(--brand-ivory);
+}
+
+.attendance-reason fieldset button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.attendance-reason fieldset button:focus-visible {
+  outline: 2px solid var(--brand-gold);
+  outline-offset: 2px;
+}
+
+.attendance-reason__calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: var(--text-sm);
+}
+
+.attendance-reason__calendar-head button {
+  width: 40px;
+}
+
+.attendance-reason__calendar,
+.attendance-reason__weekdays,
+.attendance-reason__slots {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.attendance-reason__weekdays {
+  margin-bottom: 6px;
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  text-align: center;
+}
+
+.attendance-reason__dates {
+  display: flex;
+  max-height: 100px;
+  flex-wrap: wrap;
+  overflow-y: auto;
+  margin-top: 8px;
+  gap: 5px;
+}
+
+.attendance-reason__dates button {
+  gap: 5px;
+}
+
+.attendance-reason__all {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.attendance-reason__reasons,
+.attendance-reason__presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 10px;
+  gap: 6px;
+}
+
+.attendance-reason__presets button {
+  flex-direction: column;
+  gap: 2px;
+}
+
+.attendance-reason__presets small {
+  font-size: var(--text-2xs);
+  font-weight: 500;
+}
+
+.attendance-reason__summary {
+  padding: var(--space-3);
+  border-radius: var(--radius-control);
+  background: var(--card-2);
+  font-size: var(--text-xs);
+}
+
+.attendance-reason__summary strong {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-bottom: 4px;
+}
+
+.attendance-reason .modal__footer {
+  flex-shrink: 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--brand-line);
+}
+
+@media (max-width: 480px) {
+  .attendance-reason.modal__panel {
+    max-height: 92svh;
+  }
+
+  .attendance-reason .modal__body,
+  .attendance-reason .modal__header,
+  .attendance-reason .modal__footer {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .attendance-reason .modal__footer {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}

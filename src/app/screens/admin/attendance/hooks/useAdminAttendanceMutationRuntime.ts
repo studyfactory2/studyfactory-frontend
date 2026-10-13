@@ -12,11 +12,16 @@ import { attendanceQueryKeys } from '../../../../features/attendances/attendance
 import {
   resetDailyAttendanceMember,
   updateDailyAttendanceSlot,
+  applyDailyAttendanceReason,
 } from '../../../../features/attendances/attendances-api';
 import {
   toAttendanceCellKey,
   type AttendanceSlotCommand,
+  type AttendanceReasonCommand,
+  attendanceReasonSuccessMessage,
 } from '../../../../features/attendances/workspace/model/attendance-board';
+import { leaveQueryKeys } from '../../../../features/leaves/leave-query-keys';
+import { studyTimeQueryKeys } from '../../../../features/study-time/study-time-query-keys';
 import { studyPresenceQueryKeys } from '../../../../features/study-presence/study-presence-query-keys';
 import {
   manualCheckInStudyPresenceMember,
@@ -68,6 +73,11 @@ type ResetOperation = OperationScope & {
   targetMemberId: number;
 };
 
+type ReasonOperation = OperationScope & {
+  command: AttendanceReasonCommand;
+  memberOperationKey: string;
+};
+
 type PresenceOperation = OperationScope &
   (AdminAttendancePresenceCommand & { memberOperationKey: string });
 
@@ -100,6 +110,7 @@ export function useAdminAttendanceMutationRuntime({
   const slotSuccessCallbacksRef = useRef(new Map<string, () => void>());
   const presenceSuccessCallbacksRef = useRef(new Map<string, () => void>());
   const resetSuccessCallbacksRef = useRef(new Map<string, () => void>());
+  const reasonSuccessCallbacksRef = useRef(new Map<string, () => void>());
   const [pendingCellOperationKeys, setPendingCellOperationKeys] = useState<
     ReadonlySet<string>
   >(() => new Set());
@@ -201,6 +212,58 @@ export function useAdminAttendanceMutationRuntime({
         );
         setPendingResetOperationKeys(
           new Set(pendingResetOperationKeysRef.current),
+        );
+        setPendingMemberOperationKeys(
+          new Set(pendingMemberOperationKeysRef.current),
+        );
+        runAfterPendingStateCommit(onSuccess);
+      }
+    },
+  });
+
+  const reasonMutation = useMutation({
+    mutationFn: (operation: ReasonOperation) =>
+      applyDailyAttendanceReason(
+        operation.command,
+        operation.branchId,
+        operation.operatorMemberId,
+      ),
+    onError: (error: Error, operation) => {
+      if (operationIsCurrent(mountedRef, currentScopeRef, operation)) {
+        toast(error.message, 'error');
+      }
+    },
+    onSettled: async (result, error, operation) => {
+      try {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: attendanceQueryKeys.all(operation.ownerKey),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: leaveQueryKeys.all(operation.ownerKey),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: studyTimeQueryKeys.all(operation.ownerKey),
+          }),
+        ]);
+      } finally {
+        const current = operationIsCurrent(
+          mountedRef,
+          currentScopeRef,
+          operation,
+        );
+        const onSuccess =
+          !error && current
+            ? reasonSuccessCallbacksRef.current.get(
+                operation.memberOperationKey,
+              )
+            : undefined;
+        if (!error && result && current) {
+          toast(attendanceReasonSuccessMessage(result), 'success');
+        }
+        reasonSuccessCallbacksRef.current.delete(operation.memberOperationKey);
+        pendingMemberOperationKeysRef.current.delete(
+          operation.memberOperationKey,
         );
         setPendingMemberOperationKeys(
           new Set(pendingMemberOperationKeysRef.current),
@@ -352,6 +415,40 @@ export function useAdminAttendanceMutationRuntime({
     [resetMutation],
   );
 
+  const runReason = useCallback(
+    (command: AttendanceReasonCommand, onSuccess?: () => void) => {
+      const scope = currentScopeRef.current;
+      if (!isWritableScope(scope)) {
+        return;
+      }
+      const memberOperationKey = toDatedMemberKey(
+        scope.dateKey,
+        command.memberId,
+      );
+      if (pendingMemberOperationKeysRef.current.has(memberOperationKey)) {
+        return;
+      }
+      pendingMemberOperationKeysRef.current.add(memberOperationKey);
+      if (onSuccess) {
+        reasonSuccessCallbacksRef.current.set(memberOperationKey, onSuccess);
+      }
+      setPendingMemberOperationKeys(
+        new Set(pendingMemberOperationKeysRef.current),
+      );
+      reasonMutation.mutate({
+        ...toOperationScope(scope),
+        command: {
+          ...command,
+          dates: [...command.dates],
+          slots: [...command.slots],
+          reason: command.reason.trim(),
+        },
+        memberOperationKey,
+      });
+    },
+    [reasonMutation],
+  );
+
   const runPresence = useCallback(
     (command: AdminAttendancePresenceCommand, onSuccess?: () => void) => {
       const scope = currentScopeRef.current;
@@ -415,6 +512,7 @@ export function useAdminAttendanceMutationRuntime({
     runPresence,
     runReset,
     runSlot,
+    runReason,
   };
 }
 

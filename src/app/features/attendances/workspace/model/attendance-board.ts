@@ -3,6 +3,8 @@ import {
   ATTENDANCE_PRESENT,
   type AttendanceSlotSource,
   type AttendanceSlotUpdateInput,
+  type AttendanceReasonApplyInput,
+  type AttendanceReasonApplyResponse,
   type DailyAttendanceBoard,
 } from '../../../../features/attendances/attendances-api';
 import type {
@@ -15,6 +17,7 @@ import {
   isAttendanceRole,
   type AttendanceTargetRole,
 } from './attendance-targets';
+import { addDays } from '../../../../shared/lib/seoul-date';
 
 export const ATTENDANCE_SLOTS = [1, 2, 3, 4, 5, 6, 7] as const;
 
@@ -56,6 +59,63 @@ export type AttendanceSelection = {
 };
 
 export type AttendanceSlotCommand = Omit<AttendanceSlotUpdateInput, 'date'>;
+
+export type AttendanceReasonCommand = AttendanceReasonApplyInput;
+
+/** Validate again at the action boundary; the form is not a trust boundary. */
+export function validateAttendanceReasonCommand(
+  command: AttendanceReasonCommand,
+  todayKey: string,
+  joinDate: string | null,
+) {
+  const reason = command.reason.trim();
+  if (!reason || reason.length > 40) {
+    return '사유를 1~40자로 입력해 주세요.';
+  }
+  if (
+    command.dates.length < 1 ||
+    command.dates.length > 31 ||
+    new Set(command.dates).size !== command.dates.length ||
+    command.dates.some((date) => {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        return true;
+      }
+      try {
+        return (
+          addDays(date, 0) !== date ||
+          date < todayKey ||
+          (joinDate !== null && date < joinDate)
+        );
+      } catch {
+        return true;
+      }
+    })
+  ) {
+    return '입사일 이후의 오늘 또는 미래 날짜를 최대 31일까지 선택해 주세요.';
+  }
+  if (
+    command.slots.length < 1 ||
+    command.slots.length > 7 ||
+    new Set(command.slots).size !== command.slots.length ||
+    command.slots.some(
+      (slot) => !Number.isInteger(slot) || slot < 1 || slot > 7,
+    )
+  ) {
+    return '1~7교시 중 적용할 교시를 선택해 주세요.';
+  }
+  return null;
+}
+
+export function attendanceReasonSuccessMessage(
+  result: AttendanceReasonApplyResponse,
+) {
+  if (result.appliedPeriodCount === 0) {
+    return `선택한 ${result.preservedPresentCount}개 교시는 이미 출석되어 그대로 유지했어요.`;
+  }
+  return result.preservedPresentCount > 0
+    ? `${result.appliedPeriodCount}개 교시에 사유를 등록하고, 출석한 ${result.preservedPresentCount}개 교시는 유지했어요.`
+    : `${result.appliedPeriodCount}개 교시에 사유를 등록했어요.`;
+}
 
 export function toAttendanceCellKey(memberId: number, slot: number) {
   return `${memberId}:${slot}`;

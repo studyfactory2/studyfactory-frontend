@@ -12,6 +12,7 @@ import {
 } from '../../../../shared/ui';
 import type {
   AttendanceSelection,
+  AttendanceReasonCommand,
   AttendanceSlotCommand,
   AttendanceBoardCell,
   AttendanceBoardMember,
@@ -44,6 +45,10 @@ type DatedDialogTarget = {
 };
 
 export type AttendanceBoardInteraction = {
+  onApplyReason: (
+    command: AttendanceReasonCommand,
+    onSuccess?: () => void,
+  ) => void;
   onManualCheckIn: (
     memberId: number,
     input: StudyPresenceManualCheckInInput,
@@ -406,6 +411,43 @@ export function AttendanceBoard({
     submitStatus(status, undefined, activeSelection);
   };
 
+  const submitReason = (command: AttendanceReasonCommand) => {
+    if (
+      !interaction ||
+      !reasonOpen ||
+      !activeSelection ||
+      command.memberId !== activeSelection.memberId ||
+      pendingMemberIds.has(command.memberId)
+    ) {
+      return;
+    }
+
+    const submittedDateKey = dateKey;
+    const submittedSlot = activeSelection.slot;
+    const submittedCellKey = toAttendanceCellKey(
+      command.memberId,
+      submittedSlot,
+    );
+    interaction.onApplyReason(command, () => {
+      if (dateKeyRef.current !== submittedDateKey) {
+        return;
+      }
+      setReasonTarget((current) =>
+        current?.dateKey === submittedDateKey &&
+        current.cellKey === submittedCellKey
+          ? null
+          : current,
+      );
+      window.requestAnimationFrame(() => {
+        const focusTarget =
+          document.getElementById(
+            toAttendanceCellId(command.memberId, submittedSlot),
+          ) ?? document.getElementById(searchId);
+        focusTarget?.focus({ preventScroll: true });
+      });
+    });
+  };
+
   const advanceSelection = () => {
     if (!nextSelection) {
       return;
@@ -647,10 +689,9 @@ export function AttendanceBoard({
       {interaction !== undefined && (
         <>
           <AttendanceReasonModal
+            dateKey={dateKey}
             onClose={() => setReasonTarget(null)}
-            onSubmit={(reason) =>
-              submitStatus('OTHER', reason, activeSelection, 'reason')
-            }
+            onSubmit={submitReason}
             open={reasonOpen}
             pending={selectedPending}
             selection={activeSelection}

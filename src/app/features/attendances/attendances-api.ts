@@ -51,6 +51,21 @@ export type AttendanceDailyResetInput = {
   memberId: number;
 };
 
+export type AttendanceReasonApplyInput = {
+  memberId: number;
+  dates: string[];
+  slots: number[];
+  reason: string;
+};
+
+export type AttendanceReasonApplyResponse = {
+  memberId: number;
+  branchId: number;
+  requestedPeriodCount: number;
+  appliedPeriodCount: number;
+  preservedPresentCount: number;
+};
+
 /**
  * The board is seat-shaped rather than member-shaped: it returns a row for
  * every seat from 1 to at least 102 — name "공석", memberId null — and then
@@ -87,6 +102,43 @@ export function updateDailyAttendanceSlot(
     expectedMemberId,
     method: 'PATCH',
   });
+}
+
+/** One atomic leave application; already-present periods stay present. */
+export async function applyDailyAttendanceReason(
+  input: AttendanceReasonApplyInput,
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<AttendanceReasonApplyResponse>(
+    '/api/attendances/daily-board/reasons',
+    {
+      body: JSON.stringify(input),
+      expectedMemberId,
+      method: 'POST',
+    },
+  );
+  const counts = response && [
+    response.requestedPeriodCount,
+    response.appliedPeriodCount,
+    response.preservedPresentCount,
+  ];
+
+  if (
+    !response ||
+    response.memberId !== input.memberId ||
+    response.branchId !== branchId ||
+    !counts?.every((count) => Number.isInteger(count) && count >= 0) ||
+    response.requestedPeriodCount < 1 ||
+    response.requestedPeriodCount > 217 ||
+    response.requestedPeriodCount !== input.dates.length * input.slots.length ||
+    response.appliedPeriodCount + response.preservedPresentCount !==
+      response.requestedPeriodCount
+  ) {
+    throw new ApiRequestError('출석 사유 등록 결과를 다시 확인해 주세요.', 409);
+  }
+
+  return response;
 }
 
 export function resetDailyAttendanceMember(

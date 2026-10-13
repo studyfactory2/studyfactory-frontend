@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SessionOwnerKey } from '../../../../core/session';
 import { attendanceQueryKeys } from '../../../../features/attendances/attendance-query-keys';
@@ -7,7 +7,10 @@ import {
   fetchDailyAttendanceBoard,
   resetDailyAttendanceMember,
   updateDailyAttendanceSlot,
+  applyDailyAttendanceReason,
 } from '../../../../features/attendances/attendances-api';
+import { leaveQueryKeys } from '../../../../features/leaves/leave-query-keys';
+import { studyTimeQueryKeys } from '../../../../features/study-time/study-time-query-keys';
 import { studyPresenceQueryKeys } from '../../../../features/study-presence/study-presence-query-keys';
 import {
   fetchDailyStudyPresenceHistory,
@@ -26,6 +29,9 @@ import {
   toAttendanceCellKey,
   type AttendanceMemberStage,
   type AttendanceSlotCommand,
+  type AttendanceReasonCommand,
+  validateAttendanceReasonCommand,
+  attendanceReasonSuccessMessage,
 } from '../../../../features/attendances/workspace/model/attendance-board';
 import {
   findAttendanceTarget,
@@ -56,6 +62,15 @@ type ManualPresenceCommand =
       type: 'check-out';
     };
 
+type ReasonScope = {
+  branchId: number;
+  dateKey: string;
+  operatorMemberId: number;
+  ownerKey: SessionOwnerKey;
+};
+
+type ReasonOperation = ReasonScope & { command: AttendanceReasonCommand };
+
 export function useStaffAttendance({
   branchId,
   memberId,
@@ -80,6 +95,14 @@ export function useStaffAttendance({
   const presenceSuccessCallbacksRef = useRef(new Map<number, () => void>());
   const slotSuccessCallbacksRef = useRef(new Map<string, () => void>());
   const resetSuccessCallbacksRef = useRef(new Map<number, () => void>());
+  const reasonSuccessCallbacksRef = useRef(new Map<number, () => void>());
+  const reasonScopeRef = useRef<ReasonScope>({
+    branchId,
+    dateKey: today.dateKey,
+    operatorMemberId: memberId,
+    ownerKey,
+  });
+  const mountedRef = useRef(false);
   const [pendingCellKeys, setPendingCellKeys] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -92,6 +115,31 @@ export function useStaffAttendance({
   const [pendingPresenceMemberIds, setPendingPresenceMemberIds] = useState<
     ReadonlySet<number>
   >(() => new Set());
+
+  useLayoutEffect(() => {
+    mountedRef.current = true;
+    reasonScopeRef.current = {
+      branchId,
+      dateKey: today.dateKey,
+      operatorMemberId: memberId,
+      ownerKey,
+    };
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [branchId, today.dateKey, memberId, ownerKey]);
+
+  const reasonOperationIsCurrent = (operation: ReasonOperation) => {
+    const current = reasonScopeRef.current;
+    return (
+      mountedRef.current &&
+      current.branchId === operation.branchId &&
+      current.operatorMemberId === operation.operatorMemberId &&
+      current.ownerKey === operation.ownerKey &&
+      current.dateKey === operation.dateKey &&
+      current.dateKey === getSeoulToday().dateKey
+    );
+  };
 
   const boardQuery = useQuery({
     queryFn: () => fetchDailyAttendanceBoard(today.dateKey, branchId, memberId),
@@ -216,6 +264,49 @@ export function useStaffAttendance({
     },
   });
 
+  const reasonMutation = useMutation({
+    mutationFn: (operation: ReasonOperation) =>
+      applyDailyAttendanceReason(
+        operation.command,
+        operation.branchId,
+        operation.operatorMemberId,
+      ),
+    onError: (error: Error, operation) => {
+      if (reasonOperationIsCurrent(operation)) {
+        toast(error.message, 'error');
+      }
+    },
+    onSettled: async (result, error, operation) => {
+      try {
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: attendanceQueryKeys.all(operation.ownerKey),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: leaveQueryKeys.all(operation.ownerKey),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: studyTimeQueryKeys.all(operation.ownerKey),
+          }),
+        ]);
+      } finally {
+        const targetMemberId = operation.command.memberId;
+        const current = reasonOperationIsCurrent(operation);
+        const onSuccess =
+          !error && current
+            ? reasonSuccessCallbacksRef.current.get(targetMemberId)
+            : undefined;
+        if (!error && result && current) {
+          toast(attendanceReasonSuccessMessage(result), 'success');
+        }
+        reasonSuccessCallbacksRef.current.delete(targetMemberId);
+        pendingMemberIdsRef.current.delete(targetMemberId);
+        setPendingMemberIds(new Set(pendingMemberIdsRef.current));
+        runAfterPendingStateCommit(onSuccess);
+      }
+    },
+  });
+
   const manualPresenceMutation = useMutation({
     mutationFn: (command: ManualPresenceCommand) =>
       command.type === 'check-in'
@@ -313,6 +404,49 @@ export function useStaffAttendance({
       resetMutation.mutate(targetMemberId);
     },
     [attendanceRoster, resetMutation, today.dateKey, toast, validateMember],
+  );
+
+  const applyReason = useCallback(
+    (command: AttendanceReasonCommand, onSuccess?: () => void) => {
+      const target = validateMember(command.memberId, 'active');
+      if (!target) {
+        return;
+      }
+      const error = validateAttendanceReasonCommand(
+        command,
+        getSeoulToday().dateKey,
+        target.joinDate,
+      );
+      if (error) {
+        toast(error, 'error');
+        return;
+      }
+      const scope = reasonScopeRef.current;
+      if (
+        scope.dateKey !== getSeoulToday().dateKey ||
+        scope.branchId !== branchId ||
+        scope.operatorMemberId !== memberId ||
+        scope.ownerKey !== ownerKey ||
+        pendingMemberIdsRef.current.has(command.memberId)
+      ) {
+        return;
+      }
+      pendingMemberIdsRef.current.add(command.memberId);
+      if (onSuccess) {
+        reasonSuccessCallbacksRef.current.set(command.memberId, onSuccess);
+      }
+      setPendingMemberIds(new Set(pendingMemberIdsRef.current));
+      reasonMutation.mutate({
+        ...scope,
+        command: {
+          ...command,
+          dates: [...command.dates],
+          slots: [...command.slots],
+          reason: command.reason.trim(),
+        },
+      });
+    },
+    [branchId, memberId, ownerKey, reasonMutation, toast, validateMember],
   );
 
   const startManualPresenceAction = useCallback(
@@ -422,6 +556,7 @@ export function useStaffAttendance({
       onManualCheckOut: manualCheckOut,
       onResetMember: resetMember,
       onUpdateSlot: updateSlot,
+      onApplyReason: applyReason,
       pendingCellKeys,
       pendingMemberIds,
       pendingPresenceMemberIds,
