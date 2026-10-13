@@ -30,8 +30,14 @@
   text-align: center;
 }
 
-.member-leaves__day-modal-option:hover {
+.member-leaves__day-modal-option:hover:not(:disabled) {
   border-color: rgb(var(--brand-forest-rgb) / 30%);
+}
+
+.member-leaves__day-modal-option:disabled {
+  background: var(--card-2);
+  color: var(--brand-muted);
+  cursor: not-allowed;
 }
 
 .member-leaves__day-modal-option.is-selected {

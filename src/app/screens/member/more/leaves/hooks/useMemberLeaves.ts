@@ -20,6 +20,7 @@ import {
 import { useToast } from '../../../../../shared/ui';
 import {
   buildLeaveMonthCells,
+  canRequestLeave,
   listUpcomingEntries,
 } from '../model/leave.month';
 
@@ -87,7 +88,19 @@ export function useMemberLeaves(memberId: number, ownerKey: SessionOwnerKey) {
     }: {
       dateKey: string;
       leaveType: LeaveType;
-    }) => createMyLeave(dateKey, leaveType, memberId),
+    }) => {
+      // Recheck the latest loaded plan before submitting, not just the date's
+      // initial modal state. Office records never get deleted to make room.
+      const cell = cells.find((candidate) => candidate.dateKey === dateKey);
+      if (!planQuery.data || !cell || !canRequestLeave(cell, leaveType)) {
+        return Promise.reject(
+          new Error(
+            '선택한 휴무를 신청할 수 없어요. 기존 기록과 교시를 확인해 주세요.',
+          ),
+        );
+      }
+      return createMyLeave(dateKey, leaveType, memberId);
+    },
     onError: (error: Error) => toast(error.message, 'error'),
     onSuccess: async () => {
       setSelectedDateKey(null);

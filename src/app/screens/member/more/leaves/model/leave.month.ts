@@ -1,10 +1,19 @@
-import type { MemberLeavePlanResponse } from '../../../../../features/leaves/leaves-api';
+import type {
+  LeaveType,
+  MemberLeavePlanResponse,
+} from '../../../../../features/leaves/leaves-api';
 import {
   getDayOfMonth,
   listMonthGridCells,
 } from '../../../../../shared/lib/seoul-date';
 import { formatLeaveSlots, getLeaveTypeLabel } from './leave.format';
 import type { LeaveDayCell, LeaveDayEntry } from './leave.types';
+
+const LEAVE_TYPE_SLOTS: Record<LeaveType, readonly number[]> = {
+  FULL: [1, 2, 3, 4, 5, 6, 7],
+  MORNING: [1, 2, 3, 4],
+  AFTERNOON: [4, 5, 6, 7],
+};
 
 /**
  * `/api/leaves/me/plan` returns the member's whole LeaveRequest and
@@ -42,12 +51,27 @@ export function findOwnEntry(cell: LeaveDayCell) {
 }
 
 /**
- * One leave request per day. The backend accepts duplicates — it validates
- * only that the date is not in the past — so the guard lives here until that
- * rule moves into LeaveService.
+ * Keep one self-service request per day. Office-assigned leave only blocks
+ * overlapping periods, so a first-period lateness does not block afternoon
+ * leave. Unknown office coverage fails closed until the plan can be verified.
+ * Without a type, report whether at least one request option is available.
  */
-export function canRequestLeave(cell: LeaveDayCell) {
-  return cell.inMonth && !cell.isPast && cell.entries.length === 0;
+export function canRequestLeave(cell: LeaveDayCell, leaveType?: LeaveType) {
+  if (!cell.inMonth || cell.isPast || findOwnEntry(cell) !== null) {
+    return false;
+  }
+
+  const requestedSlotGroups = leaveType
+    ? [LEAVE_TYPE_SLOTS[leaveType]]
+    : Object.values(LEAVE_TYPE_SLOTS);
+
+  return requestedSlotGroups.some((requestedSlots) =>
+    cell.entries.every(
+      (entry) =>
+        entry.slots !== null &&
+        entry.slots.every((slot) => !requestedSlots.includes(slot)),
+    ),
+  );
 }
 
 export function isDaySelectable(cell: LeaveDayCell) {
@@ -99,9 +123,24 @@ function toEntry(row: MemberLeavePlanResponse): LeaveDayEntry {
     leaveId: isOwnRequest ? row.id : null,
     leaveType: row.leaveType,
     origin: isOwnRequest ? 'own' : 'office',
+    slots: normalizeLeaveSlots(row.slots),
     slotsLabel: formatLeaveSlots(row.slots),
     sourceLabel: toSourceLabel(row.source),
   };
+}
+
+function normalizeLeaveSlots(slots: string | null): readonly number[] | null {
+  if (typeof slots !== 'string') {
+    return null;
+  }
+
+  const parts = slots.split(',').map((slot) => slot.trim());
+
+  if (parts.some((slot) => !/^[1-7]$/.test(slot))) {
+    return null;
+  }
+
+  return [...new Set(parts.map(Number))].sort((left, right) => left - right);
 }
 
 /**

@@ -66,86 +66,104 @@ function LeaveDayBody({
   const ownEntry = findOwnEntry(cell);
   const cancellableLeaveId =
     ownEntry !== null && !cell.isPast ? ownEntry.leaveId : null;
-
-  if (canRequestLeave(cell)) {
-    return (
-      <div className="member-leaves__day-modal">
-        <p className="member-leaves__day-modal-lead">어떤 휴무로 신청할까요?</p>
-
-        <div
-          aria-label="휴무 종류"
-          className="member-leaves__day-modal-options"
-          role="radiogroup"
-        >
-          {LEAVE_TYPE_OPTIONS.map((option) => (
-            <button
-              aria-checked={leaveType === option.value}
-              className={[
-                'member-leaves__day-modal-option',
-                leaveType === option.value ? 'is-selected' : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              key={option.value}
-              onClick={() => setLeaveType(option.value)}
-              role="radio"
-              type="button"
-            >
-              <strong>{option.label}</strong>
-              <small>{option.description}</small>
-            </button>
-          ))}
-        </div>
-
-        <p className="member-leaves__day-modal-note">
-          <Info aria-hidden="true" size={14} />
-          <span>
-            하루에 한 건만 신청할 수 있어요. 신청한 휴무는 이 화면에서 직접
-            취소할 수 있습니다.
-          </span>
-        </p>
-
-        <div className="member-leaves__day-modal-actions">
-          <Button disabled={saving} onClick={onClose} variant="ghost">
-            닫기
-          </Button>
-          <Button
-            disabled={leaveType === null}
-            loading={saving}
-            onClick={() => leaveType && onCreate(cell.dateKey, leaveType)}
-          >
-            신청하기
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  const canCreate = canRequestLeave(cell);
+  // A plan refetch can invalidate a choice while the day sheet is still open.
+  const selectedLeaveType =
+    leaveType !== null && canRequestLeave(cell, leaveType) ? leaveType : null;
 
   return (
     <div className="member-leaves__day-modal">
-      <ul className="member-leaves__day-modal-entries">
-        {cell.entries.map((entry, index) => (
-          <li key={`${entry.sourceLabel}-${entry.label}-${index}`}>
-            <span className="member-leaves__day-modal-entry-head">
-              <strong>{entry.label}</strong>
-              <Badge tone={entry.origin === 'own' ? 'positive' : 'special'}>
-                {entry.sourceLabel}
-              </Badge>
-            </span>
-            {entry.slotsLabel && <small>{entry.slotsLabel}</small>}
-          </li>
-        ))}
-      </ul>
+      {cell.entries.length > 0 && (
+        <>
+          <ul className="member-leaves__day-modal-entries">
+            {cell.entries.map((entry, index) => (
+              <li key={`${entry.sourceLabel}-${entry.label}-${index}`}>
+                <span className="member-leaves__day-modal-entry-head">
+                  <strong>{entry.label}</strong>
+                  <Badge tone={entry.origin === 'own' ? 'positive' : 'special'}>
+                    {entry.sourceLabel}
+                  </Badge>
+                </span>
+                {entry.slotsLabel && <small>{entry.slotsLabel}</small>}
+              </li>
+            ))}
+          </ul>
 
-      <p className="member-leaves__day-modal-note">
-        <Info aria-hidden="true" size={14} />
-        <span>{toNoteText(cell, ownEntry !== null, ownLeaveNote)}</span>
-      </p>
+          <p className="member-leaves__day-modal-note">
+            <Info aria-hidden="true" size={14} />
+            <span>{toNoteText(cell, ownEntry !== null, ownLeaveNote)}</span>
+          </p>
+        </>
+      )}
+
+      {canCreate && (
+        <>
+          <p className="member-leaves__day-modal-lead">
+            어떤 휴무로 신청할까요?
+          </p>
+
+          <div
+            aria-label="휴무 종류"
+            className="member-leaves__day-modal-options"
+            role="radiogroup"
+          >
+            {LEAVE_TYPE_OPTIONS.map((option) => (
+              <button
+                aria-checked={selectedLeaveType === option.value}
+                className={[
+                  'member-leaves__day-modal-option',
+                  selectedLeaveType === option.value ? 'is-selected' : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                key={option.value}
+                disabled={saving || !canRequestLeave(cell, option.value)}
+                onClick={() => setLeaveType(option.value)}
+                role="radio"
+                type="button"
+              >
+                <strong>{option.label}</strong>
+                <small>{option.description}</small>
+                {!canRequestLeave(cell, option.value) && (
+                  <small>교시 중복</small>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <p className="member-leaves__day-modal-note">
+            <Info aria-hidden="true" size={14} />
+            <span>
+              직접 신청하는 휴무는 하루에 한 건만 가능해요. 신청한 휴무는 이
+              화면에서 직접 취소할 수 있습니다.
+            </span>
+          </p>
+        </>
+      )}
+
+      {cell.entries.length === 0 && !canCreate && (
+        <p className="member-leaves__day-modal-note">
+          지난 날짜의 휴무는 신청할 수 없어요.
+        </p>
+      )}
 
       <div className="member-leaves__day-modal-actions">
         <Button disabled={saving} onClick={onClose} variant="ghost">
           닫기
         </Button>
+        {canCreate && (
+          <Button
+            disabled={selectedLeaveType === null}
+            loading={saving}
+            onClick={() => {
+              if (!saving && selectedLeaveType !== null) {
+                onCreate(cell.dateKey, selectedLeaveType);
+              }
+            }}
+          >
+            신청하기
+          </Button>
+        )}
         {cancellableLeaveId !== null && (
           <Button
             loading={saving}
@@ -173,5 +191,13 @@ function toNoteText(
     return ownLeaveNote;
   }
 
-  return '지점에서 등록한 휴무예요. 변경이 필요하면 데스크에 문의해 주세요.';
+  if (cell.entries.some((entry) => entry.slots === null)) {
+    return '등록된 기록의 교시 정보를 확인할 수 없어 추가 신청할 수 없어요. 데스크에 문의해 주세요.';
+  }
+
+  if (canRequestLeave(cell)) {
+    return '지점에서 등록한 기록은 그대로 유지돼요. 겹치지 않는 교시의 휴무를 추가로 신청할 수 있어요.';
+  }
+
+  return '이미 등록된 기록과 교시가 겹쳐 추가 신청할 수 없어요. 변경이 필요하면 데스크에 문의해 주세요.';
 }

@@ -18,6 +18,8 @@ export type LeaveDayEntry = {
   label: string;
   leaveType: LeaveType | null;
   origin: LeaveOrigin;
+  /** Normalized periods; null means the plan did not provide valid coverage. */
+  slots: readonly number[] | null;
   slotsLabel: string | null;
   sourceLabel: string;
 };
