@@ -25,6 +25,7 @@ type AttendanceTableProps = {
   interactive: boolean;
   members: AttendanceBoardMember[];
   onActivate: (selection: AttendanceSelection) => void;
+  onDetailsRequest: (member: AttendanceBoardMember) => void;
   onPresenceRequest: (member: AttendanceBoardMember) => void;
   onResetRequest: (member: AttendanceBoardMember) => void;
   onSelect: (selection: AttendanceSelection) => void;
@@ -44,6 +45,7 @@ export function AttendanceTable({
   interactive,
   members,
   onActivate,
+  onDetailsRequest,
   onPresenceRequest,
   onResetRequest,
   onSelect,
@@ -88,6 +90,7 @@ export function AttendanceTable({
     }
 
     const compactViewport = window.matchMedia('(max-width: 1279px)');
+    const mobileViewport = window.matchMedia('(max-width: 768px)');
     let animationFrame = 0;
 
     const alignOperationalSlot = () => {
@@ -103,6 +106,12 @@ export function AttendanceTable({
         const operationalHeader = operationalHeaderRef.current;
 
         if (!scrollViewport || !identityHeader || !operationalHeader) {
+          return;
+        }
+
+        // Mobile shows all seven periods; discard any prior tablet offset.
+        if (mobileViewport.matches) {
+          scrollViewport.scrollLeft = 0;
           return;
         }
 
@@ -128,10 +137,12 @@ export function AttendanceTable({
 
     alignOperationalSlot();
     compactViewport.addEventListener('change', alignOperationalSlot);
+    mobileViewport.addEventListener('change', alignOperationalSlot);
 
     return () => {
       cancelAnimationFrame(animationFrame);
       compactViewport.removeEventListener('change', alignOperationalSlot);
+      mobileViewport.removeEventListener('change', alignOperationalSlot);
     };
   }, [operationalSlot]);
 
@@ -205,11 +216,15 @@ export function AttendanceTable({
               ref={identityHeaderRef}
               scope="col"
             >
-              <span>사원</span>
+              <span className="staff-attendance__identity-heading">사원</span>
+              <span className="staff-attendance__compact-heading">
+                좌석 · 이름
+              </span>
               <small className="staff-attendance__identity-note">입·퇴실</small>
             </th>
             {ATTENDANCE_SLOTS.map((slot) => (
               <th
+                aria-label={`${slot}교시${operationalSlot === slot ? (activeSlot === slot ? ' 현재' : ' 예정') : ''}`}
                 className={cx(operationalSlot === slot && 'is-operational')}
                 key={slot}
                 ref={
@@ -217,7 +232,10 @@ export function AttendanceTable({
                 }
                 scope="col"
               >
-                <span>{slot}교시</span>
+                <span>
+                  {slot}
+                  <span className="staff-attendance__period-suffix">교시</span>
+                </span>
                 {operationalSlot === slot && (
                   <small>{activeSlot === slot ? '현재' : '예정'}</small>
                 )}
@@ -240,6 +258,7 @@ export function AttendanceTable({
                   disabled={pendingMemberIds.has(member.memberId)}
                   interactive={interactive}
                   member={member}
+                  onDetailsRequest={onDetailsRequest}
                   onPresenceRequest={onPresenceRequest}
                   presencePending={pendingPresenceMemberIds.has(
                     member.memberId,

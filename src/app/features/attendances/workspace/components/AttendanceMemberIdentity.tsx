@@ -13,6 +13,7 @@ type AttendanceMemberIdentityProps = {
   disabled: boolean;
   interactive: boolean;
   member: AttendanceBoardMember;
+  onDetailsRequest: (member: AttendanceBoardMember) => void;
   onPresenceRequest: (member: AttendanceBoardMember) => void;
   presencePending: boolean;
   presenceState: AttendancePresenceLoadState;
@@ -23,6 +24,7 @@ export function AttendanceMemberIdentity({
   disabled,
   interactive,
   member,
+  onDetailsRequest,
   onPresenceRequest,
   presencePending,
   presenceState,
@@ -33,60 +35,76 @@ export function AttendanceMemberIdentity({
     (member.presence?.activeSessionId ?? null) !== null;
 
   return (
-    <span className="staff-attendance__member">
-      <b
-        aria-label={
-          member.seatNumber === null
-            ? '좌석 미배정'
-            : `${member.seatNumber}번 좌석`
-        }
-        className={member.seatNumber === null ? 'is-unassigned' : undefined}
+    <span className="staff-attendance__identity">
+      <button
+        aria-label={`${member.seatNumber === null ? '미배정' : `${member.seatNumber}번`} ${member.name} 출석 상세 보기`}
+        className="staff-attendance__member-summary"
+        onClick={() => onDetailsRequest(member)}
+        type="button"
       >
-        {member.seatNumber === null ? '미배정' : member.seatNumber}
-      </b>
-      <span className="staff-attendance__member-copy">
-        <span className="staff-attendance__member-name">
-          <strong>{member.name}</strong>
-          {member.role === 'STAFF' && (
-            <Badge className="staff-attendance__role-badge" tone="accent">
-              스태프
-            </Badge>
-          )}
-          {presenceState === 'ready' &&
-            member.presence !== null &&
-            member.presence.sessionCount > 1 && (
-              <em
-                aria-label={`${formatKoreanDate(dateKey)} ${member.presence.sessionCount}회 입실`}
-                className="staff-attendance__session-count"
-                title={`${formatKoreanDate(dateKey)} ${member.presence.sessionCount}회 입실`}
-              >
-                {member.presence.sessionCount}회
-              </em>
-            )}
-          {interactive &&
-            canManagePresence &&
-            member.stage === 'active' &&
-            presenceState === 'ready' && (
-              <button
-                aria-busy={presencePending}
-                aria-label={`${member.name} ${currentlyActive ? '수동 퇴실 처리' : '수동 입실 등록'}`}
-                className={cx(
-                  'staff-attendance__presence-button',
-                  currentlyActive && 'is-checkout',
-                )}
-                disabled={disabled}
-                onClick={() => onPresenceRequest(member)}
-                type="button"
-              >
-                {presencePending
-                  ? '처리 중'
-                  : currentlyActive
-                    ? '퇴실'
-                    : '입실'}
-              </button>
-            )}
+        <span className="staff-attendance__member-summary-seat">
+          {member.seatNumber === null ? '—' : member.seatNumber}
         </span>
-        <MemberPresence member={member} presenceState={presenceState} />
+        <span className="staff-attendance__member-summary-copy">
+          <strong>{member.name}</strong>
+          {member.role === 'STAFF' && <small>스태프</small>}
+        </span>
+      </button>
+      <span className="staff-attendance__member">
+        <b
+          aria-label={
+            member.seatNumber === null
+              ? '좌석 미배정'
+              : `${member.seatNumber}번 좌석`
+          }
+          className={member.seatNumber === null ? 'is-unassigned' : undefined}
+        >
+          {member.seatNumber === null ? '미배정' : member.seatNumber}
+        </b>
+        <span className="staff-attendance__member-copy">
+          <span className="staff-attendance__member-name">
+            <strong>{member.name}</strong>
+            {member.role === 'STAFF' && (
+              <Badge className="staff-attendance__role-badge" tone="accent">
+                스태프
+              </Badge>
+            )}
+            {presenceState === 'ready' &&
+              member.presence !== null &&
+              member.presence.sessionCount > 1 && (
+                <em
+                  aria-label={`${formatKoreanDate(dateKey)} ${member.presence.sessionCount}회 입실`}
+                  className="staff-attendance__session-count"
+                  title={`${formatKoreanDate(dateKey)} ${member.presence.sessionCount}회 입실`}
+                >
+                  {member.presence.sessionCount}회
+                </em>
+              )}
+            {interactive &&
+              canManagePresence &&
+              member.stage === 'active' &&
+              presenceState === 'ready' && (
+                <button
+                  aria-busy={presencePending}
+                  aria-label={`${member.name} ${currentlyActive ? '수동 퇴실 처리' : '수동 입실 등록'}`}
+                  className={cx(
+                    'staff-attendance__presence-button',
+                    currentlyActive && 'is-checkout',
+                  )}
+                  disabled={disabled}
+                  onClick={() => onPresenceRequest(member)}
+                  type="button"
+                >
+                  {presencePending
+                    ? '처리 중'
+                    : currentlyActive
+                      ? '퇴실'
+                      : '입실'}
+                </button>
+              )}
+          </span>
+          <MemberPresence member={member} presenceState={presenceState} />
+        </span>
       </span>
     </span>
   );

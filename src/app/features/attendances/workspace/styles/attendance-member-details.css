@@ -1,0 +1,97 @@
+.staff-attendance__member-details {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.staff-attendance__member-details-identity {
+  display: grid;
+  gap: 5px;
+  overflow-wrap: anywhere;
+}
+
+.staff-attendance__member-details-identity > strong {
+  color: var(--brand-ink);
+  font-size: var(--text-lg);
+}
+
+.staff-attendance__member-details-identity > span,
+.staff-attendance__member-details-identity > time {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+}
+
+.staff-attendance__member-details h4 {
+  margin-bottom: var(--space-2);
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+}
+
+.staff-attendance__member-details dl {
+  display: grid;
+  margin: 0;
+  gap: 5px;
+}
+
+.staff-attendance__member-details dl > div {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: baseline;
+  padding: 9px 10px;
+  border-radius: 8px;
+  background: var(--card-2);
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+}
+
+.staff-attendance__member-details dt {
+  color: var(--brand-muted);
+  font-weight: var(--weight-medium);
+}
+
+.staff-attendance__member-details dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.staff-attendance__member-details-attendance .is-present {
+  background: var(--positive-soft);
+  color: var(--positive-deep);
+}
+
+.staff-attendance__member-details-attendance .is-absent {
+  background: var(--danger-soft);
+  color: var(--danger-deep);
+}
+
+.staff-attendance__member-details-attendance .is-leave {
+  background: var(--special-soft);
+  color: var(--special-deep);
+}
+
+.staff-attendance__member-details-presence > p,
+.staff-attendance__member-details-stage {
+  padding: var(--space-3);
+  border: 1px solid var(--brand-line);
+  border-radius: 8px;
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+}
+
+.staff-attendance__member-details-stage {
+  display: grid;
+  gap: 4px;
+}
+
+.staff-attendance__member-details-stage strong {
+  color: var(--special-deep);
+}
+
+@media (max-width: 480px) {
+  .staff-attendance__member-details-modal .modal__footer {
+    padding-bottom: max(var(--space-5), env(safe-area-inset-bottom));
+  }
+}

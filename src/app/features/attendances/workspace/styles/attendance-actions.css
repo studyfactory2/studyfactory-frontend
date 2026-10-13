@@ -284,28 +284,31 @@
 
 @media (max-width: 768px) {
   .staff-attendance__action-bar {
-    bottom: calc(74px + env(safe-area-inset-bottom, 0px));
-    width: calc(100% - 16px);
+    /* A separate flex row, never an overlay on the scrollable roster. */
+    position: static;
+    width: calc(100% - 10px);
     min-height: 0;
     align-items: stretch;
     flex-direction: column;
-    margin: 8px auto 10px;
-    padding: 6px;
-    gap: 6px;
+    margin: 6px auto;
+    padding: 5px;
+    gap: 4px;
   }
 
   .staff-attendance__action-target {
     min-width: 0;
     padding: 1px 4px;
-    font-size: var(--text-3xs);
+    font-size: var(--text-2xs);
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .staff-attendance__action-context {
-    min-height: 44px;
+    min-height: 32px;
   }
 
   .staff-attendance__leave-shortcut {
-    min-height: 44px;
+    min-height: 32px;
     padding: 0 8px;
   }
 

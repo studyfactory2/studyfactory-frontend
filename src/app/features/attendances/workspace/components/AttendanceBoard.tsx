@@ -25,6 +25,7 @@ import {
 import { AttendanceCommandDock } from './AttendanceCommandDock';
 import { AttendanceLeaveOverrideModal } from './AttendanceLeaveOverrideModal';
 import type { AttendancePresenceLoadState } from './AttendanceMemberIdentity';
+import { AttendanceMemberDetailsModal } from './AttendanceMemberDetailsModal';
 import { AttendancePresenceModal } from './AttendancePresenceModal';
 import { AttendanceReasonModal } from './AttendanceReasonModal';
 import { AttendanceStartModal } from './AttendanceStartModal';
@@ -119,6 +120,10 @@ export function AttendanceBoard({
   const [leaveOverrideTarget, setLeaveOverrideTarget] =
     useState<DatedDialogTarget | null>(null);
   const [presenceMemberId, setPresenceMemberId] = useState<number | null>(null);
+  const [detailsTarget, setDetailsTarget] = useState<{
+    dateKey: string;
+    memberId: number;
+  } | null>(null);
   const [reasonTarget, setReasonTarget] = useState<DatedDialogTarget | null>(
     null,
   );
@@ -140,6 +145,7 @@ export function AttendanceBoard({
     setLeaveOverrideTarget(null);
     setReasonTarget(null);
     setPresenceMemberId(null);
+    setDetailsTarget(null);
     setStartMemberId(null);
   }, [dateKey]);
   /* eslint-enable react-hooks/set-state-in-effect */
@@ -206,6 +212,12 @@ export function AttendanceBoard({
           member.stage === 'active',
       )
     : undefined;
+  const detailsMember =
+    detailsTarget?.dateKey === dateKey
+      ? (visibleMembers.find(
+          (member) => member.memberId === detailsTarget.memberId,
+        ) ?? null)
+      : null;
   const activeSelection =
     currentSelection && selectedMember
       ? {
@@ -435,6 +447,7 @@ export function AttendanceBoard({
     ) : null;
 
   const clearTransientSelection = () => {
+    setDetailsTarget(null);
     setSelectionState(null);
     setLeaveOverrideTarget(null);
     setReasonTarget(null);
@@ -577,6 +590,9 @@ export function AttendanceBoard({
                   setReasonTarget(null);
                   selectCell(nextSelection);
                 }}
+                onDetailsRequest={(member) =>
+                  setDetailsTarget({ dateKey, memberId: member.memberId })
+                }
                 onPresenceRequest={(member) =>
                   setPresenceMemberId(member.memberId)
                 }
@@ -594,6 +610,33 @@ export function AttendanceBoard({
           </>
         )}
       </Card>
+      <AttendanceMemberDetailsModal
+        dateKey={dateKey}
+        interactive={interaction !== undefined}
+        member={detailsMember}
+        onClose={() => setDetailsTarget(null)}
+        onPresenceRequest={(member) => {
+          if (
+            interaction === undefined ||
+            presenceState !== 'ready' ||
+            member.stage !== 'active' ||
+            pendingMemberIds.has(member.memberId) ||
+            pendingPresenceMemberIds.has(member.memberId) ||
+            (member.role !== 'MEMBER' &&
+              member.presence?.activeSessionId == null)
+          ) {
+            return;
+          }
+          setDetailsTarget(null);
+          setPresenceMemberId(member.memberId);
+        }}
+        pending={
+          detailsMember !== null &&
+          (pendingMemberIds.has(detailsMember.memberId) ||
+            pendingPresenceMemberIds.has(detailsMember.memberId))
+        }
+        presenceState={presenceState}
+      />
       {interaction !== undefined && (
         <>
           <AttendanceReasonModal

@@ -171,12 +171,6 @@
   }
 
   .admin-attendance {
-    gap: var(--space-4);
-  }
-}
-
-@media (max-width: 520px) {
-  .admin-attendance {
     gap: 12px;
   }
 }
@@ -293,36 +287,40 @@
     margin: 0 10px 5px;
   }
 
-  .admin-attendance .staff-attendance__table-frame {
-    max-height: min(62svh, 36rem);
-  }
+  /* Mobile table sizing belongs to the shared seven-period board. Keep the
+     existing compact-container treatment only for larger viewports. */
+  @media (min-width: 769px) {
+    .admin-attendance .staff-attendance__table-frame {
+      max-height: min(62svh, 36rem);
+    }
 
-  .admin-attendance .staff-attendance__table-frame .table-wrap {
-    margin-right: 6px;
-    margin-left: 6px;
-    scroll-padding-left: 8.5rem;
-  }
+    .admin-attendance .staff-attendance__table-frame .table-wrap {
+      margin-right: 6px;
+      margin-left: 6px;
+      scroll-padding-left: 8.5rem;
+    }
 
-  .admin-attendance .staff-attendance__table-frame .table {
-    min-width: max(100%, 29rem);
-  }
+    .admin-attendance .staff-attendance__table-frame .table {
+      min-width: max(100%, 29rem);
+    }
 
-  .admin-attendance .staff-attendance__table-frame .table th,
-  .admin-attendance .staff-attendance__table-frame .table td {
-    width: 2.875rem;
-    height: 46px;
-  }
+    .admin-attendance .staff-attendance__table-frame .table th,
+    .admin-attendance .staff-attendance__table-frame .table td {
+      width: 2.875rem;
+      height: 46px;
+    }
 
-  .admin-attendance .staff-attendance__table-frame .table thead th {
-    height: 44px;
-  }
+    .admin-attendance .staff-attendance__table-frame .table thead th {
+      height: 44px;
+    }
 
-  .admin-attendance
-    .staff-attendance__table-frame
-    .table
-    .staff-attendance__identity-col {
-    width: 8.5rem;
-    min-width: 8.5rem;
+    .admin-attendance
+      .staff-attendance__table-frame
+      .table
+      .staff-attendance__identity-col {
+      width: 8.5rem;
+      min-width: 8.5rem;
+    }
   }
 
   .admin-attendance .staff-attendance__action-context {

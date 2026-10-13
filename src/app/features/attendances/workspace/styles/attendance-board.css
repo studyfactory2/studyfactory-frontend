@@ -334,6 +334,15 @@
   gap: 7px;
 }
 
+.staff-attendance__member-summary,
+.staff-attendance__table-frame
+  .table
+  thead
+  th
+  > .staff-attendance__compact-heading {
+  display: none;
+}
+
 .staff-attendance__member > b {
   display: grid;
   width: 28px;
@@ -671,20 +680,33 @@ button.staff-attendance__status:hover:not(:disabled) {
 }
 
 @media (max-width: 768px) {
+  .staff-attendance__board {
+    margin-inline: -8px;
+  }
+
   .staff-attendance__board > .ui-section-state {
     margin-right: var(--space-4);
     margin-left: var(--space-4);
   }
 
   .staff-attendance__board-head {
-    align-items: stretch;
-    flex-direction: column;
-    padding: 14px 14px 11px;
-    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .staff-attendance__board-head h2 {
+    font-size: var(--text-sm);
+  }
+
+  .staff-attendance__board-head .staff-attendance__board-title > p {
+    display: none;
   }
 
   .staff-attendance__board-context {
-    justify-content: space-between;
+    margin-left: auto;
+    gap: 6px;
   }
 
   .staff-attendance__board-context > p {
@@ -694,19 +716,20 @@ button.staff-attendance__status:hover:not(:disabled) {
   }
 
   .staff-attendance__refresh {
-    min-height: 40px;
+    min-height: 34px;
+    padding: 0 8px;
   }
 
   .staff-attendance__board-toolbar {
     align-items: stretch;
     flex-direction: column;
-    padding-right: 14px;
-    padding-left: 14px;
+    padding: 0 10px 8px;
+    gap: 6px;
   }
 
   .staff-attendance__search {
     width: 100%;
-    height: 44px;
+    height: 36px;
   }
 
   .staff-attendance__filters {
@@ -716,107 +739,177 @@ button.staff-attendance__status:hover:not(:disabled) {
   }
 
   .staff-attendance__filters button {
-    min-height: 44px;
-    padding: 0 7px;
+    min-height: 34px;
+    padding: 0 4px;
   }
 
   .staff-attendance__scroll-hint {
-    margin-right: 14px;
-    margin-left: 14px;
+    display: none;
   }
 
   .staff-attendance__table-frame {
-    max-height: min(74svh, 41rem);
+    --attendance-identity-width: 5.75rem;
+    /* Leave room for the app header, bottom navigation and page clearance. */
+    max-height: min(
+      70svh,
+      42rem,
+      calc(100svh - 218px - env(safe-area-inset-bottom, 0px))
+    );
   }
 
   .staff-attendance__table-frame .table-wrap {
-    margin-right: 8px;
-    margin-left: 8px;
-    scroll-padding-left: 9.25rem;
+    margin: 0 5px;
+    border-radius: 6px;
+    scroll-padding-left: 0;
+    scroll-padding-top: 38px;
   }
 
   .staff-attendance__table-frame .table {
-    min-width: max(100%, 31.125rem);
+    width: 100%;
+    min-width: 0;
   }
 
   .staff-attendance__table-frame .table th,
   .staff-attendance__table-frame .table td {
-    width: 3.125rem;
-    height: 48px;
-    padding: 5px 3px;
+    width: auto;
+    height: 42px;
+    padding: 2px 1px;
   }
 
   .staff-attendance__table-frame .table thead th {
-    height: 46px;
+    height: 36px;
+    font-size: 0.6875rem;
+  }
+
+  .staff-attendance__table-frame .table thead th > small {
+    margin-top: 1px;
+    font-size: 0.5625rem;
   }
 
   .staff-attendance__table-frame .table tbody th {
-    padding: 5px 7px;
+    padding: 0 2px;
   }
 
   .staff-attendance__table-frame .table .staff-attendance__identity-col {
-    width: 9.25rem;
-    min-width: 9.25rem;
+    position: static;
+    width: var(--attendance-identity-width);
+    min-width: 0;
+    box-shadow: inset -1px 0 0 rgb(var(--brand-ink-rgb) / 7%);
   }
 
-  .staff-attendance__member {
-    gap: 5px;
+  .staff-attendance__table-frame .table thead .staff-attendance__identity-col {
+    position: sticky;
   }
 
-  .staff-attendance__member > b {
-    width: 26px;
-    height: 26px;
-    border-radius: 8px;
-  }
-
-  .staff-attendance__member-name > strong {
-    font-size: var(--text-xs);
-  }
-
-  .staff-attendance__member-presence {
-    font-size: 0.6rem;
-  }
-
-  .staff-attendance__member-presence i {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    padding: 0;
-    border: 0;
-    margin: -1px;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-
-  .staff-attendance__session-count {
+  .staff-attendance__member,
+  .staff-attendance__table-frame
+    .table
+    thead
+    th
+    > .staff-attendance__identity-heading,
+  .staff-attendance__table-frame
+    .table
+    thead
+    th
+    > .staff-attendance__identity-note,
+  .staff-attendance__period-suffix {
     display: none;
   }
 
+  .staff-attendance__table-frame
+    .table
+    thead
+    th
+    > .staff-attendance__compact-heading {
+    display: block;
+    padding-left: 4px;
+    font-size: 0.625rem;
+  }
+
+  .staff-attendance__member-summary {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    align-items: center;
+    padding: 2px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--brand-ink);
+    cursor: pointer;
+    font: inherit;
+    gap: 3px;
+    text-align: left;
+  }
+
+  .staff-attendance__member-summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .staff-attendance__member-summary-seat {
+    min-width: 17px;
+    flex: 0 0 auto;
+    color: var(--brand-forest);
+    font-size: 0.625rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: var(--weight-bold);
+    text-align: center;
+  }
+
+  .staff-attendance__member-summary-copy {
+    display: grid;
+    min-width: 0;
+    gap: 1px;
+  }
+
+  .staff-attendance__member-summary-copy > strong {
+    overflow: hidden;
+    font-size: 0.6875rem;
+    font-weight: var(--weight-bold);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .staff-attendance__member-summary-copy > small {
+    color: var(--special-deep);
+    font-size: 0.5625rem;
+    line-height: 1.2;
+  }
+
   .staff-attendance__status {
-    width: min(100%, 2.5rem);
-    min-height: 34px;
-    padding: 3px 4px;
+    width: 100%;
+    min-height: 38px;
+    padding: 2px 1px;
+    border-radius: 5px;
+    font-size: 0.625rem;
+    letter-spacing: -0.02em;
+  }
+
+  .staff-attendance__status.is-present,
+  .staff-attendance__status.is-absent {
+    font-size: 0.8125rem;
+  }
+
+  .staff-attendance__status.is-selected {
+    outline-offset: -1px;
+  }
+
+  .staff-attendance__membership-stage {
+    white-space: normal;
+  }
+
+  .staff-attendance__membership-stage > span {
+    flex-wrap: wrap;
+    margin: 0 4px;
+    gap: 2px 6px;
   }
 }
 
 @media (max-width: 380px) {
-  .staff-attendance__table-frame .table-wrap {
-    scroll-padding-left: 8.75rem;
-  }
-
-  .staff-attendance__table-frame .table {
-    min-width: max(100%, 29.75rem);
-  }
-
-  .staff-attendance__table-frame .table th,
-  .staff-attendance__table-frame .table td {
-    width: 3rem;
-  }
-
-  .staff-attendance__table-frame .table .staff-attendance__identity-col {
-    width: 8.75rem;
-    min-width: 8.75rem;
+  .staff-attendance__table-frame {
+    --attendance-identity-width: 5.25rem;
   }
 }
 

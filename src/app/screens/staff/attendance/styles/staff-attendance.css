@@ -3,3 +3,9 @@
   min-width: 0;
   gap: var(--space-5);
 }
+
+@media (max-width: 768px) {
+  .staff-attendance {
+    gap: 12px;
+  }
+}
