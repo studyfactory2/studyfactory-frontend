@@ -108,12 +108,12 @@ export function ManagerBeverageWorkspace({
             </strong>
           </p>
           <p className="staff-bev__metric is-deduction">
-            <span className="staff-bev__metric-key">휴무 제외</span>
+            <span className="staff-bev__metric-key">서빙 제외</span>
             <strong>
               {making.ready ? making.deduction : '—'}
               <small>잔</small>
             </strong>
-            <span className="staff-bev__metric-sub">월차 · 오전반차</span>
+            <span className="staff-bev__metric-sub">1교시 휴무 · 결석</span>
           </p>
         </div>
       </Instrument>

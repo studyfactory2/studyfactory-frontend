@@ -3,15 +3,14 @@ import type { useManagerOperations } from '../hooks/useManagerOperations';
 import {
   SUGGESTION_CATEGORY_LABELS,
   formatAttendanceRequestDate,
-  formatAttendanceWon,
   getAttendanceTodoMeta,
-  getSideDishMenuLabel,
 } from '../model/manager-operations';
 import {
   ManagerOperationsCockpit,
   type ManagerOperationsSectionData,
   type ManagerOperationsSectionId,
 } from './ManagerOperationsCockpit';
+import { ManagerSideDishOrders } from './ManagerSideDishOrders';
 
 export function ManagerOperationsOverview({
   initialSection = null,
@@ -117,33 +116,22 @@ export function ManagerOperationsOverview({
       : undefined,
   };
 
-  const mealOrders = [
-    ...operations.meals.lunch.orders.map((order) => ({
-      mealLabel: '점심',
-      order,
-    })),
-    ...operations.meals.dinner.orders.map((order) => ({
-      mealLabel: '저녁',
-      order,
-    })),
-  ];
   const memberSideDishOrders: ManagerOperationsSectionData = {
-    count: operations.meals.ready ? mealOrders.length : null,
+    content: (
+      <ManagerSideDishOrders
+        dinner={operations.meals.dinner}
+        lunch={operations.meals.lunch}
+      />
+    ),
+    count: operations.meals.ready
+      ? operations.meals.lunch.orders.length +
+        operations.meals.dinner.orders.length
+      : null,
     countLabel: '건',
     emptyMessage: '오늘 접수된 회원 반찬 신청이 없어요.',
     errorMessage: operations.meals.errorMessage,
     loading: operations.meals.loading,
-    previews: mealOrders.map(({ mealLabel, order }) => ({
-      badge: mealLabel,
-      description: getSideDishMenuLabel(order),
-      id: `${mealLabel}-${order.id}`,
-      meta: formatAttendanceWon(order.totalPrice),
-      title:
-        order.seatNumber === null
-          ? `미배정 · ${order.memberName}`
-          : `${order.seatNumber}번 · ${order.memberName}`,
-      tone: mealLabel === '점심' ? 'positive' : 'special',
-    })),
+    previews: [],
     summary: operations.meals.ready
       ? `점심 ${operations.meals.lunch.memberCount}명 · 저녁 ${operations.meals.dinner.memberCount}명`
       : undefined,

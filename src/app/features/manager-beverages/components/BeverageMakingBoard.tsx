@@ -155,7 +155,9 @@ function DrinkRow({
         <b>{group.toMake}</b>
         {/* The deduction explains why the count differs from the roster. */}
         {group.deduction > 0 && (
-          <em title={`휴무 ${group.deduction}명 제외`}>−{group.deduction}</em>
+          <em title={`1교시 휴무·결석 ${group.deduction}잔 제외`}>
+            −{group.deduction}
+          </em>
         )}
       </span>
     </>
@@ -168,7 +170,9 @@ function DrinkRow({
         aria-controls={servingsId}
         aria-expanded={expanded}
         aria-label={`${group.name} ${group.toMake}잔${
-          group.deduction > 0 ? `, 휴무 ${group.deduction}명 제외` : ''
+          group.deduction > 0
+            ? `, 1교시 휴무·결석 ${group.deduction}잔 제외`
+            : ''
         }${noteCount > 0 ? `, 메모 ${noteCount}개` : ''}, 명단 ${
           expanded ? '접기' : '보기'
         }`}
@@ -205,7 +209,7 @@ function DrinkRow({
                 serving.memberName,
               )}, ${
                 serving.deducted
-                  ? `휴무로 ${group.name} 제조 제외`
+                  ? `1교시 휴무·결석으로 ${group.name} 제조 제외`
                   : `${group.name}${serving.note ? `, 메모 ${serving.note}` : ''}`
               }, 음료 편집`}
               className={cx(
@@ -220,7 +224,7 @@ function DrinkRow({
                 {formatMemberLabel(serving.seatNumber, serving.memberName)}
               </span>
               {serving.deducted ? (
-                <span className="staff-bev__seat-away">휴무</span>
+                <span className="staff-bev__seat-away">서빙 제외</span>
               ) : (
                 serving.note && (
                   <span className="staff-bev__seat-note">{serving.note}</span>

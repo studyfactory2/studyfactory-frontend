@@ -70,7 +70,8 @@ export function useManagerBeverages({
 
   /*
    * The board is here for one reason: it is the only place that says, per
-   * member and per period, who is on leave this morning. Shared key with the
+   * member and per period, who has period-1 leave or a confirmed absence.
+   * Untouched attendance stays eligible before the 09:00 check. Shared key with the
    * staff home and the 출석부 tab, so on this screen it is usually a cache hit.
    */
   const boardQuery = useQuery({

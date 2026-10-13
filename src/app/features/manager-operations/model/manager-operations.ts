@@ -92,21 +92,6 @@ export function buildAttendanceMealGroup(
   };
 }
 
-export function getSideDishMenuLabel(order: DailySideDishResponse) {
-  const menuNames = order.items
-    .split(/[\n,]+/)
-    .map((item) => (item.split(':')[0] ?? '').trim())
-    .filter((item) => item.length > 0);
-
-  if (menuNames.length === 0) {
-    return order.items.trim();
-  }
-
-  return menuNames.length === 1
-    ? menuNames[0]
-    : `${menuNames[0]} 외 ${menuNames.length - 1}개`;
-}
-
 export function getAttendanceTodoMeta(todo: TodoResponse) {
   if (todo.sourceType === 'JOIN_MEMBER') {
     return '가입 정보에서 자동 생성';

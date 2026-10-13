@@ -193,7 +193,7 @@ function UnseatedOrders({
         <ul className="staff-bev__unseated-list">
           {items.map((member) => {
             const drinkLabel = member.away
-              ? '오전 휴무 · 제조 제외'
+              ? '1교시 휴무·결석 · 제조 제외'
               : formatDrinkList(member.drinks);
 
             return (

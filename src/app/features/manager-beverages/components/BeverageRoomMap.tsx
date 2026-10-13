@@ -124,7 +124,7 @@ function BeverageLegend() {
       </li>
       <li>
         <i aria-hidden="true" className="is-away" />
-        오전 휴무
+        1교시 휴무·결석
       </li>
       <li>
         <i aria-hidden="true" className="is-seat" />
@@ -189,7 +189,7 @@ function RoomCellView({
       )}
       {hasDrinks && (
         <span className="staff-bev__cell-drinks">
-          {cell.away ? '오전 휴무' : formatDrinkList(cell.drinks)}
+          {cell.away ? '서빙 제외' : formatDrinkList(cell.drinks)}
         </span>
       )}
       {cell.notes.length > 0 && !cell.away && (
@@ -223,7 +223,7 @@ function RoomCellView({
       aria-label={`${item.number}번 ${cell.memberName}, ${
         hasDrinks
           ? cell.away
-            ? '오전 휴무'
+            ? '1교시 휴무·결석으로 서빙 제외'
             : formatDrinkList(cell.drinks)
           : '음료 없음'
       }${cell.tumbler ? ', 텀블러' : ''}${

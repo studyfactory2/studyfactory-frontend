@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   ChevronDown,
   CircleAlert,
@@ -39,6 +40,7 @@ export type ManagerOperationsPreview = {
 
 export type ManagerOperationsSectionData = {
   actions?: readonly ManagerOperationsAction[];
+  content?: ReactNode;
   count: number | null;
   countLabel: string;
   emptyMessage: string;
@@ -250,6 +252,8 @@ function ManagerOperationsPanel({
             />
             <span>{section.label}을 불러오는 중이에요.</span>
           </div>
+        ) : !data.errorMessage && data.content != null ? (
+          data.content
         ) : !data.errorMessage && data.previews.length === 0 ? (
           <div className="manager-operations-cockpit__state">
             <Inbox aria-hidden="true" size={19} />

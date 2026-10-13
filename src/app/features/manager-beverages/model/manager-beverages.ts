@@ -1,10 +1,10 @@
 import type { DailyAttendanceBoard } from '../../attendances/attendances-api';
 import {
+  firstPeriodDrinkExcludedMemberIds,
   formatMemberLabel,
   hasJoinedByDate,
   isExcludedDrink,
   isTumblerDrink,
-  morningLeaveMemberIds,
 } from '../../beverages/beverage-rules';
 import type { MemberBeverageResponse } from '../../beverages/beverages-api';
 import type { DailyLeaveStatusResponse } from '../../leaves/leaves-api';
@@ -134,7 +134,7 @@ export type RoomCell = {
   memberName: string | null;
   drinks: string[];
   notes: string[];
-  /** Off this morning, so this seat gets nothing on the walk. */
+  /** Period-1 leave or confirmed absence, so no drink is served here. */
   away: boolean;
   /** At least one drink goes in the member's own tumbler, not a cup. */
   tumbler: boolean;
@@ -178,7 +178,7 @@ export function buildRoomViews(
   board: DailyAttendanceBoard | undefined,
   todayDateKey: string,
 ): RoomView[] {
-  const away = morningLeaveMemberIds(board);
+  const away = firstPeriodDrinkExcludedMemberIds(board);
   const bySeat = new Map<number, MemberBeverageResponse>();
 
   for (const member of members ?? []) {
@@ -230,7 +230,7 @@ export function findUnseatedDrinkers(
   rooms: RoomLayout[] | undefined,
   todayDateKey: string,
 ): UnseatedDrinker[] {
-  const away = morningLeaveMemberIds(board);
+  const away = firstPeriodDrinkExcludedMemberIds(board);
   const mappedSeatNumbers = new Set(
     (rooms ?? []).flatMap((room) =>
       room.items.flatMap((item) =>

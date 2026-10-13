@@ -10,8 +10,8 @@ import type { MemberBeverageResponse } from './beverages-api';
 
 /*
  * How the morning drink round is counted. None of this is visible in a DTO —
- * it is how the branch actually runs, learned from the screen that ran it
- * before — so every rule carries the reason it exists.
+ * it is how the branch actually runs, confirmed with the operator — so every
+ * rule carries the reason it exists.
  *
  * It lives at feature level rather than inside one screen because two screens
  * ask the same question: the staff home wants the number, the beverages screen
@@ -36,9 +36,6 @@ export const DRINK_QUICK_PICKS = [
 
 /** Members type these when they do not want a drink. */
 const EXCLUDED_DRINK_NAMES = new Set(['없음', 'x', '안먹음']);
-
-/** Slots 1–3. Slot 4 is shared by both half-days, so it cannot decide this. */
-const MORNING_SLOTS = [0, 1, 2];
 
 function normaliseDrinkName(name: string) {
   return name.replace(/\s+/g, '');
@@ -66,24 +63,40 @@ export function hasJoinedByDate(joinDate: string | null, seoulDateKey: string) {
   return joinDate === null || joinDate <= seoulDateKey;
 }
 
-function isLeaveSlot(slot: string) {
-  return slot !== ATTENDANCE_PRESENT && slot !== ATTENDANCE_BLANK;
-}
-
 /**
- * Drinks go out in the morning, so a 월차 or 오전반차 member never receives one
- * and their drinks come off the count. 오후반차 is the case that catches people
- * out: they are in the room all morning and do get a drink.
+ * Preparation starts at 08:00 and serving finishes before attendance is
+ * checked at 09:00. Use known period-1 leave/absence, not confirmed presence:
+ * an untouched X is still expected to attend and needs a drink prepared.
+ * Any leave covering period 1 (including custom or recurring leave) excludes
+ * service, as does an explicitly reviewed absence. Later periods never decide
+ * this morning round; members arriving later use self-service.
  */
-export function isOnMorningLeave(row: AttendanceBoardRow) {
-  return MORNING_SLOTS.every((index) => isLeaveSlot(row.slots[index] ?? ''));
+export function isFirstPeriodDrinkExcluded(row: AttendanceBoardRow) {
+  const status = row.slots[0];
+  const source = row.slotSources[0];
+
+  // Custom leave labels can even be "O" or "X"; provenance decides first.
+  // A real present override is returned as O + NONE by the attendance board.
+  if (
+    source === 'MANAGER_LEAVE' ||
+    source === 'MEMBER_LEAVE' ||
+    source === 'MANAGER_ABSENT'
+  ) {
+    return true;
+  }
+
+  return Boolean(
+    status && status !== ATTENDANCE_PRESENT && status !== ATTENDANCE_BLANK,
+  );
 }
 
-export function morningLeaveMemberIds(board: DailyAttendanceBoard | undefined) {
+export function firstPeriodDrinkExcludedMemberIds(
+  board: DailyAttendanceBoard | undefined,
+) {
   const ids = new Set<number>();
 
   for (const row of board?.rows ?? []) {
-    if (row.memberId !== null && isOnMorningLeave(row)) {
+    if (row.memberId !== null && isFirstPeriodDrinkExcluded(row)) {
       ids.add(row.memberId);
     }
   }
@@ -96,7 +109,7 @@ export type DrinkServing = {
   memberName: string;
   seatNumber: number | null;
   note: string | null;
-  /** True when this member is off this morning, so the cup is not made. */
+  /** Period-1 leave or confirmed absence: this drink is not made or served. */
   deducted: boolean;
 };
 
@@ -104,7 +117,7 @@ export type DrinkCount = {
   name: string;
   /** Everyone who has this drink registered. */
   total: number;
-  /** How many of those are away this morning. */
+  /** Drinks excluded by period-1 leave or confirmed absence. */
   deduction: number;
   /** total − deduction: the number actually to make. */
   toMake: number;
@@ -132,7 +145,7 @@ export function buildMakingBoard(
   board: DailyAttendanceBoard | undefined,
   seoulDateKey: string,
 ): MakingBoard {
-  const away = morningLeaveMemberIds(board);
+  const away = firstPeriodDrinkExcludedMemberIds(board);
   const groups = new Map<string, DrinkCount>();
 
   for (const member of members ?? []) {
