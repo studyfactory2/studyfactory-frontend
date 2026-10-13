@@ -9,9 +9,10 @@ export const ATTENDANCE_PRESENT = 'O';
 export const ATTENDANCE_BLANK = 'X';
 
 /**
- * Where a cell's value came from. "NONE" covers an untouched slot and a stored
- * present slot. `MANAGER_ABSENT` is the durable reviewed-X marker returned
- * after PATCH /daily-board/slot, including a fixed-leave cancellation.
+ * Where a cell's value came from. "NONE" covers an untouched slot, a stored
+ * present slot, and a slot explicitly returned to unconfirmed. `MANAGER_ABSENT`
+ * is the durable reviewed-X marker returned after PATCH /daily-board/slot,
+ * including a fixed-leave cancellation.
  */
 export type AttendanceSlotSource =
   'MANAGER_ABSENT' | 'MANAGER_LEAVE' | 'MEMBER_LEAVE' | 'NONE';
@@ -34,7 +35,8 @@ export type DailyAttendanceBoard = {
   rows: AttendanceBoardRow[];
 };
 
-export type AttendanceSlotUpdateStatus = 'PRESENT' | 'ABSENT' | 'OTHER';
+export type AttendanceSlotUpdateStatus =
+  'PRESENT' | 'ABSENT' | 'OTHER' | 'UNCONFIRMED';
 
 export type AttendanceSlotUpdateInput = {
   date: string;

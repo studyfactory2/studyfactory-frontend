@@ -310,6 +310,7 @@ export function AttendanceBoard({
         activeSlot,
         operationalSlot,
       ) === 'future' ||
+      (status === 'UNCONFIRMED' && targetSelection.cell.state !== 'present') ||
       attendanceCellAlreadyHasStatus(targetSelection.cell, status)
     ) {
       return;
@@ -589,6 +590,12 @@ export function AttendanceBoard({
                   setLeaveOverrideTarget(null);
                   setReasonTarget(null);
                   selectCell(nextSelection);
+
+                  // Activation cancels only a displayed O; keyboard focus and
+                  // arrow navigation still select without changing attendance.
+                  if (nextSelection.cell.state === 'present') {
+                    submitStatus('UNCONFIRMED', undefined, nextSelection);
+                  }
                 }}
                 onDetailsRequest={(member) =>
                   setDetailsTarget({ dateKey, memberId: member.memberId })
