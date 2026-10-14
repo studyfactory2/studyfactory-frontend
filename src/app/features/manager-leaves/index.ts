@@ -1,4 +1,5 @@
 export { ManagerMemberLeaveView } from './components/ManagerMemberLeaveView';
+export { AttendanceMemberLeaveModal } from './components/AttendanceMemberLeaveModal';
 export {
   createManagerLeaveSearch,
   MANAGER_LEAVE_ROUTE_VIEW,

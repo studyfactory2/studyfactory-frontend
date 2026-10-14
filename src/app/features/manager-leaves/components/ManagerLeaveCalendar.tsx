@@ -11,6 +11,7 @@ import '../styles/manager-leave-calendar.css';
 type ManagerLeaveCalendarProps = {
   cells: ManagerLeaveCalendarCell[];
   currentMonth: boolean;
+  mode?: 'register' | 'view';
   month: number;
   onCurrentMonth: () => void;
   onNextMonth: () => void;
@@ -23,6 +24,7 @@ type ManagerLeaveCalendarProps = {
 export function ManagerLeaveCalendar({
   cells,
   currentMonth,
+  mode = 'register',
   month,
   onCurrentMonth,
   onNextMonth,
@@ -66,7 +68,7 @@ export function ManagerLeaveCalendar({
           return (
             <li key={cell.dateKey}>
               <button
-                aria-label={toCalendarDayLabel(cell)}
+                aria-label={toCalendarDayLabel(cell, mode)}
                 aria-pressed={selected}
                 className={cx(
                   'manager-leave-calendar__day',
@@ -107,18 +109,22 @@ export function ManagerLeaveCalendar({
   );
 }
 
-function toCalendarDayLabel(cell: ManagerLeaveCalendarCell) {
+function toCalendarDayLabel(
+  cell: ManagerLeaveCalendarCell,
+  mode: 'register' | 'view',
+) {
   const dateLabel = formatKoreanDate(cell.dateKey);
+  const actionLabel = mode === 'view' ? '휴무 상세 보기' : '등록 날짜로 선택';
 
   if (!cell.inMonth) {
     return `${dateLabel}, 다른 달`;
   }
 
   if (cell.entries.length === 0) {
-    return `${dateLabel}, 휴무 없음, 등록 날짜로 선택`;
+    return `${dateLabel}, 휴무 없음, ${actionLabel}`;
   }
 
   return `${dateLabel}, ${cell.entries
     .map((entry) => `${entry.label} ${entry.slotsLabel}`)
-    .join(', ')}, 등록 날짜로 선택`;
+    .join(', ')}, ${actionLabel}`;
 }

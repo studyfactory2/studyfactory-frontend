@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { adminRoutes } from '../../../core/router/routes';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import { getOperationalAttendanceSlot } from '../../../features/attendances/attendance-rules';
-import { AttendanceBoard } from '../../../features/attendances/workspace/components/AttendanceBoard';
-import { createManagerLeaveSearch } from '../../../features/manager-leaves';
+import {
+  AttendanceBoard,
+  type AttendanceLeaveManagementTarget,
+} from '../../../features/attendances/workspace/components/AttendanceBoard';
+import { AttendanceMemberLeaveModal } from '../../../features/manager-leaves';
 import {
   ManagerOperationsOverview,
   ManagerOperationsWorkspace,
@@ -57,7 +58,8 @@ function AdminAttendanceContent({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
-  const navigate = useNavigate();
+  const [leaveTarget, setLeaveTarget] =
+    useState<AttendanceLeaveManagementTarget | null>(null);
   const [operationsView, setOperationsView] =
     useState<ManagerOperationsView | null>(null);
   const date = useAdminAttendanceDate();
@@ -148,14 +150,7 @@ function AdminAttendanceContent({
         isToday={date.isToday}
         loading={attendance.board.loading}
         members={attendance.board.members}
-        onManageLeave={(target) => {
-          navigate(
-            `${adminRoutes.operations}?${createManagerLeaveSearch({
-              ...target,
-              branchId,
-            })}`,
-          );
-        }}
+        onManageLeave={setLeaveTarget}
         onRefresh={() => {
           attendance.freshness.onRefresh();
           operations.onRefresh();
@@ -168,6 +163,14 @@ function AdminAttendanceContent({
         presenceReady={attendance.presence.ready}
         ready={attendance.board.ready}
         refreshing={attendance.freshness.refreshing}
+      />
+      <AttendanceMemberLeaveModal
+        branchId={branchId}
+        dateKey={date.dateKey}
+        memberId={memberId}
+        onClose={() => setLeaveTarget(null)}
+        ownerKey={ownerKey}
+        target={leaveTarget}
       />
     </div>
   );
