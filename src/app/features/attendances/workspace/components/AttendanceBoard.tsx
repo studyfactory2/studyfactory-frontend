@@ -21,7 +21,6 @@ import {
   ATTENDANCE_SLOTS,
   toAttendanceCellId,
   toAttendanceCellKey,
-  toAttendanceSelectionTiming,
 } from '../model/attendance-board';
 import { AttendanceCommandDock } from './AttendanceCommandDock';
 import { AttendanceLeaveOverrideModal } from './AttendanceLeaveOverrideModal';
@@ -265,11 +264,7 @@ export function AttendanceBoard({
 
   const commandSequence = useMemo(
     () =>
-      ATTENDANCE_SLOTS.filter(
-        (slot) =>
-          toAttendanceSelectionTiming(slot, activeSlot, operationalSlot) !==
-          'future',
-      ).flatMap((slot) =>
+      ATTENDANCE_SLOTS.flatMap((slot) =>
         visibleMembers
           .filter(
             (member) =>
@@ -284,7 +279,7 @@ export function AttendanceBoard({
             slot,
           })),
       ),
-    [activeSlot, operationalSlot, pendingMemberIds, visibleMembers],
+    [pendingMemberIds, visibleMembers],
   );
   const commandIndex = activeSelection
     ? commandSequence.findIndex(
@@ -310,11 +305,6 @@ export function AttendanceBoard({
       interaction === undefined ||
       !targetSelection ||
       pendingMemberIds.has(targetSelection.memberId) ||
-      toAttendanceSelectionTiming(
-        targetSelection.slot,
-        activeSlot,
-        operationalSlot,
-      ) === 'future' ||
       (status === 'UNCONFIRMED' && targetSelection.cell.state !== 'present') ||
       attendanceCellAlreadyHasStatus(targetSelection.cell, status)
     ) {
@@ -376,11 +366,6 @@ export function AttendanceBoard({
       interaction === undefined ||
       !activeSelection ||
       pendingMemberIds.has(activeSelection.memberId) ||
-      toAttendanceSelectionTiming(
-        activeSelection.slot,
-        activeSlot,
-        operationalSlot,
-      ) === 'future' ||
       attendanceCellAlreadyHasStatus(activeSelection.cell, status)
     ) {
       return;

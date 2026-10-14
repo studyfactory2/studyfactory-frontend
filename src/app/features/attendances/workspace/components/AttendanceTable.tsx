@@ -66,12 +66,9 @@ export function AttendanceTable({
   const navigableMembers = activeMembers.filter(
     (member) => !pendingMemberIds.has(member.memberId),
   );
-  const editableSlots = interactive
-    ? ATTENDANCE_SLOTS.filter(
-        (slot) =>
-          toAttendanceSelectionTiming(slot, activeSlot, operationalSlot) !==
-          'future',
-      )
+  // The schedule highlights a period; it does not restrict manual attendance.
+  const editableSlots: readonly OperationalAttendanceSlot[] = interactive
+    ? ATTENDANCE_SLOTS
     : [];
   const selectedTabMember = selection
     ? navigableMembers.find((member) => member.memberId === selection.memberId)

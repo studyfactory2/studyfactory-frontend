@@ -51,9 +51,8 @@ export function AttendanceStatusCell({
         : safeCell.state === 'unmarked'
           ? '미확인'
           : safeCell.label;
-  const activationLabel = future
-    ? '아직 변경할 수 없음'
-    : safeCell.state === 'present'
+  const activationLabel =
+    safeCell.state === 'present'
       ? '누르면 이 교시만 출석을 취소하고 미확인으로 변경'
       : '빠른 처리할 칸으로 선택';
   const visuallyPendingPeriod = future && safeCell.state === 'unmarked';
@@ -83,22 +82,16 @@ export function AttendanceStatusCell({
     <button
       aria-busy={pending}
       aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
-      aria-label={`${identityLabel}. ${activationLabel}`}
+      aria-label={`${identityLabel}${future ? ' · 시작 전' : ''}. ${activationLabel}`}
       aria-pressed={selected}
       className={className}
-      disabled={disabled || future}
+      disabled={disabled}
       id={toAttendanceCellId(member.memberId, slot)}
       onClick={onActivate}
       onFocus={onSelect}
       onKeyDown={onKeyDown}
-      tabIndex={tabStop && !future ? 0 : -1}
-      title={
-        future
-          ? `${statusLabel} · 시작 전`
-          : safeCell.state === 'present'
-            ? `${statusLabel} · 누르면 이 교시만 미확인으로 변경`
-            : statusLabel
-      }
+      tabIndex={tabStop ? 0 : -1}
+      title={`${statusLabel}${future ? ' · 시작 전' : ''}${safeCell.state === 'present' ? ' · 누르면 이 교시만 미확인으로 변경' : ''}`}
       type="button"
     >
       {content}
