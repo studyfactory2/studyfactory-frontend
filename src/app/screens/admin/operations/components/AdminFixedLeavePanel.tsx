@@ -269,8 +269,8 @@ export function AdminFixedLeavePanel({
             )}
 
             <p className="admin-fixed-leave__contract-note">
-              고정 규칙은 시작일 없이 선택한 요일 전체에 적용돼요. 과거 출석과
-              공부시간에도 반영될 수 있어요.
+              {createInput.leaveDate}부터 선택한 요일마다 반복됩니다. 과거
+              기록은 변경하지 않아요.
             </p>
             {formError && (
               <p className="admin-fixed-leave__form-error" role="alert">
@@ -352,6 +352,7 @@ export function AdminFixedLeavePanel({
                 <span className="admin-fixed-leave__rule-copy">
                   <strong>{item.reason}</strong>
                   <small>{formatLeaveSlots(item.slots)}</small>
+                  {item.startDate && <small>{item.startDate}부터</small>}
                 </span>
                 <button
                   aria-label={`${item.memberName} ${item.reason} 고정 휴무 삭제`}
@@ -409,7 +410,7 @@ export function AdminFixedLeavePanel({
             {formatLeaveSlots(createInput.slots)} · {createInput.reason}
           </p>
           <p className="is-warning">
-            시작일이 없는 규칙이라 같은 요일의 과거 기록에도 적용될 수 있어요.
+            {createInput.leaveDate}부터 시작하며, 과거 기록은 변경하지 않아요.
           </p>
         </div>
       </Modal>
@@ -458,8 +459,8 @@ export function AdminFixedLeavePanel({
             : ''}
         </p>
         <p className="admin-fixed-leave__delete-note">
-          오늘 이후 생성된 휴무 기록도 함께 제거되고, 시작일이 없는 규칙이라
-          과거 출석·공부시간 계산도 달라질 수 있어요.
+          선택한 반복 일정만 오늘부터 취소합니다. 과거 기록과 다른 반복 일정은
+          유지됩니다.
         </p>
       </Modal>
 

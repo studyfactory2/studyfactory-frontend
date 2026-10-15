@@ -192,6 +192,7 @@ export function useAdminAttendanceActions({
 
   const interaction = useMemo<AttendanceBoardInteraction>(
     () => ({
+      leaveScope: { branchId, operatorMemberId: memberId, ownerKey },
       onManualCheckIn: manualCheckIn,
       onManualCheckOut: manualCheckOut,
       onResetMember: resetMember,
@@ -204,6 +205,9 @@ export function useAdminAttendanceActions({
     }),
     [
       applyReason,
+      branchId,
+      memberId,
+      ownerKey,
       manualCheckIn,
       manualCheckOut,
       mutationRuntime,

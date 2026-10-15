@@ -228,7 +228,7 @@ export function toFixedLeaveWeekdayLabel(day: FixedLeaveDayOfWeek) {
   );
 }
 
-/** The backend accepts a date but persists only its weekday. */
+/** Resolve the next matching date as the weekly schedule's effective start. */
 export function toNextDateForWeekday(
   todayKey: string,
   weekday: FixedLeaveDayOfWeek,

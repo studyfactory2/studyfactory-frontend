@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { RefreshCw, Search } from 'lucide-react';
+import type { SessionOwnerKey } from '../../../../core/session';
 import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import type { StudyPresenceManualCheckInInput } from '../../../../features/study-presence/study-presence-api';
 import { cx } from '../../../../shared/lib/cx';
@@ -44,6 +45,11 @@ type DatedDialogTarget = {
 };
 
 export type AttendanceBoardInteraction = {
+  leaveScope: {
+    branchId: number;
+    operatorMemberId: number;
+    ownerKey: SessionOwnerKey;
+  };
   onApplyReason: (
     command: AttendanceReasonCommand,
     onSuccess?: () => void,
@@ -675,6 +681,7 @@ export function AttendanceBoard({
         <>
           <AttendanceReasonModal
             dateKey={dateKey}
+            scope={interaction.leaveScope}
             onClose={() => setReasonTarget(null)}
             onSubmit={submitReason}
             open={reasonOpen}

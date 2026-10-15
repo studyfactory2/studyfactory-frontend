@@ -7,8 +7,8 @@ import {
   fetchDailyAttendanceBoard,
   resetDailyAttendanceMember,
   updateDailyAttendanceSlot,
-  applyDailyAttendanceReason,
 } from '../../../../features/attendances/attendances-api';
+import { executeAttendanceLeaveAction } from '../../../../features/attendances/attendance-leave-actions';
 import { leaveQueryKeys } from '../../../../features/leaves/leave-query-keys';
 import { studyTimeQueryKeys } from '../../../../features/study-time/study-time-query-keys';
 import { studyPresenceQueryKeys } from '../../../../features/study-presence/study-presence-query-keys';
@@ -31,7 +31,6 @@ import {
   type AttendanceSlotCommand,
   type AttendanceReasonCommand,
   validateAttendanceReasonCommand,
-  attendanceReasonSuccessMessage,
 } from '../../../../features/attendances/workspace/model/attendance-board';
 import {
   findAttendanceTarget,
@@ -266,7 +265,7 @@ export function useStaffAttendance({
 
   const reasonMutation = useMutation({
     mutationFn: (operation: ReasonOperation) =>
-      applyDailyAttendanceReason(
+      executeAttendanceLeaveAction(
         operation.command,
         operation.branchId,
         operation.operatorMemberId,
@@ -297,7 +296,7 @@ export function useStaffAttendance({
             ? reasonSuccessCallbacksRef.current.get(targetMemberId)
             : undefined;
         if (!error && result && current) {
-          toast(attendanceReasonSuccessMessage(result), 'success');
+          toast(result, 'success');
         }
         reasonSuccessCallbacksRef.current.delete(targetMemberId);
         pendingMemberIdsRef.current.delete(targetMemberId);
@@ -552,6 +551,7 @@ export function useStaffAttendance({
 
   return {
     actions: {
+      leaveScope: { branchId, operatorMemberId: memberId, ownerKey },
       onManualCheckIn: manualCheckIn,
       onManualCheckOut: manualCheckOut,
       onResetMember: resetMember,

@@ -60,7 +60,10 @@ export type AttendanceSelection = {
 
 export type AttendanceSlotCommand = Omit<AttendanceSlotUpdateInput, 'date'>;
 
-export type AttendanceReasonCommand = AttendanceReasonApplyInput;
+export type AttendanceReasonCommand = AttendanceReasonApplyInput & {
+  action?: 'apply' | 'cancel' | 'repeat' | 'cancel-repeat';
+  fixedLeaveId?: number;
+};
 
 /** Validate again at the action boundary; the form is not a trust boundary. */
 export function validateAttendanceReasonCommand(
@@ -68,8 +71,14 @@ export function validateAttendanceReasonCommand(
   todayKey: string,
   joinDate: string | null,
 ) {
+  if (command.action === 'cancel-repeat') {
+    return Number.isInteger(command.fixedLeaveId) &&
+      (command.fixedLeaveId ?? 0) > 0
+      ? null
+      : '취소할 반복 일정을 선택해 주세요.';
+  }
   const reason = command.reason.trim();
-  if (!reason || reason.length > 40) {
+  if (command.action !== 'cancel' && (!reason || reason.length > 40)) {
     return '사유를 1~40자로 입력해 주세요.';
   }
   if (

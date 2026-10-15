@@ -123,6 +123,8 @@ export type FixedLeaveResponse = {
   slots: string;
   reason: string;
   active: boolean;
+  startDate: string | null;
+  stopDate: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -135,11 +137,92 @@ export type FixedLeaveManagementResponse = Omit<
 };
 
 export type FixedLeaveCreateInput = {
-  /** The backend stores only this date's weekday, not an effective date. */
+  /** The first effective date for this weekly schedule. */
   leaveDate: string;
   reason: string;
   slots: number[];
 };
+
+export type LeaveCancellationInput = {
+  memberId: number;
+  dates: string[];
+  slots: number[];
+};
+
+export type LeaveCancellationResponse = {
+  memberId: number;
+  branchId: number;
+  requestedPeriodCount: number;
+  cancelledPeriodCount: number;
+  preservedPresentPeriodCount: number;
+};
+
+export async function cancelMemberLeavePeriods(
+  input: LeaveCancellationInput,
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<LeaveCancellationResponse>(
+    '/api/leaves/cancellations',
+    {
+      body: JSON.stringify(input),
+      expectedMemberId,
+      method: 'POST',
+    },
+  );
+  const counts = response && [
+    response.requestedPeriodCount,
+    response.cancelledPeriodCount,
+    response.preservedPresentPeriodCount,
+  ];
+  if (
+    !response ||
+    response.memberId !== input.memberId ||
+    response.branchId !== branchId ||
+    !counts?.every((count) => Number.isInteger(count) && count >= 0) ||
+    response.requestedPeriodCount !== input.dates.length * input.slots.length ||
+    response.cancelledPeriodCount > response.requestedPeriodCount ||
+    response.preservedPresentPeriodCount > response.requestedPeriodCount
+  ) {
+    throw new ApiRequestError('휴무 취소 결과를 다시 확인해 주세요.', 409);
+  }
+  return response;
+}
+
+export async function createMemberFixedLeaveBatch(
+  input: LeaveCancellationInput & { reason: string },
+  branchId: number,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<FixedLeaveResponse[]>(
+    '/api/leaves/fixed/batch',
+    {
+      body: JSON.stringify(input),
+      expectedMemberId,
+      method: 'POST',
+    },
+  );
+  const firstDates = new Map<WeekdayName, string>();
+  for (const date of [...input.dates].sort()) {
+    const weekday = getWeekdayName(date);
+    if (!firstDates.has(weekday)) firstDates.set(weekday, date);
+  }
+  if (
+    !Array.isArray(response) ||
+    response.length !== firstDates.size ||
+    new Set(response.map((row) => row.dayOfWeek)).size !== response.length ||
+    response.some(
+      (row) =>
+        row.memberId !== input.memberId ||
+        row.branchId !== branchId ||
+        !row.active ||
+        row.startDate !== firstDates.get(row.dayOfWeek),
+    )
+  ) {
+    throw new ApiRequestError('반복 휴무 등록 결과를 다시 확인해 주세요.', 409);
+  }
+  return response;
+}
 
 export type FixedLeaveGenerationResponse = {
   startDate: string;

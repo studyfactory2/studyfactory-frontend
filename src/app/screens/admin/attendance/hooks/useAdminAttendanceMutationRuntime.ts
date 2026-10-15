@@ -12,13 +12,12 @@ import { attendanceQueryKeys } from '../../../../features/attendances/attendance
 import {
   resetDailyAttendanceMember,
   updateDailyAttendanceSlot,
-  applyDailyAttendanceReason,
 } from '../../../../features/attendances/attendances-api';
+import { executeAttendanceLeaveAction } from '../../../../features/attendances/attendance-leave-actions';
 import {
   toAttendanceCellKey,
   type AttendanceSlotCommand,
   type AttendanceReasonCommand,
-  attendanceReasonSuccessMessage,
 } from '../../../../features/attendances/workspace/model/attendance-board';
 import { leaveQueryKeys } from '../../../../features/leaves/leave-query-keys';
 import { studyTimeQueryKeys } from '../../../../features/study-time/study-time-query-keys';
@@ -223,7 +222,7 @@ export function useAdminAttendanceMutationRuntime({
 
   const reasonMutation = useMutation({
     mutationFn: (operation: ReasonOperation) =>
-      applyDailyAttendanceReason(
+      executeAttendanceLeaveAction(
         operation.command,
         operation.branchId,
         operation.operatorMemberId,
@@ -259,7 +258,7 @@ export function useAdminAttendanceMutationRuntime({
               )
             : undefined;
         if (!error && result && current) {
-          toast(attendanceReasonSuccessMessage(result), 'success');
+          toast(result, 'success');
         }
         reasonSuccessCallbacksRef.current.delete(operation.memberOperationKey);
         pendingMemberOperationKeysRef.current.delete(
