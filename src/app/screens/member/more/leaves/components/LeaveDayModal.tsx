@@ -195,6 +195,10 @@ function toNoteText(
     return '등록된 기록의 교시 정보를 확인할 수 없어 추가 신청할 수 없어요. 데스크에 문의해 주세요.';
   }
 
+  if (cell.isToday && canRequestLeave(cell, 'MORNING')) {
+    return '오늘 오전반차는 늦게도 신청할 수 있어요. 기존 출석과 지점 등록 기록은 유지돼요.';
+  }
+
   if (canRequestLeave(cell)) {
     return '지점에서 등록한 기록은 그대로 유지돼요. 겹치지 않는 교시의 휴무를 추가로 신청할 수 있어요.';
   }

@@ -51,26 +51,31 @@ export function findOwnEntry(cell: LeaveDayCell) {
 }
 
 /**
- * Keep one self-service request per day. Office-assigned leave only blocks
- * overlapping periods, so a first-period lateness does not block afternoon
- * leave. Unknown office coverage fails closed until the plan can be verified.
- * Without a type, report whether at least one request option is available.
+ * Keep one self-service request per day. Today's morning leave may be filed
+ * late even when the office already recorded e.g. first-period lateness.
+ * Existing attendance and office records keep their backend precedence.
+ * Other requests still require non-overlapping periods; unknown office
+ * coverage fails closed. Without a type, check every available option.
  */
 export function canRequestLeave(cell: LeaveDayCell, leaveType?: LeaveType) {
   if (!cell.inMonth || cell.isPast || findOwnEntry(cell) !== null) {
     return false;
   }
 
-  const requestedSlotGroups = leaveType
-    ? [LEAVE_TYPE_SLOTS[leaveType]]
-    : Object.values(LEAVE_TYPE_SLOTS);
+  if (cell.entries.some((entry) => entry.slots === null)) {
+    return false;
+  }
 
-  return requestedSlotGroups.some((requestedSlots) =>
-    cell.entries.every(
-      (entry) =>
-        entry.slots !== null &&
-        entry.slots.every((slot) => !requestedSlots.includes(slot)),
-    ),
+  const requestedTypes = leaveType
+    ? [leaveType]
+    : (Object.keys(LEAVE_TYPE_SLOTS) as LeaveType[]);
+
+  return requestedTypes.some(
+    (type) =>
+      (cell.isToday && type === 'MORNING') ||
+      cell.entries.every((entry) =>
+        entry.slots?.every((slot) => !LEAVE_TYPE_SLOTS[type].includes(slot)),
+      ),
   );
 }
 
