@@ -5,7 +5,11 @@ import {
   formatKoreanMonth,
 } from '../../../shared/lib/seoul-date';
 import { cx } from '../../../shared/lib/cx';
-import type { ManagerLeaveCalendarCell } from '../../leaves/leave-management-model';
+import {
+  summarizeManagerLeaveCalendarReasons,
+  type ManagerLeaveCalendarCell,
+  type ManagerLeaveCalendarReason,
+} from '../../leaves/leave-management-model';
 import '../styles/manager-leave-calendar.css';
 
 type ManagerLeaveCalendarProps = {
@@ -62,13 +66,14 @@ export function ManagerLeaveCalendar({
       <ul className="manager-leave-calendar__grid">
         {cells.map((cell) => {
           const selected = selectedDates.has(cell.dateKey);
-          const visibleEntries = cell.entries.slice(0, 2);
-          const remainingCount = Math.max(0, cell.entries.length - 2);
+          const reasons = summarizeManagerLeaveCalendarReasons(cell.entries);
+          const visibleReasons = reasons.slice(0, 2);
+          const remainingCount = Math.max(0, reasons.length - 2);
 
           return (
             <li key={cell.dateKey}>
               <button
-                aria-label={toCalendarDayLabel(cell, mode)}
+                aria-label={toCalendarDayLabel(cell, mode, reasons)}
                 aria-pressed={selected}
                 className={cx(
                   'manager-leave-calendar__day',
@@ -83,16 +88,16 @@ export function ManagerLeaveCalendar({
                 <span className="manager-leave-calendar__number">
                   {cell.dayOfMonth}
                 </span>
-                {visibleEntries.map((entry) => (
+                {visibleReasons.map((reason) => (
                   <span
                     className={cx(
                       'manager-leave-calendar__entry',
-                      `is-${entry.source}`,
+                      `is-${reason.source}`,
                     )}
-                    key={entry.key}
-                    title={`${entry.label} · ${entry.slotsLabel}`}
+                    key={reason.label}
+                    title={`${reason.label} · ${reason.slotsLabel}`}
                   >
-                    {entry.label}
+                    {reason.label}
                   </span>
                 ))}
                 {remainingCount > 0 && (
@@ -112,6 +117,7 @@ export function ManagerLeaveCalendar({
 function toCalendarDayLabel(
   cell: ManagerLeaveCalendarCell,
   mode: 'register' | 'view',
+  reasons: readonly ManagerLeaveCalendarReason[],
 ) {
   const dateLabel = formatKoreanDate(cell.dateKey);
   const actionLabel = mode === 'view' ? '휴무 상세 보기' : '등록 날짜로 선택';
@@ -120,11 +126,11 @@ function toCalendarDayLabel(
     return `${dateLabel}, 다른 달`;
   }
 
-  if (cell.entries.length === 0) {
+  if (reasons.length === 0) {
     return `${dateLabel}, 휴무 없음, ${actionLabel}`;
   }
 
-  return `${dateLabel}, ${cell.entries
-    .map((entry) => `${entry.label} ${entry.slotsLabel}`)
+  return `${dateLabel}, ${reasons
+    .map((reason) => `${reason.label} ${reason.slotsLabel}`)
     .join(', ')}, ${actionLabel}`;
 }

@@ -186,6 +186,11 @@
   color: var(--special-deep);
 }
 
+.manager-leave-calendar__entry.is-mixed {
+  background: rgb(var(--brand-ink-rgb) / 6%);
+  color: var(--brand-ink-soft);
+}
+
 .manager-leave-calendar__more {
   color: var(--brand-muted);
   font-size: var(--text-3xs);

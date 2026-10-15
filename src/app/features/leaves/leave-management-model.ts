@@ -50,6 +50,13 @@ export type ManagerLeaveCalendarEntry = {
   key: string;
   label: string;
   source: 'own' | 'special';
+  slots: readonly number[];
+  slotsLabel: string;
+};
+
+export type ManagerLeaveCalendarReason = {
+  label: string;
+  source: ManagerLeaveCalendarEntry['source'] | 'mixed';
   slotsLabel: string;
 };
 
@@ -95,11 +102,13 @@ export function buildManagerLeaveCalendarCells({
 
   rows.forEach((row, index) => {
     const current = entriesByDate.get(row.leaveDate) ?? [];
+    const slots = parseLeaveSlots(row.slots);
 
     current.push({
       key: `${row.leaveDate}:${row.source}:${row.label}:${row.slots}:${index}`,
       label: row.label,
-      slotsLabel: formatLeaveSlots(row.slots),
+      slots,
+      slotsLabel: formatLeaveSlots(slots),
       source: row.source === 'LEAVE' ? 'own' : 'special',
     });
     entriesByDate.set(row.leaveDate, current);
@@ -114,6 +123,41 @@ export function buildManagerLeaveCalendarCells({
       isToday: cell.dateKey === todayKey,
     }),
   );
+}
+
+/** Summarize one day's badges only; the original entries remain detail records. */
+export function summarizeManagerLeaveCalendarReasons(
+  entries: readonly ManagerLeaveCalendarEntry[],
+): ManagerLeaveCalendarReason[] {
+  const reasons = new Map<
+    string,
+    { slots: Set<number>; source: ManagerLeaveCalendarReason['source'] }
+  >();
+
+  for (const entry of entries) {
+    const existing = reasons.get(entry.label);
+
+    if (!existing) {
+      reasons.set(entry.label, {
+        slots: new Set(entry.slots),
+        source: entry.source,
+      });
+      continue;
+    }
+
+    for (const slot of entry.slots) {
+      existing.slots.add(slot);
+    }
+    if (existing.source !== entry.source) {
+      existing.source = 'mixed';
+    }
+  }
+
+  return [...reasons].map(([label, reason]) => ({
+    label,
+    slotsLabel: formatLeaveSlots([...reason.slots]),
+    source: reason.source,
+  }));
 }
 
 export function expandSpecialLeaveSlots(entries: SpecialLeaveResponse[]) {
