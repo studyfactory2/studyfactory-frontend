@@ -1,16 +1,14 @@
-import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../core/session';
 import type { SessionOwnerKey } from '../../../core/session';
-import {
-  AttendanceBoard,
-  type AttendanceLeaveManagementTarget,
-} from '../../../features/attendances/workspace/components/AttendanceBoard';
+import { AttendanceBoard } from '../../../features/attendances/workspace/components/AttendanceBoard';
 import {
   ManagerOperationsOverview,
   useManagerOperations,
 } from '../../../features/manager-operations';
 import { AttendanceMemberLeaveModal } from '../../../features/manager-leaves';
+import { useAttendanceLeaveDialog } from '../../../features/manager-leaves/hooks/useAttendanceLeaveDialog';
+import { useAttendanceLeaveReturn } from '../../../features/manager-leaves/hooks/useAttendanceLeaveReturn';
 import { EmptyState } from '../../../shared/ui';
 import { AttendanceDateBar } from '../../../features/attendances/workspace/components/AttendanceDateBar';
 import { useAttendanceDate } from '../../../features/attendances/workspace/hooks/useAttendanceDate';
@@ -53,10 +51,18 @@ function StaffAttendanceContent({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
-  const [leaveTarget, setLeaveTarget] =
-    useState<AttendanceLeaveManagementTarget | null>(null);
   const [searchParams] = useSearchParams();
   const date = useAttendanceDate();
+  const leaveDialog = useAttendanceLeaveDialog({
+    branchId,
+    dateKey: date.dateKey,
+    ownerKey,
+  });
+  const leaveReturnFocusRef = useAttendanceLeaveReturn({
+    dateKey: date.dateKey,
+    scopeKey: `${ownerKey}:${branchId}`,
+    target: leaveDialog.target,
+  });
   const attendance = useStaffAttendance({
     branchId,
     memberId,
@@ -86,7 +92,7 @@ function StaffAttendanceContent({
         isToday={date.isToday}
         loading={attendance.board.loading}
         members={attendance.board.members}
-        onManageLeave={setLeaveTarget}
+        onManageLeave={leaveDialog.onOpen}
         onRefresh={() => {
           attendance.freshness.onRefresh();
           operations.onRefresh();
@@ -104,9 +110,10 @@ function StaffAttendanceContent({
         branchId={branchId}
         dateKey={date.dateKey}
         memberId={memberId}
-        onClose={() => setLeaveTarget(null)}
+        onClose={leaveDialog.onClose}
         ownerKey={ownerKey}
-        target={leaveTarget}
+        restoreFocusRef={leaveReturnFocusRef}
+        target={leaveDialog.target}
       />
     </div>
   );

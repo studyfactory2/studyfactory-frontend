@@ -11,6 +11,8 @@ type ModalProps = {
   closeDisabled?: boolean;
   footer?: ReactNode;
   initialFocusRef?: RefObject<HTMLElement | null>;
+  /** Explicit return target for workflows whose touch focus may be stale. */
+  restoreFocusRef?: RefObject<HTMLElement | null>;
   onClose: () => void;
   open: boolean;
   panelClassName?: string;
@@ -23,6 +25,7 @@ export function Modal({
   closeDisabled = false,
   footer,
   initialFocusRef,
+  restoreFocusRef,
   onClose,
   open,
   panelClassName,
@@ -32,14 +35,16 @@ export function Modal({
   const panelRef = useRef<HTMLDivElement>(null);
   const closeDisabledRef = useRef(closeDisabled);
   const initialFocusTargetRef = useRef(initialFocusRef);
+  const restoreFocusTargetRef = useRef(restoreFocusRef);
   const onCloseRef = useRef(onClose);
   const titleId = useId();
 
   useEffect(() => {
     closeDisabledRef.current = closeDisabled;
     initialFocusTargetRef.current = initialFocusRef;
+    restoreFocusTargetRef.current = restoreFocusRef;
     onCloseRef.current = onClose;
-  }, [closeDisabled, initialFocusRef, onClose]);
+  }, [closeDisabled, initialFocusRef, onClose, restoreFocusRef]);
 
   useEffect(() => {
     if (!open) {
@@ -53,7 +58,9 @@ export function Modal({
     const appRoot = document.getElementById('root');
     const previousAriaHidden = appRoot?.getAttribute('aria-hidden') ?? null;
     const previousInert = appRoot?.inert ?? false;
-    (initialFocusTargetRef.current?.current ?? panelRef.current)?.focus();
+    (initialFocusTargetRef.current?.current ?? panelRef.current)?.focus({
+      preventScroll: restoreFocusTargetRef.current !== undefined,
+    });
 
     if (appRoot) {
       appRoot.inert = true;
@@ -117,7 +124,11 @@ export function Modal({
         }
       }
 
-      previousFocus?.focus();
+      if (restoreFocusTargetRef.current !== undefined) {
+        restoreFocusTargetRef.current.current?.focus({ preventScroll: true });
+      } else {
+        previousFocus?.focus();
+      }
     };
   }, [open]);
 

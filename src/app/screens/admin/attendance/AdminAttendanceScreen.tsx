@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import { getOperationalAttendanceSlot } from '../../../features/attendances/attendance-rules';
-import {
-  AttendanceBoard,
-  type AttendanceLeaveManagementTarget,
-} from '../../../features/attendances/workspace/components/AttendanceBoard';
+import { AttendanceBoard } from '../../../features/attendances/workspace/components/AttendanceBoard';
 import { AttendanceMemberLeaveModal } from '../../../features/manager-leaves';
+import { useAttendanceLeaveDialog } from '../../../features/manager-leaves/hooks/useAttendanceLeaveDialog';
+import { useAttendanceLeaveReturn } from '../../../features/manager-leaves/hooks/useAttendanceLeaveReturn';
 import {
   ManagerOperationsOverview,
   ManagerOperationsWorkspace,
@@ -58,11 +57,19 @@ function AdminAttendanceContent({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
-  const [leaveTarget, setLeaveTarget] =
-    useState<AttendanceLeaveManagementTarget | null>(null);
   const [operationsView, setOperationsView] =
     useState<ManagerOperationsView | null>(null);
   const date = useAttendanceDate();
+  const leaveDialog = useAttendanceLeaveDialog({
+    branchId,
+    dateKey: date.dateKey,
+    ownerKey,
+  });
+  const leaveReturnFocusRef = useAttendanceLeaveReturn({
+    dateKey: date.dateKey,
+    scopeKey: `${ownerKey}:${branchId}`,
+    target: leaveDialog.target,
+  });
   const clock = useSeoulClock();
   const operations = useManagerOperations({
     branchId,
@@ -141,7 +148,7 @@ function AdminAttendanceContent({
         isToday={date.isToday}
         loading={attendance.board.loading}
         members={attendance.board.members}
-        onManageLeave={setLeaveTarget}
+        onManageLeave={leaveDialog.onOpen}
         onRefresh={() => {
           attendance.freshness.onRefresh();
           operations.onRefresh();
@@ -159,9 +166,10 @@ function AdminAttendanceContent({
         branchId={branchId}
         dateKey={date.dateKey}
         memberId={memberId}
-        onClose={() => setLeaveTarget(null)}
+        onClose={leaveDialog.onClose}
         ownerKey={ownerKey}
-        target={leaveTarget}
+        restoreFocusRef={leaveReturnFocusRef}
+        target={leaveDialog.target}
       />
     </div>
   );

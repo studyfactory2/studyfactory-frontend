@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type RefObject } from 'react';
 import { RefreshCw } from 'lucide-react';
 import type { SessionOwnerKey } from '../../../core/session';
 import type { AttendanceLeaveManagementTarget } from '../../attendances/workspace/components/AttendanceBoard';
@@ -23,6 +23,7 @@ type AttendanceMemberLeaveModalProps = {
   memberId: number;
   onClose: () => void;
   ownerKey: SessionOwnerKey;
+  restoreFocusRef?: RefObject<HTMLElement | null>;
   target: AttendanceLeaveManagementTarget | null;
 };
 
@@ -32,6 +33,7 @@ export function AttendanceMemberLeaveModal({
   memberId,
   onClose,
   ownerKey,
+  restoreFocusRef,
   target,
 }: AttendanceMemberLeaveModalProps) {
   // Hide immediately on date rollover, then discard the old target so it
@@ -53,6 +55,7 @@ export function AttendanceMemberLeaveModal({
       memberId={memberId}
       onClose={onClose}
       ownerKey={ownerKey}
+      restoreFocusRef={restoreFocusRef}
       target={target}
     />
   );
@@ -63,6 +66,7 @@ function AttendanceMemberLeaveSession({
   memberId,
   onClose,
   ownerKey,
+  restoreFocusRef,
   target,
 }: Omit<AttendanceMemberLeaveModalProps, 'dateKey' | 'target'> & {
   target: AttendanceLeaveManagementTarget;
@@ -83,6 +87,7 @@ function AttendanceMemberLeaveSession({
         </Button>
       }
       onClose={onClose}
+      restoreFocusRef={restoreFocusRef}
       open
       panelClassName="attendance-member-leave-modal"
       title={
