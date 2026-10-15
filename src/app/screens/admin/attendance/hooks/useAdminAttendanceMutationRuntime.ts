@@ -55,6 +55,7 @@ type OperationScope = {
   dateKey: string;
   operatorMemberId: number;
   ownerKey: SessionOwnerKey;
+  revision: number;
 };
 
 type CurrentScope = OperationScope & {
@@ -100,6 +101,7 @@ export function useAdminAttendanceMutationRuntime({
     operatorMemberId,
     ownerKey,
     writeEnabled,
+    revision: 0,
   });
   const mountedRef = useRef(false);
   const pendingCellOperationKeysRef = useRef(new Set<string>());
@@ -130,6 +132,7 @@ export function useAdminAttendanceMutationRuntime({
       operatorMemberId,
       ownerKey,
       writeEnabled,
+      revision: currentScopeRef.current.revision + 1,
     };
 
     return () => {
@@ -150,9 +153,17 @@ export function useAdminAttendanceMutationRuntime({
     },
     onSettled: async (_result, error, operation) => {
       try {
-        await queryClient.invalidateQueries({
-          queryKey: attendanceQueryKeys.all(operation.ownerKey),
-        });
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: attendanceQueryKeys.all(operation.ownerKey),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: leaveQueryKeys.all(operation.ownerKey),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: studyTimeQueryKeys.all(operation.ownerKey),
+          }),
+        ]);
       } finally {
         const onSuccess =
           !error && operationIsCurrent(mountedRef, currentScopeRef, operation)
@@ -170,7 +181,9 @@ export function useAdminAttendanceMutationRuntime({
         setPendingMemberOperationKeys(
           new Set(pendingMemberOperationKeysRef.current),
         );
-        runAfterPendingStateCommit(onSuccess);
+        runAfterPendingStateCommit(onSuccess, () =>
+          operationIsCurrent(mountedRef, currentScopeRef, operation),
+        );
       }
     },
   });
@@ -188,14 +201,22 @@ export function useAdminAttendanceMutationRuntime({
     },
     onSuccess: (_result, operation) => {
       if (operationIsCurrent(mountedRef, currentScopeRef, operation)) {
-        toast('신규 사원의 오늘 출석부를 시작했어요.', 'success');
+        toast('선택한 날짜의 출석부를 시작했어요.', 'success');
       }
     },
     onSettled: async (_result, error, operation) => {
       try {
-        await queryClient.invalidateQueries({
-          queryKey: attendanceQueryKeys.all(operation.ownerKey),
-        });
+        await Promise.all([
+          queryClient.invalidateQueries({
+            queryKey: attendanceQueryKeys.all(operation.ownerKey),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: leaveQueryKeys.all(operation.ownerKey),
+          }),
+          queryClient.invalidateQueries({
+            queryKey: studyTimeQueryKeys.all(operation.ownerKey),
+          }),
+        ]);
       } finally {
         const onSuccess =
           !error && operationIsCurrent(mountedRef, currentScopeRef, operation)
@@ -215,7 +236,9 @@ export function useAdminAttendanceMutationRuntime({
         setPendingMemberOperationKeys(
           new Set(pendingMemberOperationKeysRef.current),
         );
-        runAfterPendingStateCommit(onSuccess);
+        runAfterPendingStateCommit(onSuccess, () =>
+          operationIsCurrent(mountedRef, currentScopeRef, operation),
+        );
       }
     },
   });
@@ -267,14 +290,19 @@ export function useAdminAttendanceMutationRuntime({
         setPendingMemberOperationKeys(
           new Set(pendingMemberOperationKeysRef.current),
         );
-        runAfterPendingStateCommit(onSuccess);
+        runAfterPendingStateCommit(onSuccess, () =>
+          operationIsCurrent(mountedRef, currentScopeRef, operation),
+        );
       }
     },
   });
 
   const presenceMutation = useMutation({
-    mutationFn: (operation: PresenceOperation) =>
-      operation.type === 'check-in'
+    mutationFn: (operation: PresenceOperation) => {
+      if (operation.dateKey !== getSeoulToday().dateKey) {
+        throw new Error('입퇴실 처리는 오늘 출석부에서만 할 수 있어요.');
+      }
+      return operation.type === 'check-in'
         ? manualCheckInStudyPresenceMember(
             operation.targetMemberId,
             operation.input,
@@ -286,7 +314,8 @@ export function useAdminAttendanceMutationRuntime({
             operation.targetMemberId,
             operation.operatorMemberId,
             operation.branchId,
-          ),
+          );
+    },
     onError: (error: Error, operation) => {
       if (operationIsCurrent(mountedRef, currentScopeRef, operation)) {
         toast(error.message, 'error');
@@ -330,7 +359,12 @@ export function useAdminAttendanceMutationRuntime({
         setPendingMemberOperationKeys(
           new Set(pendingMemberOperationKeysRef.current),
         );
-        runAfterPendingStateCommit(onSuccess);
+        runAfterPendingStateCommit(
+          onSuccess,
+          () =>
+            operationIsCurrent(mountedRef, currentScopeRef, operation) &&
+            operation.dateKey === getSeoulToday().dateKey,
+        );
       }
     },
   });
@@ -370,7 +404,7 @@ export function useAdminAttendanceMutationRuntime({
       slotMutation.mutate({
         ...toOperationScope(scope),
         cellOperationKey,
-        command,
+        command: { ...command },
         memberOperationKey,
       });
     },
@@ -452,7 +486,10 @@ export function useAdminAttendanceMutationRuntime({
     (command: AdminAttendancePresenceCommand, onSuccess?: () => void) => {
       const scope = currentScopeRef.current;
 
-      if (!isWritableScope(scope)) {
+      if (
+        !isWritableScope(scope) ||
+        scope.dateKey !== getSeoulToday().dateKey
+      ) {
         return;
       }
 
@@ -524,6 +561,7 @@ function operationIsCurrent(
 
   return (
     mountedRef.current &&
+    current.revision === operation.revision &&
     current.ownerKey === operation.ownerKey &&
     current.operatorMemberId === operation.operatorMemberId &&
     current.branchId === operation.branchId &&
@@ -533,7 +571,7 @@ function operationIsCurrent(
 }
 
 function isWritableScope(scope: CurrentScope) {
-  return scope.writeEnabled && scope.dateKey === getSeoulToday().dateKey;
+  return scope.writeEnabled;
 }
 
 function toOperationScope(scope: CurrentScope): OperationScope {
@@ -542,6 +580,7 @@ function toOperationScope(scope: CurrentScope): OperationScope {
     dateKey: scope.dateKey,
     operatorMemberId: scope.operatorMemberId,
     ownerKey: scope.ownerKey,
+    revision: scope.revision,
   };
 }
 
@@ -585,8 +624,13 @@ function toCurrentMemberIds(keys: ReadonlySet<string>, dateKey: string) {
   return current;
 }
 
-function runAfterPendingStateCommit(callback: (() => void) | undefined) {
+function runAfterPendingStateCommit(
+  callback: (() => void) | undefined,
+  isCurrent: () => boolean,
+) {
   if (callback) {
-    window.setTimeout(callback, 0);
+    window.setTimeout(() => {
+      if (isCurrent()) callback();
+    }, 0);
   }
 }

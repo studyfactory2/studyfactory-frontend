@@ -34,6 +34,7 @@ type AttendanceTableProps = {
   pendingMemberIds: ReadonlySet<number>;
   pendingPresenceMemberIds: ReadonlySet<number>;
   pendingResetIds: ReadonlySet<number>;
+  presenceEditable: boolean;
   presenceState: AttendancePresenceLoadState;
   selection: AttendanceSelection | null;
 };
@@ -54,6 +55,7 @@ export function AttendanceTable({
   pendingMemberIds,
   pendingPresenceMemberIds,
   pendingResetIds,
+  presenceEditable,
   presenceState,
   selection,
 }: AttendanceTableProps) {
@@ -253,7 +255,7 @@ export function AttendanceTable({
                 <AttendanceMemberIdentity
                   dateKey={dateKey}
                   disabled={pendingMemberIds.has(member.memberId)}
-                  interactive={interactive}
+                  interactive={interactive && presenceEditable}
                   member={member}
                   onDetailsRequest={onDetailsRequest}
                   onPresenceRequest={onPresenceRequest}

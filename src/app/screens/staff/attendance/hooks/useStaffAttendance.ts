@@ -45,6 +45,8 @@ const STUDY_START_SECONDS = 9 * 60 * 60;
 
 type UseStaffAttendanceArgs = {
   branchId: number;
+  dateKey: string;
+  isToday: boolean;
   memberId: number;
   ownerKey: SessionOwnerKey;
 };
@@ -61,17 +63,32 @@ type ManualPresenceCommand =
       type: 'check-out';
     };
 
-type ReasonScope = {
+type OperationScope = {
   branchId: number;
   dateKey: string;
+  isToday: boolean;
   operatorMemberId: number;
   ownerKey: SessionOwnerKey;
+  revision: number;
 };
 
-type ReasonOperation = ReasonScope & { command: AttendanceReasonCommand };
+type OperationPayload =
+  | { kind: 'slot'; command: AttendanceSlotCommand }
+  | { kind: 'reset' }
+  | { kind: 'reason'; command: AttendanceReasonCommand }
+  | { kind: 'presence'; command: ManualPresenceCommand };
+
+type AttendanceOperation = OperationPayload & {
+  key: string;
+  onSuccess?: () => void;
+  scope: OperationScope;
+  targetMemberId: number;
+};
 
 export function useStaffAttendance({
   branchId,
+  dateKey,
+  isToday,
   memberId,
   ownerKey,
 }: UseStaffAttendanceArgs) {
@@ -79,84 +96,71 @@ export function useStaffAttendance({
   const { toast } = useToast();
   const today = useSeoulToday();
   const clock = useSeoulClock();
-  const operationalSlot = getOperationalAttendanceSlot(clock.secondsOfDay);
-  const beforeStudyStart = clock.secondsOfDay < STUDY_START_SECONDS;
+  const presenceEditable = isToday && clock.dateKey === dateKey;
+  const operationalSlot = presenceEditable
+    ? getOperationalAttendanceSlot(clock.secondsOfDay)
+    : null;
+  const beforeStudyStart =
+    presenceEditable && clock.secondsOfDay < STUDY_START_SECONDS;
   const activeSlot = beforeStudyStart ? null : operationalSlot;
-  const boardQueryKey = attendanceQueryKeys.dailyBoard(
-    ownerKey,
+  const scopeRef = useRef<OperationScope>({
     branchId,
-    today.dateKey,
-  );
-  const pendingCellKeysRef = useRef(new Set<string>());
-  const pendingMemberIdsRef = useRef(new Set<number>());
-  const pendingPresenceMemberIdsRef = useRef(new Set<number>());
-  const pendingResetIdsRef = useRef(new Set<number>());
-  const presenceSuccessCallbacksRef = useRef(new Map<number, () => void>());
-  const slotSuccessCallbacksRef = useRef(new Map<string, () => void>());
-  const resetSuccessCallbacksRef = useRef(new Map<number, () => void>());
-  const reasonSuccessCallbacksRef = useRef(new Map<number, () => void>());
-  const reasonScopeRef = useRef<ReasonScope>({
-    branchId,
-    dateKey: today.dateKey,
+    dateKey,
+    isToday,
     operatorMemberId: memberId,
     ownerKey,
+    revision: 0,
   });
   const mountedRef = useRef(false);
-  const [pendingCellKeys, setPendingCellKeys] = useState<ReadonlySet<string>>(
-    () => new Set(),
-  );
-  const [pendingResetIds, setPendingResetIds] = useState<ReadonlySet<number>>(
-    () => new Set(),
-  );
-  const [pendingMemberIds, setPendingMemberIds] = useState<ReadonlySet<number>>(
-    () => new Set(),
-  );
-  const [pendingPresenceMemberIds, setPendingPresenceMemberIds] = useState<
-    ReadonlySet<number>
-  >(() => new Set());
+  const pendingRef = useRef(new Map<string, AttendanceOperation>());
+  const [pendingOperations, setPendingOperations] = useState<
+    ReadonlyMap<string, AttendanceOperation>
+  >(() => new Map());
 
   useLayoutEffect(() => {
     mountedRef.current = true;
-    reasonScopeRef.current = {
+    scopeRef.current = {
       branchId,
-      dateKey: today.dateKey,
+      dateKey,
+      isToday,
       operatorMemberId: memberId,
       ownerKey,
+      revision: scopeRef.current.revision + 1,
     };
     return () => {
       mountedRef.current = false;
     };
-  }, [branchId, today.dateKey, memberId, ownerKey]);
+  }, [branchId, dateKey, isToday, memberId, ownerKey]);
 
-  const reasonOperationIsCurrent = (operation: ReasonOperation) => {
-    const current = reasonScopeRef.current;
+  const operationIsCurrent = (operation: AttendanceOperation) => {
+    const current = scopeRef.current;
     return (
       mountedRef.current &&
-      current.branchId === operation.branchId &&
-      current.operatorMemberId === operation.operatorMemberId &&
-      current.ownerKey === operation.ownerKey &&
-      current.dateKey === operation.dateKey &&
-      current.dateKey === getSeoulToday().dateKey
+      current.revision === operation.scope.revision &&
+      current.branchId === operation.scope.branchId &&
+      current.operatorMemberId === operation.scope.operatorMemberId &&
+      current.ownerKey === operation.scope.ownerKey &&
+      current.dateKey === operation.scope.dateKey &&
+      (!current.isToday || current.dateKey === getSeoulToday().dateKey)
     );
   };
 
   const boardQuery = useQuery({
-    queryFn: () => fetchDailyAttendanceBoard(today.dateKey, branchId, memberId),
-    queryKey: boardQueryKey,
-    refetchInterval: ATTENDANCE_REFETCH_MS,
+    queryFn: () => fetchDailyAttendanceBoard(dateKey, branchId, memberId),
+    queryKey: attendanceQueryKeys.dailyBoard(ownerKey, branchId, dateKey),
+    refetchInterval: isToday ? ATTENDANCE_REFETCH_MS : false,
     refetchOnWindowFocus: 'always',
     staleTime: BOARD_STALE_TIME_MS,
   });
 
   const presenceQuery = useQuery({
-    queryFn: () =>
-      fetchDailyStudyPresenceHistory(today.dateKey, memberId, branchId),
+    queryFn: () => fetchDailyStudyPresenceHistory(dateKey, memberId, branchId),
     queryKey: studyPresenceQueryKeys.managerDailyHistory(
       ownerKey,
       branchId,
-      today.dateKey,
+      dateKey,
     ),
-    refetchInterval: ATTENDANCE_REFETCH_MS,
+    refetchInterval: isToday ? ATTENDANCE_REFETCH_MS : false,
     refetchOnWindowFocus: 'always',
     staleTime: PRESENCE_STALE_TIME_MS,
   });
@@ -184,11 +188,18 @@ export function useStaffAttendance({
 
   const validateMember = useCallback(
     (targetMemberId: number, stage: AttendanceMemberStage) => {
-      if (today.dateKey !== getSeoulToday().dateKey) {
-        toast('오늘 출석부에서만 처리할 수 있어요.', 'error');
+      const scope = scopeRef.current;
+      if (
+        !mountedRef.current ||
+        scope.branchId !== branchId ||
+        scope.dateKey !== dateKey ||
+        scope.operatorMemberId !== memberId ||
+        scope.ownerKey !== ownerKey ||
+        (isToday && dateKey !== getSeoulToday().dateKey)
+      ) {
+        toast('선택한 출석 날짜를 다시 확인해 주세요.', 'error');
         return null;
       }
-
       const target = findAttendanceTarget(
         attendanceRoster ?? [],
         members,
@@ -196,221 +207,181 @@ export function useStaffAttendance({
         targetMemberId,
         stage,
       );
-
       if (!target) {
         toast('현재 지점의 출석 대상 사원인지 다시 확인해 주세요.', 'error');
       }
-
       return target;
     },
-    [attendanceRoster, members, branchId, today.dateKey, toast],
+    [
+      attendanceRoster,
+      members,
+      branchId,
+      dateKey,
+      isToday,
+      memberId,
+      ownerKey,
+      toast,
+    ],
   );
 
-  const slotMutation = useMutation({
-    mutationFn: (command: AttendanceSlotCommand) =>
-      updateDailyAttendanceSlot({ ...command, date: today.dateKey }, memberId),
-    onError: (error: Error) => toast(error.message, 'error'),
-    onSettled: async (_result, error, command) => {
-      try {
-        /* ABSENT and OTHER can remove a multi-slot leave request, so the
-           authoritative board must replace every consumer's cached copy. */
-        await queryClient.invalidateQueries({
-          queryKey: attendanceQueryKeys.all(ownerKey),
-        });
-      } finally {
-        const key = toAttendanceCellKey(command.memberId, command.slot);
-        const onSuccess = error
-          ? undefined
-          : slotSuccessCallbacksRef.current.get(key);
-
-        slotSuccessCallbacksRef.current.delete(key);
-        pendingCellKeysRef.current.delete(key);
-        pendingMemberIdsRef.current.delete(command.memberId);
-        setPendingCellKeys(new Set(pendingCellKeysRef.current));
-        setPendingMemberIds(new Set(pendingMemberIdsRef.current));
-        runAfterPendingStateCommit(onSuccess);
+  const mutation = useMutation({
+    mutationFn: async (
+      operation: AttendanceOperation,
+    ): Promise<string | null> => {
+      const { scope, targetMemberId } = operation;
+      switch (operation.kind) {
+        case 'slot':
+          await updateDailyAttendanceSlot(
+            { ...operation.command, date: scope.dateKey },
+            scope.operatorMemberId,
+          );
+          return null;
+        case 'reset':
+          await resetDailyAttendanceMember(
+            { date: scope.dateKey, memberId: targetMemberId },
+            scope.operatorMemberId,
+          );
+          return '선택한 날짜의 출석부를 시작했어요.';
+        case 'reason':
+          return executeAttendanceLeaveAction(
+            operation.command,
+            scope.branchId,
+            scope.operatorMemberId,
+          );
+        case 'presence':
+          if (!scope.isToday || scope.dateKey !== getSeoulToday().dateKey) {
+            throw new Error(
+              '수동 입퇴실은 오늘 출석부에서만 처리할 수 있어요.',
+            );
+          }
+          if (operation.command.type === 'check-in') {
+            await manualCheckInStudyPresenceMember(
+              targetMemberId,
+              operation.command.input,
+              scope.operatorMemberId,
+              scope.branchId,
+            );
+            return '수동 입실을 등록했어요.';
+          }
+          await manualCheckOutStudyPresenceSession(
+            operation.command.sessionId,
+            targetMemberId,
+            scope.operatorMemberId,
+            scope.branchId,
+          );
+          return '수동 퇴실을 처리했어요.';
       }
     },
-  });
-
-  const resetMutation = useMutation({
-    mutationFn: (targetMemberId: number) =>
-      resetDailyAttendanceMember(
-        { date: today.dateKey, memberId: targetMemberId },
-        memberId,
-      ),
-    onError: (error: Error) => toast(error.message, 'error'),
-    onSuccess: () => {
-      toast('신규 사원의 오늘 출석부를 시작했어요.', 'success');
-    },
-    onSettled: async (_result, error, targetMemberId) => {
-      try {
-        await queryClient.invalidateQueries({
-          queryKey: attendanceQueryKeys.all(ownerKey),
-        });
-      } finally {
-        const onSuccess = error
-          ? undefined
-          : resetSuccessCallbacksRef.current.get(targetMemberId);
-
-        resetSuccessCallbacksRef.current.delete(targetMemberId);
-        pendingResetIdsRef.current.delete(targetMemberId);
-        pendingMemberIdsRef.current.delete(targetMemberId);
-        setPendingResetIds(new Set(pendingResetIdsRef.current));
-        setPendingMemberIds(new Set(pendingMemberIdsRef.current));
-        runAfterPendingStateCommit(onSuccess);
-      }
-    },
-  });
-
-  const reasonMutation = useMutation({
-    mutationFn: (operation: ReasonOperation) =>
-      executeAttendanceLeaveAction(
-        operation.command,
-        operation.branchId,
-        operation.operatorMemberId,
-      ),
+    retry: false,
     onError: (error: Error, operation) => {
-      if (reasonOperationIsCurrent(operation)) {
-        toast(error.message, 'error');
-      }
+      if (operationIsCurrent(operation)) toast(error.message, 'error');
     },
     onSettled: async (result, error, operation) => {
       try {
+        const operationOwner = operation.scope.ownerKey;
         await Promise.all([
           queryClient.invalidateQueries({
-            queryKey: attendanceQueryKeys.all(operation.ownerKey),
+            queryKey: attendanceQueryKeys.all(operationOwner),
           }),
           queryClient.invalidateQueries({
-            queryKey: leaveQueryKeys.all(operation.ownerKey),
+            queryKey: studyTimeQueryKeys.all(operationOwner),
           }),
-          queryClient.invalidateQueries({
-            queryKey: studyTimeQueryKeys.all(operation.ownerKey),
-          }),
+          ...(operation.kind !== 'presence'
+            ? [
+                queryClient.invalidateQueries({
+                  queryKey: leaveQueryKeys.all(operationOwner),
+                }),
+              ]
+            : []),
+          ...(operation.kind === 'presence'
+            ? [
+                queryClient.invalidateQueries({
+                  queryKey: studyPresenceQueryKeys.all(operationOwner),
+                }),
+              ]
+            : []),
         ]);
       } finally {
-        const targetMemberId = operation.command.memberId;
-        const current = reasonOperationIsCurrent(operation);
-        const onSuccess =
-          !error && current
-            ? reasonSuccessCallbacksRef.current.get(targetMemberId)
-            : undefined;
-        if (!error && result && current) {
-          toast(result, 'success');
+        // Dated keys ensure an old request cannot unlock a newer date's row.
+        pendingRef.current.delete(operation.key);
+        if (mountedRef.current)
+          setPendingOperations(new Map(pendingRef.current));
+        if (!error && operationIsCurrent(operation)) {
+          if (result) toast(result, 'success');
+          if (operation.onSuccess) {
+            window.setTimeout(() => {
+              if (operationIsCurrent(operation)) operation.onSuccess?.();
+            }, 0);
+          }
         }
-        reasonSuccessCallbacksRef.current.delete(targetMemberId);
-        pendingMemberIdsRef.current.delete(targetMemberId);
-        setPendingMemberIds(new Set(pendingMemberIdsRef.current));
-        runAfterPendingStateCommit(onSuccess);
       }
     },
   });
 
-  const manualPresenceMutation = useMutation({
-    mutationFn: (command: ManualPresenceCommand) =>
-      command.type === 'check-in'
-        ? manualCheckInStudyPresenceMember(
-            command.memberId,
-            command.input,
-            memberId,
-            branchId,
-          )
-        : manualCheckOutStudyPresenceSession(
-            command.sessionId,
-            command.memberId,
-            memberId,
-            branchId,
-          ),
-    onError: (error: Error) => toast(error.message, 'error'),
-    onSuccess: (_response, command) =>
-      toast(
-        command.type === 'check-in'
-          ? '수동 입실을 등록했어요.'
-          : '수동 퇴실을 처리했어요.',
-        'success',
-      ),
-    onSettled: async (_response, error, command) => {
-      try {
-        await queryClient.invalidateQueries({
-          queryKey: studyPresenceQueryKeys.all(ownerKey),
-        });
-      } finally {
-        const onSuccess = error
-          ? undefined
-          : presenceSuccessCallbacksRef.current.get(command.memberId);
-
-        presenceSuccessCallbacksRef.current.delete(command.memberId);
-        pendingPresenceMemberIdsRef.current.delete(command.memberId);
-        pendingMemberIdsRef.current.delete(command.memberId);
-        setPendingPresenceMemberIds(
-          new Set(pendingPresenceMemberIdsRef.current),
-        );
-        setPendingMemberIds(new Set(pendingMemberIdsRef.current));
-        runAfterPendingStateCommit(onSuccess);
-      }
+  const startOperation = useCallback(
+    (
+      payload: OperationPayload,
+      targetMemberId: number,
+      onSuccess?: () => void,
+    ) => {
+      const scope = scopeRef.current;
+      if (
+        !mountedRef.current ||
+        scope.branchId !== branchId ||
+        scope.dateKey !== dateKey ||
+        scope.operatorMemberId !== memberId ||
+        scope.ownerKey !== ownerKey ||
+        (scope.isToday && scope.dateKey !== getSeoulToday().dateKey)
+      )
+        return;
+      const key = `${scope.ownerKey}:${scope.branchId}:${scope.operatorMemberId}:${scope.dateKey}:${targetMemberId}`;
+      if (pendingRef.current.has(key)) return;
+      const operation: AttendanceOperation = {
+        ...payload,
+        key,
+        onSuccess,
+        scope: { ...scope },
+        targetMemberId,
+      };
+      pendingRef.current.set(key, operation);
+      setPendingOperations(new Map(pendingRef.current));
+      mutation.mutate(operation);
     },
-  });
+    [branchId, dateKey, memberId, mutation, ownerKey],
+  );
 
   const updateSlot = useCallback(
     (command: AttendanceSlotCommand, onSuccess?: () => void) => {
-      if (!validateMember(command.memberId, 'active')) {
-        return;
+      if (validateMember(command.memberId, 'active')) {
+        startOperation(
+          { kind: 'slot', command: { ...command } },
+          command.memberId,
+          onSuccess,
+        );
       }
-
-      const key = toAttendanceCellKey(command.memberId, command.slot);
-
-      if (pendingMemberIdsRef.current.has(command.memberId)) {
-        return;
-      }
-
-      pendingCellKeysRef.current.add(key);
-      pendingMemberIdsRef.current.add(command.memberId);
-      if (onSuccess) {
-        slotSuccessCallbacksRef.current.set(key, onSuccess);
-      }
-      setPendingCellKeys(new Set(pendingCellKeysRef.current));
-      setPendingMemberIds(new Set(pendingMemberIdsRef.current));
-      slotMutation.mutate(command);
     },
-    [slotMutation, validateMember],
+    [startOperation, validateMember],
   );
 
   const resetMember = useCallback(
     (targetMemberId: number, onSuccess?: () => void) => {
-      if (!validateMember(targetMemberId, 'starts-today')) {
-        return;
-      }
-
+      if (!validateMember(targetMemberId, 'starts-today')) return;
       if (
         attendanceRoster?.find((candidate) => candidate.id === targetMemberId)
-          ?.joinDate !== today.dateKey
+          ?.joinDate !== dateKey
       ) {
-        toast('오늘 입사한 사원인지 다시 확인해 주세요.', 'error');
+        toast('선택한 날짜에 입사한 사원인지 다시 확인해 주세요.', 'error');
         return;
       }
-
-      if (pendingMemberIdsRef.current.has(targetMemberId)) {
-        return;
-      }
-
-      pendingResetIdsRef.current.add(targetMemberId);
-      pendingMemberIdsRef.current.add(targetMemberId);
-      if (onSuccess) {
-        resetSuccessCallbacksRef.current.set(targetMemberId, onSuccess);
-      }
-      setPendingResetIds(new Set(pendingResetIdsRef.current));
-      setPendingMemberIds(new Set(pendingMemberIdsRef.current));
-      resetMutation.mutate(targetMemberId);
+      startOperation({ kind: 'reset' }, targetMemberId, onSuccess);
     },
-    [attendanceRoster, resetMutation, today.dateKey, toast, validateMember],
+    [attendanceRoster, dateKey, startOperation, toast, validateMember],
   );
 
   const applyReason = useCallback(
     (command: AttendanceReasonCommand, onSuccess?: () => void) => {
       const target = validateMember(command.memberId, 'active');
-      if (!target) {
-        return;
-      }
+      if (!target) return;
       const error = validateAttendanceReasonCommand(
         command,
         getSeoulToday().dateKey,
@@ -420,50 +391,36 @@ export function useStaffAttendance({
         toast(error, 'error');
         return;
       }
-      const scope = reasonScopeRef.current;
-      if (
-        scope.dateKey !== getSeoulToday().dateKey ||
-        scope.branchId !== branchId ||
-        scope.operatorMemberId !== memberId ||
-        scope.ownerKey !== ownerKey ||
-        pendingMemberIdsRef.current.has(command.memberId)
-      ) {
-        return;
-      }
-      pendingMemberIdsRef.current.add(command.memberId);
-      if (onSuccess) {
-        reasonSuccessCallbacksRef.current.set(command.memberId, onSuccess);
-      }
-      setPendingMemberIds(new Set(pendingMemberIdsRef.current));
-      reasonMutation.mutate({
-        ...scope,
-        command: {
-          ...command,
-          dates: [...command.dates],
-          slots: [...command.slots],
-          reason: command.reason.trim(),
+      startOperation(
+        {
+          kind: 'reason',
+          command: {
+            ...command,
+            dates: [...command.dates],
+            slots: [...command.slots],
+            reason: command.reason.trim(),
+          },
         },
-      });
+        command.memberId,
+        onSuccess,
+      );
     },
-    [branchId, memberId, ownerKey, reasonMutation, toast, validateMember],
+    [startOperation, toast, validateMember],
   );
 
   const startManualPresenceAction = useCallback(
     (command: ManualPresenceCommand, onSuccess?: () => void) => {
-      if (pendingMemberIdsRef.current.has(command.memberId)) {
+      if (!presenceEditable || dateKey !== getSeoulToday().dateKey) {
+        toast('수동 입퇴실은 오늘 출석부에서만 처리할 수 있어요.', 'error');
         return;
       }
-
-      pendingMemberIdsRef.current.add(command.memberId);
-      pendingPresenceMemberIdsRef.current.add(command.memberId);
-      if (onSuccess) {
-        presenceSuccessCallbacksRef.current.set(command.memberId, onSuccess);
-      }
-      setPendingMemberIds(new Set(pendingMemberIdsRef.current));
-      setPendingPresenceMemberIds(new Set(pendingPresenceMemberIdsRef.current));
-      manualPresenceMutation.mutate(command);
+      startOperation(
+        { kind: 'presence', command },
+        command.memberId,
+        onSuccess,
+      );
     },
-    [manualPresenceMutation],
+    [dateKey, presenceEditable, startOperation, toast],
   );
 
   const manualCheckIn = useCallback(
@@ -475,28 +432,22 @@ export function useStaffAttendance({
       const target = validateMember(targetMemberId, 'active');
       const reason = input.reason?.trim();
       const checkedInAtMs = Date.parse(input.checkedInAt);
-
-      if (!target) {
-        return;
-      }
-
+      if (!target) return;
       if (target.role !== 'MEMBER') {
         toast('스태프 입실은 QR로 등록해 주세요.', 'error');
         return;
       }
-
       if (
         target.presence === null ||
         target.presence.currentlyActive ||
         !Number.isFinite(checkedInAtMs) ||
         checkedInAtMs > Date.now() ||
-        getSeoulToday(new Date(checkedInAtMs)).dateKey !== today.dateKey ||
+        getSeoulToday(new Date(checkedInAtMs)).dateKey !== dateKey ||
         (reason?.length ?? 0) > 200
       ) {
         toast('입실 시각과 선택 사유를 다시 확인해 주세요.', 'error');
         return;
       }
-
       startManualPresenceAction(
         {
           input: {
@@ -509,17 +460,13 @@ export function useStaffAttendance({
         onSuccess,
       );
     },
-    [startManualPresenceAction, today.dateKey, toast, validateMember],
+    [dateKey, startManualPresenceAction, toast, validateMember],
   );
 
   const manualCheckOut = useCallback(
     (targetMemberId: number, sessionId: number, onSuccess?: () => void) => {
       const target = validateMember(targetMemberId, 'active');
-
-      if (!target) {
-        return;
-      }
-
+      if (!target) return;
       if (
         !target.presence?.currentlyActive ||
         target.presence.activeSessionId !== sessionId
@@ -527,7 +474,6 @@ export function useStaffAttendance({
         toast('현재 입실 세션을 다시 확인해 주세요.', 'error');
         return;
       }
-
       startManualPresenceAction(
         { memberId: targetMemberId, sessionId, type: 'check-out' },
         onSuccess,
@@ -536,14 +482,45 @@ export function useStaffAttendance({
     [startManualPresenceAction, toast, validateMember],
   );
 
+  const currentPending = useMemo(() => {
+    const cells = new Set<string>();
+    const memberIds = new Set<number>();
+    const presenceIds = new Set<number>();
+    const resetIds = new Set<number>();
+    for (const operation of pendingOperations.values()) {
+      const scope = operation.scope;
+      if (
+        scope.ownerKey !== ownerKey ||
+        scope.branchId !== branchId ||
+        scope.operatorMemberId !== memberId ||
+        scope.dateKey !== dateKey
+      )
+        continue;
+      memberIds.add(operation.targetMemberId);
+      if (operation.kind === 'slot')
+        cells.add(
+          toAttendanceCellKey(operation.targetMemberId, operation.command.slot),
+        );
+      if (operation.kind === 'presence')
+        presenceIds.add(operation.targetMemberId);
+      if (operation.kind === 'reset') resetIds.add(operation.targetMemberId);
+    }
+    return { cells, memberIds, presenceIds, resetIds };
+  }, [branchId, dateKey, memberId, ownerKey, pendingOperations]);
+
   const refresh = useCallback(() => {
     void boardQuery.refetch();
     void presenceQuery.refetch();
     void rosterQuery.refetch();
   }, [boardQuery, presenceQuery, rosterQuery]);
 
-  const periodLabel =
-    operationalSlot === null
+  const periodLabel = !presenceEditable
+    ? dateKey < today.dateKey
+      ? '과거 기록'
+      : dateKey > today.dateKey
+        ? '미래 기록'
+        : '오늘 기록'
+    : operationalSlot === null
       ? '운영 종료'
       : beforeStudyStart
         ? '1교시 준비'
@@ -552,15 +529,16 @@ export function useStaffAttendance({
   return {
     actions: {
       leaveScope: { branchId, operatorMemberId: memberId, ownerKey },
+      presenceEditable,
       onManualCheckIn: manualCheckIn,
       onManualCheckOut: manualCheckOut,
       onResetMember: resetMember,
       onUpdateSlot: updateSlot,
       onApplyReason: applyReason,
-      pendingCellKeys,
-      pendingMemberIds,
-      pendingPresenceMemberIds,
-      pendingResetIds,
+      pendingCellKeys: currentPending.cells,
+      pendingMemberIds: currentPending.memberIds,
+      pendingPresenceMemberIds: currentPending.presenceIds,
+      pendingResetIds: currentPending.resetIds,
     },
     board: {
       errorMessage: boardQuery.isError
@@ -583,24 +561,13 @@ export function useStaffAttendance({
         presenceQuery.isFetching ||
         rosterQuery.isFetching,
     },
-    period: {
-      activeSlot,
-      label: periodLabel,
-      operationalSlot,
-    },
+    period: { activeSlot, label: periodLabel, operationalSlot },
     presence: {
       errorMessage: presenceQuery.isError ? presenceQuery.error.message : null,
       onRetry: () => void presenceQuery.refetch(),
       ready: presenceQuery.data !== undefined,
     },
     today,
+    writePending: pendingOperations.size > 0,
   };
-}
-
-function runAfterPendingStateCommit(callback: (() => void) | undefined) {
-  if (!callback) {
-    return;
-  }
-
-  window.setTimeout(callback, 0);
 }

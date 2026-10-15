@@ -45,6 +45,7 @@ type DatedDialogTarget = {
 };
 
 export type AttendanceBoardInteraction = {
+  presenceEditable: boolean;
   leaveScope: {
     branchId: number;
     operatorMemberId: number;
@@ -164,7 +165,7 @@ export function AttendanceBoard({
   const readOnlyUnmarkedSlotCount =
     !isToday || operationalSlot === null ? 7 : (activeSlot ?? 0);
   const unmarkedFilterDisabled =
-    interaction !== undefined
+    isToday && interaction !== undefined
       ? activeSlot === null
       : readOnlyUnmarkedSlotCount === 0;
   const effectiveFilter =
@@ -190,12 +191,12 @@ export function AttendanceBoard({
         effectiveFilter === 'all' ||
         (effectiveFilter === 'leave' &&
           member.stage === 'active' &&
-          (interaction === undefined
+          (!isToday || interaction === undefined
             ? member.slots.some((cell) => cell.state === 'leave')
             : member.slots[filterSlot - 1]?.state === 'leave')) ||
         (effectiveFilter === 'unmarked' &&
           member.stage === 'active' &&
-          (interaction === undefined
+          (!isToday || interaction === undefined
             ? member.slots
                 .slice(0, readOnlyUnmarkedSlotCount)
                 .some((cell) => cell.state === 'unmarked')
@@ -209,6 +210,7 @@ export function AttendanceBoard({
     effectiveFilter,
     filterSlot,
     interaction,
+    isToday,
     members,
     query,
     readOnlyUnmarkedSlotCount,
@@ -255,7 +257,7 @@ export function AttendanceBoard({
             member.stage === 'starts-today',
         ) ?? null);
   const presenceTarget =
-    presenceMemberId === null
+    presenceMemberId === null || !interaction?.presenceEditable
       ? null
       : (members.find(
           (member) =>
@@ -568,7 +570,7 @@ export function AttendanceBoard({
                   active={effectiveFilter === 'unmarked'}
                   disabled={unmarkedFilterDisabled}
                   label={
-                    interaction === undefined
+                    !isToday || interaction === undefined
                       ? isToday && activeSlot !== null
                         ? `${activeSlot}교시까지 미확인`
                         : '미확인 있음'
@@ -583,7 +585,7 @@ export function AttendanceBoard({
                 <FilterButton
                   active={effectiveFilter === 'leave'}
                   label={
-                    interaction === undefined
+                    !isToday || interaction === undefined
                       ? '휴무 있음'
                       : `${filterSlot}교시 휴무`
                   }
@@ -643,6 +645,7 @@ export function AttendanceBoard({
                 pendingMemberIds={pendingMemberIds}
                 pendingPresenceMemberIds={pendingPresenceMemberIds}
                 pendingResetIds={pendingResetIds}
+                presenceEditable={interaction?.presenceEditable === true}
                 presenceState={presenceState}
                 selection={activeSelection}
               />
@@ -652,12 +655,12 @@ export function AttendanceBoard({
       </Card>
       <AttendanceMemberDetailsModal
         dateKey={dateKey}
-        interactive={interaction !== undefined}
+        interactive={interaction?.presenceEditable === true}
         member={detailsMember}
         onClose={() => setDetailsTarget(null)}
         onPresenceRequest={(member) => {
           if (
-            interaction === undefined ||
+            !interaction?.presenceEditable ||
             presenceState !== 'ready' ||
             member.stage !== 'active' ||
             pendingMemberIds.has(member.memberId) ||
@@ -681,6 +684,7 @@ export function AttendanceBoard({
         <>
           <AttendanceReasonModal
             dateKey={dateKey}
+            joinDate={selectedMember?.joinDate ?? null}
             scope={interaction.leaveScope}
             onClose={() => setReasonTarget(null)}
             onSubmit={submitReason}
@@ -733,6 +737,7 @@ export function AttendanceBoard({
             }
           />
           <AttendanceStartModal
+            dateKey={dateKey}
             member={startTarget}
             onClose={() => setStartMemberId(null)}
             onConfirm={() => {

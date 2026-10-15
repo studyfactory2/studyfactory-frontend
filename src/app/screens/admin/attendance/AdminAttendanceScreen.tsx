@@ -15,9 +15,9 @@ import {
 import { useSeoulClock } from '../../../shared/hooks/useSeoulClock';
 import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
-import { AdminAttendanceDateBar } from './components/AdminAttendanceDateBar';
+import { AttendanceDateBar } from '../../../features/attendances/workspace/components/AttendanceDateBar';
+import { useAttendanceDate } from '../../../features/attendances/workspace/hooks/useAttendanceDate';
 import { useAdminAttendance } from './hooks/useAdminAttendance';
-import { useAdminAttendanceDate } from './hooks/useAdminAttendanceDate';
 import '../../../features/attendances/workspace/styles/attendance-workspace.css';
 import './styles/admin-attendance.css';
 
@@ -62,7 +62,7 @@ function AdminAttendanceContent({
     useState<AttendanceLeaveManagementTarget | null>(null);
   const [operationsView, setOperationsView] =
     useState<ManagerOperationsView | null>(null);
-  const date = useAdminAttendanceDate();
+  const date = useAttendanceDate();
   const clock = useSeoulClock();
   const operations = useManagerOperations({
     branchId,
@@ -78,7 +78,7 @@ function AdminAttendanceContent({
     isToday: date.isToday,
     memberId,
     ownerKey,
-    writeEnabled: clockMatchesSelectedDay,
+    writeEnabled: true,
   });
   const operationalSlot = clockMatchesSelectedDay
     ? getOperationalAttendanceSlot(clock.secondsOfDay)
@@ -87,7 +87,9 @@ function AdminAttendanceContent({
     clockMatchesSelectedDay && clock.secondsOfDay < STUDY_START_SECONDS;
   const activeSlot = beforeStudyStart ? null : operationalSlot;
   const periodLabel = !date.isToday
-    ? '기록 조회'
+    ? date.dateKey < date.todayKey
+      ? '과거 기록'
+      : '미래 기록'
     : !clockMatchesSelectedDay
       ? '오늘 기록'
       : operationalSlot === null
@@ -129,18 +131,7 @@ function AdminAttendanceContent({
         />
       )}
 
-      <AdminAttendanceDateBar
-        branchName={branchName}
-        dateKey={date.dateKey}
-        isToday={date.isToday}
-        maxDateKey={date.maxDateKey}
-        nextDisabled={date.nextDisabled}
-        onDateChange={date.onDateChange}
-        onNextDay={date.onNextDay}
-        onPreviousDay={date.onPreviousDay}
-        onToday={date.onToday}
-        writePending={attendance.writePending}
-      />
+      <AttendanceDateBar date={date} writePending={attendance.writePending} />
 
       <AttendanceBoard
         activeSlot={activeSlot}

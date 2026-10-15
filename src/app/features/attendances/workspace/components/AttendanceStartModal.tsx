@@ -1,7 +1,9 @@
 import { Button, Modal } from '../../../../shared/ui';
+import { formatKoreanDate } from '../../../../shared/lib/seoul-date';
 import type { AttendanceBoardMember } from '../model/attendance-board';
 
 type AttendanceStartModalProps = {
+  dateKey: string;
   member: AttendanceBoardMember | null;
   onClose: () => void;
   onConfirm: () => void;
@@ -9,6 +11,7 @@ type AttendanceStartModalProps = {
 };
 
 export function AttendanceStartModal({
+  dateKey,
   member,
   onClose,
   onConfirm,
@@ -22,7 +25,7 @@ export function AttendanceStartModal({
             취소
           </Button>
           <Button loading={pending} onClick={onConfirm}>
-            오늘 출석부 시작
+            출석부 시작
           </Button>
         </>
       }
@@ -38,9 +41,9 @@ export function AttendanceStartModal({
             {member.name}
           </strong>
           <p>
-            오늘의 기존 출석과 일일 휴무 기록을 비우고 이 사원의 출석부를
-            시작합니다. 고정 휴무는 유지되며, 이 작업은 오늘 입사 사원에게만
-            사용할 수 있어요.
+            {formatKoreanDate(dateKey)}의 기존 출석과 일일 휴무 기록을 비우고 이
+            사원의 출석부를 시작합니다. 고정 휴무는 유지되며, 이 작업은 선택한
+            날짜에 입사한 사원에게만 사용할 수 있어요.
           </p>
         </div>
       )}

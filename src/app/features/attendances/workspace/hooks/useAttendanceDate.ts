@@ -8,15 +8,15 @@ const TODAY_SELECTION = { mode: 'today' } as const;
 const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * A fixed past date stays fixed across Seoul midnight. Only the explicit
+ * A fixed date stays fixed across Seoul midnight. Only the explicit
  * "today" mode follows the operating day when a tablet is left open.
  */
-export function useAdminAttendanceDate() {
+export function useAttendanceDate() {
   const today = useSeoulToday();
   const [selection, setSelection] = useState<DateSelection>(TODAY_SELECTION);
   const dateKey =
     selection.mode === 'today' ? today.dateKey : selection.dateKey;
-  const isToday = selection.mode === 'today';
+  const isToday = dateKey === today.dateKey;
 
   const selectDate = useCallback(
     (nextDateKey: string) => {
@@ -25,7 +25,7 @@ export function useAdminAttendanceDate() {
       }
 
       setSelection(
-        nextDateKey >= today.dateKey
+        nextDateKey === today.dateKey
           ? TODAY_SELECTION
           : { dateKey: nextDateKey, mode: 'fixed' },
       );
@@ -34,8 +34,8 @@ export function useAdminAttendanceDate() {
   );
 
   const selectPreviousDay = useCallback(() => {
-    setSelection({ dateKey: addDays(dateKey, -1), mode: 'fixed' });
-  }, [dateKey]);
+    selectDate(addDays(dateKey, -1));
+  }, [dateKey, selectDate]);
 
   const selectNextDay = useCallback(() => {
     selectDate(addDays(dateKey, 1));
@@ -48,8 +48,9 @@ export function useAdminAttendanceDate() {
   return {
     dateKey,
     isToday,
-    maxDateKey: today.dateKey,
-    nextDisabled: isToday,
+    todayKey: today.dateKey,
+    previousDisabled: !isValidDateKey(addDays(dateKey, -1)),
+    nextDisabled: !isValidDateKey(addDays(dateKey, 1)),
     onDateChange: selectDate,
     onNextDay: selectNextDay,
     onPreviousDay: selectPreviousDay,

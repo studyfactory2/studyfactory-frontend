@@ -92,7 +92,7 @@ export function validateAttendanceReasonCommand(
       try {
         return (
           addDays(date, 0) !== date ||
-          date < todayKey ||
+          (command.action === 'repeat' && date < todayKey) ||
           (joinDate !== null && date < joinDate)
         );
       } catch {
@@ -100,7 +100,9 @@ export function validateAttendanceReasonCommand(
       }
     })
   ) {
-    return '입사일 이후의 오늘 또는 미래 날짜를 최대 31일까지 선택해 주세요.';
+    return command.action === 'repeat'
+      ? '반복 신청은 입사일 이후의 오늘 또는 미래 날짜를 선택해 주세요.'
+      : '입사일부터 유효한 날짜를 최대 31일까지 선택해 주세요.';
   }
   if (
     command.slots.length < 1 ||
@@ -166,6 +168,9 @@ export function buildAttendanceMembers(
   }
 
   const memberRoles = new Map<number, AttendanceTargetRole>();
+  const memberJoinDates = new Map(
+    roster.map((member) => [member.id, member.joinDate]),
+  );
 
   for (const member of roster) {
     if (isAttendanceRole(member.role)) {
@@ -187,7 +192,9 @@ export function buildAttendanceMembers(
 
       return [
         {
-          joinDate: row.joinDate,
+          // The board hides joinDate after initialization; keep the real start
+          // date for multi-date leave validation without changing row stage.
+          joinDate: row.joinDate ?? memberJoinDates.get(row.memberId) ?? null,
           memberId: row.memberId,
           name: row.name,
           presence:

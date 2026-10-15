@@ -49,8 +49,8 @@ export function useAdminAttendanceActions({
   });
   const validateMember = useCallback(
     (targetMemberId: number, stage: AttendanceMemberStage) => {
-      if (!isWritableToday({ dateKey, writeEnabled })) {
-        toast('오늘 출석부에서만 처리할 수 있어요.', 'error');
+      if (!writeEnabled) {
+        toast('출석부를 다시 확인해 주세요.', 'error');
         return null;
       }
 
@@ -69,7 +69,7 @@ export function useAdminAttendanceActions({
 
       return member;
     },
-    [roster, attendanceMembers, branchId, dateKey, toast, writeEnabled],
+    [roster, attendanceMembers, branchId, toast, writeEnabled],
   );
 
   const updateSlot = useCallback(
@@ -95,7 +95,7 @@ export function useAdminAttendanceActions({
         roster.find((candidate) => candidate.id === targetMemberId)
           ?.joinDate !== dateKey
       ) {
-        toast('오늘 입사한 사원인지 다시 확인해 주세요.', 'error');
+        toast('선택한 날짜에 입사한 사원인지 다시 확인해 주세요.', 'error');
         return;
       }
 
@@ -130,6 +130,10 @@ export function useAdminAttendanceActions({
       input: StudyPresenceManualCheckInInput,
       onSuccess?: () => void,
     ) => {
+      if (!isWritableToday({ dateKey, writeEnabled })) {
+        toast('입퇴실 처리는 오늘 출석부에서만 할 수 있어요.', 'error');
+        return;
+      }
       const member = validateMember(targetMemberId, 'active');
       const reason = input.reason?.trim();
       const checkedInAtMs = Date.parse(input.checkedInAt);
@@ -167,11 +171,15 @@ export function useAdminAttendanceActions({
         onSuccess,
       );
     },
-    [dateKey, mutationRuntime, toast, validateMember],
+    [dateKey, mutationRuntime, toast, validateMember, writeEnabled],
   );
 
   const manualCheckOut = useCallback(
     (targetMemberId: number, sessionId: number, onSuccess?: () => void) => {
+      if (!isWritableToday({ dateKey, writeEnabled })) {
+        toast('입퇴실 처리는 오늘 출석부에서만 할 수 있어요.', 'error');
+        return;
+      }
       const member = validateMember(targetMemberId, 'active');
 
       if (
@@ -187,11 +195,12 @@ export function useAdminAttendanceActions({
         onSuccess,
       );
     },
-    [mutationRuntime, toast, validateMember],
+    [dateKey, mutationRuntime, toast, validateMember, writeEnabled],
   );
 
   const interaction = useMemo<AttendanceBoardInteraction>(
     () => ({
+      presenceEditable: isWritableToday({ dateKey, writeEnabled }),
       leaveScope: { branchId, operatorMemberId: memberId, ownerKey },
       onManualCheckIn: manualCheckIn,
       onManualCheckOut: manualCheckOut,
@@ -206,6 +215,7 @@ export function useAdminAttendanceActions({
     [
       applyReason,
       branchId,
+      dateKey,
       memberId,
       ownerKey,
       manualCheckIn,
@@ -213,6 +223,7 @@ export function useAdminAttendanceActions({
       mutationRuntime,
       resetMember,
       updateSlot,
+      writeEnabled,
     ],
   );
 

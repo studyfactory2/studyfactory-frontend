@@ -52,6 +52,7 @@ const MAX_DATES = 31;
 type Confirmation = 'cancel' | 'repeat' | 'cancel-repeat';
 type AttendanceReasonModalProps = {
   dateKey: string;
+  joinDate: string | null;
   onClose: () => void;
   onSubmit: (command: AttendanceReasonCommand) => void;
   open: boolean;
@@ -77,6 +78,7 @@ export function AttendanceReasonModal(props: AttendanceReasonModalProps) {
 
 function ReasonDialog({
   dateKey,
+  joinDate,
   onClose,
   onSubmit,
   pending,
@@ -343,7 +345,9 @@ function ReasonDialog({
               <div className="attendance-reason__calendar-head">
                 <button
                   aria-label="이전 달"
-                  disabled={monthKey <= dateKey.slice(0, 7)}
+                  disabled={
+                    joinDate !== null && monthKey <= joinDate.slice(0, 7)
+                  }
                   onClick={() =>
                     setMonth(getPreviousMonth(month.year, month.month))
                   }
@@ -376,7 +380,7 @@ function ReasonDialog({
                       aria-label={formatKoreanDate(day.dateKey)}
                       aria-pressed={dates.includes(day.dateKey)}
                       disabled={
-                        day.dateKey < dateKey ||
+                        (joinDate !== null && day.dateKey < joinDate) ||
                         (!dates.includes(day.dateKey) &&
                           dates.length >= MAX_DATES)
                       }

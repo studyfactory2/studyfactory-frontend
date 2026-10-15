@@ -12,6 +12,8 @@ import {
 } from '../../../features/manager-operations';
 import { AttendanceMemberLeaveModal } from '../../../features/manager-leaves';
 import { EmptyState } from '../../../shared/ui';
+import { AttendanceDateBar } from '../../../features/attendances/workspace/components/AttendanceDateBar';
+import { useAttendanceDate } from '../../../features/attendances/workspace/hooks/useAttendanceDate';
 import { useStaffAttendance } from './hooks/useStaffAttendance';
 import '../../../features/attendances/workspace/styles/attendance-workspace.css';
 import './styles/staff-attendance.css';
@@ -54,7 +56,14 @@ function StaffAttendanceContent({
   const [leaveTarget, setLeaveTarget] =
     useState<AttendanceLeaveManagementTarget | null>(null);
   const [searchParams] = useSearchParams();
-  const attendance = useStaffAttendance({ branchId, memberId, ownerKey });
+  const date = useAttendanceDate();
+  const attendance = useStaffAttendance({
+    branchId,
+    memberId,
+    ownerKey,
+    dateKey: date.dateKey,
+    isToday: date.isToday,
+  });
   const operations = useManagerOperations({
     branchId,
     dateKey: attendance.today.dateKey,
@@ -68,12 +77,13 @@ function StaffAttendanceContent({
         initialSection={toCockpitSection(searchParams.get('panel'))}
         operations={operations}
       />
+      <AttendanceDateBar date={date} writePending={attendance.writePending} />
       <AttendanceBoard
         activeSlot={attendance.period.activeSlot}
-        dateKey={attendance.today.dateKey}
+        dateKey={date.dateKey}
         errorMessage={attendance.board.errorMessage}
         interaction={attendance.actions}
-        isToday
+        isToday={date.isToday}
         loading={attendance.board.loading}
         members={attendance.board.members}
         onManageLeave={setLeaveTarget}
@@ -92,7 +102,7 @@ function StaffAttendanceContent({
       />
       <AttendanceMemberLeaveModal
         branchId={branchId}
-        dateKey={attendance.today.dateKey}
+        dateKey={date.dateKey}
         memberId={memberId}
         onClose={() => setLeaveTarget(null)}
         ownerKey={ownerKey}

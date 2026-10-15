@@ -33,7 +33,7 @@ type UseAdminAttendanceArgs = {
 
 /**
  * Attendance data for one selected Admin branch and Seoul date. Actions are
- * exposed only for the actual current Seoul day; past boards stay read-only.
+ * edit the selected date. Live presence actions remain current-day only.
  * The pending request is part of the board's integrity boundary: until it has
  * loaded, the roster cannot safely be called the current member roster.
  */

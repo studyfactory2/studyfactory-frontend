@@ -1,0 +1,100 @@
+.attendance-date-bar {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid rgb(var(--brand-ink-rgb) / 9%);
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--elev-1);
+}
+
+.attendance-date-bar > button {
+  display: grid;
+  min-width: 0;
+  min-height: 44px;
+  place-items: center;
+  border: 1px solid rgb(var(--brand-ink-rgb) / 8%);
+  border-radius: 11px;
+  background: var(--paper);
+  color: var(--brand-forest);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: var(--weight-bold);
+}
+
+.attendance-date-bar > button:hover:not(:disabled) {
+  background: rgb(var(--brand-forest-rgb) / 7%);
+}
+
+.attendance-date-bar > button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.attendance-date-bar__field {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 44px;
+  align-items: center;
+  border-radius: 11px;
+  background: rgb(var(--brand-forest-rgb) / 4%);
+}
+
+.attendance-date-bar__value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: var(--brand-ink);
+  font-size: clamp(12px, 3.5vw, 15px);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-extrabold);
+  white-space: nowrap;
+}
+
+.attendance-date-bar__value svg {
+  flex-shrink: 0;
+  color: var(--brand-muted);
+}
+
+.attendance-date-bar__field input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.attendance-date-bar__field[aria-disabled='true'] {
+  opacity: 0.5;
+}
+
+.attendance-date-bar__history-note {
+  grid-column: 1 / -1;
+  padding: 4px 4px 0;
+  color: var(--brand-muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.attendance-date-bar__field:focus-within,
+.attendance-date-bar > button:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+@media (max-width: 359px) {
+  .attendance-date-bar__value svg {
+    display: none;
+  }
+}
