@@ -133,10 +133,13 @@ function AdminMembersContent({
         {members.view === 'current' ? (
           <CurrentMemberList
             certificationLookup={members.certifications.lookup}
+            deletingIds={currentMutations.deletingIds}
             errorMessage={members.current.errorMessage}
             filterActive={members.filterActive}
             loading={members.current.loading}
+            memberId={memberId}
             onClearFilter={members.onClearFilter}
+            onDelete={currentMutations.onDelete}
             onEdit={currentMutations.onEdit}
             onRetry={members.current.onRetry}
             onViewPlan={setPlanMember}

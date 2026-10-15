@@ -89,6 +89,17 @@ export async function updateCurrentMember(
   return response;
 }
 
+/** Permanently removes a signed-up account and its related records. */
+export async function deleteCurrentMember(
+  targetMemberId: number,
+  expectedMemberId: number,
+) {
+  await apiRequest<null>(`/api/members/${targetMemberId}`, {
+    expectedMemberId,
+    method: 'DELETE',
+  });
+}
+
 export type PreRegistrationResponse = {
   id: number;
   branchId: number;
@@ -236,8 +247,8 @@ export function reissueRegistrationCode(
 /**
  * Removes a pending pre-registration and, server-side, the drink preference
  * stored with it. Only `/api/pre-registrations` is used: the backend refuses
- * it for anyone who has already signed up, which is the guarantee this
- * screen relies on — `DELETE /api/members/{id}` is never called from here.
+ * it for anyone who has already signed up. This pending-registration
+ * operation never calls `DELETE /api/members/{id}`.
  */
 export async function deletePendingMember(
   memberId: number,

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiRequestError } from '../../../../core/api/api-client';
 import type { SessionOwnerKey } from '../../../../core/session';
 import { memberQueryKeys } from '../../../../features/members/member-query-keys';
 import {
+  deleteCurrentMember,
   fetchBranchMembers,
   updateCurrentMember,
   type CurrentMemberInput,
@@ -23,6 +24,7 @@ const ADMIN_ROLE_MESSAGE =
 const BRANCH_TRANSFER_MESSAGE =
   '지점 이동은 입실 기록 보호 기능을 서버에 추가한 뒤 제공할게요.';
 const DUPLICATE_NAME_MESSAGE = '이 지점에서 이미 사용 중인 이름이에요.';
+const SELF_DELETE_MESSAGE = '로그인 중인 본인 계정은 삭제할 수 없어요.';
 
 type UseCurrentMemberMutationsArgs = {
   branchId: number;
@@ -68,6 +70,16 @@ export function useCurrentMemberMutations({
     kind: 'closed',
   });
   const [editorError, setEditorError] = useState<string | null>(null);
+  const deletionLocks = useRef(new Set<number>());
+  const [deletingIds, setDeletingIds] = useState<ReadonlySet<number>>(
+    new Set(),
+  );
+
+  const deleteMutation = useMutation({
+    mutationFn: (targetMemberId: number) =>
+      deleteCurrentMember(targetMemberId, memberId),
+    retry: false,
+  });
 
   const updateMutation = useMutation({
     mutationFn: async ({
@@ -121,6 +133,10 @@ export function useCurrentMemberMutations({
     });
 
   const openEditor = (target: MemberResponse) => {
+    if (deletionLocks.current.has(target.id)) {
+      return;
+    }
+
     if (!isCurrentNow(target)) {
       toast(STALE_TARGET_MESSAGE, 'error');
       return;
@@ -225,7 +241,68 @@ export function useCurrentMemberMutations({
     await refreshPrivateWorkspace();
   };
 
+  const deleteMember = async (target: MemberResponse) => {
+    if (deletionLocks.current.has(target.id)) {
+      return;
+    }
+
+    if (target.id === memberId) {
+      toast(SELF_DELETE_MESSAGE, 'error');
+      return;
+    }
+
+    if (!isCurrentNow(target)) {
+      toast(STALE_TARGET_MESSAGE, 'error');
+      return;
+    }
+
+    // A ref closes the same-tick double-tap gap before React disables the row.
+    deletionLocks.current.add(target.id);
+    setDeletingIds(new Set(deletionLocks.current));
+
+    try {
+      await deleteMutation.mutateAsync(target.id);
+    } catch (error) {
+      toast(
+        error instanceof ApiRequestError
+          ? `${target.name} 님을 삭제하지 못했어요. ${error.message}`
+          : `${target.name} 님을 삭제하지 못했어요. 연결 상태를 확인하고 다시 시도해 주세요.`,
+        'error',
+      );
+      deletionLocks.current.delete(target.id);
+      setDeletingIds(new Set(deletionLocks.current));
+      return;
+    }
+
+    try {
+      // An older roster response must not reinsert the confirmed-deleted row.
+      await queryClient.cancelQueries({
+        queryKey: memberQueryKeys.branch(ownerKey, target.branchId),
+      });
+      queryClient.setQueryData<MemberResponse[]>(
+        memberQueryKeys.branch(ownerKey, target.branchId),
+        (current) => current?.filter((member) => member.id !== target.id),
+      );
+      setMode((current) =>
+        current.kind === 'edit' && current.member.id === target.id
+          ? { kind: 'closed' }
+          : current,
+      );
+      toast(
+        `${target.name} 님의 계정과 관련 기록을 영구 삭제했어요.`,
+        'success',
+      );
+
+      // Attendance, seats, beverages, leaves and order totals share this owner.
+      await refreshPrivateWorkspace();
+    } finally {
+      deletionLocks.current.delete(target.id);
+      setDeletingIds(new Set(deletionLocks.current));
+    }
+  };
+
   return {
+    deletingIds,
     editor: {
       errorMessage: editorError,
       mode,
@@ -233,6 +310,7 @@ export function useCurrentMemberMutations({
       onSubmit: (input: CurrentMemberInput) => void submitEditor(input),
       saving: updateMutation.isPending,
     },
+    onDelete: (target: MemberResponse) => void deleteMember(target),
     onEdit: openEditor,
   };
 }

@@ -167,8 +167,8 @@
 .admin-member-list--current .admin-member-list__head,
 .admin-member-list--current .admin-member-list__row {
   grid-template-columns:
-    52px minmax(6rem, 1fr) 60px 88px minmax(8.5rem, 1.1fr)
-    minmax(7rem, 1.2fr) 76px;
+    52px minmax(5rem, 1fr) 60px 88px minmax(6rem, 1.1fr)
+    minmax(5rem, 1.2fr) 104px;
 }
 
 /* The pending roster carries one more column: what an operator may do to the row. */
@@ -198,7 +198,7 @@
   place-items: center;
 }
 
-.admin-member-list__action:hover {
+.admin-member-list__action:hover:not(:disabled) {
   background: rgb(var(--brand-forest-rgb) / 8%);
   color: var(--brand-forest);
 }
@@ -207,9 +207,32 @@
   color: var(--brand-forest);
 }
 
-.admin-member-list__action--danger:hover {
+.admin-member-list--current .admin-member-list__action--danger {
+  color: var(--danger-deep);
+}
+
+.admin-member-list__action--danger:hover:not(:disabled) {
   background: var(--danger-soft);
   color: var(--danger-deep);
+}
+
+.admin-member-list__action:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.admin-member-list__action[aria-busy='true'] {
+  cursor: wait;
+}
+
+.admin-member-list__deleting {
+  animation: admin-members-spin 0.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-member-list__deleting {
+    animation: none;
+  }
 }
 
 .admin-member-list__action:focus-visible {
@@ -345,6 +368,43 @@
 }
 
 @container admin-members (max-width: 30rem) {
+  .admin-member-list--current .admin-member-list__row {
+    padding: 8px 10px;
+    column-gap: 8px;
+  }
+
+  .admin-member-list--current .admin-member-list__name {
+    grid-column: 2 / -1;
+    padding-right: 58px;
+  }
+
+  .admin-member-list--current .admin-member-list__role {
+    justify-self: end;
+  }
+
+  .admin-member-list--current .admin-member-list__actions {
+    gap: 2px;
+  }
+
+  .admin-member-list--current .admin-member-list__action {
+    width: 40px;
+  }
+
+  /* Keep the complete date without sacrificing a third line to row actions. */
+  .admin-member-list--current
+    .admin-member-list__date
+    .admin-member-list__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
   .admin-member-list--pending .admin-member-list__row {
     grid-template-areas:
       'seat name role'

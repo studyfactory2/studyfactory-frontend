@@ -1,4 +1,4 @@
-import { BookOpenCheck, Pencil } from 'lucide-react';
+import { BookOpenCheck, LoaderCircle, Pencil, Trash2 } from 'lucide-react';
 import type { MemberResponse } from '../../../../features/members/members-api';
 import { cx } from '../../../../shared/lib/cx';
 import {
@@ -17,10 +17,13 @@ import {
 
 type CurrentMemberListProps = {
   certificationLookup: CertificationLookup;
+  deletingIds: ReadonlySet<number>;
   errorMessage: string | null;
   filterActive: boolean;
   loading: boolean;
+  memberId: number;
   onClearFilter: () => void;
+  onDelete: (member: MemberResponse) => void;
   onEdit: (member: MemberResponse) => void;
   onRetry: () => void;
   onViewPlan: (member: MemberResponse) => void;
@@ -30,10 +33,13 @@ type CurrentMemberListProps = {
 
 export function CurrentMemberList({
   certificationLookup,
+  deletingIds,
   errorMessage,
   filterActive,
   loading,
+  memberId,
   onClearFilter,
+  onDelete,
   onEdit,
   onRetry,
   onViewPlan,
@@ -66,6 +72,8 @@ export function CurrentMemberList({
         </div>
         <ul className="admin-member-list__rows">
           {(rows ?? []).map((member) => {
+            const deleting = deletingIds.has(member.id);
+            const isSelf = member.id === memberId;
             const preparing = splitPreparingCertifications(
               member.preparingCertifications,
             );
@@ -114,6 +122,7 @@ export function CurrentMemberList({
                     <button
                       aria-label={`${member.name} 회원 주간 계획 보기`}
                       className="admin-member-list__action"
+                      disabled={deleting}
                       onClick={() => onViewPlan(member)}
                       title="주간 계획"
                       type="button"
@@ -130,6 +139,7 @@ export function CurrentMemberList({
                   <button
                     aria-label={`${member.name} 사원 정보 수정`}
                     className="admin-member-list__action"
+                    disabled={deleting}
                     onClick={() => onEdit(member)}
                     title="수정"
                     type="button"
@@ -140,6 +150,39 @@ export function CurrentMemberList({
                       className="admin-member-list__action-label"
                     >
                       수정
+                    </span>
+                  </button>
+                  <button
+                    aria-busy={deleting}
+                    aria-label={
+                      isSelf
+                        ? `${member.name} 본인 계정은 삭제할 수 없어요`
+                        : `${member.name} 사원 영구 삭제`
+                    }
+                    className="admin-member-list__action admin-member-list__action--danger"
+                    disabled={deleting || isSelf}
+                    onClick={() => onDelete(member)}
+                    title={
+                      isSelf
+                        ? '본인 계정은 삭제할 수 없어요'
+                        : '확인창 없이 바로 영구 삭제'
+                    }
+                    type="button"
+                  >
+                    {deleting ? (
+                      <LoaderCircle
+                        aria-hidden="true"
+                        className="admin-member-list__deleting"
+                        size={15}
+                      />
+                    ) : (
+                      <Trash2 aria-hidden="true" size={15} />
+                    )}
+                    <span
+                      aria-hidden="true"
+                      className="admin-member-list__action-label"
+                    >
+                      {deleting ? '삭제 중' : '삭제'}
                     </span>
                   </button>
                 </span>
