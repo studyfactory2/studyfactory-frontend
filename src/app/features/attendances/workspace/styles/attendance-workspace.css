@@ -1,4 +1,5 @@
 /* One manager attendance board shared by the Staff and Admin workspaces. */
 @import './attendance-board.css';
+@import './attendance-seat-layout.css';
 @import './attendance-actions.css';
 @import './attendance-member-details.css';

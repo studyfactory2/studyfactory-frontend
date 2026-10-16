@@ -32,6 +32,7 @@ import {
   type AttendanceReasonCommand,
   validateAttendanceReasonCommand,
 } from '../../../../features/attendances/workspace/model/attendance-board';
+import { getAttendanceVacantSeatNumbers } from '../../../../features/attendances/workspace/model/attendance-seat-layout';
 import {
   findAttendanceTarget,
   selectAttendanceRoster,
@@ -184,6 +185,10 @@ export function useStaffAttendance({
         attendanceRoster,
       ),
     [attendanceRoster, boardQuery.data, presenceQuery.data],
+  );
+  const vacantSeatNumbers = useMemo(
+    () => getAttendanceVacantSeatNumbers(boardQuery.data),
+    [boardQuery.data],
   );
 
   const validateMember = useCallback(
@@ -548,6 +553,7 @@ export function useStaffAttendance({
           : null,
       loading: boardQuery.isPending || rosterQuery.isPending,
       members,
+      vacantSeatNumbers,
       onRetry: () => {
         void boardQuery.refetch();
         void rosterQuery.refetch();

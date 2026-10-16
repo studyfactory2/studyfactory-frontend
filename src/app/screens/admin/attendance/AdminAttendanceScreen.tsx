@@ -142,6 +142,7 @@ function AdminAttendanceContent({
 
       <AttendanceBoard
         activeSlot={activeSlot}
+        branchName={branchName}
         dateKey={date.dateKey}
         errorMessage={attendance.board.errorMessage}
         interaction={attendance.interaction}
@@ -161,6 +162,7 @@ function AdminAttendanceContent({
         presenceReady={attendance.presence.ready}
         ready={attendance.board.ready}
         refreshing={attendance.freshness.refreshing}
+        vacantSeatNumbers={attendance.board.vacantSeatNumbers}
       />
       <AttendanceMemberLeaveModal
         branchId={branchId}

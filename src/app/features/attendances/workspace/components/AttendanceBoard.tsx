@@ -31,6 +31,7 @@ import { AttendancePresenceModal } from './AttendancePresenceModal';
 import { AttendanceReasonModal } from './AttendanceReasonModal';
 import { AttendanceStartModal } from './AttendanceStartModal';
 import { AttendanceTable } from './AttendanceTable';
+import { hasMangmiSeatLayout } from '../model/attendance-seat-layout';
 
 type AttendanceFilter = 'all' | 'leave' | 'unmarked';
 
@@ -84,6 +85,7 @@ export type AttendanceLeaveManagementTarget = {
 
 type AttendanceBoardProps = {
   activeSlot: OperationalAttendanceSlot | null;
+  branchName: string | null;
   dateKey: string;
   errorMessage: string | null;
   interaction?: AttendanceBoardInteraction;
@@ -100,10 +102,12 @@ type AttendanceBoardProps = {
   presenceReady: boolean;
   ready: boolean;
   refreshing: boolean;
+  vacantSeatNumbers: number[];
 };
 
 export function AttendanceBoard({
   activeSlot,
+  branchName,
   dateKey,
   errorMessage,
   interaction,
@@ -120,6 +124,7 @@ export function AttendanceBoard({
   presenceReady,
   ready,
   refreshing,
+  vacantSeatNumbers,
 }: AttendanceBoardProps) {
   const searchId = useId();
   const dateKeyRef = useRef(dateKey);
@@ -216,6 +221,23 @@ export function AttendanceBoard({
     readOnlyUnmarkedSlotCount,
     selectedMemberId,
   ]);
+
+  // Vacancies are layout markers, not members. Do not include them in
+  // attendance filters, selection, commands or member counts.
+  const visibleVacantSeatNumbers = useMemo(() => {
+    if (effectiveFilter !== 'all' || !hasMangmiSeatLayout(branchName)) {
+      return [];
+    }
+
+    const normalizedQuery = query.trim().toLocaleLowerCase('ko');
+    return vacantSeatNumbers.filter(
+      (seatNumber) =>
+        seatNumber <= 102 &&
+        (normalizedQuery.length === 0 ||
+          '공석'.includes(normalizedQuery) ||
+          String(seatNumber).includes(normalizedQuery)),
+    );
+  }, [branchName, effectiveFilter, query, vacantSeatNumbers]);
 
   const selectedMember = currentSelection
     ? visibleMembers.find(
@@ -598,7 +620,8 @@ export function AttendanceBoard({
               </div>
             </div>
 
-            {visibleMembers.length === 0 ? (
+            {visibleMembers.length === 0 &&
+            visibleVacantSeatNumbers.length === 0 ? (
               <div className="staff-attendance__board-empty">
                 <SectionEmpty
                   title={
@@ -617,6 +640,7 @@ export function AttendanceBoard({
             ) : (
               <AttendanceTable
                 activeSlot={activeSlot}
+                branchName={branchName}
                 dateKey={dateKey}
                 dock={commandDock}
                 interactive={interaction !== undefined}
@@ -648,6 +672,7 @@ export function AttendanceBoard({
                 presenceEditable={interaction?.presenceEditable === true}
                 presenceState={presenceState}
                 selection={activeSelection}
+                vacantSeatNumbers={visibleVacantSeatNumbers}
               />
             )}
           </>

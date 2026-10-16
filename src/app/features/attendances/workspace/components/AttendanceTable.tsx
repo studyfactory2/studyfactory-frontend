@@ -1,4 +1,10 @@
-import { useEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  type KeyboardEvent,
+  type ReactNode,
+} from 'react';
 import { MoveHorizontal } from 'lucide-react';
 import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import { cx } from '../../../../shared/lib/cx';
@@ -17,9 +23,15 @@ import {
   type AttendancePresenceLoadState,
 } from './AttendanceMemberIdentity';
 import { AttendanceStatusCell } from './AttendanceStatusCell';
+import { getAttendanceSeatLayoutClassName } from '../model/attendance-seat-layout';
+
+type AttendanceDisplayRow =
+  | { kind: 'member'; member: AttendanceBoardMember; seatNumber: number | null }
+  | { kind: 'vacant'; seatNumber: number };
 
 type AttendanceTableProps = {
   activeSlot: OperationalAttendanceSlot | null;
+  branchName: string | null;
   dateKey: string;
   dock: ReactNode;
   interactive: boolean;
@@ -37,10 +49,12 @@ type AttendanceTableProps = {
   presenceEditable: boolean;
   presenceState: AttendancePresenceLoadState;
   selection: AttendanceSelection | null;
+  vacantSeatNumbers: number[];
 };
 
 export function AttendanceTable({
   activeSlot,
+  branchName,
   dateKey,
   dock,
   interactive,
@@ -58,10 +72,29 @@ export function AttendanceTable({
   presenceEditable,
   presenceState,
   selection,
+  vacantSeatNumbers,
 }: AttendanceTableProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   const identityHeaderRef = useRef<HTMLTableCellElement>(null);
   const operationalHeaderRef = useRef<HTMLTableCellElement>(null);
+  const displayRows = useMemo(() => {
+    const rows: AttendanceDisplayRow[] = members.map((member) => ({
+      kind: 'member',
+      member,
+      seatNumber: member.seatNumber,
+    }));
+    rows.push(
+      ...vacantSeatNumbers.map((seatNumber) => ({
+        kind: 'vacant' as const,
+        seatNumber,
+      })),
+    );
+    return rows.sort(
+      (left, right) =>
+        (left.seatNumber ?? Number.MAX_SAFE_INTEGER) -
+        (right.seatNumber ?? Number.MAX_SAFE_INTEGER),
+    );
+  }, [members, vacantSeatNumbers]);
   const activeMembers = interactive
     ? members.filter((member) => member.stage === 'active')
     : [];
@@ -206,7 +239,7 @@ export function AttendanceTable({
       <Table>
         <caption className="staff-attendance__sr-only">
           {formatKoreanDate(dateKey)} 좌석 순서 사원과 미배정 사원의 입퇴실
-          시각, 1교시부터 7교시까지의 출석 상태
+          시각, 1교시부터 7교시까지의 출석 상태. 공석은 출석 대상이 아닙니다.
         </caption>
         <thead>
           <tr>
@@ -243,87 +276,128 @@ export function AttendanceTable({
           </tr>
         </thead>
         <tbody>
-          {members.map((member) => (
-            <tr
-              className={cx(
-                member.seatNumber === null && 'is-unassigned',
-                member.stage !== 'active' && 'is-prestart',
-              )}
-              key={member.memberId}
-            >
-              <th className="staff-attendance__identity-col" scope="row">
-                <AttendanceMemberIdentity
-                  dateKey={dateKey}
-                  disabled={pendingMemberIds.has(member.memberId)}
-                  interactive={interactive && presenceEditable}
-                  member={member}
-                  onDetailsRequest={onDetailsRequest}
-                  onPresenceRequest={onPresenceRequest}
-                  presencePending={pendingPresenceMemberIds.has(
-                    member.memberId,
-                  )}
-                  presenceState={presenceState}
-                />
-              </th>
-              {member.stage === 'active' ? (
-                member.slots.map((cell, index) => {
-                  const slot = (index + 1) as OperationalAttendanceSlot;
-                  const timing = toAttendanceSelectionTiming(
-                    slot,
-                    activeSlot,
-                    operationalSlot,
-                  );
-                  const pending = pendingCellKeys.has(
-                    toAttendanceCellKey(member.memberId, slot),
-                  );
-                  const selected =
-                    selection?.memberId === member.memberId &&
-                    selection.slot === slot;
-                  const target = {
-                    cell,
-                    memberId: member.memberId,
-                    name: member.name,
-                    seatNumber: member.seatNumber,
-                    slot,
-                  } satisfies AttendanceSelection;
-
-                  return (
-                    <td
-                      className={cx(
-                        operationalSlot === slot && 'is-operational',
-                      )}
-                      key={slot}
-                    >
-                      <AttendanceStatusCell
-                        cell={cell}
-                        disabled={pendingMemberIds.has(member.memberId)}
-                        interactive={interactive}
-                        member={member}
-                        onActivate={() => onActivate(target)}
-                        onKeyDown={(event) => navigateCell(event, member, slot)}
-                        onSelect={() => onSelect(target)}
-                        pending={pending}
-                        selected={selected}
-                        slot={slot}
-                        tabStop={
-                          tabStopMember?.memberId === member.memberId &&
-                          tabStopSlot === slot
-                        }
-                        timing={timing}
-                      />
+          {displayRows.map((row) => {
+            const layoutClassName = getAttendanceSeatLayoutClassName(
+              branchName,
+              row.seatNumber,
+            );
+            if (row.kind === 'vacant') {
+              return (
+                <tr
+                  className={cx('is-vacant', layoutClassName)}
+                  data-seat-number={row.seatNumber}
+                  key={`vacant:${row.seatNumber}`}
+                >
+                  <th className="staff-attendance__identity-col" scope="row">
+                    <span className="staff-attendance__vacant-identity">
+                      <b>{row.seatNumber}</b>
+                      <strong>공석</strong>
+                      <span className="staff-attendance__sr-only">
+                        {' '}
+                        · 출석 대상 아님
+                      </span>
+                    </span>
+                  </th>
+                  {ATTENDANCE_SLOTS.map((slot) => (
+                    <td key={slot}>
+                      <span
+                        aria-hidden="true"
+                        className="staff-attendance__vacant-cell"
+                      >
+                        X
+                      </span>
                     </td>
-                  );
-                })
-              ) : (
-                <MembershipStageCell
-                  interactive={interactive}
-                  member={member}
-                  onResetRequest={onResetRequest}
-                  pending={pendingResetIds.has(member.memberId)}
-                />
-              )}
-            </tr>
-          ))}
+                  ))}
+                </tr>
+              );
+            }
+            const { member } = row;
+            return (
+              <tr
+                className={cx(
+                  layoutClassName,
+                  member.seatNumber === null && 'is-unassigned',
+                  member.stage !== 'active' && 'is-prestart',
+                )}
+                data-seat-number={member.seatNumber ?? undefined}
+                key={`member:${member.memberId}`}
+              >
+                <th className="staff-attendance__identity-col" scope="row">
+                  <AttendanceMemberIdentity
+                    dateKey={dateKey}
+                    disabled={pendingMemberIds.has(member.memberId)}
+                    interactive={interactive && presenceEditable}
+                    member={member}
+                    onDetailsRequest={onDetailsRequest}
+                    onPresenceRequest={onPresenceRequest}
+                    presencePending={pendingPresenceMemberIds.has(
+                      member.memberId,
+                    )}
+                    presenceState={presenceState}
+                  />
+                </th>
+                {member.stage === 'active' ? (
+                  member.slots.map((cell, index) => {
+                    const slot = (index + 1) as OperationalAttendanceSlot;
+                    const timing = toAttendanceSelectionTiming(
+                      slot,
+                      activeSlot,
+                      operationalSlot,
+                    );
+                    const pending = pendingCellKeys.has(
+                      toAttendanceCellKey(member.memberId, slot),
+                    );
+                    const selected =
+                      selection?.memberId === member.memberId &&
+                      selection.slot === slot;
+                    const target = {
+                      cell,
+                      memberId: member.memberId,
+                      name: member.name,
+                      seatNumber: member.seatNumber,
+                      slot,
+                    } satisfies AttendanceSelection;
+
+                    return (
+                      <td
+                        className={cx(
+                          operationalSlot === slot && 'is-operational',
+                        )}
+                        key={slot}
+                      >
+                        <AttendanceStatusCell
+                          cell={cell}
+                          disabled={pendingMemberIds.has(member.memberId)}
+                          interactive={interactive}
+                          member={member}
+                          onActivate={() => onActivate(target)}
+                          onKeyDown={(event) =>
+                            navigateCell(event, member, slot)
+                          }
+                          onSelect={() => onSelect(target)}
+                          pending={pending}
+                          selected={selected}
+                          slot={slot}
+                          tabStop={
+                            tabStopMember?.memberId === member.memberId &&
+                            tabStopSlot === slot
+                          }
+                          timing={timing}
+                        />
+                      </td>
+                    );
+                  })
+                ) : (
+                  <MembershipStageCell
+                    interactive={interactive}
+                    member={member}
+                    onResetRequest={onResetRequest}
+                    pending={pendingResetIds.has(member.memberId)}
+                  />
+                )}
+              </tr>
+            );
+          })}
         </tbody>
       </Table>
       {interactive ? dock : null}

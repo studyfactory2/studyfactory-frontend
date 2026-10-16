@@ -1,0 +1,126 @@
+/* Physical seat landmarks from the legacy Mangmi attendance board.
+   Applied by the branch-scoped model; attendance status colours stay intact. */
+.staff-attendance__table-frame
+  .table
+  tbody
+  tr.is-seat-divider-soft
+  > :is(th, td) {
+  border-top: 2px solid #b0c9f0;
+}
+
+.staff-attendance__table-frame
+  .table
+  tbody
+  tr.is-seat-divider-strong
+  > :is(th, td) {
+  border-top: 4px solid #7ba7e8;
+}
+
+.staff-attendance__table-frame
+  .table
+  tbody
+  tr.is-seat-room-start
+  > :is(th, td) {
+  border-top: 6px solid #3182f6;
+}
+
+.staff-attendance__table-frame .table tbody tr.is-seat-room-end > :is(th, td) {
+  border-bottom: 6px solid #3182f6;
+}
+
+.staff-attendance__table-frame
+  .table
+  tbody
+  tr.is-seat-second-room
+  > :is(th, td) {
+  background: #f1f6ff;
+}
+
+.staff-attendance__table-frame .table tbody tr.is-vacant > :is(th, td) {
+  background: #f7f8fa;
+}
+
+.staff-attendance__table-frame .table tbody tr.is-seat-zone-light > th {
+  background: #edf2f7;
+}
+
+.staff-attendance__table-frame .table tbody tr.is-seat-zone-dark > th {
+  background: #cbd5e0;
+}
+
+.is-seat-second-room .staff-attendance__member > b,
+.is-seat-second-room .staff-attendance__member-summary-seat {
+  border-radius: 4px;
+  background: #d7e7ff;
+  color: #24549a;
+}
+
+.staff-attendance__vacant-identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  color: #687483;
+  gap: 7px;
+}
+
+.staff-attendance__vacant-identity > b {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border-radius: 9px;
+  background: #e9edf2;
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  place-items: center;
+}
+
+.staff-attendance__vacant-identity > strong {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.is-seat-second-room .staff-attendance__vacant-identity > b {
+  background: #b9d2fb;
+  color: #24549a;
+}
+
+.staff-attendance__vacant-cell {
+  display: inline-grid;
+  width: min(100%, 2.75rem);
+  min-height: 34px;
+  border-radius: 10px;
+  background: #eef1f5;
+  color: #a3adba;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  place-items: center;
+}
+
+@media (max-width: 768px) {
+  .staff-attendance__vacant-identity {
+    min-height: 40px;
+    padding: 2px;
+    gap: 3px;
+  }
+
+  .staff-attendance__vacant-identity > b {
+    width: auto;
+    min-width: 17px;
+    height: auto;
+    border-radius: 4px;
+    background: transparent;
+    font-size: 0.625rem;
+  }
+
+  .staff-attendance__vacant-identity > strong {
+    font-size: 0.6875rem;
+  }
+
+  .staff-attendance__vacant-cell {
+    width: 100%;
+    min-height: 38px;
+    border-radius: 5px;
+    font-size: 0.625rem;
+  }
+}

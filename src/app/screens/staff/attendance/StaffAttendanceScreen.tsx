@@ -1,6 +1,9 @@
+import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { useSession } from '../../../core/session';
 import type { SessionOwnerKey } from '../../../core/session';
+import { fetchBranches } from '../../../features/branches/branches-api';
+import { branchQueryKeys } from '../../../features/branches/branch-query-keys';
 import { AttendanceBoard } from '../../../features/attendances/workspace/components/AttendanceBoard';
 import {
   ManagerOperationsOverview,
@@ -52,6 +55,13 @@ function StaffAttendanceContent({
   ownerKey: SessionOwnerKey;
 }) {
   const [searchParams] = useSearchParams();
+  const branchesQuery = useQuery({
+    queryFn: fetchBranches,
+    queryKey: branchQueryKeys.all(),
+    staleTime: 5 * 60 * 1000,
+  });
+  const branchName =
+    branchesQuery.data?.find((branch) => branch.id === branchId)?.name ?? null;
   const date = useAttendanceDate();
   const leaveDialog = useAttendanceLeaveDialog({
     branchId,
@@ -86,6 +96,7 @@ function StaffAttendanceContent({
       <AttendanceDateBar date={date} writePending={attendance.writePending} />
       <AttendanceBoard
         activeSlot={attendance.period.activeSlot}
+        branchName={branchName}
         dateKey={date.dateKey}
         errorMessage={attendance.board.errorMessage}
         interaction={attendance.actions}
@@ -105,6 +116,7 @@ function StaffAttendanceContent({
         presenceReady={attendance.presence.ready}
         ready={attendance.board.ready}
         refreshing={attendance.freshness.refreshing}
+        vacantSeatNumbers={attendance.board.vacantSeatNumbers}
       />
       <AttendanceMemberLeaveModal
         branchId={branchId}

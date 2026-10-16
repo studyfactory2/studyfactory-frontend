@@ -15,6 +15,7 @@ type ReturnPosition = {
   url: string;
   cell: HTMLElement;
   ancestors: ScrollPosition[];
+  tableAnchor: { viewport: HTMLElement; offsetTop: number } | null;
   windowLeft: number;
   windowTop: number;
 };
@@ -47,6 +48,7 @@ export function useAttendanceLeaveReturn({
 
       // StrictMode replays setup; keep the original pre-popup position.
       if (cell && positionRef.current?.key !== key) {
+        const tableViewport = cell.closest<HTMLElement>('.table-wrap');
         const ancestors: ScrollPosition[] = [];
         for (
           let element = cell.parentElement;
@@ -68,6 +70,14 @@ export function useAttendanceLeaveReturn({
           url: window.location.href,
           cell,
           ancestors,
+          tableAnchor: tableViewport
+            ? {
+                viewport: tableViewport,
+                offsetTop:
+                  cell.getBoundingClientRect().top -
+                  tableViewport.getBoundingClientRect().top,
+              }
+            : null,
           windowLeft: window.scrollX,
           windowTop: window.scrollY,
         };
@@ -103,6 +113,24 @@ export function useAttendanceLeaveReturn({
         top: position.windowTop,
         behavior: 'instant',
       });
+      // Late seat metadata can insert rows while the popup is open. After
+      // restoring numeric scroll positions, keep this member at the same
+      // vertical point in the table rather than returning to a different row.
+      const anchor = position.tableAnchor;
+      if (
+        anchor?.viewport.isConnected &&
+        anchor.viewport.contains(position.cell)
+      ) {
+        const offsetDelta =
+          position.cell.getBoundingClientRect().top -
+          anchor.viewport.getBoundingClientRect().top -
+          anchor.offsetTop;
+        anchor.viewport.scrollTo({
+          left: anchor.viewport.scrollLeft,
+          top: anchor.viewport.scrollTop + offsetDelta,
+          behavior: 'instant',
+        });
+      }
     };
     restoreScroll();
     // Finish after modal focus cleanup and browser history scroll restoration.

@@ -7,6 +7,7 @@ import {
   buildAttendanceMembers,
   type AttendanceBoardMember,
 } from '../../../../features/attendances/workspace/model/attendance-board';
+import { getAttendanceVacantSeatNumbers } from '../../../../features/attendances/workspace/model/attendance-seat-layout';
 import { memberQueryKeys } from '../../../../features/members/member-query-keys';
 import { selectAttendanceRoster } from '../../../../features/attendances/workspace/model/attendance-targets';
 import {
@@ -97,6 +98,10 @@ export function useAdminAttendance({
       ),
     [boardQuery.data, currentMemberRoster, presenceQuery.data],
   );
+  const vacantSeatNumbers = useMemo(
+    () => getAttendanceVacantSeatNumbers(boardQuery.data),
+    [boardQuery.data],
+  );
 
   const attendanceActions = useAdminAttendanceActions({
     attendanceMembers: members,
@@ -139,6 +144,7 @@ export function useAdminAttendance({
       loading:
         boardQuery.isPending || rosterQuery.isPending || pendingQuery.isPending,
       members,
+      vacantSeatNumbers,
       onRetry: retryBoard,
       ready: boardQuery.data !== undefined && currentMemberRoster !== undefined,
     },
