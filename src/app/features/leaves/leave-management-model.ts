@@ -1,6 +1,7 @@
 import type {
   FixedLeaveDayOfWeek,
   FixedLeaveManagementResponse,
+  LeaveOccurrenceSourceType,
   MonthlyLeaveCalendarResponse,
   SpecialLeaveResponse,
 } from './leaves-api';
@@ -52,6 +53,10 @@ export type ManagerLeaveCalendarEntry = {
   source: 'own' | 'special';
   slots: readonly number[];
   slotsLabel: string;
+  cancellationSource: {
+    sourceType: LeaveOccurrenceSourceType;
+    sourceId: number;
+  } | null;
 };
 
 export type ManagerLeaveCalendarReason = {
@@ -103,13 +108,25 @@ export function buildManagerLeaveCalendarCells({
   rows.forEach((row, index) => {
     const current = entriesByDate.get(row.leaveDate) ?? [];
     const slots = parseLeaveSlots(row.slots);
+    const cancellationSource =
+      (row.sourceType === 'MEMBER_LEAVE' ||
+        row.sourceType === 'SPECIAL_LEAVE' ||
+        row.sourceType === 'FIXED_LEAVE') &&
+      typeof row.sourceId === 'number' &&
+      Number.isSafeInteger(row.sourceId) &&
+      row.sourceId > 0
+        ? { sourceType: row.sourceType, sourceId: row.sourceId }
+        : null;
 
     current.push({
-      key: `${row.leaveDate}:${row.source}:${row.label}:${row.slots}:${index}`,
+      key: cancellationSource
+        ? `${row.leaveDate}:${cancellationSource.sourceType}:${cancellationSource.sourceId}`
+        : `${row.leaveDate}:${row.source}:${row.label}:${row.slots}:${index}`,
       label: row.label,
       slots,
       slotsLabel: formatLeaveSlots(slots),
       source: row.source === 'LEAVE' ? 'own' : 'special',
+      cancellationSource,
     });
     entriesByDate.set(row.leaveDate, current);
   });
@@ -122,6 +139,21 @@ export function buildManagerLeaveCalendarCells({
       inMonth: cell.inMonth,
       isToday: cell.dateKey === todayKey,
     }),
+  );
+}
+
+/** Details are period-granular; calendar badges still summarize by reason. */
+export function expandManagerLeaveCalendarPeriods(
+  entries: readonly ManagerLeaveCalendarEntry[],
+) {
+  return entries.flatMap((entry) =>
+    entry.slots.map((slot) => ({
+      key: `${entry.key}:${slot}`,
+      entryKey: entry.key,
+      label: entry.label,
+      slot,
+      cancellationSource: entry.cancellationSource,
+    })),
   );
 }
 

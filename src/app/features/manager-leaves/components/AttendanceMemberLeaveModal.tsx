@@ -10,6 +10,7 @@ import {
   SectionLoading,
 } from '../../../shared/ui';
 import { formatKoreanDate } from '../../../shared/lib/seoul-date';
+import { expandManagerLeaveCalendarPeriods } from '../../leaves/leave-management-model';
 import {
   useAttendanceMemberLeave,
   type AttendanceMemberLeaveState,
@@ -163,7 +164,7 @@ function AttendanceMemberLeaveContent({
           aria-busy={leaves.request.refreshing}
           aria-label="휴무 내역 새로고침"
           className="attendance-member-leave__refresh"
-          disabled={leaves.request.refreshing}
+          disabled={leaves.request.refreshing || leaves.deletion.pending}
           onClick={leaves.request.onRefresh}
           type="button"
         >
@@ -223,12 +224,40 @@ function AttendanceMemberLeaveContent({
                   <p>이 날짜에 등록된 휴무가 없어요.</p>
                 ) : (
                   <ul>
-                    {selectedDay.entries.map((entry) => (
-                      <li key={entry.key}>
-                        <strong>{entry.label}</strong>
-                        <span>{entry.slotsLabel}</span>
-                      </li>
-                    ))}
+                    {expandManagerLeaveCalendarPeriods(selectedDay.entries).map(
+                      (entry) => (
+                        <li key={entry.key}>
+                          <strong>{entry.label}</strong>
+                          <span>{entry.slot}교시</span>
+                          <button
+                            aria-busy={leaves.deletion.pendingKey === entry.key}
+                            aria-label={`${formatKoreanDate(selectedDay.dateKey)} ${entry.slot}교시 ${entry.label} 삭제`}
+                            className="attendance-member-leave__delete"
+                            disabled={
+                              leaves.deletion.disabled ||
+                              entry.cancellationSource === null
+                            }
+                            onClick={() =>
+                              leaves.deletion.onDelete(
+                                selectedDay.dateKey,
+                                entry.entryKey,
+                                entry.slot,
+                              )
+                            }
+                            title={
+                              entry.cancellationSource === null
+                                ? '서버 업데이트 후 휴무 내역을 새로고침해 주세요.'
+                                : undefined
+                            }
+                            type="button"
+                          >
+                            {leaves.deletion.pendingKey === entry.key
+                              ? '삭제 중'
+                              : '삭제'}
+                          </button>
+                        </li>
+                      ),
+                    )}
                   </ul>
                 )}
               </>

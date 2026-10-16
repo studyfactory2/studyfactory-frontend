@@ -90,6 +90,21 @@ export type MonthlyLeaveCalendarResponse = {
   label: string;
   source: MemberLeavePlanSource | string;
   slots: string;
+  /** Additive identity: older servers remain viewable, but not row-deletable. */
+  sourceType?: LeaveOccurrenceSourceType;
+  sourceId?: number;
+};
+
+export type LeaveOccurrenceSourceType =
+  'MEMBER_LEAVE' | 'SPECIAL_LEAVE' | 'FIXED_LEAVE';
+
+export type LeaveOccurrenceCancellationInput = {
+  branchId: number;
+  memberId: number;
+  leaveDate: string;
+  slot: number;
+  sourceType: LeaveOccurrenceSourceType;
+  sourceId: number;
 };
 
 export type SpecialLeaveResponse = {
@@ -156,6 +171,34 @@ export type LeaveCancellationResponse = {
   cancelledPeriodCount: number;
   preservedPresentPeriodCount: number;
 };
+
+/** Cancel exactly one source/date/period, never the whole recurring rule. */
+export async function cancelMemberLeaveOccurrence(
+  input: LeaveOccurrenceCancellationInput,
+  expectedMemberId: number,
+) {
+  const response = await apiRequest<LeaveCancellationResponse>(
+    '/api/leaves/cancellations/occurrence',
+    {
+      body: JSON.stringify(input),
+      expectedMemberId,
+      method: 'POST',
+    },
+  );
+  if (
+    !response ||
+    response.memberId !== input.memberId ||
+    response.branchId !== input.branchId ||
+    response.requestedPeriodCount !== 1 ||
+    ![
+      response.cancelledPeriodCount,
+      response.preservedPresentPeriodCount,
+    ].every((count) => Number.isInteger(count) && count >= 0 && count <= 1)
+  ) {
+    throw new ApiRequestError('휴무 삭제 결과를 다시 확인해 주세요.', 409);
+  }
+  return response;
+}
 
 export async function cancelMemberLeavePeriods(
   input: LeaveCancellationInput,
