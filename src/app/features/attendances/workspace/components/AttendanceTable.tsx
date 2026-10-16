@@ -24,6 +24,7 @@ import {
 } from './AttendanceMemberIdentity';
 import { AttendanceStatusCell } from './AttendanceStatusCell';
 import { getAttendanceSeatLayoutClassName } from '../model/attendance-seat-layout';
+import { useAttendanceViewport } from '../hooks/useAttendanceViewport';
 
 type AttendanceDisplayRow =
   | { kind: 'member'; member: AttendanceBoardMember; seatNumber: number | null }
@@ -75,6 +76,8 @@ export function AttendanceTable({
   vacantSeatNumbers,
 }: AttendanceTableProps) {
   const frameRef = useRef<HTMLDivElement>(null);
+  const hasCommands = interactive && dock !== null;
+  useAttendanceViewport(frameRef, hasCommands);
   const identityHeaderRef = useRef<HTMLTableCellElement>(null);
   const operationalHeaderRef = useRef<HTMLTableCellElement>(null);
   const displayRows = useMemo(() => {
@@ -231,7 +234,13 @@ export function AttendanceTable({
   };
 
   return (
-    <div className="staff-attendance__table-frame" ref={frameRef}>
+    <div
+      className={cx(
+        'staff-attendance__table-frame',
+        hasCommands && 'has-command-dock',
+      )}
+      ref={frameRef}
+    >
       <p className="staff-attendance__scroll-hint">
         <MoveHorizontal aria-hidden="true" size={14} />
         옆으로 밀어 1–7교시를 확인하세요.

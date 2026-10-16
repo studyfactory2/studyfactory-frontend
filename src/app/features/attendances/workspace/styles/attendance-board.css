@@ -764,6 +764,21 @@ button.staff-attendance__status:hover:not(:disabled) {
     scroll-padding-top: 38px;
   }
 
+  .staff-attendance__table-frame.has-command-dock {
+    /* Keep page-scroll room to move the overview/search above the roster. */
+    height: min(
+      70svh,
+      42rem,
+      calc(100svh - 218px - env(safe-area-inset-bottom, 0px))
+    );
+    max-height: none;
+    padding-bottom: var(--attendance-dock-space, 108px);
+  }
+
+  .staff-attendance__table-frame.has-command-dock .table-wrap {
+    max-height: var(--attendance-table-height, 30svh);
+  }
+
   .staff-attendance__table-frame .table {
     width: 100%;
     min-width: 0;

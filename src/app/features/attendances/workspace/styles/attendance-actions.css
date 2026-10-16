@@ -284,13 +284,20 @@
 
 @media (max-width: 768px) {
   .staff-attendance__action-bar {
-    /* A separate flex row, never an overlay on the scrollable roster. */
-    position: static;
+    /* The roster reserves this space; commands never disappear below it. */
+    position: fixed;
+    z-index: 29;
+    right: 0;
+    bottom: var(
+      --attendance-dock-bottom,
+      calc(79px + env(safe-area-inset-bottom, 0px))
+    );
+    left: 0;
     width: calc(100% - 10px);
     min-height: 0;
     align-items: stretch;
     flex-direction: column;
-    margin: 6px auto;
+    margin: 0 auto;
     padding: 5px;
     gap: 4px;
   }
