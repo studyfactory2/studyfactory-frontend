@@ -20,7 +20,7 @@ import { fetchMyStudyTimeReport } from '../../../../features/study-time/study-ti
 import { useSeoulToday } from '../../../../shared/hooks/useSeoulToday';
 import {
   addDays,
-  formatMonthDay,
+  formatKoreanDate,
   getMonthEndKey,
   getMonthStartKey,
   getWeekdayLabel,
@@ -189,7 +189,7 @@ export function useMemberMore(memberId: number, ownerKey: SessionOwnerKey) {
 
     return {
       beverages: drinkCount > 0 ? `${drinkCount}개` : null,
-      leaves: nextLeave ? formatMonthDay(nextLeave.leaveDate) : null,
+      leaves: nextLeave ? formatKoreanDate(nextLeave.leaveDate) : null,
       profile: profile.seatLabel,
       sideDishes:
         hasLunch && hasDinner

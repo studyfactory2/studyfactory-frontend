@@ -9,6 +9,7 @@ import {
   type VerifiedRegistration,
 } from '../../../features/auth/registration-flow';
 import { fetchBranches } from '../../../features/branches/branches-api';
+import { formatDottedDate } from '../../../shared/lib/seoul-date';
 import { Button, Field, Input } from '../../../shared/ui';
 import { branchQueryKeys } from '../../../features/branches/branch-query-keys';
 
@@ -106,7 +107,7 @@ export function PasswordPane({
         </div>
         <div>
           <dt>입사 예정일</dt>
-          <dd>{member.expectedJoinDate ?? '-'}</dd>
+          <dd>{formatDottedDate(member.expectedJoinDate ?? '-')}</dd>
         </div>
       </dl>
 

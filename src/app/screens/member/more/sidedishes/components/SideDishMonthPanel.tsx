@@ -3,7 +3,7 @@ import {
   SectionError,
   SectionLoading,
 } from '../../../../../shared/ui';
-import { formatMonthDay } from '../../../../../shared/lib/seoul-date';
+import { formatKoreanDate } from '../../../../../shared/lib/seoul-date';
 import '../styles/SideDishMonthPanel.css';
 
 export type SideDishMonthPanelProps = {
@@ -67,7 +67,7 @@ export function SideDishMonthPanel({
                   onClick={() => onSelectDate(dateKey)}
                   type="button"
                 >
-                  {formatMonthDay(dateKey)}
+                  {formatKoreanDate(dateKey)}
                 </button>
               </li>
             ))}

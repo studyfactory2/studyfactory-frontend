@@ -9,6 +9,7 @@ import { useSeoulToday } from '../../../../shared/hooks/useSeoulToday';
 import {
   addDays,
   formatDateRange,
+  formatDottedDate,
   getWeekStartKey,
   getWeekdayName,
 } from '../../../../shared/lib/seoul-date';
@@ -269,8 +270,8 @@ export function AdminFixedLeavePanel({
             )}
 
             <p className="admin-fixed-leave__contract-note">
-              {createInput.leaveDate}부터 선택한 요일마다 반복됩니다. 과거
-              기록은 변경하지 않아요.
+              {formatDottedDate(createInput.leaveDate)}부터 선택한 요일마다
+              반복됩니다. 과거 기록은 변경하지 않아요.
             </p>
             {formError && (
               <p className="admin-fixed-leave__form-error" role="alert">
@@ -352,7 +353,9 @@ export function AdminFixedLeavePanel({
                 <span className="admin-fixed-leave__rule-copy">
                   <strong>{item.reason}</strong>
                   <small>{formatLeaveSlots(item.slots)}</small>
-                  {item.startDate && <small>{item.startDate}부터</small>}
+                  {item.startDate && (
+                    <small>{formatDottedDate(item.startDate)}부터</small>
+                  )}
                 </span>
                 <button
                   aria-label={`${item.memberName} ${item.reason} 고정 휴무 삭제`}
@@ -410,7 +413,8 @@ export function AdminFixedLeavePanel({
             {formatLeaveSlots(createInput.slots)} · {createInput.reason}
           </p>
           <p className="is-warning">
-            {createInput.leaveDate}부터 시작하며, 과거 기록은 변경하지 않아요.
+            {formatDottedDate(createInput.leaveDate)}부터 시작하며, 과거 기록은
+            변경하지 않아요.
           </p>
         </div>
       </Modal>

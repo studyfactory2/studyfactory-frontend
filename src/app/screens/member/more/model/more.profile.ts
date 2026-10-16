@@ -2,6 +2,7 @@ import type { CertificationResponse } from '../../../../features/certifications/
 import type { MemberResponse } from '../../../../features/members/members-api';
 import {
   SEOUL_DAY_MS,
+  formatFullKoreanDate,
   getSeoulDayStartMs,
 } from '../../../../shared/lib/seoul-date';
 
@@ -64,9 +65,5 @@ export function formatJoinDate(joinDate: string | null | undefined) {
     return '가입일 미등록';
   }
 
-  const [year, month, day] = joinDate.split('-').map(Number);
-
-  return Number.isFinite(year) && Number.isFinite(month) && Number.isFinite(day)
-    ? `${year}년 ${month}월 ${day}일`
-    : joinDate;
+  return formatFullKoreanDate(joinDate);
 }

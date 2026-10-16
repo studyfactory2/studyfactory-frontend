@@ -1,6 +1,10 @@
 import type { RefObject } from 'react';
 import type { MemberRole } from '../../../../core/session';
 import type { BranchResponse } from '../../../../features/branches/branches-api';
+import {
+  formatFullKoreanDate,
+  isValidDateKey,
+} from '../../../../shared/lib/seoul-date';
 import { Field, Select } from '../../../../shared/ui';
 import { ROLE_LABELS } from '../model/admin-members';
 import {
@@ -126,6 +130,11 @@ export function CurrentMemberBasicFields({
       <div className="current-member-form__wide">
         <Field
           error={showErrors ? errors.joinDate : undefined}
+          hint={
+            isValidDateKey(draft.joinDate)
+              ? formatFullKoreanDate(draft.joinDate)
+              : undefined
+          }
           label="입사일"
           required
         >

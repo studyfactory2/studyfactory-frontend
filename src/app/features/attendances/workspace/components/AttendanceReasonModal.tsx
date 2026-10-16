@@ -17,6 +17,7 @@ import {
   SectionLoading,
 } from '../../../../shared/ui';
 import {
+  formatDottedDate,
   formatKoreanDate,
   formatKoreanMonth,
   getDayOfMonth,
@@ -500,7 +501,9 @@ function RuleDescription({ rule }: { rule: FixedLeaveManagementResponse }) {
       </strong>
       <span>{rule.reason}</span>
       <small>
-        {rule.startDate ? `${rule.startDate}부터` : '기존 반복 일정'}
+        {rule.startDate
+          ? `${formatDottedDate(rule.startDate)}부터`
+          : '기존 반복 일정'}
       </small>
     </span>
   );

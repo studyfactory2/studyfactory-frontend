@@ -1,3 +1,8 @@
+import {
+  formatDateRange,
+  formatFullKoreanDate,
+} from '../../../../shared/lib/seoul-date';
+
 export function isCanonicalMondayKey(value: string) {
   const date = parseDateKey(value);
   return date !== null && toDateKey(getMonday(date)) === value;
@@ -104,9 +109,7 @@ export function formatMonthLabel(month: string) {
 
 export function formatWeekRange(weekStart: Date) {
   const end = addDays(weekStart, 6);
-  const startLabel = `${weekStart.getMonth() + 1}월 ${weekStart.getDate()}일`;
-  const endLabel = `${end.getMonth() + 1}월 ${end.getDate()}일`;
-  return `${startLabel} – ${endLabel}`;
+  return formatDateRange(toDateKey(weekStart), toDateKey(end));
 }
 
 export function formatShortDate(date: Date) {
@@ -114,7 +117,7 @@ export function formatShortDate(date: Date) {
 }
 
 export function formatFullDate(date: Date) {
-  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+  return formatFullKoreanDate(toDateKey(date));
 }
 
 export function isSameDate(left: Date, right: Date) {

@@ -4,7 +4,10 @@ import type {
   SuggestionResponse,
 } from '../../suggestions/suggestions-api';
 import type { TodoResponse } from '../../todos/todos-api';
-import { formatShortDate } from '../../../shared/lib/seoul-date';
+import {
+  formatShortDateWithWeekday,
+  isValidDateKey,
+} from '../../../shared/lib/seoul-date';
 
 const priceFormatter = new Intl.NumberFormat('ko-KR');
 
@@ -111,8 +114,8 @@ export const getTodoMeta = getAttendanceTodoMeta;
 export function formatAttendanceRequestDate(localDateTime: string) {
   const dateKey = localDateTime.split('T')[0];
 
-  return /^\d{4}-\d{2}-\d{2}$/.test(dateKey ?? '')
-    ? formatShortDate(dateKey)
+  return dateKey !== undefined && isValidDateKey(dateKey)
+    ? formatShortDateWithWeekday(dateKey)
     : localDateTime;
 }
 

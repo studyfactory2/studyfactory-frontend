@@ -10,6 +10,7 @@ import {
   type VerifiedRegistration,
 } from '../../../features/auth/registration-flow';
 import { fetchBranches } from '../../../features/branches/branches-api';
+import { formatDottedDate } from '../../../shared/lib/seoul-date';
 import { Button, Field, Input, Select } from '../../../shared/ui';
 import { branchQueryKeys } from '../../../features/branches/branch-query-keys';
 
@@ -217,7 +218,7 @@ export function VerifyPane({
               <span>{verified.member.name}</span>
               <small>
                 좌석 {verified.member.seatNumber ?? '미정'} · 입사 예정일{' '}
-                {verified.member.expectedJoinDate ?? '-'}
+                {formatDottedDate(verified.member.expectedJoinDate ?? '-')}
               </small>
             </button>
           ))}

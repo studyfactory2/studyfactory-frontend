@@ -54,7 +54,7 @@ export function MobilePlanTimeline({
         {days.map((day) => (
           <button
             aria-current={day.isToday ? 'date' : undefined}
-            aria-label={`${day.fullDateLabel} ${day.longLabel}`}
+            aria-label={day.fullDateLabel}
             aria-pressed={selectedDayIndex === day.dayIndex}
             className={selectedDayIndex === day.dayIndex ? 'is-active' : ''}
             disabled={daySelectionDisabled}

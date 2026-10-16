@@ -6,6 +6,8 @@ import type {
 } from '../../../../features/members/members-api';
 import { excludePendingMembers } from '../../../../features/members/member-roster';
 
+export { formatDottedDate } from '../../../../shared/lib/seoul-date';
+
 export type AdminMembersView = 'current' | 'pending';
 
 export type AdminMemberRoleFilter = 'ALL' | MemberRole;
@@ -238,11 +240,4 @@ export function summariseBeverages(
   }
 
   return items;
-}
-
-/** "2026-08-01" → "2026.08.01"; anything else is shown as received. */
-export function formatDottedDate(dateKey: string) {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey);
-
-  return match === null ? dateKey : `${match[1]}.${match[2]}.${match[3]}`;
 }

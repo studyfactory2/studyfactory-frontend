@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { getWeekdayLabel } from '../../../../shared/lib/seoul-date';
+import { formatDottedDate } from '../../../../shared/lib/seoul-date';
 import { AppShellToolbar } from '../../../../shared/layout/AppShell/AppShellToolbar';
 import type { useAttendanceDate } from '../hooks/useAttendanceDate';
 import '../styles/attendance-date-bar.css';
@@ -13,7 +13,7 @@ export function AttendanceDateBar({
   date,
   writePending,
 }: AttendanceDateBarProps) {
-  const label = `${date.dateKey.replaceAll('-', '.')} (${getWeekdayLabel(date.dateKey)})`;
+  const label = formatDottedDate(date.dateKey);
 
   return (
     <>

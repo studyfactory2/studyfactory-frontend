@@ -17,6 +17,7 @@ const seoulExpiryFormatter = new Intl.DateTimeFormat('ko-KR', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
+  weekday: 'short',
   hour: 'numeric',
   minute: '2-digit',
   hour12: true,

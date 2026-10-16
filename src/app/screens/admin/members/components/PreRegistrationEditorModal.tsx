@@ -18,6 +18,10 @@ import type {
   PreRegistrationResponse,
 } from '../../../../features/members/members-api';
 import { cx } from '../../../../shared/lib/cx';
+import {
+  formatFullKoreanDate,
+  isValidDateKey,
+} from '../../../../shared/lib/seoul-date';
 import { Button, Field, Input, Modal, Select } from '../../../../shared/ui';
 import {
   BEVERAGE_NAME_MAX_LENGTH,
@@ -288,7 +292,11 @@ function EditorForm({
 
         <Field
           error={showErrors ? errors.expectedJoinDate : undefined}
-          hint="비워 두면 미정으로 저장돼요."
+          hint={
+            isValidDateKey(draft.expectedJoinDate)
+              ? `${formatFullKoreanDate(draft.expectedJoinDate)} · 비워 두면 미정으로 저장돼요.`
+              : '비워 두면 미정으로 저장돼요.'
+          }
           label="입사 예정일"
         >
           {(id) => (

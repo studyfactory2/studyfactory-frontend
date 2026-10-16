@@ -1,3 +1,8 @@
+import {
+  formatFullKoreanDate,
+  isValidDateKey,
+} from '../../../../../shared/lib/seoul-date';
+
 /**
  * Suggestion timestamps are the only member-facing dates we cannot safely
  * convert between zones.
@@ -17,9 +22,8 @@
  */
 export function formatSuggestionDate(localDateTime: string) {
   const [datePart] = localDateTime.split('T');
-  const [year, month, day] = (datePart ?? '').split('-').map(Number);
 
-  return Number.isFinite(year) && Number.isFinite(month) && Number.isFinite(day)
-    ? `${year}년 ${month}월 ${day}일`
+  return isValidDateKey(datePart ?? '')
+    ? formatFullKoreanDate(datePart)
     : localDateTime;
 }

@@ -216,17 +216,44 @@ export function getDayOfMonth(dateKey: string) {
   return splitDateKey(dateKey).day;
 }
 
+/** Validate calendar dates before adding a weekday; never normalize bad input. */
+export function isValidDateKey(dateKey: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return false;
+  const { day, month, year } = splitDateKey(dateKey);
+  const date = new Date(toTimestamp(dateKey));
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() + 1 === month &&
+    date.getUTCDate() === day
+  );
+}
+
 export function formatKoreanDate(dateKey: string) {
+  if (!isValidDateKey(dateKey)) return dateKey;
   const { day, month } = splitDateKey(dateKey);
 
   return `${month}월 ${day}일 (${getWeekdayLabel(dateKey)})`;
+}
+
+export function formatFullKoreanDate(dateKey: string) {
+  if (!isValidDateKey(dateKey)) return dateKey;
+  const { year } = splitDateKey(dateKey);
+
+  return `${year}년 ${formatKoreanDate(dateKey)}`;
+}
+
+export function formatDottedDate(dateKey: string) {
+  if (!isValidDateKey(dateKey)) return dateKey;
+
+  return `${dateKey.replaceAll('-', '.')} (${getWeekdayLabel(dateKey)})`;
 }
 
 export function formatKoreanMonth(year: number, month: number) {
   return `${year}년 ${month}월`;
 }
 
-/** Month and day without the weekday, for tight spots like a menu row. */
+/** Only for layouts that already show the weekday separately. */
 export function formatMonthDay(dateKey: string) {
   const { day, month } = splitDateKey(dateKey);
 
@@ -239,7 +266,17 @@ export function formatShortDate(dateKey: string) {
   return `${month}.${pad(day)}`;
 }
 
+/** Compact standalone label; calendar/weekly columns keep formatShortDate. */
+export function formatShortDateWithWeekday(dateKey: string) {
+  if (!isValidDateKey(dateKey)) return dateKey;
+
+  return `${formatShortDate(dateKey)} (${getWeekdayLabel(dateKey)})`;
+}
+
 export function formatDateRange(from: string, to: string) {
+  if (!isValidDateKey(from) || !isValidDateKey(to)) {
+    return from === to ? from : `${from} ~ ${to}`;
+  }
   if (from === to) {
     return formatKoreanDate(from);
   }
@@ -247,9 +284,13 @@ export function formatDateRange(from: string, to: string) {
   const start = splitDateKey(from);
   const end = splitDateKey(to);
 
-  return start.year === end.year && start.month === end.month
-    ? `${start.month}월 ${start.day}일 ~ ${end.day}일`
-    : `${start.month}월 ${start.day}일 ~ ${end.month}월 ${end.day}일`;
+  if (start.year !== end.year) {
+    return `${formatFullKoreanDate(from)} ~ ${formatFullKoreanDate(to)}`;
+  }
+
+  return start.month === end.month
+    ? `${formatKoreanDate(from)} ~ ${end.day}일 (${getWeekdayLabel(to)})`
+    : `${formatKoreanDate(from)} ~ ${formatKoreanDate(to)}`;
 }
 
 export function compareDateKeys(left: string, right: string) {

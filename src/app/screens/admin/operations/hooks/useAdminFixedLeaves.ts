@@ -18,6 +18,7 @@ import {
 import { excludePendingMembers } from '../../../../features/members/member-roster';
 import { studyTimeQueryKeys } from '../../../../features/study-time/study-time-query-keys';
 import { useToast } from '../../../../shared/ui';
+import { formatDottedDate } from '../../../../shared/lib/seoul-date';
 import {
   sortManagerLeaveMembers,
   sortFixedLeaves,
@@ -111,7 +112,7 @@ export function useAdminFixedLeaves({
     onError: (error: Error) => toast(error.message, 'error'),
     onSuccess: (response) =>
       toast(
-        `${response.startDate}–${response.endDate} 고정 휴무 ${response.createdCount}건을 반영했어요.`,
+        `${formatDottedDate(response.startDate)} – ${formatDottedDate(response.endDate)} 고정 휴무 ${response.createdCount}건을 반영했어요.`,
         'success',
       ),
     onSettled: () => invalidateLeaveConsumers(),
