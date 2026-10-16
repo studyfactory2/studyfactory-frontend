@@ -12,6 +12,7 @@ type AdminBranchSelectorProps = {
    */
   announceError: boolean;
   branches: BranchResponse[];
+  compact?: boolean;
   errorMessage: string | null;
   loading: boolean;
   onRetry: () => void;
@@ -29,6 +30,7 @@ type AdminBranchSelectorProps = {
 export function AdminBranchSelector({
   announceError,
   branches,
+  compact = false,
   errorMessage,
   loading,
   onRetry,
@@ -40,7 +42,10 @@ export function AdminBranchSelector({
   if (errorMessage !== null) {
     return (
       <div
-        className="admin-branch-selector is-error"
+        className={cx(
+          'admin-branch-selector is-error',
+          compact && 'admin-branch-selector--compact',
+        )}
         role={announceError ? 'alert' : undefined}
       >
         <span className="admin-branch-selector__label">운영 지점</span>
@@ -65,6 +70,7 @@ export function AdminBranchSelector({
     <div
       className={cx(
         'admin-branch-selector',
+        compact && 'admin-branch-selector--compact',
         loading && 'is-loading',
         !loading && !resolved && 'is-unresolved',
       )}

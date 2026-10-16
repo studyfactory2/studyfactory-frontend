@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Building2 } from 'lucide-react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useMatch } from 'react-router-dom';
+import { adminRoutes } from '../../core/router/routes';
 import { useSession } from '../../core/session';
 import { fetchBranches } from '../../features/branches/branches-api';
 import { branchQueryKeys } from '../../features/branches/branch-query-keys';
@@ -28,6 +29,7 @@ function AdminWorkspace({
 }: {
   authenticatedBranchId: number | null;
 }) {
+  const attendanceRoute = useMatch(adminRoutes.attendance) !== null;
   const branchesQuery = useQuery({
     queryFn: fetchBranches,
     queryKey: branchQueryKeys.all(),
@@ -86,6 +88,7 @@ function AdminWorkspace({
         <AdminBranchSelector
           announceError={scope !== null}
           branches={branches}
+          compact={attendanceRoute}
           errorMessage={errorMessage}
           loading={branchesQuery.isPending}
           onRetry={retryBranches}
@@ -94,6 +97,7 @@ function AdminWorkspace({
         />
       }
       navigation={adminNavigation}
+      screenToolbar={attendanceRoute}
       workspaceLabel="지점 관리자"
     >
       {scope !== null ? (

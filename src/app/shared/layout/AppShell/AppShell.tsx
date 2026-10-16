@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { LogOut } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
@@ -9,12 +9,14 @@ import { fetchBranches } from '../../../features/branches/branches-api';
 import { branchQueryKeys } from '../../../features/branches/branch-query-keys';
 import { cx } from '../../lib/cx';
 import type { WorkspaceNavigationItem } from './types';
+import { ScreenToolbarContext } from './screen-toolbar-context';
 
 type AppShellProps = {
   children: ReactNode;
   displayBranchName?: string;
   headerTools?: ReactNode;
   navigation: WorkspaceNavigationItem[];
+  screenToolbar?: boolean;
   workspaceLabel: string;
 };
 
@@ -23,11 +25,15 @@ export function AppShell({
   displayBranchName,
   headerTools,
   navigation,
+  screenToolbar = false,
   workspaceLabel,
 }: AppShellProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const mainRef = useRef<HTMLElement>(null);
+  const [toolbarTarget, setToolbarTarget] = useState<HTMLDivElement | null>(
+    null,
+  );
   const session = useSession();
   const branchesQuery = useQuery({
     queryFn: fetchBranches,
@@ -110,6 +116,7 @@ export function AppShell({
           className={cx(
             'workspace-shell__topbar',
             headerTools !== undefined && 'workspace-shell__topbar--with-tools',
+            screenToolbar && 'workspace-shell__topbar--screen-toolbar',
           )}
         >
           <div className="workspace-shell__topbar-title">
@@ -125,29 +132,47 @@ export function AppShell({
               <h1>{activeItem.label}</h1>
             </div>
           </div>
-          {headerTools !== undefined && (
-            <div className="workspace-shell__topbar-tools">{headerTools}</div>
-          )}
-          <div className="workspace-shell__topbar-account">
-            <span aria-hidden="true" className="workspace-shell__avatar">
-              {memberName.slice(0, 1).toUpperCase()}
-            </span>
-            <span>
-              <strong>{memberName}</strong>
-              <small>{workspaceLabel}</small>
-            </span>
-            <button
-              aria-label="로그아웃"
-              className="workspace-shell__logout"
-              onClick={handleLogout}
-              type="button"
-            >
-              <LogOut aria-hidden="true" size={18} />
-            </button>
+          <div className="workspace-shell__topbar-end">
+            {(headerTools !== undefined || screenToolbar) && (
+              <div className="workspace-shell__topbar-tools">
+                {headerTools ?? (
+                  <span className="workspace-shell__branch-label">
+                    {topbarBranchName}
+                  </span>
+                )}
+              </div>
+            )}
+            <div className="workspace-shell__topbar-account">
+              <span aria-hidden="true" className="workspace-shell__avatar">
+                {memberName.slice(0, 1).toUpperCase()}
+              </span>
+              <span>
+                <strong>{memberName}</strong>
+                <small>{workspaceLabel}</small>
+              </span>
+              <button
+                aria-label="로그아웃"
+                className="workspace-shell__logout"
+                onClick={handleLogout}
+                type="button"
+              >
+                <LogOut aria-hidden="true" size={18} />
+              </button>
+            </div>
           </div>
+          {screenToolbar && (
+            <div
+              className="workspace-shell__screen-toolbar"
+              ref={setToolbarTarget}
+            />
+          )}
         </header>
 
-        <div className="workspace-shell__content">{children}</div>
+        <ScreenToolbarContext.Provider
+          value={screenToolbar ? toolbarTarget : undefined}
+        >
+          <div className="workspace-shell__content">{children}</div>
+        </ScreenToolbarContext.Provider>
       </main>
 
       <nav

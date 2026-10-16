@@ -3,12 +3,12 @@
   min-width: 0;
   grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
   align-items: center;
-  gap: 4px;
-  padding: 8px;
-  border: 1px solid rgb(var(--brand-ink-rgb) / 9%);
-  border-radius: 16px;
-  background: var(--card);
-  box-shadow: var(--elev-1);
+  gap: 0;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: rgb(var(--brand-forest-rgb) / 4%);
 }
 
 .attendance-date-bar > button {
@@ -16,9 +16,9 @@
   min-width: 0;
   min-height: 44px;
   place-items: center;
-  border: 1px solid rgb(var(--brand-ink-rgb) / 8%);
-  border-radius: 11px;
-  background: var(--paper);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
   color: var(--brand-forest);
   cursor: pointer;
   font: inherit;
@@ -35,24 +35,37 @@
   opacity: 0.45;
 }
 
+.attendance-date-bar__today {
+  position: relative;
+}
+
+.attendance-date-bar__today::before {
+  position: absolute;
+  top: 13px;
+  bottom: 13px;
+  left: 0;
+  width: 1px;
+  background: var(--brand-line);
+  content: '';
+}
+
 .attendance-date-bar__field {
   position: relative;
   display: grid;
   min-width: 0;
-  min-height: 44px;
+  min-height: 48px;
   align-items: center;
-  border-radius: 11px;
-  background: rgb(var(--brand-forest-rgb) / 4%);
+  border-radius: 6px;
 }
 
 .attendance-date-bar__value {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 0 4px;
-  color: var(--brand-ink);
-  font-size: clamp(12px, 3.5vw, 15px);
+  gap: 7px;
+  padding: 0 2px;
+  color: var(--brand-forest);
+  font-size: clamp(12px, 3.5vw, 14px);
   font-variant-numeric: tabular-nums;
   font-weight: var(--weight-extrabold);
   white-space: nowrap;
