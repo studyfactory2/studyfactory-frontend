@@ -125,7 +125,11 @@ function LeaveDayBody({
                 <strong>{option.label}</strong>
                 <small>{option.description}</small>
                 {!canRequestLeave(cell, option.value) && (
-                  <small>교시 중복</small>
+                  <small>
+                    {cell.entries.some((entry) => entry.slots === null)
+                      ? '기록 확인 필요'
+                      : '교시 중복'}
+                  </small>
                 )}
               </button>
             ))}
@@ -191,17 +195,9 @@ function toNoteText(
     return ownLeaveNote;
   }
 
-  if (cell.entries.some((entry) => entry.slots === null)) {
-    return '등록된 기록의 교시 정보를 확인할 수 없어 추가 신청할 수 없어요. 데스크에 문의해 주세요.';
-  }
-
-  if (cell.isToday && canRequestLeave(cell, 'MORNING')) {
-    return '오늘 오전반차는 늦게도 신청할 수 있어요. 기존 출석과 지점 등록 기록은 유지돼요.';
-  }
-
   if (canRequestLeave(cell)) {
-    return '지점에서 등록한 기록은 그대로 유지돼요. 겹치지 않는 교시의 휴무를 추가로 신청할 수 있어요.';
+    return '기존 출석과 지점 등록·반복 휴무는 그대로 유지돼요. 오전·오후반차를 추가로 신청할 수 있어요.';
   }
 
-  return '이미 등록된 기록과 교시가 겹쳐 추가 신청할 수 없어요. 변경이 필요하면 데스크에 문의해 주세요.';
+  return '선택한 날짜에는 휴무를 신청할 수 없어요.';
 }

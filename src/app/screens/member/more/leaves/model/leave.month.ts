@@ -51,18 +51,14 @@ export function findOwnEntry(cell: LeaveDayCell) {
 }
 
 /**
- * Keep one self-service request per day. Today's morning leave may be filed
- * late even when the office already recorded e.g. first-period lateness.
- * Existing attendance and office records keep their backend precedence.
- * Other requests still require non-overlapping periods; unknown office
- * coverage fails closed. Without a type, check every available option.
+ * Keep one self-service request per day. Both half-day types can be requested
+ * today or in the future alongside office-assigned and recurring leave.
+ * This only allows a new request; existing attendance and leave records keep
+ * their backend precedence. Full-day leave still requires known,
+ * non-overlapping periods. Without a type, check every available option.
  */
 export function canRequestLeave(cell: LeaveDayCell, leaveType?: LeaveType) {
   if (!cell.inMonth || cell.isPast || findOwnEntry(cell) !== null) {
-    return false;
-  }
-
-  if (cell.entries.some((entry) => entry.slots === null)) {
     return false;
   }
 
@@ -72,7 +68,8 @@ export function canRequestLeave(cell: LeaveDayCell, leaveType?: LeaveType) {
 
   return requestedTypes.some(
     (type) =>
-      (cell.isToday && type === 'MORNING') ||
+      type === 'MORNING' ||
+      type === 'AFTERNOON' ||
       cell.entries.every((entry) =>
         entry.slots?.every((slot) => !LEAVE_TYPE_SLOTS[type].includes(slot)),
       ),
