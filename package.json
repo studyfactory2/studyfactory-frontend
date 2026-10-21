@@ -11,7 +11,8 @@
     "format:check": "prettier --check src",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test:attendance-excess-leave": "node --experimental-strip-types --test scripts/tests/attendance-excess-leave.test.mjs"
+    "test:attendance-excess-leave": "node --experimental-strip-types --test scripts/tests/attendance-excess-leave.test.mjs",
+    "test:attendance-slot-actions": "node --experimental-strip-types --test scripts/tests/attendance-slot-actions.test.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.102.8",

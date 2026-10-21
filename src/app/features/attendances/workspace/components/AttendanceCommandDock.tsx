@@ -5,7 +5,7 @@ type AttendanceCommandDockProps = {
   canAdvance: boolean;
   onAdvance: () => void;
   onManageLeave?: () => void;
-  onMarkAbsent: () => void;
+  onRestore: () => void;
   onMarkOther: () => void;
   onMarkPresent: () => void;
   pending: boolean;
@@ -16,7 +16,7 @@ export function AttendanceCommandDock({
   canAdvance,
   onAdvance,
   onManageLeave,
-  onMarkAbsent,
+  onRestore,
   onMarkOther,
   onMarkPresent,
   pending,
@@ -65,10 +65,11 @@ export function AttendanceCommandDock({
           <span>출석</span>
         </button>
         <button
-          aria-label="선택한 칸 결석 처리"
+          aria-label="선택한 칸 출석 표시를 되돌리고 기존 휴무 또는 미선택 복원"
           className="is-absent"
-          disabled={disabled || selection?.cell.state === 'absent'}
-          onClick={onMarkAbsent}
+          disabled={disabled}
+          onClick={onRestore}
+          title="기존 휴무 또는 미선택으로 되돌리기"
           type="button"
         >
           <b aria-hidden="true">X</b>

@@ -15,7 +15,6 @@ import type {
   AttendanceSelection,
   AttendanceReasonCommand,
   AttendanceSlotCommand,
-  AttendanceBoardCell,
   AttendanceBoardMember,
 } from '../model/attendance-board';
 import {
@@ -24,7 +23,6 @@ import {
   toAttendanceCellKey,
 } from '../model/attendance-board';
 import { AttendanceCommandDock } from './AttendanceCommandDock';
-import { AttendanceLeaveOverrideModal } from './AttendanceLeaveOverrideModal';
 import type { AttendancePresenceLoadState } from './AttendanceMemberIdentity';
 import { AttendanceMemberDetailsModal } from './AttendanceMemberDetailsModal';
 import { AttendancePresenceModal } from './AttendancePresenceModal';
@@ -32,6 +30,10 @@ import { AttendanceReasonModal } from './AttendanceReasonModal';
 import { AttendanceStartModal } from './AttendanceStartModal';
 import { AttendanceTable } from './AttendanceTable';
 import { hasMangmiSeatLayout } from '../model/attendance-seat-layout';
+import {
+  attendanceActivationStatus,
+  canSubmitAttendanceStatus,
+} from '../model/attendance-slot-actions';
 
 type AttendanceFilter = 'all' | 'leave' | 'unmarked';
 
@@ -133,8 +135,6 @@ export function AttendanceBoard({
   const [selectionState, setSelectionState] = useState<DatedSelection | null>(
     null,
   );
-  const [leaveOverrideTarget, setLeaveOverrideTarget] =
-    useState<DatedDialogTarget | null>(null);
   const [presenceMemberId, setPresenceMemberId] = useState<number | null>(null);
   const [detailsTarget, setDetailsTarget] = useState<{
     dateKey: string;
@@ -158,7 +158,6 @@ export function AttendanceBoard({
   useEffect(() => {
     dateKeyRef.current = dateKey;
     setSelectionState(null);
-    setLeaveOverrideTarget(null);
     setReasonTarget(null);
     setPresenceMemberId(null);
     setDetailsTarget(null);
@@ -264,9 +263,6 @@ export function AttendanceBoard({
   const activeSelectionKey = activeSelection
     ? toAttendanceCellKey(activeSelection.memberId, activeSelection.slot)
     : null;
-  const leaveOverrideOpen =
-    leaveOverrideTarget?.dateKey === dateKey &&
-    leaveOverrideTarget.cellKey === activeSelectionKey;
   const reasonOpen =
     reasonTarget?.dateKey === dateKey &&
     reasonTarget.cellKey === activeSelectionKey;
@@ -327,68 +323,22 @@ export function AttendanceBoard({
 
   const submitStatus = (
     status: AttendanceSlotCommand['status'],
-    reason?: string,
     targetSelection: AttendanceSelection | null = activeSelection,
-    closeDialog?: 'leave' | 'reason',
   ) => {
     if (
       interaction === undefined ||
       !targetSelection ||
       pendingMemberIds.has(targetSelection.memberId) ||
-      (status === 'UNCONFIRMED' && targetSelection.cell.state !== 'present') ||
-      attendanceCellAlreadyHasStatus(targetSelection.cell, status)
+      !canSubmitAttendanceStatus(targetSelection.cell, status)
     ) {
       return;
     }
 
-    const submittedDateKey = dateKey;
-    const submittedCellKey = toAttendanceCellKey(
-      targetSelection.memberId,
-      targetSelection.slot,
-    );
-    const closeSubmittedDialog = closeDialog
-      ? () => {
-          if (dateKeyRef.current !== submittedDateKey) {
-            return;
-          }
-
-          const closeIfStillSubmittedTarget = (
-            current: DatedDialogTarget | null,
-          ) =>
-            current?.dateKey === submittedDateKey &&
-            current.cellKey === submittedCellKey
-              ? null
-              : current;
-
-          if (closeDialog === 'leave') {
-            setLeaveOverrideTarget(closeIfStillSubmittedTarget);
-          } else {
-            setReasonTarget(closeIfStillSubmittedTarget);
-          }
-
-          window.requestAnimationFrame(() => {
-            const focusTarget =
-              document.getElementById(
-                toAttendanceCellId(
-                  targetSelection.memberId,
-                  targetSelection.slot,
-                ),
-              ) ?? document.getElementById(searchId);
-
-            focusTarget?.focus({ preventScroll: true });
-          });
-        }
-      : undefined;
-
-    interaction.onUpdateSlot(
-      {
-        memberId: targetSelection.memberId,
-        reason,
-        slot: targetSelection.slot,
-        status,
-      },
-      closeSubmittedDialog,
-    );
+    interaction.onUpdateSlot({
+      memberId: targetSelection.memberId,
+      slot: targetSelection.slot,
+      status,
+    });
   };
 
   const requestStatus = (status: AttendanceSlotCommand['status']) => {
@@ -396,7 +346,7 @@ export function AttendanceBoard({
       interaction === undefined ||
       !activeSelection ||
       pendingMemberIds.has(activeSelection.memberId) ||
-      attendanceCellAlreadyHasStatus(activeSelection.cell, status)
+      !canSubmitAttendanceStatus(activeSelection.cell, status)
     ) {
       return;
     }
@@ -412,18 +362,7 @@ export function AttendanceBoard({
       return;
     }
 
-    if (status === 'ABSENT' && activeSelection.cell.source === 'MEMBER_LEAVE') {
-      setLeaveOverrideTarget({
-        cellKey: toAttendanceCellKey(
-          activeSelection.memberId,
-          activeSelection.slot,
-        ),
-        dateKey,
-      });
-      return;
-    }
-
-    submitStatus(status, undefined, activeSelection);
+    submitStatus(status, activeSelection);
   };
 
   const submitReason = (command: AttendanceReasonCommand) => {
@@ -496,7 +435,7 @@ export function AttendanceBoard({
                 })
             : undefined
         }
-        onMarkAbsent={() => requestStatus('ABSENT')}
+        onRestore={() => requestStatus('RESTORE')}
         onMarkOther={() => requestStatus('OTHER')}
         onMarkPresent={() => requestStatus('PRESENT')}
         pending={selectedPending}
@@ -507,7 +446,6 @@ export function AttendanceBoard({
   const clearTransientSelection = () => {
     setDetailsTarget(null);
     setSelectionState(null);
-    setLeaveOverrideTarget(null);
     setReasonTarget(null);
   };
 
@@ -646,14 +584,14 @@ export function AttendanceBoard({
                 interactive={interaction !== undefined}
                 members={visibleMembers}
                 onActivate={(nextSelection) => {
-                  setLeaveOverrideTarget(null);
                   setReasonTarget(null);
                   selectCell(nextSelection);
 
                   // Activation cancels only a displayed O; keyboard focus and
                   // arrow navigation still select without changing attendance.
-                  if (nextSelection.cell.state === 'present') {
-                    submitStatus('UNCONFIRMED', undefined, nextSelection);
+                  const status = attendanceActivationStatus(nextSelection.cell);
+                  if (status) {
+                    submitStatus(status, nextSelection);
                   }
                 }}
                 onDetailsRequest={(member) =>
@@ -716,14 +654,6 @@ export function AttendanceBoard({
             open={reasonOpen}
             pending={selectedPending}
             selection={activeSelection}
-          />
-          <AttendanceLeaveOverrideModal
-            onClose={() => setLeaveOverrideTarget(null)}
-            onConfirm={() =>
-              submitStatus('ABSENT', undefined, activeSelection, 'leave')
-            }
-            pending={selectedPending}
-            selection={leaveOverrideOpen ? activeSelection : null}
           />
           <AttendancePresenceModal
             dateKey={dateKey}
@@ -808,15 +738,5 @@ function FilterButton({
     >
       {label}
     </button>
-  );
-}
-
-function attendanceCellAlreadyHasStatus(
-  cell: AttendanceBoardCell,
-  status: AttendanceSlotCommand['status'],
-) {
-  return (
-    (status === 'PRESENT' && cell.state === 'present') ||
-    (status === 'ABSENT' && cell.state === 'absent')
   );
 }

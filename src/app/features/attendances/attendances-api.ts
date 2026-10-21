@@ -38,8 +38,9 @@ export type DailyAttendanceBoard = {
   rows: AttendanceBoardRow[];
 };
 
+/** RESTORE reveals current saved leave/blank; ABSENT is a legacy destructive command. */
 export type AttendanceSlotUpdateStatus =
-  'PRESENT' | 'ABSENT' | 'OTHER' | 'UNCONFIRMED';
+  'PRESENT' | 'ABSENT' | 'OTHER' | 'UNCONFIRMED' | 'RESTORE';
 
 export type AttendanceSlotUpdateInput = {
   date: string;

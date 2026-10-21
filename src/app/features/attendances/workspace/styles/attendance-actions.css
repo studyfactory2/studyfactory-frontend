@@ -250,8 +250,7 @@
   font-weight: var(--weight-bold);
 }
 
-.staff-attendance__leave-warning,
-.staff-attendance__leave-override-copy {
+.staff-attendance__leave-warning {
   display: grid;
   padding: var(--space-3);
   border: 1px solid color-mix(in srgb, var(--danger) 28%, transparent);
@@ -260,21 +259,15 @@
   gap: 5px;
 }
 
-.staff-attendance__leave-warning strong,
-.staff-attendance__leave-override-copy > strong {
+.staff-attendance__leave-warning strong {
   color: var(--danger-deep);
   font-size: var(--text-xs);
 }
 
-.staff-attendance__leave-warning span,
-.staff-attendance__leave-override-copy p {
+.staff-attendance__leave-warning span {
   color: var(--brand-ink-soft);
   font-size: var(--text-2xs);
   line-height: var(--leading-relaxed);
-}
-
-.staff-attendance__leave-override-copy p b {
-  color: var(--danger-deep);
 }
 
 .staff-attendance__start-copy strong {
