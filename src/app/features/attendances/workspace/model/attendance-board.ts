@@ -31,6 +31,7 @@ export type AttendanceBoardCell = {
   label: string;
   source: AttendanceSlotSource;
   state: AttendanceCellState;
+  clearedPresent?: boolean;
 };
 
 export type AttendanceBoardMember = {
@@ -223,6 +224,7 @@ export function buildAttendanceMembers(
             toAttendanceCell(
               row.slots[slot - 1] ?? ATTENDANCE_BLANK,
               row.slotSources[slot - 1] ?? 'NONE',
+              row.clearedPresentSlots?.includes(slot) === true,
             ),
           ),
           stage: toMemberStage(row.joinDate, board.date),
@@ -335,6 +337,7 @@ function laterTimestamp(current: string | null, candidate: string) {
 function toAttendanceCell(
   value: string,
   source: AttendanceSlotSource,
+  clearedPresent = false,
 ): AttendanceBoardCell {
   if (source === 'MANAGER_ABSENT') {
     return { label: 'X', source, state: 'absent' };
@@ -353,7 +356,7 @@ function toAttendanceCell(
   }
 
   if (value === ATTENDANCE_BLANK) {
-    return { label: '—', source, state: 'unmarked' };
+    return { label: '—', source, state: 'unmarked', clearedPresent };
   }
 
   return {

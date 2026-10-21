@@ -31,6 +31,7 @@ import { AttendanceStartModal } from './AttendanceStartModal';
 import { AttendanceTable } from './AttendanceTable';
 import { hasMangmiSeatLayout } from '../model/attendance-seat-layout';
 import {
+  attendanceAbsenceStatus,
   attendanceActivationStatus,
   canSubmitAttendanceStatus,
 } from '../model/attendance-slot-actions';
@@ -435,7 +436,12 @@ export function AttendanceBoard({
                 })
             : undefined
         }
-        onRestore={() => requestStatus('RESTORE')}
+        onAbsenceAction={() => {
+          const status = activeSelection
+            ? attendanceAbsenceStatus(activeSelection.cell)
+            : null;
+          if (status) requestStatus(status);
+        }}
         onMarkOther={() => requestStatus('OTHER')}
         onMarkPresent={() => requestStatus('PRESENT')}
         pending={selectedPending}

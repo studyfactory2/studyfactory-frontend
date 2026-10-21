@@ -31,6 +31,8 @@ export type AttendanceBoardRow = {
   slotSources: AttendanceSlotSource[];
   /** Warning metadata is independent of visible attendance; old servers omit it. */
   excessLeaveRequests?: ExcessLeaveRequest[];
+  /** Persisted blanks created by tapping O again; distinguishes them from untouched blanks. */
+  clearedPresentSlots?: number[];
 };
 
 export type DailyAttendanceBoard = {
@@ -38,9 +40,9 @@ export type DailyAttendanceBoard = {
   rows: AttendanceBoardRow[];
 };
 
-/** RESTORE reveals current saved leave/blank; ABSENT is a legacy destructive command. */
+/** MARK_ABSENT preserves leave; RESTORE reveals it. ABSENT is legacy/destructive. */
 export type AttendanceSlotUpdateStatus =
-  'PRESENT' | 'ABSENT' | 'OTHER' | 'UNCONFIRMED' | 'RESTORE';
+  'PRESENT' | 'ABSENT' | 'OTHER' | 'UNCONFIRMED' | 'RESTORE' | 'MARK_ABSENT';
 
 export type AttendanceSlotUpdateInput = {
   date: string;

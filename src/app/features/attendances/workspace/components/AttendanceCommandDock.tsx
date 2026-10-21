@@ -1,11 +1,12 @@
 import { CalendarRange, CornerDownLeft } from 'lucide-react';
 import type { AttendanceSelection } from '../model/attendance-board';
+import { attendanceAbsenceStatus } from '../model/attendance-slot-actions';
 
 type AttendanceCommandDockProps = {
   canAdvance: boolean;
   onAdvance: () => void;
   onManageLeave?: () => void;
-  onRestore: () => void;
+  onAbsenceAction: () => void;
   onMarkOther: () => void;
   onMarkPresent: () => void;
   pending: boolean;
@@ -16,13 +17,17 @@ export function AttendanceCommandDock({
   canAdvance,
   onAdvance,
   onManageLeave,
-  onRestore,
+  onAbsenceAction,
   onMarkOther,
   onMarkPresent,
   pending,
   selection,
 }: AttendanceCommandDockProps) {
   const disabled = selection === null || pending;
+  const absenceStatus = selection
+    ? attendanceAbsenceStatus(selection.cell)
+    : null;
+  const restoresAttendance = absenceStatus === 'RESTORE';
   const targetLabel = selection
     ? `${selection.seatNumber === null ? '미배정' : `${selection.seatNumber}번`} ${selection.name} · ${selection.slot}교시`
     : '처리할 출석 칸을 선택하세요.';
@@ -65,11 +70,19 @@ export function AttendanceCommandDock({
           <span>출석</span>
         </button>
         <button
-          aria-label="선택한 칸 출석 표시를 되돌리고 기존 휴무 또는 미선택 복원"
+          aria-label={
+            restoresAttendance
+              ? '선택한 칸 출석 표시를 되돌리고 기존 휴무 또는 미선택 복원'
+              : '선택한 칸 결석 처리'
+          }
           className="is-absent"
-          disabled={disabled}
-          onClick={onRestore}
-          title="기존 휴무 또는 미선택으로 되돌리기"
+          disabled={disabled || absenceStatus === null}
+          onClick={onAbsenceAction}
+          title={
+            restoresAttendance
+              ? '기존 휴무 또는 미선택으로 되돌리기'
+              : '선택한 교시만 결석 처리'
+          }
           type="button"
         >
           <b aria-hidden="true">X</b>
