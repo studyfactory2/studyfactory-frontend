@@ -7,6 +7,10 @@ import type {
   AttendanceBoardMember,
 } from '../model/attendance-board';
 import { toAttendanceCellId } from '../model/attendance-board';
+import {
+  getSlotExcessLeaveRequests,
+  isExcessMemberLeaveCell,
+} from '../model/attendance-excess-leave';
 
 type AttendanceStatusCellProps = {
   cell: AttendanceBoardCell | undefined;
@@ -43,6 +47,14 @@ export function AttendanceStatusCell({
     state: 'unmarked' as const,
   };
   const future = timing === 'future';
+  const hasExcessRequest =
+    getSlotExcessLeaveRequests(member.excessLeaveRequests, slot).length > 0;
+  const showExcessAccent = isExcessMemberLeaveCell(
+    safeCell,
+    member.excessLeaveRequests,
+    slot,
+  );
+  const warningLabel = hasExcessRequest ? ' · 초과휴무 신청 있음' : '';
   const statusLabel =
     safeCell.state === 'present'
       ? '출석 처리'
@@ -59,6 +71,7 @@ export function AttendanceStatusCell({
   const className = cx(
     'staff-attendance__status',
     visuallyPendingPeriod ? 'is-future' : `is-${safeCell.state}`,
+    showExcessAccent && 'has-excess-leave',
     interactive ? selected && 'is-selected' : 'is-readonly',
     pending && 'is-pending',
   );
@@ -67,11 +80,11 @@ export function AttendanceStatusCell({
     : visuallyPendingPeriod
       ? '—'
       : safeCell.label;
-  const identityLabel = `${member.seatNumber === null ? '미배정' : `${member.seatNumber}번`} ${member.name}, ${slot}교시 ${statusLabel}`;
+  const identityLabel = `${member.seatNumber === null ? '미배정' : `${member.seatNumber}번`} ${member.name}, ${slot}교시 ${statusLabel}${warningLabel}`;
 
   if (!interactive) {
     return (
-      <span className={className} title={statusLabel}>
+      <span className={className} title={`${statusLabel}${warningLabel}`}>
         <span aria-hidden="true">{content}</span>
         <span className="staff-attendance__sr-only">{identityLabel}</span>
       </span>
@@ -91,7 +104,7 @@ export function AttendanceStatusCell({
       onFocus={onSelect}
       onKeyDown={onKeyDown}
       tabIndex={tabStop ? 0 : -1}
-      title={`${statusLabel}${future ? ' · 시작 전' : ''}${safeCell.state === 'present' ? ' · 누르면 이 교시만 미확인으로 변경' : ''}`}
+      title={`${statusLabel}${warningLabel}${future ? ' · 시작 전' : ''}${safeCell.state === 'present' ? ' · 누르면 이 교시만 미확인으로 변경' : ''}`}
       type="button"
     >
       {content}

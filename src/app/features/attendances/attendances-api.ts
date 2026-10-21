@@ -1,4 +1,5 @@
 import { apiRequest, ApiRequestError } from '../../core/api/api-client';
+import type { ExcessLeaveRequest } from '../leaves/leaves-api';
 
 /**
  * A board cell holds "O", "X", or a leave label. `slotSources` is required to
@@ -28,6 +29,8 @@ export type AttendanceBoardRow = {
   /** Always seven entries, 1교시 first. */
   slots: string[];
   slotSources: AttendanceSlotSource[];
+  /** Warning metadata is independent of visible attendance; old servers omit it. */
+  excessLeaveRequests?: ExcessLeaveRequest[];
 };
 
 export type DailyAttendanceBoard = {

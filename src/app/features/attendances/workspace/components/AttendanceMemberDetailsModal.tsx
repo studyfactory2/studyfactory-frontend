@@ -1,4 +1,5 @@
 import {
+  formatDottedDate,
   formatKoreanDate,
   formatTimeOfDayFromEpochMs,
 } from '../../../../shared/lib/seoul-date';
@@ -8,6 +9,10 @@ import {
   type AttendanceBoardMember,
 } from '../model/attendance-board';
 import type { AttendancePresenceLoadState } from './AttendanceMemberIdentity';
+import {
+  getActiveExcessLeaveRequests,
+  isExcessMemberLeaveCell,
+} from '../model/attendance-excess-leave';
 
 type AttendanceMemberDetailsModalProps = {
   dateKey: string;
@@ -29,6 +34,10 @@ export function AttendanceMemberDetailsModal({
   presenceState,
 }: AttendanceMemberDetailsModalProps) {
   const checkingOut = (member?.presence?.activeSessionId ?? null) !== null;
+  const excessRequests = getActiveExcessLeaveRequests(
+    member?.excessLeaveRequests,
+  );
+  const warningWeek = excessRequests[0]?.weeklyAllowance;
   const canManagePresence =
     member !== null &&
     interactive &&
@@ -86,6 +95,34 @@ export function AttendanceMemberDetailsModal({
               )}
               <span>입사일부터 출석 기록이 표시돼요.</span>
             </p>
+          )}
+
+          {warningWeek && (
+            <section
+              aria-label="초과휴무 신청 내역"
+              className="staff-attendance__excess-details"
+            >
+              <h4>
+                초과휴무 <span>{excessRequests.length}건</span>
+              </h4>
+              <p className="staff-attendance__excess-week">
+                <time dateTime={warningWeek.weekStart}>
+                  {formatDottedDate(warningWeek.weekStart)}
+                </time>
+                {' – '}
+                <time dateTime={warningWeek.weekEnd}>
+                  {formatDottedDate(warningWeek.weekEnd)}
+                </time>
+              </p>
+              <ul>
+                {excessRequests.map((request) => (
+                  <li key={request.leaveId}>
+                    <strong>{request.label}</strong>
+                    <span>{request.slots.join('·')}교시</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
           <section
@@ -148,6 +185,11 @@ export function AttendanceMemberDetailsModal({
               {ATTENDANCE_SLOTS.map((slot) => {
                 const cell = member.slots[slot - 1];
                 const state = cell?.state ?? 'unmarked';
+                const excess = isExcessMemberLeaveCell(
+                  cell,
+                  member.excessLeaveRequests,
+                  slot,
+                );
                 const label =
                   state === 'present'
                     ? 'O · 출석'
@@ -158,9 +200,19 @@ export function AttendanceMemberDetailsModal({
                         : cell?.label;
 
                 return (
-                  <div className={`is-${state}`} key={slot}>
+                  <div
+                    className={`is-${state}${excess ? ' has-excess-leave' : ''}`}
+                    key={slot}
+                  >
                     <dt>{slot}교시</dt>
-                    <dd>{label}</dd>
+                    <dd>
+                      {label}
+                      {excess && (
+                        <span className="staff-attendance__excess-detail-note">
+                          초과휴무 신청 있음
+                        </span>
+                      )}
+                    </dd>
                   </div>
                 );
               })}

@@ -13,11 +13,13 @@ import type {
 } from '../../../../features/study-presence/study-presence-api';
 import type { MemberResponse } from '../../../../features/members/members-api';
 import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
+import type { ExcessLeaveRequest } from '../../../../features/leaves/leaves-api';
 import {
   isAttendanceRole,
   type AttendanceTargetRole,
 } from './attendance-targets';
 import { addDays } from '../../../../shared/lib/seoul-date';
+import { getActiveExcessLeaveRequests } from './attendance-excess-leave';
 
 export const ATTENDANCE_SLOTS = [1, 2, 3, 4, 5, 6, 7] as const;
 
@@ -38,6 +40,7 @@ export type AttendanceBoardMember = {
   presence: AttendanceBoardPresence | null;
   role: AttendanceTargetRole;
   seatNumber: number | null;
+  excessLeaveRequests: ExcessLeaveRequest[];
   slots: AttendanceBoardCell[];
   stage: AttendanceMemberStage;
 };
@@ -213,6 +216,9 @@ export function buildAttendanceMembers(
             row.seatNumber !== null && row.seatNumber > 0
               ? row.seatNumber
               : null,
+          excessLeaveRequests: getActiveExcessLeaveRequests(
+            row.excessLeaveRequests,
+          ),
           slots: ATTENDANCE_SLOTS.map((slot) =>
             toAttendanceCell(
               row.slots[slot - 1] ?? ATTENDANCE_BLANK,

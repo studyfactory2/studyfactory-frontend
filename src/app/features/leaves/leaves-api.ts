@@ -10,6 +10,27 @@ export type MemberLeavePlanSource = 'FIXED_LEAVE' | 'LEAVE' | 'SPECIAL_LEAVE';
 
 export type LeaveType = 'AFTERNOON' | 'FULL' | 'MORNING';
 
+/** Server-calculated information, never a client-side submission limit. */
+export type WeeklyLeaveAllowance = {
+  weekStart: string;
+  weekEnd: string;
+  allowanceUnits: number;
+  requestUnits: number;
+  usedUnitsBefore: number;
+  usedUnitsAfter: number;
+  totalUnits: number;
+  excess: boolean;
+};
+
+/** A request can remain excessive even when attendance hides its leave label. */
+export type ExcessLeaveRequest = {
+  leaveId: number;
+  leaveType: LeaveType;
+  label: string;
+  slots: number[];
+  weeklyAllowance: WeeklyLeaveAllowance;
+};
+
 export type MemberLeavePlanResponse = {
   id: number | null;
   leaveDate: string;
@@ -17,6 +38,8 @@ export type MemberLeavePlanResponse = {
   label: string;
   source: MemberLeavePlanSource | string;
   slots: string | null;
+  /** Optional during rolling deployment; office leave has no allowance. */
+  weeklyAllowance?: WeeklyLeaveAllowance | null;
 };
 
 export type LeaveResponse = {
@@ -27,6 +50,7 @@ export type LeaveResponse = {
   leaveType: LeaveType;
   createdAt: string;
   updatedAt: string;
+  weeklyAllowance?: WeeklyLeaveAllowance | null;
 };
 
 export function fetchMyLeavePlan(

@@ -5,6 +5,7 @@ import {
 } from '../../../../shared/lib/seoul-date';
 import { Badge } from '../../../../shared/ui';
 import type { AttendanceBoardMember } from '../model/attendance-board';
+import { getActiveExcessLeaveRequests } from '../model/attendance-excess-leave';
 
 export type AttendancePresenceLoadState = 'error' | 'loading' | 'ready';
 
@@ -30,6 +31,10 @@ export function AttendanceMemberIdentity({
   presenceState,
 }: AttendanceMemberIdentityProps) {
   const currentlyActive = member.presence?.currentlyActive ?? false;
+  const excessCount = getActiveExcessLeaveRequests(
+    member.excessLeaveRequests,
+  ).length;
+  const warningLabel = excessCount > 0 ? `, 초과휴무 ${excessCount}건` : '';
   const canManagePresence =
     member.role === 'MEMBER' ||
     (member.presence?.activeSessionId ?? null) !== null;
@@ -37,7 +42,7 @@ export function AttendanceMemberIdentity({
   return (
     <span className="staff-attendance__identity">
       <button
-        aria-label={`${member.seatNumber === null ? '미배정' : `${member.seatNumber}번`} ${member.name} 출석 상세 보기`}
+        aria-label={`${member.seatNumber === null ? '미배정' : `${member.seatNumber}번`} ${member.name}${warningLabel} 출석 상세 보기`}
         className="staff-attendance__member-summary"
         onClick={() => onDetailsRequest(member)}
         type="button"

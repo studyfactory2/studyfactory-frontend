@@ -70,6 +70,73 @@
   color: var(--special-deep);
 }
 
+.staff-attendance__member-details-attendance .is-leave.has-excess-leave {
+  color: var(--danger-deep);
+}
+
+.staff-attendance__excess-detail-note {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-3xs);
+  font-weight: var(--weight-medium);
+}
+
+.staff-attendance__excess-details {
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--danger) 22%, transparent);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger-soft) 60%, var(--card));
+}
+
+.staff-attendance__excess-details h4 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  color: var(--danger-deep);
+  gap: 8px;
+}
+
+.staff-attendance__excess-details h4 > span {
+  font-size: var(--text-xs);
+}
+
+.staff-attendance__excess-week {
+  margin: 0 0 10px;
+  color: var(--brand-muted);
+  font-size: var(--text-3xs);
+  line-height: var(--leading-relaxed);
+}
+
+.staff-attendance__excess-week time {
+  white-space: nowrap;
+}
+
+.staff-attendance__excess-details ul {
+  display: grid;
+  padding: 0;
+  margin: 0;
+  gap: 6px;
+  list-style: none;
+}
+
+.staff-attendance__excess-details li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 12px;
+  flex-wrap: wrap;
+  font-size: var(--text-xs);
+}
+
+.staff-attendance__excess-details li > strong {
+  color: var(--danger-deep);
+}
+
+.staff-attendance__excess-details li > span {
+  color: var(--brand-muted);
+}
+
 .staff-attendance__member-details-presence > p,
 .staff-attendance__member-details-stage {
   padding: var(--space-3);

@@ -567,6 +567,10 @@ button.staff-attendance__status:hover:not(:disabled) {
   color: var(--special-deep);
 }
 
+.staff-attendance__status.is-leave.has-excess-leave {
+  color: var(--danger-deep);
+}
+
 .staff-attendance__status.is-future {
   background: var(--attendance-future-surface);
   box-shadow: none;
