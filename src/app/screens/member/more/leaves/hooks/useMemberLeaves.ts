@@ -129,6 +129,7 @@ export function useMemberLeaves(memberId: number, ownerKey: SessionOwnerKey) {
     onCreateLeave: (dateKey: string, leaveType: LeaveType) =>
       createMutation.mutate({ dateKey, leaveType }),
     onDeleteLeave: (leaveId: number) => deleteMutation.mutate(leaveId),
+    pendingDeleteId: deleteMutation.isPending ? deleteMutation.variables : null,
     onGoToday: () => setVisibleMonth({ month: today.month, year: today.year }),
     onNextMonth: () =>
       setVisibleMonth((current) => getNextMonth(current.year, current.month)),

@@ -37,14 +37,15 @@ export type LeaveDayCell = {
 };
 
 export type LeaveTypeOption = {
-  description: string;
+  /** Compact calendar label, distinct from the full request button label. */
   label: string;
+  requestLabel: string;
   value: LeaveType;
 };
 
 /** Labels follow the backend's own vocabulary (LeaveService#toLeaveTypeLabel). */
 export const LEAVE_TYPE_OPTIONS: readonly LeaveTypeOption[] = [
-  { description: '1~7교시 전체', label: '월차', value: 'FULL' },
-  { description: '1~4교시', label: '오전', value: 'MORNING' },
-  { description: '4~7교시', label: '오후', value: 'AFTERNOON' },
+  { label: '월차', requestLabel: '월차', value: 'FULL' },
+  { label: '오전', requestLabel: '오전반차', value: 'MORNING' },
+  { label: '오후', requestLabel: '오후반차', value: 'AFTERNOON' },
 ];

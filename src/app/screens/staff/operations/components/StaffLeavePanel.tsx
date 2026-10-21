@@ -64,7 +64,7 @@ export function StaffLeavePanel({
               <i className="is-own" /> 내가 신청한 휴무
             </li>
             <li>
-              <i className="is-office" /> 지점이 등록한 휴무
+              <i className="is-office" /> 관리자등록 · 개인일정
             </li>
           </ul>
         </Card>
@@ -97,10 +97,10 @@ export function StaffLeavePanel({
 
       <LeaveDayModal
         cell={leaves.selectedCell}
-        ownLeaveNote="내가 신청한 휴무예요. 취소가 필요하면 아래 버튼을 눌러 주세요."
         onClose={leaves.onCloseDay}
         onCreate={leaves.onCreateLeave}
         onDelete={leaves.onDeleteLeave}
+        pendingDeleteId={leaves.pendingDeleteId}
         saving={leaves.saving}
       />
     </div>

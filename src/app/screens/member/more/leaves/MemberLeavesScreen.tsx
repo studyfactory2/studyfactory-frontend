@@ -73,7 +73,7 @@ function MemberLeaves({
             </li>
             <li>
               <i className="member-leaves__legend-swatch is-office" />
-              지점이 등록한 휴무
+              관리자등록 · 개인일정
             </li>
           </ul>
         </div>
@@ -109,6 +109,7 @@ function MemberLeaves({
         onClose={leaves.onCloseDay}
         onCreate={leaves.onCreateLeave}
         onDelete={leaves.onDeleteLeave}
+        pendingDeleteId={leaves.pendingDeleteId}
         saving={leaves.saving}
       />
     </section>

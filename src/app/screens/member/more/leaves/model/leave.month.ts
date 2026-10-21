@@ -46,19 +46,15 @@ export function buildLeaveMonthCells({
   }));
 }
 
-export function findOwnEntry(cell: LeaveDayCell) {
-  return cell.entries.find((entry) => entry.origin === 'own') ?? null;
-}
-
 /**
- * Keep one self-service request per day. Both half-day types can be requested
- * today or in the future alongside office-assigned and recurring leave.
+ * Multiple self-service requests may share a date, including morning followed
+ * by afternoon leave, alongside office-assigned and recurring leave.
  * This only allows a new request; existing attendance and leave records keep
  * their backend precedence. Full-day leave still requires known,
  * non-overlapping periods. Without a type, check every available option.
  */
 export function canRequestLeave(cell: LeaveDayCell, leaveType?: LeaveType) {
-  if (!cell.inMonth || cell.isPast || findOwnEntry(cell) !== null) {
+  if (!cell.inMonth || cell.isPast) {
     return false;
   }
 
@@ -159,7 +155,7 @@ function toChipLabel(
     return ownTypeLabel ?? ownLabel ?? '휴무';
   }
 
-  return source === 'FIXED_LEAVE' ? '고정' : '특별';
+  return source === 'FIXED_LEAVE' ? '개인' : '관리';
 }
 
 function toSourceLabel(source: string) {
@@ -167,5 +163,5 @@ function toSourceLabel(source: string) {
     return '내가 신청';
   }
 
-  return source === 'FIXED_LEAVE' ? '고정 휴무' : '지점 등록';
+  return source === 'FIXED_LEAVE' ? '개인일정' : '관리자등록';
 }
