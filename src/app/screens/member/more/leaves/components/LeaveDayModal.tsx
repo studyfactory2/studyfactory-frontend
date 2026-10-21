@@ -90,13 +90,16 @@ function LeaveDayContent({
                 <div className="member-leaves__day-modal-entry-content">
                   <span className="member-leaves__day-modal-entry-head">
                     <strong>{entry.label}</strong>
-                    <Badge
-                      tone={entry.origin === 'own' ? 'positive' : 'special'}
-                    >
-                      {entry.sourceLabel}
-                    </Badge>
+                    {entry.origin === 'office' && (
+                      <Badge tone="special">{entry.sourceLabel}</Badge>
+                    )}
                   </span>
-                  {entry.slotsLabel && <small>{entry.slotsLabel}</small>}
+                  {entry.slotsLabel &&
+                    !(
+                      entry.origin === 'own' &&
+                      (entry.leaveType === 'MORNING' ||
+                        entry.leaveType === 'AFTERNOON')
+                    ) && <small>{entry.slotsLabel}</small>}
                 </div>
                 {entry.origin === 'own' &&
                   entry.leaveId !== null &&
