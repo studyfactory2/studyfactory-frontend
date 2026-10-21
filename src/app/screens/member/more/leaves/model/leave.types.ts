@@ -12,7 +12,7 @@ export type LeaveOrigin = 'office' | 'own';
 export type LeaveDayEntry = {
   /** LeaveRequest id — present only when `origin` is `own`. */
   leaveId: number | null;
-  /** Two-character form for the calendar cell, which is ~44px wide. */
+  /** Calendar reason label; half-day names are compact and long text is clipped. */
   chipLabel: string;
   /** The backend's own label, shown wherever there is room for it. */
   label: string;

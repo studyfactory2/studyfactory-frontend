@@ -106,11 +106,7 @@ function toEntry(row: MemberLeavePlanResponse): LeaveDayEntry {
   const isOwnRequest = row.source === 'LEAVE';
 
   return {
-    chipLabel: toChipLabel(
-      row.source,
-      isOwnRequest ? row.label : null,
-      isOwnRequest ? getLeaveTypeLabel(row.leaveType) : null,
-    ),
+    chipLabel: toChipLabel(row),
     label: row.label,
     /**
      * Only a LEAVE row carries a LeaveRequest id. A FIXED_LEAVE row also comes
@@ -142,20 +138,23 @@ function normalizeLeaveSlots(slots: string | null): readonly number[] | null {
 }
 
 /**
- * A calendar cell is about 44px wide on a phone, so the backend's free-text
- * label ("특별휴무 (병원)") has to be shortened there. The full label still
- * shows in the day sheet and in the upcoming list.
+ * Calendar chips show the leave reason, not its registration source. Keep
+ * half-day names compact; CSS truncates longer reasons without changing the
+ * full label shown in the day sheet and upcoming list.
  */
-function toChipLabel(
-  source: string,
-  ownLabel: string | null,
-  ownTypeLabel: string | null,
-) {
-  if (source === 'LEAVE') {
-    return ownTypeLabel ?? ownLabel ?? '휴무';
+function toChipLabel(row: MemberLeavePlanResponse) {
+  const label =
+    (row.source === 'LEAVE' ? getLeaveTypeLabel(row.leaveType) : null) ??
+    row.label.trim();
+
+  if (label === '오전반차') {
+    return '오전';
+  }
+  if (label === '오후반차') {
+    return '오후';
   }
 
-  return source === 'FIXED_LEAVE' ? '개인' : '관리';
+  return label || '휴무';
 }
 
 function toSourceLabel(source: string) {

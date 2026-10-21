@@ -42,40 +42,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.member-leaves__legend {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0;
-  padding-top: 12px;
-  gap: 6px 16px;
-  border-top: 1px solid var(--brand-line);
-  list-style: none;
-}
-
-.member-leaves__legend li {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--brand-muted);
-  font-size: var(--text-xs);
-}
-
-.member-leaves__legend-swatch {
-  width: 11px;
-  height: 11px;
-  border-radius: 4px;
-}
-
-.member-leaves__legend-swatch.is-own {
-  background: var(--positive-soft);
-  box-shadow: inset 0 0 0 1px var(--positive);
-}
-
-.member-leaves__legend-swatch.is-office {
-  background: var(--special-soft);
-  box-shadow: inset 0 0 0 1px var(--special-deep);
-}
-
 /*
  * Two blocks that were stacked. Side by side from 900px they fill the width
  * the workspace gives them; below that they keep the order they always had.

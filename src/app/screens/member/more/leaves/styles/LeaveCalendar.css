@@ -180,6 +180,6 @@
   }
 
   .member-leaves__day-chip {
-    font-size: var(--text-3xs);
+    padding-inline: 3px;
   }
 }

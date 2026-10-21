@@ -58,15 +58,6 @@ export function StaffLeavePanel({
               selectedDateKey={leaves.selectedCell?.dateKey ?? null}
             />
           )}
-
-          <ul className="staff-operations__leave-legend">
-            <li>
-              <i className="is-own" /> 내가 신청한 휴무
-            </li>
-            <li>
-              <i className="is-office" /> 관리자등록 · 개인일정
-            </li>
-          </ul>
         </Card>
 
         <Card className="staff-operations__request-card">

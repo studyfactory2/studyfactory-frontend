@@ -65,17 +65,6 @@ function MemberLeaves({
               selectedDateKey={leaves.selectedCell?.dateKey ?? null}
             />
           )}
-
-          <ul className="member-leaves__legend">
-            <li>
-              <i className="member-leaves__legend-swatch is-own" />
-              내가 신청한 휴무
-            </li>
-            <li>
-              <i className="member-leaves__legend-swatch is-office" />
-              관리자등록 · 개인일정
-            </li>
-          </ul>
         </div>
 
         <section
