@@ -80,8 +80,9 @@
 }
 
 .staff-attendance__action-buttons {
-  display: flex;
+  display: grid;
   min-width: 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: center;
   gap: 5px;
 }
@@ -110,7 +111,7 @@
 
 .staff-attendance__action-buttons button {
   min-width: 68px;
-  min-height: 44px;
+  min-height: 48px;
   padding: 0 11px;
   gap: 4px;
 }
@@ -163,9 +164,6 @@
 }
 
 .staff-attendance__action-buttons .is-next {
-  width: 44px;
-  min-width: 44px;
-  flex: 0 0 auto;
   padding: 0;
   border-color: rgb(var(--brand-ink-rgb) / 9%);
   background: rgb(var(--card-rgb) / 70%);
@@ -313,14 +311,11 @@
   }
 
   .staff-attendance__action-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1.2fr 42px;
     gap: 5px;
   }
 
   .staff-attendance__action-buttons button {
     min-width: 0;
-    min-height: 44px;
     padding: 0 6px;
   }
 

@@ -12,9 +12,8 @@ import {
   useManagerOperations,
 } from '../../../features/manager-operations';
 import { useSeoulClock } from '../../../shared/hooks/useSeoulClock';
-import { EmptyState, ScreenHeader } from '../../../shared/ui';
+import { EmptyState } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
-import { AttendanceDateBar } from '../../../features/attendances/workspace/components/AttendanceDateBar';
 import { useAttendanceDate } from '../../../features/attendances/workspace/hooks/useAttendanceDate';
 import { useAdminAttendance } from './hooks/useAdminAttendance';
 import '../../../features/attendances/workspace/styles/attendance-workspace.css';
@@ -93,26 +92,9 @@ function AdminAttendanceContent({
   const beforeStudyStart =
     clockMatchesSelectedDay && clock.secondsOfDay < STUDY_START_SECONDS;
   const activeSlot = beforeStudyStart ? null : operationalSlot;
-  const periodLabel = !date.isToday
-    ? date.dateKey < date.todayKey
-      ? '과거 기록'
-      : '미래 기록'
-    : !clockMatchesSelectedDay
-      ? '오늘 기록'
-      : operationalSlot === null
-        ? '운영 종료'
-        : beforeStudyStart
-          ? '1교시 준비'
-          : `${operationalSlot}교시 기준`;
 
   return (
     <div className="admin-attendance">
-      <ScreenHeader
-        eyebrow="ADMIN · ATTENDANCE"
-        subtitle={`${branchName} · 오늘 운영과 날짜별 교시 출석을 한곳에서 확인해요.`}
-        title="출석 기록"
-      />
-
       <ManagerOperationsOverview
         onManageRequests={() => setOperationsView('member-requests')}
         onManageTasks={() => setOperationsView('tasks')}
@@ -138,11 +120,10 @@ function AdminAttendanceContent({
         />
       )}
 
-      <AttendanceDateBar date={date} writePending={attendance.writePending} />
-
       <AttendanceBoard
         activeSlot={activeSlot}
         branchName={branchName}
+        date={date}
         dateKey={date.dateKey}
         errorMessage={attendance.board.errorMessage}
         interaction={attendance.interaction}
@@ -156,13 +137,13 @@ function AdminAttendanceContent({
         }}
         onRetry={attendance.board.onRetry}
         operationalSlot={operationalSlot}
-        periodLabel={periodLabel}
         presenceErrorMessage={attendance.presence.errorMessage}
         presenceOnRetry={attendance.presence.onRetry}
         presenceReady={attendance.presence.ready}
         ready={attendance.board.ready}
         refreshing={attendance.freshness.refreshing}
         vacantSeatNumbers={attendance.board.vacantSeatNumbers}
+        writePending={attendance.writePending}
       />
       <AttendanceMemberLeaveModal
         branchId={branchId}

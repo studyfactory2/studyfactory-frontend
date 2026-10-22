@@ -13,7 +13,6 @@ import { AttendanceMemberLeaveModal } from '../../../features/manager-leaves';
 import { useAttendanceLeaveDialog } from '../../../features/manager-leaves/hooks/useAttendanceLeaveDialog';
 import { useAttendanceLeaveReturn } from '../../../features/manager-leaves/hooks/useAttendanceLeaveReturn';
 import { EmptyState } from '../../../shared/ui';
-import { AttendanceDateBar } from '../../../features/attendances/workspace/components/AttendanceDateBar';
 import { useAttendanceDate } from '../../../features/attendances/workspace/hooks/useAttendanceDate';
 import { useStaffAttendance } from './hooks/useStaffAttendance';
 import '../../../features/attendances/workspace/styles/attendance-workspace.css';
@@ -93,10 +92,10 @@ function StaffAttendanceContent({
         initialSection={toCockpitSection(searchParams.get('panel'))}
         operations={operations}
       />
-      <AttendanceDateBar date={date} writePending={attendance.writePending} />
       <AttendanceBoard
         activeSlot={attendance.period.activeSlot}
         branchName={branchName}
+        date={date}
         dateKey={date.dateKey}
         errorMessage={attendance.board.errorMessage}
         interaction={attendance.actions}
@@ -110,13 +109,13 @@ function StaffAttendanceContent({
         }}
         onRetry={attendance.board.onRetry}
         operationalSlot={attendance.period.operationalSlot}
-        periodLabel={attendance.period.label}
         presenceErrorMessage={attendance.presence.errorMessage}
         presenceOnRetry={attendance.presence.onRetry}
         presenceReady={attendance.presence.ready}
         ready={attendance.board.ready}
         refreshing={attendance.freshness.refreshing}
         vacantSeatNumbers={attendance.board.vacantSeatNumbers}
+        writePending={attendance.writePending}
       />
       <AttendanceMemberLeaveModal
         branchId={branchId}

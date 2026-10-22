@@ -3,3 +3,21 @@
 @import './attendance-seat-layout.css';
 @import './attendance-actions.css';
 @import './attendance-member-details.css';
+
+@media (max-width: 768px) {
+  .workspace-shell__content:has(> :is(.admin-attendance, .staff-attendance)) {
+    padding-top: 10px;
+  }
+
+  :is(.admin-attendance, .staff-attendance)
+    .manager-operations-cockpit__summary {
+    min-height: 44px;
+    padding: 6px 8px;
+  }
+
+  :is(.admin-attendance, .staff-attendance)
+    .manager-operations-cockpit__summary-count
+    b {
+    font-size: var(--text-sm);
+  }
+}

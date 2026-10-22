@@ -1,10 +1,8 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { RefreshCw, Search } from 'lucide-react';
 import type { SessionOwnerKey } from '../../../../core/session';
 import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import type { StudyPresenceManualCheckInInput } from '../../../../features/study-presence/study-presence-api';
 import { cx } from '../../../../shared/lib/cx';
-import { formatKoreanDate } from '../../../../shared/lib/seoul-date';
 import {
   Card,
   SectionEmpty,
@@ -23,6 +21,8 @@ import {
   toAttendanceCellKey,
 } from '../model/attendance-board';
 import { AttendanceCommandDock } from './AttendanceCommandDock';
+import { AttendanceDateBar } from './AttendanceDateBar';
+import type { useAttendanceDate } from '../hooks/useAttendanceDate';
 import type { AttendancePresenceLoadState } from './AttendanceMemberIdentity';
 import { AttendanceMemberDetailsModal } from './AttendanceMemberDetailsModal';
 import { AttendancePresenceModal } from './AttendancePresenceModal';
@@ -89,6 +89,7 @@ export type AttendanceLeaveManagementTarget = {
 type AttendanceBoardProps = {
   activeSlot: OperationalAttendanceSlot | null;
   branchName: string | null;
+  date: ReturnType<typeof useAttendanceDate>;
   dateKey: string;
   errorMessage: string | null;
   interaction?: AttendanceBoardInteraction;
@@ -99,18 +100,19 @@ type AttendanceBoardProps = {
   onRefresh: () => void;
   onRetry: () => void;
   operationalSlot: OperationalAttendanceSlot | null;
-  periodLabel: string;
   presenceErrorMessage: string | null;
   presenceOnRetry: () => void;
   presenceReady: boolean;
   ready: boolean;
   refreshing: boolean;
   vacantSeatNumbers: number[];
+  writePending: boolean;
 };
 
 export function AttendanceBoard({
   activeSlot,
   branchName,
+  date,
   dateKey,
   errorMessage,
   interaction,
@@ -121,13 +123,13 @@ export function AttendanceBoard({
   onRefresh,
   onRetry,
   operationalSlot,
-  periodLabel,
   presenceErrorMessage,
   presenceOnRetry,
   presenceReady,
   ready,
   refreshing,
   vacantSeatNumbers,
+  writePending,
 }: AttendanceBoardProps) {
   const searchId = useId();
   const dateKeyRef = useRef(dateKey);
@@ -457,33 +459,22 @@ export function AttendanceBoard({
 
   return (
     <>
+      <AttendanceDateBar
+        date={date}
+        onQueryChange={(value) => {
+          setQuery(value);
+          setPresenceMemberId(null);
+          clearTransientSelection();
+        }}
+        onRefresh={onRefresh}
+        query={query}
+        refreshing={refreshing}
+        searchEnabled={ready}
+        searchId={searchId}
+        writePending={writePending}
+      />
       <Card className="staff-attendance__board" padding="none">
-        <header className="staff-attendance__board-head">
-          <div className="staff-attendance__board-title">
-            <h2>교시 출석부</h2>
-            <p>좌석 순서대로 입퇴실 시각과 교시별 상태를 확인하세요.</p>
-          </div>
-          <div className="staff-attendance__board-context">
-            <p>
-              <time dateTime={dateKey}>{formatKoreanDate(dateKey)}</time>
-              <strong>{periodLabel}</strong>
-            </p>
-            <button
-              aria-busy={refreshing}
-              aria-label={refreshing ? '출석부 갱신 중' : '출석부 새로고침'}
-              className={cx(
-                'staff-attendance__refresh',
-                refreshing && 'is-refreshing',
-              )}
-              disabled={refreshing}
-              onClick={onRefresh}
-              type="button"
-            >
-              <RefreshCw aria-hidden="true" size={14} />
-              {refreshing ? '갱신 중' : '갱신'}
-            </button>
-          </div>
-        </header>
+        <h2 className="staff-attendance__sr-only">교시 출석부</h2>
 
         {loading && (
           <SectionLoading
@@ -502,22 +493,6 @@ export function AttendanceBoard({
               />
             )}
             <div className="staff-attendance__board-toolbar">
-              <label className="staff-attendance__search" htmlFor={searchId}>
-                <span className="staff-attendance__sr-only">사원 검색</span>
-                <Search aria-hidden="true" size={17} />
-                <input
-                  autoComplete="off"
-                  id={searchId}
-                  onChange={(event) => {
-                    setQuery(event.target.value);
-                    setPresenceMemberId(null);
-                    clearTransientSelection();
-                  }}
-                  placeholder="이름 또는 좌석 검색"
-                  type="search"
-                  value={query}
-                />
-              </label>
               <div
                 aria-label="출석부 필터"
                 className="staff-attendance__filters"
