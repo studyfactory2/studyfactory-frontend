@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "test:attendance-excess-leave": "node --experimental-strip-types --test scripts/tests/attendance-excess-leave.test.mjs",
     "test:attendance-slot-actions": "node --experimental-strip-types --test scripts/tests/attendance-slot-actions.test.mjs",
+    "test:attendance-board-filters": "node --experimental-strip-types --test scripts/tests/attendance-board-filters.test.mjs",
     "test:manager-operation-routes": "node --experimental-strip-types --test scripts/tests/manager-operation-routes.test.mjs",
     "test:manager-mobile-navigation": "node --experimental-strip-types --test scripts/tests/manager-mobile-navigation.test.mjs"
   },

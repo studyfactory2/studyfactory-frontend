@@ -29,14 +29,16 @@ import { AttendancePresenceModal } from './AttendancePresenceModal';
 import { AttendanceReasonModal } from './AttendanceReasonModal';
 import { AttendanceStartModal } from './AttendanceStartModal';
 import { AttendanceTable } from './AttendanceTable';
-import { hasMangmiSeatLayout } from '../model/attendance-seat-layout';
+import {
+  filterAttendanceMembers,
+  filterAttendanceVacancies,
+  type AttendanceFilter,
+} from '../model/attendance-board-filters';
 import {
   attendanceAbsenceStatus,
   attendanceActivationStatus,
   canSubmitAttendanceStatus,
 } from '../model/attendance-slot-actions';
-
-type AttendanceFilter = 'all' | 'leave' | 'unmarked';
 
 type DatedSelection = {
   dateKey: string;
@@ -183,63 +185,40 @@ export function AttendanceBoard({
       ? 'error'
       : 'loading';
 
-  const visibleMembers = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase('ko');
-
-    return members.filter((member) => {
-      const matchesQuery =
-        normalizedQuery.length === 0 ||
-        member.name.toLocaleLowerCase('ko').includes(normalizedQuery) ||
-        (member.seatNumber === null
-          ? '미배정'.includes(normalizedQuery)
-          : String(member.seatNumber).includes(normalizedQuery));
-      const matchesFilter =
-        member.memberId === selectedMemberId ||
-        effectiveFilter === 'all' ||
-        (effectiveFilter === 'leave' &&
-          member.stage === 'active' &&
-          (!isToday || interaction === undefined
-            ? member.slots.some((cell) => cell.state === 'leave')
-            : member.slots[filterSlot - 1]?.state === 'leave')) ||
-        (effectiveFilter === 'unmarked' &&
-          member.stage === 'active' &&
-          (!isToday || interaction === undefined
-            ? member.slots
-                .slice(0, readOnlyUnmarkedSlotCount)
-                .some((cell) => cell.state === 'unmarked')
-            : activeSlot !== null &&
-              member.slots[filterSlot - 1]?.state === 'unmarked'));
-
-      return matchesQuery && matchesFilter;
-    });
-  }, [
-    activeSlot,
-    effectiveFilter,
-    filterSlot,
-    interaction,
-    isToday,
-    members,
-    query,
-    readOnlyUnmarkedSlotCount,
-    selectedMemberId,
-  ]);
+  const visibleMembers = useMemo(
+    () =>
+      filterAttendanceMembers(members, {
+        activeSlot,
+        filter: effectiveFilter,
+        interactive: interaction !== undefined,
+        isToday,
+        operationalSlot,
+        query,
+        selectedMemberId,
+      }),
+    [
+      activeSlot,
+      effectiveFilter,
+      interaction,
+      isToday,
+      members,
+      operationalSlot,
+      query,
+      selectedMemberId,
+    ],
+  );
 
   // Vacancies are layout markers, not members. Do not include them in
   // attendance filters, selection, commands or member counts.
-  const visibleVacantSeatNumbers = useMemo(() => {
-    if (effectiveFilter !== 'all' || !hasMangmiSeatLayout(branchName)) {
-      return [];
-    }
-
-    const normalizedQuery = query.trim().toLocaleLowerCase('ko');
-    return vacantSeatNumbers.filter(
-      (seatNumber) =>
-        seatNumber <= 102 &&
-        (normalizedQuery.length === 0 ||
-          '공석'.includes(normalizedQuery) ||
-          String(seatNumber).includes(normalizedQuery)),
-    );
-  }, [branchName, effectiveFilter, query, vacantSeatNumbers]);
+  const visibleVacantSeatNumbers = useMemo(
+    () =>
+      filterAttendanceVacancies(vacantSeatNumbers, {
+        branchName,
+        filter: effectiveFilter,
+        query,
+      }),
+    [branchName, effectiveFilter, query, vacantSeatNumbers],
+  );
 
   const selectedMember = currentSelection
     ? visibleMembers.find(
@@ -524,14 +503,10 @@ export function AttendanceBoard({
                   }}
                 />
                 <FilterButton
-                  active={effectiveFilter === 'leave'}
-                  label={
-                    !isToday || interaction === undefined
-                      ? '휴무 있음'
-                      : `${filterSlot}교시 휴무`
-                  }
+                  active={effectiveFilter === 'hide-vacant'}
+                  label="공석 숨기기"
                   onClick={() => {
-                    setFilter('leave');
+                    setFilter('hide-vacant');
                     setPresenceMemberId(null);
                     clearTransientSelection();
                   }}
