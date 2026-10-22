@@ -3,9 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import {
   readManagerLeaveRoute,
-  removeManagerLeaveSearch,
   type ManagerLeaveRouteContext,
 } from '../../../features/manager-leaves';
+import {
+  readAdminOperationsSection,
+  withAdminOperationsOverview,
+  type AdminOperationsSection,
+} from '../../../features/manager-operations/model/manager-operation-sections';
 import { EmptyState, ScreenHeader } from '../../../shared/ui';
 import { useAdminBranchScope } from '../hooks/useAdminBranchScope';
 import { AdminDoorQrPanel } from './components/AdminDoorQrPanel';
@@ -78,11 +82,12 @@ export function AdminOperationsScreen() {
       key={`${session.ownerKey}:${selectedBranchId}`}
       memberId={session.memberId}
       onExitDirect={() => {
-        setSearchParams(removeManagerLeaveSearch(searchParams), {
+        setSearchParams(withAdminOperationsOverview(searchParams), {
           replace: true,
         });
       }}
       ownerKey={session.ownerKey}
+      section={readAdminOperationsSection(searchParams)}
     />
   );
 }
@@ -94,6 +99,7 @@ function AdminOperationsContent({
   memberId,
   onExitDirect,
   ownerKey,
+  section,
 }: {
   branchId: number;
   branchName: string;
@@ -101,6 +107,7 @@ function AdminOperationsContent({
   memberId: number;
   onExitDirect: () => void;
   ownerKey: SessionOwnerKey;
+  section: AdminOperationsSection;
 }) {
   if (directLeaveContext !== null) {
     return (
@@ -122,6 +129,35 @@ function AdminOperationsContent({
     );
   }
 
+  if (section === 'leaves') {
+    return (
+      <div className="admin-operations">
+        <ScreenHeader
+          eyebrow="ADMIN · LEAVE DESK"
+          subtitle={`${branchName} · 날짜별 휴무 현황과 사원 휴무를 관리해요.`}
+          title="휴무 관리"
+        />
+        <AdminLeaveWorkspace
+          branchId={branchId}
+          branchName={branchName}
+          memberId={memberId}
+          ownerKey={ownerKey}
+        />
+      </div>
+    );
+  }
+
+  if (section === 'qr') {
+    return (
+      <AdminDoorQrSection
+        branchId={branchId}
+        branchName={branchName}
+        memberId={memberId}
+        ownerKey={ownerKey}
+      />
+    );
+  }
+
   return (
     <AdminOperationsOverview
       branchId={branchId}
@@ -129,6 +165,31 @@ function AdminOperationsContent({
       memberId={memberId}
       ownerKey={ownerKey}
     />
+  );
+}
+
+function AdminDoorQrSection({
+  branchId,
+  branchName,
+  memberId,
+  ownerKey,
+}: {
+  branchId: number;
+  branchName: string;
+  memberId: number;
+  ownerKey: SessionOwnerKey;
+}) {
+  const doorQr = useAdminDoorQr({ branchId, memberId, ownerKey });
+
+  return (
+    <div className="admin-operations">
+      <ScreenHeader
+        eyebrow="ADMIN · DOOR QR"
+        subtitle={`${branchName} · 출입 QR을 확인하고 관리해요.`}
+        title="출입 QR"
+      />
+      <AdminDoorQrPanel branchName={branchName} doorQr={doorQr} />
+    </div>
   );
 }
 

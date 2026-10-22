@@ -9,6 +9,7 @@ export function StaffWorkspaceScreen() {
   return (
     <AppShell
       navigation={staffNavigation}
+      mobileWorkspaceRole="STAFF"
       screenToolbar={attendanceRoute}
       workspaceLabel="스텝"
     >

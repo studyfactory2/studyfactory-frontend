@@ -1,11 +1,13 @@
-import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import {
   ManagerMemberLeaveView,
   readManagerLeaveRoute,
-  removeManagerLeaveSearch,
 } from '../../../features/manager-leaves';
+import {
+  readStaffOperationsSection,
+  withStaffOperationsSection,
+} from '../../../features/manager-operations/model/manager-operation-sections';
 import {
   ManagerSuggestionInbox,
   ManagerTodoBoard,
@@ -71,17 +73,12 @@ function StaffOperationsContent({
   const today = useSeoulToday();
   const [searchParams, setSearchParams] = useSearchParams();
   const directLeaveContext = readManagerLeaveRoute(searchParams);
-  const [activeView, setActiveView] = useState<OperationsView>('work');
-  const visibleView = directLeaveContext === null ? activeView : 'member-leave';
+  const visibleView = readStaffOperationsSection(searchParams);
 
   const changeView = (nextView: OperationsView) => {
-    setActiveView(nextView);
-
-    if (directLeaveContext !== null) {
-      setSearchParams(removeManagerLeaveSearch(searchParams), {
-        replace: true,
-      });
-    }
+    setSearchParams(withStaffOperationsSection(searchParams, nextView), {
+      replace: true,
+    });
   };
 
   return (

@@ -2,3 +2,4 @@
 @import './tokens.css';
 @import './base.css';
 @import '../shared/layout/AppShell/app-shell.css';
+@import '../shared/layout/AppShell/manager-mobile-navigation.css';

@@ -8,6 +8,7 @@ import {
   AdminOperationsScreen,
 } from '../../screens/admin/operations';
 import { AdminWorkspaceScreen } from '../../screens/admin/AdminWorkspaceScreen';
+import { AdminOwnRequestsScreen } from '../../screens/admin/operations/AdminOwnRequestsScreen';
 import { AuthScreen } from '../../screens/auth/AuthScreen';
 import { UiKitScreen } from '../../screens/dev/UiKitScreen';
 import { MemberHomeScreen } from '../../screens/member/home';
@@ -25,6 +26,7 @@ import { StaffAttendanceScreen } from '../../screens/staff/attendance';
 import { StaffHomeScreen } from '../../screens/staff/home';
 import { StaffOperationsScreen } from '../../screens/staff/operations';
 import { StaffWorkspaceScreen } from '../../screens/staff/StaffWorkspaceScreen';
+import { ManagerHubScreen } from '../../screens/workspace/ManagerHubScreen';
 import { getRoleHomePath, appRoutes } from './routes';
 import { ProtectedRoute } from './ProtectedRoute';
 
@@ -57,6 +59,10 @@ export function AppRouter() {
       <Route element={<ProtectedRoute allowedRoles={['STAFF']} />}>
         <Route path={appRoutes.staff} element={<StaffWorkspaceScreen />}>
           <Route index element={<StaffHomeScreen />} />
+          <Route
+            path="workspace"
+            element={<ManagerHubScreen group="staff" />}
+          />
           <Route path="attendance" element={<StaffAttendanceScreen />} />
           <Route path="beverages" element={<StaffBeveragesScreen />} />
           <Route path="operations" element={<StaffOperationsScreen />} />
@@ -67,12 +73,25 @@ export function AppRouter() {
       <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
         <Route path={appRoutes.admin} element={<AdminWorkspaceScreen />}>
           <Route index element={<AdminHomeScreen />} />
+          <Route
+            path="management"
+            element={<ManagerHubScreen group="admin" />}
+          />
+          <Route path="staff" element={<ManagerHubScreen group="staff" />} />
           <Route path="members" element={<AdminMembersScreen />} />
           <Route path="attendance" element={<AdminAttendanceScreen />} />
           <Route path="operations" element={<AdminOperationsScreen />} />
           <Route
             path="operations/beverages"
             element={<AdminBeveragesScreen />}
+          />
+          <Route
+            path="operations/my-leave"
+            element={<AdminOwnRequestsScreen view="leave" />}
+          />
+          <Route
+            path="operations/my-side-dishes"
+            element={<AdminOwnRequestsScreen view="meals" />}
           />
           <Route path="*" element={<Navigate replace to={appRoutes.admin} />} />
         </Route>

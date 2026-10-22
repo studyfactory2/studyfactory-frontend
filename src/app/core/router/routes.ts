@@ -20,6 +20,7 @@ export const memberRoutes = {
 } as const;
 
 export const staffRoutes = {
+  workspace: `${appRoutes.staff}/workspace`,
   attendance: `${appRoutes.staff}/attendance`,
   beverages: `${appRoutes.staff}/beverages`,
   home: appRoutes.staff,
@@ -27,20 +28,24 @@ export const staffRoutes = {
 } as const;
 
 export const adminRoutes = {
+  management: `${appRoutes.admin}/management`,
+  staffWorkspace: `${appRoutes.admin}/staff`,
   attendance: `${appRoutes.admin}/attendance`,
   home: appRoutes.admin,
   members: `${appRoutes.admin}/members`,
   operations: `${appRoutes.admin}/operations`,
   operationsBeverages: `${appRoutes.admin}/operations/beverages`,
+  ownLeaves: `${appRoutes.admin}/operations/my-leave`,
+  ownSideDishes: `${appRoutes.admin}/operations/my-side-dishes`,
 } as const;
 
 export function getRoleHomePath(role: MemberRole) {
   if (role === 'ADMIN') {
-    return appRoutes.admin;
+    return adminRoutes.attendance;
   }
 
   if (role === 'STAFF') {
-    return appRoutes.staff;
+    return staffRoutes.attendance;
   }
 
   return appRoutes.member;

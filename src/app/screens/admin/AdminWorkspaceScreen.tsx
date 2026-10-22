@@ -30,6 +30,8 @@ function AdminWorkspace({
   authenticatedBranchId: number | null;
 }) {
   const attendanceRoute = useMatch(adminRoutes.attendance) !== null;
+  const managementHubRoute = useMatch(adminRoutes.management) !== null;
+  const staffHubRoute = useMatch(adminRoutes.staffWorkspace) !== null;
   const branchesQuery = useQuery({
     queryFn: fetchBranches,
     queryKey: branchQueryKeys.all(),
@@ -86,7 +88,7 @@ function AdminWorkspace({
       displayBranchName={topbarBranchName}
       headerTools={
         <AdminBranchSelector
-          announceError={scope !== null}
+          announceError={scope !== null || managementHubRoute || staffHubRoute}
           branches={branches}
           compact={attendanceRoute}
           errorMessage={errorMessage}
@@ -97,12 +99,13 @@ function AdminWorkspace({
         />
       }
       navigation={adminNavigation}
+      mobileWorkspaceRole="ADMIN"
       screenToolbar={attendanceRoute}
       workspaceLabel="지점 관리자"
     >
-      {scope !== null ? (
+      {scope !== null || managementHubRoute || staffHubRoute ? (
         /* Keyed so a branch switch remounts the screen with none of A's state. */
-        <Outlet context={scope} key={scope.selectedBranchId} />
+        <Outlet context={scope} key={scope?.selectedBranchId ?? 'unresolved'} />
       ) : (
         <AdminBranchScopeState
           authenticatedBranchId={authenticatedBranchId}

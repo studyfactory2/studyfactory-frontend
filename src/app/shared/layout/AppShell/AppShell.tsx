@@ -9,6 +9,13 @@ import { fetchBranches } from '../../../features/branches/branches-api';
 import { branchQueryKeys } from '../../../features/branches/branch-query-keys';
 import { cx } from '../../lib/cx';
 import type { WorkspaceNavigationItem } from './types';
+import { ManagerMobileNavigation } from './ManagerMobileNavigation';
+import { ManagerMobilePageHeader } from './ManagerMobilePageHeader';
+import {
+  getManagerMobileNavigation,
+  getManagerMobilePage,
+  type ManagerWorkspaceRole,
+} from './manager-mobile-navigation';
 import {
   ScreenHeaderControlContext,
   ScreenToolbarContext,
@@ -18,6 +25,7 @@ type AppShellProps = {
   children: ReactNode;
   displayBranchName?: string;
   headerTools?: ReactNode;
+  mobileWorkspaceRole?: ManagerWorkspaceRole;
   navigation: WorkspaceNavigationItem[];
   screenToolbar?: boolean;
   workspaceLabel: string;
@@ -27,6 +35,7 @@ export function AppShell({
   children,
   displayBranchName,
   headerTools,
+  mobileWorkspaceRole,
   navigation,
   screenToolbar = false,
   workspaceLabel,
@@ -58,11 +67,28 @@ export function AppShell({
       ?.name ?? '소속 지점';
   const topbarBranchName = displayBranchName ?? branchName;
   const memberName = session.memberName ?? '회원';
+  const operationsSection = mobileWorkspaceRole
+    ? new URLSearchParams(location.search).get('section')
+    : null;
+  const mobilePage = mobileWorkspaceRole
+    ? getManagerMobilePage(
+        mobileWorkspaceRole,
+        location.pathname,
+        location.search,
+      )
+    : null;
+  const managerNavigation = mobileWorkspaceRole
+    ? getManagerMobileNavigation(mobileWorkspaceRole)
+    : null;
+  const isHub =
+    managerNavigation !== null &&
+    (location.pathname === managerNavigation.adminHub ||
+      location.pathname === managerNavigation.staffHub);
 
   useEffect(() => {
     window.scrollTo({ left: 0, top: 0 });
     mainRef.current?.focus({ preventScroll: true });
-  }, [location.pathname]);
+  }, [location.pathname, operationsSection]);
 
   const handleLogout = () => {
     clearSession();
@@ -70,7 +96,13 @@ export function AppShell({
   };
 
   return (
-    <div className="workspace-shell">
+    <div
+      className={cx(
+        'workspace-shell',
+        mobileWorkspaceRole && 'workspace-shell--manager',
+        isHub && 'workspace-shell--manager-hub',
+      )}
+    >
       <aside className="workspace-shell__sidebar">
         <NavLink
           aria-label="자격증공장 홈"
@@ -124,6 +156,22 @@ export function AppShell({
             screenToolbar && 'workspace-shell__topbar--screen-toolbar',
           )}
         >
+          {mobileWorkspaceRole && (
+            <div className="workspace-shell__mobile-navigation">
+              <ManagerMobileNavigation
+                branchName={topbarBranchName}
+                role={mobileWorkspaceRole}
+              />
+            </div>
+          )}
+          {mobilePage && !screenToolbar && (
+            <ManagerMobilePageHeader
+              accountBranchName={branchName}
+              branchName={topbarBranchName}
+              branchSelector={headerTools}
+              page={mobilePage}
+            />
+          )}
           <div className="workspace-shell__topbar-title">
             <img
               alt=""
@@ -134,7 +182,7 @@ export function AppShell({
               <p>
                 {topbarBranchName} <span>·</span> {workspaceLabel}
               </p>
-              <h1>{activeItem.label}</h1>
+              <h1>{isHub ? mobilePage?.title : activeItem.label}</h1>
             </div>
           </div>
           <div className="workspace-shell__topbar-end">
@@ -190,14 +238,16 @@ export function AppShell({
         </ScreenToolbarContext.Provider>
       </main>
 
-      <nav
-        aria-label={`${workspaceLabel} 모바일 메뉴`}
-        className="workspace-shell__bottom-navigation"
-      >
-        {navigation.map((item) => (
-          <WorkspaceNavigationLink compact item={item} key={item.to} />
-        ))}
-      </nav>
+      {!mobileWorkspaceRole && (
+        <nav
+          aria-label={`${workspaceLabel} 모바일 메뉴`}
+          className="workspace-shell__bottom-navigation"
+        >
+          {navigation.map((item) => (
+            <WorkspaceNavigationLink compact item={item} key={item.to} />
+          ))}
+        </nav>
+      )}
     </div>
   );
 }

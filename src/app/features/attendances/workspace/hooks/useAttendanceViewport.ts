@@ -50,10 +50,17 @@ export function useAttendanceViewport(
         visibleBottom,
         navigationRect?.height ? navigationRect.top : visibleBottom,
       );
-      setPixels(
-        '--attendance-dock-bottom',
-        Math.max(0, Math.ceil(window.innerHeight - bottom)) + 8,
-      );
+      const bottomOffset =
+        Math.max(0, Math.ceil(window.innerHeight - bottom)) + 8;
+      // Without the navigation bar, the dock itself must reserve the home indicator.
+      const dockBottom = navigationRect?.height
+        ? `${bottomOffset}px`
+        : `calc(${bottomOffset}px + env(safe-area-inset-bottom, 0px))`;
+      if (
+        frame.style.getPropertyValue('--attendance-dock-bottom') !== dockBottom
+      ) {
+        frame.style.setProperty('--attendance-dock-bottom', dockBottom);
+      }
 
       const dockRect = dock.getBoundingClientRect();
       setPixels('--attendance-dock-space', Math.ceil(dockRect.height) + 16);
