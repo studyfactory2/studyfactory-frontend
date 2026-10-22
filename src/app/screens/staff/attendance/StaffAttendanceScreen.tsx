@@ -9,7 +9,6 @@ import {
   ManagerOperationsOverview,
   useManagerOperations,
 } from '../../../features/manager-operations';
-import { AttendanceMemberLeaveModal } from '../../../features/manager-leaves';
 import { useAttendanceLeaveDialog } from '../../../features/manager-leaves/hooks/useAttendanceLeaveDialog';
 import { useAttendanceLeaveReturn } from '../../../features/manager-leaves/hooks/useAttendanceLeaveReturn';
 import { EmptyState } from '../../../shared/ui';
@@ -102,7 +101,7 @@ function StaffAttendanceContent({
         isToday={date.isToday}
         loading={attendance.board.loading}
         members={attendance.board.members}
-        onManageLeave={leaveDialog.onOpen}
+        leaveDialog={{ ...leaveDialog, restoreFocusRef: leaveReturnFocusRef }}
         onRefresh={() => {
           attendance.freshness.onRefresh();
           operations.onRefresh();
@@ -116,15 +115,6 @@ function StaffAttendanceContent({
         refreshing={attendance.freshness.refreshing}
         vacantSeatNumbers={attendance.board.vacantSeatNumbers}
         writePending={attendance.writePending}
-      />
-      <AttendanceMemberLeaveModal
-        branchId={branchId}
-        dateKey={date.dateKey}
-        memberId={memberId}
-        onClose={leaveDialog.onClose}
-        ownerKey={ownerKey}
-        restoreFocusRef={leaveReturnFocusRef}
-        target={leaveDialog.target}
       />
     </div>
   );

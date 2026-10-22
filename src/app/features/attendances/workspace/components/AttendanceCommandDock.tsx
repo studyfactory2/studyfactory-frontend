@@ -1,4 +1,4 @@
-import { CalendarRange, CornerDownLeft } from 'lucide-react';
+import { CornerDownLeft } from 'lucide-react';
 import { cx } from '../../../../shared/lib/cx';
 import type { AttendanceSelection } from '../model/attendance-board';
 import { attendanceAbsenceStatus } from '../model/attendance-slot-actions';
@@ -6,7 +6,6 @@ import { attendanceAbsenceStatus } from '../model/attendance-slot-actions';
 type AttendanceCommandDockProps = {
   canAdvance: boolean;
   onAdvance: () => void;
-  onManageLeave?: () => void;
   onAbsenceAction: () => void;
   onMarkOther: () => void;
   onMarkPresent: () => void;
@@ -17,7 +16,6 @@ type AttendanceCommandDockProps = {
 export function AttendanceCommandDock({
   canAdvance,
   onAdvance,
-  onManageLeave,
   onAbsenceAction,
   onMarkOther,
   onMarkPresent,
@@ -48,16 +46,6 @@ export function AttendanceCommandDock({
         <p aria-live="polite" className="staff-attendance__action-target">
           {targetLabel}
         </p>
-        {selection !== null && onManageLeave && (
-          <button
-            className="staff-attendance__leave-shortcut"
-            onClick={onManageLeave}
-            type="button"
-          >
-            <CalendarRange aria-hidden="true" size={14} />
-            <span>휴무 관리</span>
-          </button>
-        )}
       </div>
 
       <div

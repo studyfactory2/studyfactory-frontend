@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import { getOperationalAttendanceSlot } from '../../../features/attendances/attendance-rules';
 import { AttendanceBoard } from '../../../features/attendances/workspace/components/AttendanceBoard';
-import { AttendanceMemberLeaveModal } from '../../../features/manager-leaves';
 import { useAttendanceLeaveDialog } from '../../../features/manager-leaves/hooks/useAttendanceLeaveDialog';
 import { useAttendanceLeaveReturn } from '../../../features/manager-leaves/hooks/useAttendanceLeaveReturn';
 import {
@@ -130,7 +129,7 @@ function AdminAttendanceContent({
         isToday={date.isToday}
         loading={attendance.board.loading}
         members={attendance.board.members}
-        onManageLeave={leaveDialog.onOpen}
+        leaveDialog={{ ...leaveDialog, restoreFocusRef: leaveReturnFocusRef }}
         onRefresh={() => {
           attendance.freshness.onRefresh();
           operations.onRefresh();
@@ -144,15 +143,6 @@ function AdminAttendanceContent({
         refreshing={attendance.freshness.refreshing}
         vacantSeatNumbers={attendance.board.vacantSeatNumbers}
         writePending={attendance.writePending}
-      />
-      <AttendanceMemberLeaveModal
-        branchId={branchId}
-        dateKey={date.dateKey}
-        memberId={memberId}
-        onClose={leaveDialog.onClose}
-        ownerKey={ownerKey}
-        restoreFocusRef={leaveReturnFocusRef}
-        target={leaveDialog.target}
       />
     </div>
   );

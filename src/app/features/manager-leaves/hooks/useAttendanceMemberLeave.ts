@@ -232,7 +232,12 @@ export function useAttendanceMemberLeave({
       pendingKey: deleteMutation.isPending
         ? (deleteMutation.variables?.key ?? null)
         : null,
-      onDelete: (dateKey: string, entryKey: string, slot: number) => {
+      onDelete: (
+        dateKey: string,
+        entryKey: string,
+        slot: number,
+        onSuccess?: () => void,
+      ) => {
         if (
           !mounted.current ||
           getCurrentSession().ownerKey !== ownerKey ||
@@ -251,7 +256,7 @@ export function useAttendanceMemberLeave({
         }
         const key = `${entry.key}:${slot}`;
         pendingDeleteRef.current = key;
-        deleteMutation.mutate({
+        const operation: DeleteOperation = {
           input: {
             ...entry.cancellationSource,
             branchId,
@@ -262,6 +267,11 @@ export function useAttendanceMemberLeave({
           key,
           operatorMemberId: memberId,
           ownerKey,
+        };
+        deleteMutation.mutate(operation, {
+          onSuccess: () => {
+            if (operationIsCurrent(operation)) onSuccess?.();
+          },
         });
       },
     },

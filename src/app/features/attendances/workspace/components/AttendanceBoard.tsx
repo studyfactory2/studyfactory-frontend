@@ -1,4 +1,11 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from 'react';
 import type { SessionOwnerKey } from '../../../../core/session';
 import type { OperationalAttendanceSlot } from '../../../../features/attendances/attendance-rules';
 import type { StudyPresenceManualCheckInInput } from '../../../../features/study-presence/study-presence-api';
@@ -18,7 +25,6 @@ import type {
 import {
   ATTENDANCE_SLOTS,
   toAttendanceCellId,
-  toAttendanceCellKey,
 } from '../model/attendance-board';
 import { AttendanceCommandDock } from './AttendanceCommandDock';
 import { AttendanceDateBar } from './AttendanceDateBar';
@@ -43,11 +49,6 @@ import {
 type DatedSelection = {
   dateKey: string;
   value: AttendanceSelection;
-};
-
-type DatedDialogTarget = {
-  cellKey: string;
-  dateKey: string;
 };
 
 export type AttendanceBoardInteraction = {
@@ -98,7 +99,12 @@ type AttendanceBoardProps = {
   isToday: boolean;
   loading: boolean;
   members: AttendanceBoardMember[];
-  onManageLeave?: (target: AttendanceLeaveManagementTarget) => void;
+  leaveDialog: {
+    target: AttendanceLeaveManagementTarget | null;
+    onOpen: (target: AttendanceLeaveManagementTarget) => void;
+    onClose: () => void;
+    restoreFocusRef: RefObject<HTMLElement | null>;
+  };
   onRefresh: () => void;
   onRetry: () => void;
   operationalSlot: OperationalAttendanceSlot | null;
@@ -121,7 +127,7 @@ export function AttendanceBoard({
   isToday,
   loading,
   members,
-  onManageLeave,
+  leaveDialog,
   onRefresh,
   onRetry,
   operationalSlot,
@@ -145,9 +151,7 @@ export function AttendanceBoard({
     dateKey: string;
     memberId: number;
   } | null>(null);
-  const [reasonTarget, setReasonTarget] = useState<DatedDialogTarget | null>(
-    null,
-  );
+  const reasonTargetRef = useRef(leaveDialog.target);
   const [startMemberId, setStartMemberId] = useState<number | null>(null);
   const currentSelection =
     selectionState?.dateKey === dateKey ? selectionState.value : null;
@@ -163,7 +167,6 @@ export function AttendanceBoard({
   useEffect(() => {
     dateKeyRef.current = dateKey;
     setSelectionState(null);
-    setReasonTarget(null);
     setPresenceMemberId(null);
     setDetailsTarget(null);
     setStartMemberId(null);
@@ -242,12 +245,21 @@ export function AttendanceBoard({
             currentSelection.cell,
         }
       : null;
-  const activeSelectionKey = activeSelection
-    ? toAttendanceCellKey(activeSelection.memberId, activeSelection.slot)
-    : null;
   const reasonOpen =
-    reasonTarget?.dateKey === dateKey &&
-    reasonTarget.cellKey === activeSelectionKey;
+    leaveDialog.target !== null &&
+    leaveDialog.target.dateKey === dateKey &&
+    leaveDialog.target.memberId === activeSelection?.memberId &&
+    leaveDialog.target.slot === activeSelection?.slot;
+  useEffect(() => {
+    reasonTargetRef.current = leaveDialog.target;
+    return () => {
+      reasonTargetRef.current = null;
+    };
+  }, [leaveDialog.target]);
+  useEffect(() => {
+    // A removed member/selection must not leave an invisible Back-stack entry.
+    if (leaveDialog.target !== null && !reasonOpen) leaveDialog.onClose();
+  }, [leaveDialog, reasonOpen]);
   const startTarget =
     startMemberId === null
       ? null
@@ -334,11 +346,9 @@ export function AttendanceBoard({
     }
 
     if (status === 'OTHER') {
-      setReasonTarget({
-        cellKey: toAttendanceCellKey(
-          activeSelection.memberId,
-          activeSelection.slot,
-        ),
+      leaveDialog.onOpen({
+        memberId: activeSelection.memberId,
+        slot: activeSelection.slot,
         dateKey,
       });
       return;
@@ -360,20 +370,15 @@ export function AttendanceBoard({
 
     const submittedDateKey = dateKey;
     const submittedSlot = activeSelection.slot;
-    const submittedCellKey = toAttendanceCellKey(
-      command.memberId,
-      submittedSlot,
-    );
+    const submittedTarget = leaveDialog.target;
     interaction.onApplyReason(command, () => {
-      if (dateKeyRef.current !== submittedDateKey) {
+      if (
+        dateKeyRef.current !== submittedDateKey ||
+        reasonTargetRef.current !== submittedTarget
+      ) {
         return;
       }
-      setReasonTarget((current) =>
-        current?.dateKey === submittedDateKey &&
-        current.cellKey === submittedCellKey
-          ? null
-          : current,
-      );
+      leaveDialog.onClose();
       window.requestAnimationFrame(() => {
         const focusTarget =
           document.getElementById(
@@ -407,16 +412,6 @@ export function AttendanceBoard({
       <AttendanceCommandDock
         canAdvance={nextSelection !== null}
         onAdvance={advanceSelection}
-        onManageLeave={
-          activeSelection && onManageLeave
-            ? () =>
-                onManageLeave({
-                  dateKey,
-                  memberId: activeSelection.memberId,
-                  slot: activeSelection.slot,
-                })
-            : undefined
-        }
         onAbsenceAction={() => {
           const status = activeSelection
             ? attendanceAbsenceStatus(activeSelection.cell)
@@ -433,7 +428,7 @@ export function AttendanceBoard({
   const clearTransientSelection = () => {
     setDetailsTarget(null);
     setSelectionState(null);
-    setReasonTarget(null);
+    leaveDialog.onClose();
   };
 
   return (
@@ -540,7 +535,7 @@ export function AttendanceBoard({
                 interactive={interaction !== undefined}
                 members={visibleMembers}
                 onActivate={(nextSelection) => {
-                  setReasonTarget(null);
+                  leaveDialog.onClose();
                   selectCell(nextSelection);
 
                   // Activation cancels only a displayed O; keyboard focus and
@@ -605,7 +600,8 @@ export function AttendanceBoard({
             dateKey={dateKey}
             joinDate={selectedMember?.joinDate ?? null}
             scope={interaction.leaveScope}
-            onClose={() => setReasonTarget(null)}
+            onClose={leaveDialog.onClose}
+            restoreFocusRef={leaveDialog.restoreFocusRef}
             onSubmit={submitReason}
             open={reasonOpen}
             pending={selectedPending}
