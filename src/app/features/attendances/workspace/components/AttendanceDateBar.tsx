@@ -3,12 +3,12 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
-  Search,
 } from 'lucide-react';
 import { cx } from '../../../../shared/lib/cx';
 import { formatDottedDate } from '../../../../shared/lib/seoul-date';
 import { AppShellToolbar } from '../../../../shared/layout/AppShell/AppShellToolbar';
 import type { useAttendanceDate } from '../hooks/useAttendanceDate';
+import { AttendanceSearch } from './AttendanceSearch';
 import '../styles/attendance-date-bar.css';
 
 type AttendanceDateBarProps = {
@@ -110,19 +110,12 @@ export function AttendanceDateBar({
               <RefreshCw aria-hidden="true" size={17} />
             </button>
           </section>
-          <label className="attendance-toolbar__search" htmlFor={searchId}>
-            <span className="staff-attendance__sr-only">사원 검색</span>
-            <Search aria-hidden="true" size={17} />
-            <input
-              autoComplete="off"
-              disabled={!searchEnabled}
-              id={searchId}
-              onChange={(event) => onQueryChange(event.target.value)}
-              placeholder="이름·좌석 검색"
-              type="search"
-              value={query}
-            />
-          </label>
+          <AttendanceSearch
+            enabled={searchEnabled}
+            onQueryChange={onQueryChange}
+            query={query}
+            searchId={searchId}
+          />
         </div>
       </AppShellToolbar>
       {date.dateKey < date.todayKey && (

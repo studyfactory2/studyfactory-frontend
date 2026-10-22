@@ -9,7 +9,10 @@ import { fetchBranches } from '../../../features/branches/branches-api';
 import { branchQueryKeys } from '../../../features/branches/branch-query-keys';
 import { cx } from '../../lib/cx';
 import type { WorkspaceNavigationItem } from './types';
-import { ScreenToolbarContext } from './screen-toolbar-context';
+import {
+  ScreenHeaderControlContext,
+  ScreenToolbarContext,
+} from './screen-toolbar-context';
 
 type AppShellProps = {
   children: ReactNode;
@@ -34,6 +37,8 @@ export function AppShell({
   const [toolbarTarget, setToolbarTarget] = useState<HTMLDivElement | null>(
     null,
   );
+  const [headerControlTarget, setHeaderControlTarget] =
+    useState<HTMLDivElement | null>(null);
   const session = useSession();
   const branchesQuery = useQuery({
     queryFn: fetchBranches,
@@ -161,17 +166,27 @@ export function AppShell({
             </div>
           </div>
           {screenToolbar && (
-            <div
-              className="workspace-shell__screen-toolbar"
-              ref={setToolbarTarget}
-            />
+            <>
+              <div
+                className="workspace-shell__header-control"
+                ref={setHeaderControlTarget}
+              />
+              <div
+                className="workspace-shell__screen-toolbar"
+                ref={setToolbarTarget}
+              />
+            </>
           )}
         </header>
 
         <ScreenToolbarContext.Provider
           value={screenToolbar ? toolbarTarget : undefined}
         >
-          <div className="workspace-shell__content">{children}</div>
+          <ScreenHeaderControlContext.Provider
+            value={screenToolbar ? headerControlTarget : undefined}
+          >
+            <div className="workspace-shell__content">{children}</div>
+          </ScreenHeaderControlContext.Provider>
         </ScreenToolbarContext.Provider>
       </main>
 

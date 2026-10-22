@@ -160,6 +160,57 @@
   animation: staff-attendance-spin 0.9s linear infinite;
 }
 
+.attendance-header-search {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+
+.attendance-header-search .attendance-toolbar__search {
+  min-height: 44px;
+  flex: 1;
+}
+
+.attendance-header-search > button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--brand-forest);
+  cursor: pointer;
+  place-items: center;
+}
+
+.attendance-header-search > button:hover:not(:disabled),
+.attendance-header-search > button.is-filtered {
+  background: rgb(var(--brand-forest-rgb) / 8%);
+}
+
+.attendance-header-search > button.is-filtered {
+  box-shadow: inset 0 0 0 1px var(--brand-forest);
+}
+
+.attendance-header-search > button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.attendance-header-search > button:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .attendance-toolbar {
+    padding-bottom: 2px;
+  }
+}
+
 @container (max-width: 330px) {
   .attendance-date-bar__value {
     font-size: 12px;

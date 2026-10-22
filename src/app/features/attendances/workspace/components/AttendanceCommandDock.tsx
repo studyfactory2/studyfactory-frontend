@@ -1,4 +1,5 @@
 import { CalendarRange, CornerDownLeft } from 'lucide-react';
+import { cx } from '../../../../shared/lib/cx';
 import type { AttendanceSelection } from '../model/attendance-board';
 import { attendanceAbsenceStatus } from '../model/attendance-slot-actions';
 
@@ -38,7 +39,12 @@ export function AttendanceCommandDock({
       className="staff-attendance__action-bar"
       role="region"
     >
-      <div className="staff-attendance__action-context">
+      <div
+        className={cx(
+          'staff-attendance__action-context',
+          selection === null && 'staff-attendance__action-context--empty',
+        )}
+      >
         <p aria-live="polite" className="staff-attendance__action-target">
           {targetLabel}
         </p>

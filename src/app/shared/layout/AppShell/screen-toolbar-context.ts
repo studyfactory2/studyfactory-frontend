@@ -5,3 +5,7 @@ import { createContext } from 'react';
 export const ScreenToolbarContext = createContext<
   HTMLElement | null | undefined
 >(undefined);
+
+export const ScreenHeaderControlContext = createContext<
+  HTMLElement | null | undefined
+>(undefined);

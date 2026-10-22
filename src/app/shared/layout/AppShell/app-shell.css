@@ -272,6 +272,10 @@
   display: none;
 }
 
+.workspace-shell__header-control {
+  display: none;
+}
+
 /* Equal side tracks keep screen-owned controls centred without moving state. */
 .workspace-shell__topbar--screen-toolbar {
   position: sticky;
@@ -474,6 +478,33 @@
 
   .workspace-shell__topbar--screen-toolbar {
     padding: max(8px, env(safe-area-inset-top)) 14px 10px;
+  }
+
+  .workspace-shell__topbar--screen-toolbar:has(
+    .workspace-shell__header-control:not(:empty)
+  ) {
+    grid-template-columns: auto minmax(0, 1fr) 44px;
+    column-gap: 6px;
+  }
+
+  .workspace-shell__header-control {
+    display: block;
+    min-width: 0;
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .workspace-shell__header-control:empty {
+    display: none;
+  }
+
+  .workspace-shell__header-control:has([data-expanded='true']) {
+    grid-column: 1 / -1;
+  }
+
+  .workspace-shell__topbar--screen-toolbar:has([data-expanded='true'])
+    :is(.workspace-shell__topbar-title, .workspace-shell__topbar-end) {
+    visibility: hidden;
   }
 
   .workspace-shell__topbar--screen-toolbar .workspace-shell__topbar-title {
