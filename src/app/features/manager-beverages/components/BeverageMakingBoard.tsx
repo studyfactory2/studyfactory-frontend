@@ -148,24 +148,8 @@ function DrinkRow({
   const noteCount = group.servings.filter(
     (serving) => serving.note && !serving.deducted,
   ).length;
-  const summary = (
-    <>
-      <span className="staff-bev__drink-name">{group.name}</span>
-      <span className="staff-bev__drink-count">
-        <b>{group.toMake}</b>
-        {/* The deduction explains why the count differs from the roster. */}
-        {group.deduction > 0 && (
-          <em title={`1교시 휴무·결석 ${group.deduction}잔 제외`}>
-            −{group.deduction}
-          </em>
-        )}
-      </span>
-    </>
-  );
-
   return (
     <li className={cx('staff-bev__drink', expanded && 'is-expanded')}>
-      <div className="staff-bev__drink-head">{summary}</div>
       <button
         aria-controls={servingsId}
         aria-expanded={expanded}
@@ -180,21 +164,34 @@ function DrinkRow({
         onClick={() => setExpanded((current) => !current)}
         type="button"
       >
-        <span className="staff-bev__drink-head">{summary}</span>
-        <span className="staff-bev__drink-toggle-meta">
+        <span className="staff-bev__drink-label">
+          <span className="staff-bev__drink-name">{group.name}</span>
           {noteCount > 0 && (
             <span className="staff-bev__drink-note-count">
-              메모 {noteCount}개
+              메모 {noteCount}
             </span>
           )}
-          <span className="staff-bev__drink-toggle-action">
-            명단 {expanded ? '접기' : '보기'}
-            <ChevronDown aria-hidden="true" size={14} />
-          </span>
         </span>
+        <span className="staff-bev__drink-count">
+          <span className="staff-bev__drink-quantity">
+            <b>{group.toMake}</b>
+            <small>잔</small>
+          </span>
+          {/* toMake already excludes these servings; do not imply subtraction. */}
+          {group.deduction > 0 && (
+            <em title={`1교시 휴무·결석 ${group.deduction}잔 제외`}>
+              <span aria-hidden="true">· </span>제외 {group.deduction}
+            </em>
+          )}
+        </span>
+        <ChevronDown
+          aria-hidden="true"
+          className="staff-bev__drink-chevron"
+          size={14}
+        />
       </button>
 
-      <ul className="staff-bev__seats" id={servingsId}>
+      <ul className="staff-bev__seats" hidden={!expanded} id={servingsId}>
         {group.servings.map((serving, index) => (
           <li
             className={cx(
