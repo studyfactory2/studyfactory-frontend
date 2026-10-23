@@ -72,6 +72,35 @@ test('valid direct member leave links win over a general staff or admin section'
   assert.equal(readAdminOperationsSection(params), 'leaves');
 });
 
+for (const section of ['leave', 'meals']) {
+  test(`member-targeted links retain priority over the focused ${section} page`, () => {
+    const params = new URLSearchParams({
+      section,
+      view: 'member-leave',
+      memberId: '12',
+      date: '2026-10-23',
+      slot: '3',
+      branchId: '2',
+    });
+    const original = params.toString();
+
+    assert.equal(readStaffOperationsSection(params), 'member-leave');
+    assert.equal(params.toString(), original);
+  });
+
+  test(`leaving member management for focused ${section} preserves unrelated query values`, () => {
+    const params = new URLSearchParams(
+      'view=member-leave&branchId=2&memberId=12&date=2026-10-23&slot=3&section=member-leave&panel=tasks',
+    );
+    const original = params.toString();
+    const next = withStaffOperationsSection(params, section);
+
+    assert.equal(params.toString(), original);
+    assert.equal(next.toString(), `section=${section}&panel=tasks`);
+    assert.equal(readStaffOperationsSection(next), section);
+  });
+}
+
 test('invalid direct leave targets do not override a requested section', () => {
   const params = new URLSearchParams({
     section: 'meals',

@@ -81,6 +81,19 @@ function StaffOperationsContent({
     });
   };
 
+  // The resolved view preserves priority for existing member-targeted links.
+  if (visibleView === 'leave' || visibleView === 'meals') {
+    return (
+      <div className="staff-operations">
+        {visibleView === 'leave' ? (
+          <StaffLeavePanel memberId={memberId} ownerKey={ownerKey} />
+        ) : (
+          <StaffSideDishPanel memberId={memberId} ownerKey={ownerKey} />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="staff-operations">
       <header className="staff-operations__intro">
@@ -101,8 +114,6 @@ function StaffOperationsContent({
             memberId={memberId}
             ownerKey={ownerKey}
           />
-        ) : visibleView === 'leave' ? (
-          <StaffLeavePanel memberId={memberId} ownerKey={ownerKey} />
         ) : visibleView === 'member-leave' ? (
           <ManagerMemberLeaveView
             branchId={branchId}
@@ -110,8 +121,6 @@ function StaffOperationsContent({
             memberId={memberId}
             ownerKey={ownerKey}
           />
-        ) : visibleView === 'meals' ? (
-          <StaffSideDishPanel memberId={memberId} ownerKey={ownerKey} />
         ) : visibleView === 'schedule' ? (
           <StaffScheduleView
             branchId={branchId}
