@@ -395,7 +395,7 @@
 }
 .attendance-reason__advanced-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   padding-top: 4px;
   gap: 8px;
 }
@@ -469,6 +469,17 @@
   border: 1px solid var(--brand-line);
   background: var(--paper);
   color: var(--brand-forest);
+}
+.attendance-reason__actions > .attendance-reason__cancel-selection {
+  grid-column: 1 / -1;
+  border: 1px solid var(--brand-line);
+  background: var(--paper);
+  color: var(--danger-deep);
+}
+.attendance-reason__actions
+  > .attendance-reason__cancel-selection:hover:not(:disabled) {
+  border-color: var(--danger);
+  background: var(--danger-soft);
 }
 .attendance-reason__confirm-actions {
   display: flex;

@@ -283,8 +283,8 @@ function ReasonDialog({
           <div className="attendance-reason__footer" key="draft-actions">
             <p className="attendance-reason__footer-summary">
               {mode === 'history'
-                ? '내역 조회 중 · 신청하려면 날짜 선택으로 전환'
-                : `신청 날짜 ${dates.length}일 · ${slots.length ? formatLeaveSlots(slots) : '교시 미선택'}`}
+                ? '내역 조회 중 · 신청·취소하려면 날짜 선택으로 전환'
+                : `선택 날짜 ${dates.length}일 · ${slots.length ? formatLeaveSlots(slots) : '교시 미선택'}`}
             </p>
             <div className="attendance-reason__actions">
               <Button
@@ -303,6 +303,15 @@ function ReasonDialog({
               >
                 <Repeat2 aria-hidden="true" size={16} />
                 반복 신청
+              </Button>
+              <Button
+                className="attendance-reason__cancel-selection"
+                disabled={mode !== 'select' || !hasSelection || pending}
+                onClick={() => openConfirmation('cancel')}
+                type="button"
+                variant="ghost"
+              >
+                선택 날짜·교시 휴무 취소
               </Button>
             </div>
           </div>
@@ -672,13 +681,11 @@ function ReasonDialog({
             leaves={leaves}
             inspectedDate={inspectedDate}
             pending={pending}
-            hasSelection={mode === 'select' && hasSelection}
             headingRef={historyHeadingRef}
             onRequestOccurrence={(target) => {
               setOccurrenceTarget(target);
               openConfirmation('occurrence');
             }}
-            onRequestBulkCancel={() => openConfirmation('cancel')}
             onRequestStopRule={() => openConfirmation('cancel-repeat')}
           />
         </>

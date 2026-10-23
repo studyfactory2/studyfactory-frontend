@@ -17,10 +17,8 @@ type AttendanceReasonHistoryProps = {
   leaves: AttendanceMemberLeaveState;
   inspectedDate: string;
   pending: boolean;
-  hasSelection: boolean;
   headingRef: RefObject<HTMLHeadingElement | null>;
   onRequestOccurrence: (target: OccurrenceTarget) => void;
-  onRequestBulkCancel: () => void;
   onRequestStopRule: () => void;
 };
 
@@ -28,10 +26,8 @@ export function AttendanceReasonHistory({
   leaves,
   inspectedDate,
   pending,
-  hasSelection,
   headingRef,
   onRequestOccurrence,
-  onRequestBulkCancel,
   onRequestStopRule,
 }: AttendanceReasonHistoryProps) {
   const historyLoading = leaves.request.loading || leaves.calendar.loading;
@@ -125,21 +121,8 @@ export function AttendanceReasonHistory({
         </ul>
       )}
       <details className="attendance-reason__advanced">
-        <summary>추가 취소 옵션</summary>
+        <summary>반복 일정 관리</summary>
         <div className="attendance-reason__advanced-actions">
-          <Button
-            disabled={!hasSelection || pending}
-            title={
-              !hasSelection
-                ? '날짜 선택에서 취소할 날짜·교시를 선택해 주세요.'
-                : undefined
-            }
-            onClick={onRequestBulkCancel}
-            type="button"
-            variant="ghost"
-          >
-            선택 날짜·교시 휴무 취소
-          </Button>
           <Button
             disabled={pending}
             onClick={onRequestStopRule}
