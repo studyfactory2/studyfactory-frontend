@@ -17,7 +17,7 @@ type ManagerBeverageWorkspaceProps = {
   ownerKey: SessionOwnerKey;
 };
 
-type CompactView = 'making' | 'map' | 'alerts';
+type BeverageView = 'making' | 'map' | 'alerts';
 
 /** The shared operational board used by both Staff and Admin branch scopes. */
 export function ManagerBeverageWorkspace({
@@ -27,7 +27,7 @@ export function ManagerBeverageWorkspace({
 }: ManagerBeverageWorkspaceProps) {
   const { alerts, editor, freshness, making, room, today } =
     useManagerBeverages({ branchId, memberId, ownerKey });
-  const [compactView, setCompactView] = useState<CompactView>('making');
+  const [activeView, setActiveView] = useState<BeverageView>('making');
   const workspaceId = useId();
   const alertsFailed = Boolean(
     alerts.changesErrorMessage ||
@@ -42,7 +42,7 @@ export function ManagerBeverageWorkspace({
       ? `${alerts.changes.length + alerts.lateLeaves.length + alerts.unseated.length}건`
       : '확인 중';
 
-  const views: { key: CompactView; label: string; status?: string }[] = [
+  const views: { key: BeverageView; label: string; status?: string }[] = [
     { key: 'making', label: '제조 목록' },
     { key: 'map', label: '서빙 좌석표' },
     { key: 'alerts', label: '확인 필요', status: alertStatus },
@@ -50,15 +50,51 @@ export function ManagerBeverageWorkspace({
 
   return (
     <div className="staff-bev">
-      <Instrument
-        className="staff-bev__summary"
-        label="오늘 음료"
-        note={
+      <Instrument className="staff-bev__summary" label="오늘 음료">
+        <div className="staff-bev__summary-top">
+          <p
+            className="staff-bev__total"
+            title={making.ready ? `${making.kindCount}가지 음료` : undefined}
+          >
+            <span>만들 음료</span>
+            <strong>
+              {making.ready ? making.toMake : '—'}
+              <small>잔</small>
+            </strong>
+            <span className="staff-bev__summary-detail">
+              {making.ready ? `${making.kindCount}가지` : '종류 확인 중'}
+            </span>
+          </p>
+          <div className="staff-bev__subtotals">
+            <p>
+              <span>컵</span>
+              <strong>{making.ready ? making.cupToMake : '—'}</strong>
+            </p>
+            <p>
+              <span>텀블러</span>
+              <strong>{making.ready ? making.tumblerToMake : '—'}</strong>
+            </p>
+          </div>
+        </div>
+        <div className="staff-bev__summary-bottom">
+          <p
+            className="staff-bev__deduction"
+            title="1교시 휴무·결석으로 서빙 제외"
+          >
+            <span>서빙 제외</span>
+            <strong>{making.ready ? making.deduction : '—'}잔</strong>
+            <span className="staff-bev__summary-detail">1교시 휴무 · 결석</span>
+          </p>
           <span className="staff-bev__asof">
-            <span>{formatKoreanDate(today.dateKey)}</span>
+            <time dateTime={today.dateKey}>
+              {formatKoreanDate(today.dateKey)}
+            </time>
             {freshness.updatedAtLabel && (
-              <span className="staff-bev__asof-time">
-                {freshness.updatedAtLabel} 기준
+              <span
+                aria-label={`${freshness.updatedAtLabel} 기준`}
+                className="staff-bev__asof-time"
+              >
+                {freshness.updatedAtLabel}
               </span>
             )}
             <button
@@ -76,45 +112,9 @@ export function ManagerBeverageWorkspace({
               onClick={freshness.onRefresh}
               type="button"
             >
-              <RefreshCw aria-hidden="true" size={14} />
-              {freshness.refreshing ? '갱신 중' : '갱신'}
+              <RefreshCw aria-hidden="true" size={16} />
             </button>
           </span>
-        }
-      >
-        <div className="staff-bev__metrics">
-          <p className="staff-bev__metric is-lead">
-            <span className="staff-bev__metric-key">만들 음료</span>
-            <strong>
-              {making.ready ? making.toMake : '—'}
-              <small>잔</small>
-            </strong>
-            <span className="staff-bev__metric-sub">
-              {making.ready ? `${making.kindCount}가지` : '—'}
-            </span>
-          </p>
-          <p className="staff-bev__metric is-cup">
-            <span className="staff-bev__metric-key">컵</span>
-            <strong>
-              {making.ready ? making.cupToMake : '—'}
-              <small>잔</small>
-            </strong>
-          </p>
-          <p className="staff-bev__metric is-tumbler">
-            <span className="staff-bev__metric-key">텀블러</span>
-            <strong>
-              {making.ready ? making.tumblerToMake : '—'}
-              <small>잔</small>
-            </strong>
-          </p>
-          <p className="staff-bev__metric is-deduction">
-            <span className="staff-bev__metric-key">서빙 제외</span>
-            <strong>
-              {making.ready ? making.deduction : '—'}
-              <small>잔</small>
-            </strong>
-            <span className="staff-bev__metric-sub">1교시 휴무 · 결석</span>
-          </p>
         </div>
       </Instrument>
 
@@ -126,9 +126,9 @@ export function ManagerBeverageWorkspace({
         {views.map((view) => (
           <button
             aria-controls={`${workspaceId}-${view.key}`}
-            aria-pressed={compactView === view.key}
+            aria-pressed={activeView === view.key}
             key={view.key}
-            onClick={() => setCompactView(view.key)}
+            onClick={() => setActiveView(view.key)}
             type="button"
           >
             <span>{view.label}</span>
@@ -144,9 +144,14 @@ export function ManagerBeverageWorkspace({
         ))}
       </div>
 
-      <div className="staff-bev__body" data-view={compactView}>
+      {/* Keep every panel mounted so view changes preserve local UI state. */}
+      <div className="staff-bev__body">
         <aside aria-label="음료 작업" className="staff-bev__rail">
-          <div className="staff-bev__making-panel" id={`${workspaceId}-making`}>
+          <div
+            className="staff-bev__making-panel"
+            hidden={activeView !== 'making'}
+            id={`${workspaceId}-making`}
+          >
             <BeverageMakingBoard
               cup={making.cup}
               cupToMake={making.cupToMake}
@@ -159,7 +164,11 @@ export function ManagerBeverageWorkspace({
               tumblerToMake={making.tumblerToMake}
             />
           </div>
-          <div className="staff-bev__alerts-panel" id={`${workspaceId}-alerts`}>
+          <div
+            className="staff-bev__alerts-panel"
+            hidden={activeView !== 'alerts'}
+            id={`${workspaceId}-alerts`}
+          >
             <BeverageAlerts
               changes={alerts.changes}
               changesErrorMessage={alerts.changesErrorMessage}
@@ -181,7 +190,11 @@ export function ManagerBeverageWorkspace({
           </div>
         </aside>
 
-        <div className="staff-bev__map-panel" id={`${workspaceId}-map`}>
+        <div
+          className="staff-bev__map-panel"
+          hidden={activeView !== 'map'}
+          id={`${workspaceId}-map`}
+        >
           <BeverageRoomMap
             errorMessage={room.errorMessage}
             loading={room.loading}
