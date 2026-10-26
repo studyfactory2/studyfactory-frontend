@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AlertCircle,
-  QrCode,
   RotateCcw,
   ScanLine,
   ShieldCheck,
@@ -73,12 +72,10 @@ export function HomeQrPresence({
         className="member-home__qr-trigger"
         onClick={openScanner}
         size="sm"
-        variant="ghost"
+        variant="primary"
       >
-        <span className="member-home__qr-trigger-icon" aria-hidden="true">
-          <QrCode size={14} />
-        </span>
-        <span>{isCheckIn ? 'QR로 입실하기' : 'QR로 퇴실하기'}</span>
+        <ScanLine aria-hidden="true" size={20} />
+        <span>{isCheckIn ? 'QR 입실' : 'QR 퇴실'}</span>
       </Button>
 
       <Modal

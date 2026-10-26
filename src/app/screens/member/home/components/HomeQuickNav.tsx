@@ -1,48 +1,66 @@
-import { BarChart3, CalendarDays, ChevronRight, Ellipsis } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { memberRoutes } from '../../../../core/router/routes';
+import { MORE_MENU_ENTRIES } from '../../more/model/more.menu';
+import {
+  getHomeBeverageLabel,
+  getHomeLeaveLabel,
+  type HomeBeverageSummary,
+  type HomeLeaveSummary,
+} from '../model/home.summary';
+import { HomeSectionError } from './HomeSectionState';
 import '../styles/HomeQuickNav.css';
 
-const QUICK_LINKS = [
-  {
-    description: '주간 계획 편집',
-    icon: CalendarDays,
-    label: '계획',
-    to: memberRoutes.plans,
-  },
-  {
-    description: '학습 기록 보기',
-    icon: BarChart3,
-    label: '학습',
-    to: memberRoutes.study,
-  },
-  {
-    description: '휴무·내 정보',
-    icon: Ellipsis,
-    label: '더보기',
-    to: memberRoutes.more,
-  },
-] as const;
+export type HomeQuickNavProps = {
+  beverage: HomeBeverageSummary & { onRetry: () => void };
+  leave: HomeLeaveSummary & { onRetry: () => void };
+};
 
-export function HomeQuickNav() {
+export function HomeQuickNav({ beverage, leave }: HomeQuickNavProps) {
+  const captions = {
+    beverages: getHomeBeverageLabel(beverage),
+    leaves: getHomeLeaveLabel(leave),
+    sideDishes: '신청·확인',
+  };
+
   return (
-    <nav aria-label="바로가기" className="member-home__quick-nav">
-      {QUICK_LINKS.map((link) => {
-        const Icon = link.icon;
+    <div className="member-home__shortcuts">
+      <nav aria-label="생활 바로가기" className="member-home__quick-nav">
+        {MORE_MENU_ENTRIES.map((link) => {
+          const Icon = link.icon;
+          const primary = link.id in captions;
+          const caption = primary
+            ? captions[link.id as keyof typeof captions]
+            : null;
 
-        return (
-          <Link className="member-home__quick-link" key={link.to} to={link.to}>
-            <span className="member-home__quick-icon">
-              <Icon aria-hidden="true" size={18} />
-            </span>
-            <span className="member-home__quick-copy">
+          return (
+            <Link
+              className={`member-home__quick-link${primary ? '' : ' is-secondary'}`}
+              key={link.to}
+              to={link.to}
+            >
+              <Icon aria-hidden="true" size={primary ? 19 : 16} />
               <strong>{link.label}</strong>
-              <small>{link.description}</small>
-            </span>
-            <ChevronRight aria-hidden="true" size={16} />
-          </Link>
-        );
-      })}
-    </nav>
+              {caption !== null && <small>{caption}</small>}
+            </Link>
+          );
+        })}
+      </nav>
+      {(!beverage.loading && beverage.errorMessage !== null) ||
+      (!leave.loading && leave.errorMessage !== null) ? (
+        <div className="member-home__shortcut-errors">
+          {!beverage.loading && beverage.errorMessage !== null && (
+            <HomeSectionError
+              message="음료 정보를 불러오지 못했어요."
+              onRetry={beverage.onRetry}
+            />
+          )}
+          {!leave.loading && leave.errorMessage !== null && (
+            <HomeSectionError
+              message={leave.errorMessage}
+              onRetry={leave.onRetry}
+            />
+          )}
+        </div>
+      ) : null}
+    </div>
   );
 }

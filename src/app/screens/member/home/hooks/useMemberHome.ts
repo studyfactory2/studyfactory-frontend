@@ -33,6 +33,7 @@ import {
   getWeekStartKey,
 } from '../model/home.dates';
 import type { TodayPeriodPlan } from '../model/home.types';
+import { getHomeStudySummary } from '../model/home.summary';
 import { useSeoulToday } from './useSeoulToday';
 
 /** Recognized study time only advances while the member is checked in. */
@@ -346,15 +347,13 @@ export function useMemberHome(
       onRetry: () => void presenceQuery.refetch(),
     },
     studyTime: {
+      ...getHomeStudySummary(studyTimeQuery.data),
       dayBlocks,
       errorMessage: studyTimeQuery.isError
         ? studyTimeQuery.error.message
         : null,
       loading: studyTimeQuery.isPending,
       onRetry: () => void studyTimeQuery.refetch(),
-      recognizedSeconds:
-        studyTimeQuery.data?.totals.totalRecognizedStudyDuration.totalSeconds ??
-        null,
     },
     today,
     weeklyPlan: {

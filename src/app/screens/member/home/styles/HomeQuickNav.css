@@ -1,76 +1,81 @@
+.member-home__shortcuts {
+  overflow: hidden;
+  border: 1px solid rgb(var(--brand-forest-rgb) / 7%);
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow:
+    0 2px 4px rgb(var(--brand-ink-rgb) / 4%),
+    0 10px 24px rgb(var(--brand-ink-rgb) / 6%);
+}
 .member-home__quick-nav {
   display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
+  padding: 10px;
 }
-
 .member-home__quick-link {
-  display: grid;
-  min-height: 60px;
-  align-items: center;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--brand-line);
-  border-radius: 16px;
-  background: var(--brand-ivory);
-  color: var(--brand-ink);
-  text-decoration: none;
-}
-
-.member-home__quick-link:hover {
-  border-color: rgb(var(--brand-forest-rgb) / 26%);
-  background: var(--brand-paper);
-  text-decoration: none;
-}
-
-.member-home__quick-icon {
-  display: grid;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background: rgb(var(--brand-forest-rgb) / 9%);
-  color: var(--brand-forest);
-  place-items: center;
-}
-
-.member-home__quick-copy {
   display: flex;
   min-width: 0;
+  min-height: 92px;
   flex-direction: column;
-}
-
-.member-home__quick-copy strong {
+  align-items: center;
+  grid-column: span 2;
+  gap: 6px;
+  padding: 8px 4px 10px;
+  border-radius: 12px;
   color: var(--brand-ink);
-  font-size: var(--text-md);
+  text-align: center;
+  text-decoration: none;
+}
+.member-home__quick-link:hover {
+  background: rgb(var(--brand-forest-rgb) / 5%);
+  text-decoration: none;
+}
+.member-home__quick-link:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+.member-home__quick-link:active {
+  background: rgb(var(--brand-forest-rgb) / 9%);
+}
+.member-home__quick-link > svg {
+  flex-shrink: 0;
+  color: var(--brand-forest);
+}
+.member-home__quick-link:not(.is-secondary) > svg {
+  box-sizing: content-box;
+  padding: 7px;
+  border-radius: var(--radius-control);
+  background: rgb(var(--brand-forest-rgb) / 7%);
+}
+.member-home__quick-link strong {
+  font-size: var(--text-sm);
   font-weight: var(--weight-bold);
 }
-
-.member-home__quick-copy small {
+.member-home__quick-link small {
   color: var(--brand-muted);
-  font-size: var(--text-xs);
+  font-size: var(--text-2xs);
+  line-height: var(--leading-snug);
+  overflow-wrap: anywhere;
+  word-break: keep-all;
 }
-
-.member-home__quick-link > svg {
-  color: var(--brand-muted);
+.member-home__quick-link.is-secondary {
+  min-height: var(--control-height);
+  flex-direction: row;
+  justify-content: center;
+  grid-column: span 3;
+  gap: 8px;
+  padding: 8px;
+  background: rgb(var(--brand-forest-rgb) / 5%);
 }
-
-@media (min-width: 560px) and (max-width: 1023px) {
-  .member-home__quick-nav {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .member-home__quick-link > svg {
-    display: none;
-  }
+.member-home__quick-link.is-secondary:hover {
+  background: rgb(var(--brand-forest-rgb) / 8%);
 }
-
-/*
- * Hidden from 1024px up: at that width the app shell shows a permanent
- * sidebar carrying these exact three destinations, so the rail was repeating
- * the navigation back at the member and eating a third of its own height.
- */
-@media (min-width: 1024px) {
-  .member-home__quick-nav {
-    display: none;
-  }
+.member-home__quick-link.is-secondary:active {
+  background: rgb(var(--brand-forest-rgb) / 12%);
+}
+.member-home__shortcut-errors {
+  display: grid;
+  gap: 8px;
+  padding: 0 12px 12px;
 }
