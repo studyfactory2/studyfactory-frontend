@@ -4,6 +4,7 @@ import { LegacyPlanDraftNotice } from '../../../features/plans/PlanDraftRecovery
 import { SharedPlanEditor } from '../../../features/plans/SharedPlanEditor';
 import { addDays, getWeekStartKey } from '../../../shared/lib/seoul-date';
 import { HomeBreakStudy } from './components/HomeBreakStudy';
+import { HomeDailyTasks } from './components/HomeDailyTasks';
 import { HomeHero } from './components/HomeHero';
 import { HomePresence } from './components/HomePresence';
 import { HomeQrPresence } from './components/HomeQrPresence';
@@ -102,6 +103,11 @@ function MemberHomeDashboard({
         </>
       }
     >
+      <HomeDailyTasks
+        memberId={memberId}
+        ownerKey={queryOwnerKey}
+        today={home.today.dateKey}
+      />
       <LegacyPlanDraftNotice memberId={memberId} />
       <SharedPlanEditor
         dayIndex={planDay}
