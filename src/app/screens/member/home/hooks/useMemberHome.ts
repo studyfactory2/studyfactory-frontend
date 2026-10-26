@@ -8,8 +8,12 @@ import {
   fetchMyLeavePlan,
   type MemberLeavePlanResponse,
 } from '../../../../features/leaves/leaves-api';
-import { memberPlanQueryKeys } from '../../../../features/plans/plan-query-keys';
-import { fetchWeeklyPlan } from '../../../../features/plans/plans-api';
+import {
+  allSharedPlanItems,
+  fetchSharedPlanWeek,
+  sharedItemAppliesToPeriod,
+  sharedPlanQueryKeys,
+} from '../../../../features/plans/shared-plans-api';
 import { studyBreakQueryKeys } from '../../../../features/study-breaks/study-break-query-keys';
 import {
   fetchMyStudyBreakStatus,
@@ -32,7 +36,6 @@ import {
   getNextMonth,
   getWeekStartKey,
 } from '../model/home.dates';
-import type { TodayPeriodPlan } from '../model/home.types';
 import { getHomeStudySummary } from '../model/home.summary';
 import { useSeoulToday } from './useSeoulToday';
 
@@ -86,8 +89,8 @@ export function useMemberHome(
   });
 
   const weeklyPlanQuery = useQuery({
-    queryFn: () => fetchWeeklyPlan(weekStartKey, memberId),
-    queryKey: memberPlanQueryKeys.week(ownerKey, weekStartKey),
+    queryFn: () => fetchSharedPlanWeek(weekStartKey, memberId),
+    queryKey: sharedPlanQueryKeys.week(ownerKey, weekStartKey),
     staleTime: 60_000,
   });
 
@@ -110,24 +113,10 @@ export function useMemberHome(
   });
 
   const weeklyPlan = weeklyPlanQuery.data;
-
-  const todayPeriods = useMemo<TodayPeriodPlan[]>(() => {
-    if (!weeklyPlan) {
-      return [];
-    }
-
-    return PLAN_ROWS.map((row) => ({
-      items: weeklyPlan.items
-        .filter(
-          (item) =>
-            item.dayIndex === today.dayIndex &&
-            item.periodIndex === row.periodIndex &&
-            item.content.trim().length > 0,
-        )
-        .sort((left, right) => left.sortOrder - right.sortOrder),
-      row,
-    })).filter((period) => period.items.length > 0);
-  }, [today.dayIndex, weeklyPlan]);
+  const planItems = useMemo(
+    () => (weeklyPlan ? allSharedPlanItems(weeklyPlan) : []),
+    [weeklyPlan],
+  );
 
   /**
    * Today as nine blocks: the seven 교시 plus 점심 and 저녁. Each one carries
@@ -162,9 +151,9 @@ export function useMemberHome(
       return {
         availableSeconds,
         excludedByLeave: report?.excludedByLeave ?? false,
-        hasPlan: (weeklyPlan?.items ?? []).some(
+        hasPlan: planItems.some(
           (item) =>
-            item.periodIndex === row.periodIndex &&
+            sharedItemAppliesToPeriod(item, row.periodIndex) &&
             item.dayIndex === today.dayIndex &&
             item.content.trim().length > 0,
         ),
@@ -178,23 +167,7 @@ export function useMemberHome(
         time: row.time,
       };
     });
-  }, [studyTimeQuery.data, today.dayIndex, weeklyPlan]);
-
-  const weekSummary = useMemo(() => {
-    if (!weeklyPlan) {
-      return null;
-    }
-
-    const populated = weeklyPlan.items.filter(
-      (item) => item.content.trim().length > 0,
-    );
-
-    return {
-      completedCount: populated.filter((item) => item.done).length,
-      goal: weeklyPlan.goal.trim(),
-      totalCount: populated.length,
-    };
-  }, [weeklyPlan]);
+  }, [planItems, studyTimeQuery.data, today.dayIndex]);
 
   const upcomingLeave = useMemo(() => {
     const entries: MemberLeavePlanResponse[] = [
@@ -356,14 +329,5 @@ export function useMemberHome(
       onRetry: () => void studyTimeQuery.refetch(),
     },
     today,
-    weeklyPlan: {
-      errorMessage: weeklyPlanQuery.isError
-        ? weeklyPlanQuery.error.message
-        : null,
-      loading: weeklyPlanQuery.isPending,
-      onRetry: () => void weeklyPlanQuery.refetch(),
-      summary: weekSummary,
-      todayPeriods,
-    },
   };
 }

@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
+import { LegacyPlanDraftNotice } from '../../../features/plans/PlanDraftRecovery';
+import { SharedPlanEditor } from '../../../features/plans/SharedPlanEditor';
+import { addDays, getWeekStartKey } from '../../../shared/lib/seoul-date';
 import { HomeBreakStudy } from './components/HomeBreakStudy';
 import { HomeHero } from './components/HomeHero';
 import { HomePresence } from './components/HomePresence';
 import { HomeQrPresence } from './components/HomeQrPresence';
 import { HomeQuickNav } from './components/HomeQuickNav';
-import { HomeTodayPlan } from './components/HomeTodayPlan';
-import { HomeWeekSummary } from './components/HomeWeekSummary';
 import { MemberHomeLayout } from './components/MemberHomeLayout';
 import { useMemberHome } from './hooks/useMemberHome';
 
@@ -39,6 +41,16 @@ function MemberHomeDashboard({
   queryOwnerKey: SessionOwnerKey;
 }) {
   const home = useMemberHome(memberId, branchId, queryOwnerKey);
+  // Until the member browses another date, the editor follows Seoul's today.
+  // Drafts belong to their week in the shared editor, not to this navigation.
+  const [selectedPlanDate, setSelectedPlanDate] = useState<string | null>(null);
+  const planDate = selectedPlanDate ?? home.today.dateKey;
+  const planWeek = getWeekStartKey(planDate);
+  const planDay = Math.round(
+    (Date.parse(`${planDate}T00:00:00Z`) -
+      Date.parse(`${planWeek}T00:00:00Z`)) /
+      86_400_000,
+  );
 
   return (
     <MemberHomeLayout
@@ -90,17 +102,16 @@ function MemberHomeDashboard({
         </>
       }
     >
-      <HomeTodayPlan
-        errorMessage={home.weeklyPlan.errorMessage}
-        loading={home.weeklyPlan.loading}
-        onRetry={home.weeklyPlan.onRetry}
-        periods={home.weeklyPlan.todayPeriods}
-      />
-      <HomeWeekSummary
-        errorMessage={home.weeklyPlan.errorMessage}
-        loading={home.weeklyPlan.loading}
-        onRetry={home.weeklyPlan.onRetry}
-        summary={home.weeklyPlan.summary}
+      <LegacyPlanDraftNotice memberId={memberId} />
+      <SharedPlanEditor
+        dayIndex={planDay}
+        memberId={memberId}
+        onDateChange={(week, day) => setSelectedPlanDate(addDays(week, day))}
+        onDayChange={(day) => setSelectedPlanDate(addDays(planWeek, day))}
+        onWeekChange={(week) => setSelectedPlanDate(addDays(week, planDay))}
+        ownerKey={queryOwnerKey}
+        title="교시별 계획"
+        weekStartDate={planWeek}
       />
     </MemberHomeLayout>
   );
