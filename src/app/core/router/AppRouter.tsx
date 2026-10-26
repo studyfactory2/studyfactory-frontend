@@ -20,6 +20,7 @@ import { MemberSideDishesScreen } from '../../screens/member/more/sidedishes';
 import { MemberSuggestionsScreen } from '../../screens/member/more/suggestions';
 import { MemberPlans } from '../../screens/member/plans';
 import { MemberStudyScreen } from '../../screens/member/study';
+import { MemberTasksScreen } from '../../screens/member/tasks/MemberTasksScreen';
 import { MemberWorkspaceScreen } from '../../screens/member/MemberWorkspaceScreen';
 import { StaffBeveragesScreen } from '../../screens/staff/beverages';
 import { StaffAttendanceScreen } from '../../screens/staff/attendance';
@@ -41,6 +42,7 @@ export function AppRouter() {
           <Route index element={<MemberHomeScreen />} />
           <Route path="plans" element={<MemberPlans />} />
           <Route path="study" element={<MemberStudyScreen />} />
+          <Route path="tasks" element={<MemberTasksScreen />} />
           <Route path="more">
             <Route index element={<MemberMoreScreen />} />
             <Route path="beverages" element={<MemberBeveragesScreen />} />

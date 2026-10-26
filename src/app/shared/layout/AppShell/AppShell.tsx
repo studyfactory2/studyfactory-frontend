@@ -27,6 +27,7 @@ type AppShellProps = {
   headerTools?: ReactNode;
   mobileWorkspaceRole?: ManagerWorkspaceRole;
   navigation: WorkspaceNavigationItem[];
+  pageTitle?: string;
   screenToolbar?: boolean;
   workspaceLabel: string;
 };
@@ -37,6 +38,7 @@ export function AppShell({
   headerTools,
   mobileWorkspaceRole,
   navigation,
+  pageTitle,
   screenToolbar = false,
   workspaceLabel,
 }: AppShellProps) {
@@ -182,7 +184,9 @@ export function AppShell({
               <p>
                 {topbarBranchName} <span>·</span> {workspaceLabel}
               </p>
-              <h1>{isHub ? mobilePage?.title : activeItem.label}</h1>
+              <h1>
+                {isHub ? mobilePage?.title : (pageTitle ?? activeItem.label)}
+              </h1>
             </div>
           </div>
           <div className="workspace-shell__topbar-end">
