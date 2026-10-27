@@ -156,6 +156,7 @@ export function useMemberStudy(memberId: number, ownerKey: SessionOwnerKey) {
     },
     range,
     report: {
+      asOf: reportQuery.data?.asOf ?? null,
       errorMessage: reportQuery.isError ? reportQuery.error.message : null,
       loading: reportQuery.isPending,
       onRetry: () => void reportQuery.refetch(),

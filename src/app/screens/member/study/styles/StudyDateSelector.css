@@ -1,0 +1,240 @@
+.member-study__date-selector {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-3);
+}
+
+.member-study__date-selector-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.member-study__date-selector-header h3 {
+  margin: 0;
+  color: var(--brand-ink);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.member-study__date-selector-header > span,
+.member-study__month-weekdays {
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+}
+
+.member-study__dates,
+.member-study__month-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.member-study__dates {
+  --study-date-chart-height: 49px;
+
+  margin-inline: -4px;
+}
+
+.member-study__dates.is-empty {
+  --study-date-chart-height: 10px;
+}
+
+.member-study__month-weekdays {
+  text-align: center;
+}
+
+.member-study__date-button {
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 6px 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--brand-ink);
+  cursor: pointer;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.member-study__date-button:hover {
+  background: rgb(var(--brand-forest-rgb) / 4%);
+}
+
+.member-study__date-button:focus-visible {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+.member-study__date-button.is-selected {
+  background: rgb(var(--brand-forest-rgb) / 8%);
+}
+
+.member-study__date-label {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+
+.member-study__date-label small {
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+}
+
+.member-study__date-label strong {
+  display: grid;
+  width: 27px;
+  height: 27px;
+  align-items: center;
+  justify-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.member-study__date-button.is-today .member-study__date-label strong {
+  border-color: var(--brand-forest);
+  color: var(--brand-forest);
+}
+
+.member-study__date-button.is-future .member-study__date-label strong {
+  color: var(--brand-muted);
+}
+
+.member-study__date-button.is-selected .member-study__date-label strong {
+  border-color: var(--brand-forest);
+  background: var(--brand-forest);
+  color: var(--brand-ivory);
+}
+
+/* Empty dates share only the baseline; no filled track implies study time. */
+.member-study__date-bars {
+  display: flex;
+  width: 17px;
+  height: var(--study-date-chart-height);
+  align-items: flex-end;
+}
+
+.member-study__date-stack {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.member-study__date-bar {
+  display: block;
+  flex-shrink: 0;
+}
+
+.member-study__date-bar.is-period {
+  border-radius: 0 0 4px 4px;
+  background: var(--brand-forest);
+}
+
+.member-study__date-bar.is-break {
+  border-radius: 4px 4px 0 0;
+  background: var(--brand-gold);
+}
+
+.member-study__date-baseline {
+  width: 100%;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-line);
+}
+
+.member-study__date-button.is-future .member-study__date-baseline {
+  opacity: 0.55;
+}
+
+.member-study__date-value {
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+}
+
+.member-study__date-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+  list-style: none;
+}
+
+.member-study__date-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.member-study__date-legend li > span {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+}
+
+.member-study__date-legend .is-period {
+  background: var(--brand-forest);
+}
+
+.member-study__date-legend .is-break {
+  background: var(--brand-gold);
+}
+
+.member-study__dates.is-month {
+  --study-date-chart-height: 15px;
+
+  gap: var(--space-1);
+  margin: 0;
+}
+
+.member-study__dates.is-month.is-empty {
+  --study-date-chart-height: 10px;
+}
+
+.member-study__dates.is-month .member-study__date-button {
+  min-height: 45px;
+  gap: 3px;
+  padding: 3px 0;
+}
+
+.member-study__dates.is-month .member-study__date-label strong {
+  height: 23px;
+}
+
+.member-study__dates.is-month .member-study__date-bars {
+  width: 14px;
+}
+
+@media (min-width: 768px) {
+  .member-study__dates {
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .member-study__date-button {
+    padding-block: var(--space-2);
+  }
+
+  .member-study__date-selector-header h3 {
+    font-size: var(--text-md);
+  }
+
+  .member-study__dates.is-month .member-study__date-button {
+    min-height: 56px;
+    padding-block: 6px;
+  }
+}

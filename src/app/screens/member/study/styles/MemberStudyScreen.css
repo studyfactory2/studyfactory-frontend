@@ -1,52 +1,71 @@
-/*
- * Member study-time report layout.
- * DOM order is the mobile priority order (header → hero → summary → records →
- * detail → rule), so the desktop two-column split needs no CSS reordering.
- */
+/* Date selection and its detail share a card at every screen width. */
 .member-study {
   display: grid;
   align-items: start;
-  gap: 16px;
+  gap: var(--space-4);
   color: var(--brand-ink);
 }
 
-.member-study__primary,
-.member-study__aside {
-  display: flex;
+.member-study__header {
+  display: grid;
   min-width: 0;
-  flex-direction: column;
-  gap: 16px;
+  gap: var(--space-3);
 }
 
-.member-study__card {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: clamp(18px, 2.4vw, 24px);
-  border: 1px solid var(--brand-line);
-  border-radius: 20px;
-  background: var(--brand-ivory);
-  box-shadow: 0 14px 34px rgb(var(--brand-ink-rgb) / 5%);
-}
-
-.member-study__card-header {
+.member-study__heading,
+.member-study__range {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-3);
 }
 
-.member-study__card-header h3 {
+.member-study__heading h1 {
+  margin: 0;
   color: var(--brand-ink);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-tight);
 }
 
-.member-study__card-header span {
+.member-study__heading > span,
+.member-study__range {
+  color: var(--brand-muted);
+  font-size: var(--text-2xs);
+}
+
+.member-study__range > span:last-child {
+  white-space: nowrap;
+}
+
+.member-study__primary {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-3);
+}
+
+.member-study__empty-note {
+  margin: 0;
+  padding: 0 3px;
   color: var(--brand-muted);
   font-size: var(--text-xs);
+}
+
+.member-study__card {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-4);
+  padding: 16px;
+  border-radius: 20px;
+  background: var(--brand-ivory);
+  box-shadow: 0 7px 24px rgb(var(--brand-ink-rgb) / 5%);
+}
+
+.member-study__selected-detail {
+  min-width: 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--brand-line);
 }
 
 .member-study__sr-only {
@@ -60,10 +79,25 @@
 
 @media (min-width: 1024px) {
   .member-study {
-    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    gap: var(--space-5);
+    grid-template-columns: minmax(280px, 0.85fr) minmax(0, 1.35fr);
   }
 
-  .member-study .ui-screen-header {
+  .member-study__header {
+    align-items: center;
     grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .member-study__header .member-study__tabs {
+    min-width: 280px;
+  }
+
+  .member-study__range {
+    grid-column: 1 / -1;
+  }
+
+  .member-study__card {
+    padding: 20px;
   }
 }

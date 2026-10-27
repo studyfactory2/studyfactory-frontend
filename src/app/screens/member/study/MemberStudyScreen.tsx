@@ -1,18 +1,15 @@
 import { useSession, type SessionOwnerKey } from '../../../core/session';
-import {
-  ScreenHeader,
-  SectionEmpty,
-  SectionError,
-  SectionLoading,
-} from '../../../shared/ui';
+import { SectionError, SectionLoading } from '../../../shared/ui';
+import { StudyDateSelector } from './components/StudyDateSelector';
 import { StudyDayDetail } from './components/StudyDayDetail';
 import { StudyHero } from './components/StudyHero';
 import { StudyRangeTabs } from './components/StudyRangeTabs';
-import { StudyRecordList } from './components/StudyRecordList';
-import { StudyRecordTable } from './components/StudyRecordTable';
 import { StudySummary } from './components/StudySummary';
 import { useMemberStudy } from './hooks/useMemberStudy';
-import { formatDateRange } from './model/study.dates';
+import {
+  formatDateRange,
+  formatTimeOfDayFromEpochMs,
+} from './model/study.dates';
 import { getRangeLabel } from './model/study.labels';
 import './styles/MemberStudyScreen.css';
 
@@ -44,10 +41,12 @@ function MemberStudyReport({
 
   const recordsLoading = report.loading || presenceHistory.loading;
   const recordsError = report.errorMessage ?? presenceHistory.errorMessage;
-  const recordsEmpty =
-    !recordsLoading &&
-    recordsError === null &&
-    rows.every((row) => row.status === 'none' || row.status === 'future');
+  const reportReady = !report.loading && report.errorMessage === null;
+  const reportEpoch = report.asOf === null ? NaN : Date.parse(report.asOf);
+  const reportTime =
+    reportReady && Number.isFinite(reportEpoch)
+      ? formatTimeOfDayFromEpochMs(reportEpoch)
+      : null;
 
   const retryRecords = () => {
     report.onRetry();
@@ -56,99 +55,81 @@ function MemberStudyReport({
 
   return (
     <div className="member-study">
-      <ScreenHeader
-        actions={
-          <StudyRangeTabs onSelect={study.onSetRange} value={study.range} />
-        }
-        eyebrow="MEMBER · STUDY"
-        subtitle={`${formatDateRange(dateRange.from, dateRange.to)} · 서울 기준`}
-        title="공부 시간 리포트"
-      />
+      <header className="member-study__header">
+        <div className="member-study__heading">
+          <h1>학습 기록</h1>
+          <span>서울 기준</span>
+        </div>
+        <StudyRangeTabs onSelect={study.onSetRange} value={study.range} />
+        <div className="member-study__range">
+          <span>{formatDateRange(dateRange.from, dateRange.to)}</span>
+          {reportTime && <span>{reportTime} 기준</span>}
+        </div>
+      </header>
 
       <div className="member-study__primary">
         <StudyHero
           breakSeconds={study.summary.breakSeconds}
-          dateRangeLabel={formatDateRange(dateRange.from, dateRange.to)}
           errorMessage={report.errorMessage}
-          isLive={study.isLive}
+          isLive={
+            study.isLive &&
+            !presenceHistory.loading &&
+            presenceHistory.errorMessage === null
+          }
           loading={report.loading}
-          maxDaySeconds={study.summary.maxDaySeconds}
           onRetry={report.onRetry}
-          onSelectDate={study.onSelectDate}
           periodSeconds={study.summary.periodSeconds}
-          range={study.range}
           rangeLabel={getRangeLabel(study.range)}
-          rows={rows}
-          selectedDateKey={study.selectedDateKey}
           totalSeconds={study.summary.totalSeconds}
         />
 
-        {!report.loading && report.errorMessage === null && (
+        {reportReady && study.range !== 'today' && (
           <StudySummary
             attendedDayCount={study.summary.attendedDayCount}
             averageSecondsPerAttendedDay={
               study.summary.averageSecondsPerAttendedDay
             }
-            breakSeconds={study.summary.breakSeconds}
-            periodSeconds={study.summary.periodSeconds}
           />
         )}
+        {reportReady && study.summary.totalSeconds === 0 && (
+          <p className="member-study__empty-note">
+            아직 인정된 학습 시간이 없어요.
+          </p>
+        )}
+      </div>
 
-        <section
-          aria-labelledby="member-study-records-title"
-          className="member-study__card"
-        >
-          <header className="member-study__card-header">
-            <h3 id="member-study-records-title">기록</h3>
-            <span>{getRangeLabel(study.range)} 일별 인정 시간</span>
-          </header>
-
-          {recordsLoading ? (
-            <SectionLoading label="기록을 불러오는 중이에요." />
-          ) : recordsError !== null ? (
-            <SectionError message={recordsError} onRetry={retryRecords} />
-          ) : recordsEmpty ? (
-            <SectionEmpty title="아직 기록이 없어요">
-              <p>출입문 QR로 입실하면 이곳에 학습 시간이 쌓여요.</p>
-            </SectionEmpty>
-          ) : (
-            <>
-              <StudyRecordTable
+      <section aria-label="날짜별 학습 기록" className="member-study__card">
+        {recordsLoading ? (
+          <SectionLoading label="학습 기록을 불러오는 중이에요." />
+        ) : recordsError !== null ? (
+          <SectionError message={recordsError} onRetry={retryRecords} />
+        ) : (
+          <>
+            {study.range !== 'today' && (
+              <StudyDateSelector
+                maxDaySeconds={study.summary.maxDaySeconds}
                 onSelectDate={study.onSelectDate}
+                range={study.range}
                 rows={rows}
                 selectedDateKey={study.selectedDateKey}
               />
-              <StudyRecordList
-                onSelectDate={study.onSelectDate}
-                rows={rows}
-                selectedDateKey={study.selectedDateKey}
+            )}
+            <div
+              className={
+                study.range === 'today'
+                  ? undefined
+                  : 'member-study__selected-detail'
+              }
+            >
+              <StudyDayDetail
+                key={study.selectedDateKey}
+                row={study.selectedRow}
+                showTotal={study.range !== 'today'}
               />
-            </>
-          )}
-        </section>
-      </div>
-
-      <div className="member-study__aside">
-        <section
-          aria-labelledby="member-study-detail-title"
-          className="member-study__card"
-        >
-          <header className="member-study__card-header">
-            <h3 id="member-study-detail-title">교시별 인정 시간</h3>
-          </header>
-
-          {report.loading ? (
-            <SectionLoading label="상세 내역을 불러오는 중이에요." />
-          ) : report.errorMessage !== null ? (
-            <SectionError
-              message={report.errorMessage}
-              onRetry={report.onRetry}
-            />
-          ) : (
-            <StudyDayDetail row={study.selectedRow} />
-          )}
-        </section>
-      </div>
+            </div>
+          </>
+        )}
+      </section>
     </div>
   );
 }
