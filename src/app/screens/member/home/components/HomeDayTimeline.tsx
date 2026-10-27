@@ -1,4 +1,5 @@
 import { cx } from '../../../../shared/lib/cx';
+import { formatDurationClock } from '../model/home.format';
 import '../styles/HomeDayTimeline.css';
 
 export type HomeDayBlock = {
@@ -28,6 +29,7 @@ export function HomeDayTimeline({
   blocks: readonly HomeDayBlock[];
 }) {
   const earned = blocks.filter((block) => block.ratio > 0).length;
+  const periods = blocks.filter((block) => !block.isBreak);
 
   return (
     <figure className="member-home__timeline">
@@ -65,6 +67,34 @@ export function HomeDayTimeline({
           </span>
         ))}
       </div>
+      <section
+        aria-label="교시별 인정 시간"
+        className="member-home__period-times"
+      >
+        <header className="member-home__period-times-head">
+          <h3>교시별 인정 시간</h3>
+          <span>시:분:초</span>
+        </header>
+        <ol className="member-home__period-times-list">
+          {periods.map((period) => (
+            <li key={period.label}>
+              <span className="member-home__period-time-label">
+                <strong>{period.label}</strong>
+                <small>{period.time}</small>
+              </span>
+              {period.excludedByLeave ? (
+                <span className="member-home__period-time-excluded">
+                  휴가 제외
+                </span>
+              ) : (
+                <span className="member-home__period-time-value">
+                  {formatDurationClock(period.recognizedSeconds)}
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+      </section>
     </figure>
   );
 }
