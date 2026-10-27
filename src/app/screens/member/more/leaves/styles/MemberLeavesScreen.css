@@ -42,6 +42,50 @@
   font-variant-numeric: tabular-nums;
 }
 
+.member-leaves__request {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--brand-line);
+}
+
+.member-leaves__request-date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+
+.member-leaves__request-date span {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+}
+
+.member-leaves__request-date strong {
+  color: var(--brand-forest);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.member-leaves__request-button {
+  width: 100%;
+  min-height: 48px;
+}
+
+.member-leaves__request-button .btn__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.member-leaves__request-hint {
+  margin: 0;
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+}
+
 /*
  * Two blocks that were stacked. Side by side from 900px they fill the width
  * the workspace gives them; below that they keep the order they always had.
