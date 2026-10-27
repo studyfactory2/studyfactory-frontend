@@ -39,7 +39,8 @@ function MemberLeaves({
   return (
     <section className="member-leaves">
       <ScreenHeader
-        backTo={memberRoutes.more}
+        backLabel="홈"
+        backTo={memberRoutes.home}
         eyebrow="MEMBER · LEAVE"
         subtitle="날짜를 눌러 휴무를 신청하고 취소해요 · 서울 기준"
         title="휴무"

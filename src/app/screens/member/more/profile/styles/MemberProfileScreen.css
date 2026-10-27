@@ -4,7 +4,9 @@
  */
 .member-profile {
   display: flex;
-  max-width: 68rem;
+  width: 100%;
+  max-width: 46rem;
+  min-width: 0;
   flex-direction: column;
   gap: 16px;
   color: var(--brand-ink);
@@ -45,6 +47,7 @@
 
 .member-profile__rows dd {
   display: flex;
+  min-width: 0;
   flex-wrap: wrap;
   align-items: baseline;
   margin: 0;
@@ -53,6 +56,7 @@
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
   font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
 }
 
 .member-profile__rows em {
@@ -124,39 +128,24 @@
   }
 }
 
-/*
- * Two blocks that were stacked. Side by side from 900px they fill the width
- * the workspace gives them; below that they keep the order they always had.
- */
-.member-profile__split {
+/* Keep installation within reach without adding another dashboard panel. */
+.member-profile .install-prompt__button {
   display: grid;
-  align-items: start;
-  gap: var(--space-4);
+  min-height: 76px;
+  align-items: center;
+  gap: var(--space-3);
+  grid-template-columns: auto minmax(0, 1fr) auto;
 }
 
-@media (min-width: 900px) {
-  .member-profile__split {
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  }
+.member-profile .install-prompt__group {
+  display: none;
 }
 
-.member-profile__rail {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+.member-profile .install-prompt__button-copy {
+  overflow-wrap: anywhere;
 }
 
-.member-profile__rail .instrument__value em {
-  margin-left: 4px;
-  font-size: var(--text-md);
-  font-style: normal;
-  font-weight: var(--weight-bold);
-}
-
-.member-profile__rail .ui-bars__bar {
-  background: var(--inst-muted);
-}
-
-.member-profile__rail .ui-bars__bar.is-emphasis {
-  background: var(--inst-accent);
+.member-profile .install-prompt__button-arrow {
+  position: static;
+  opacity: 1;
 }

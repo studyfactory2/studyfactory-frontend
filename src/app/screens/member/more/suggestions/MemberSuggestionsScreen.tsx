@@ -40,7 +40,8 @@ function MemberSuggestions({
   return (
     <section className="member-suggestions">
       <ScreenHeader
-        backTo={memberRoutes.more}
+        backLabel="홈"
+        backTo={memberRoutes.home}
         eyebrow="MEMBER · REQUEST"
         subtitle="필요한 것을 지점에 알리고 처리 상태를 확인해요."
         title="요청"

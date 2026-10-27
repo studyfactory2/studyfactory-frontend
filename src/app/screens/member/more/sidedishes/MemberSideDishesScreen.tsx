@@ -44,7 +44,8 @@ function MemberSideDishes({
   return (
     <section className="member-sidedishes">
       <ScreenHeader
-        backTo={memberRoutes.more}
+        backLabel="홈"
+        backTo={memberRoutes.home}
         eyebrow="MEMBER · SIDE DISH"
         subtitle="점심은 10:45, 저녁은 16:30까지 신청할 수 있어요 · 서울 기준"
         title="반찬"
