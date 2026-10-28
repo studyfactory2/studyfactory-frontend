@@ -45,6 +45,7 @@ export type ManagerOperationsSectionData = {
   countLabel: string;
   emptyMessage: string;
   errorMessage?: null | string;
+  hideHeader?: boolean;
   loading?: boolean;
   previews: readonly ManagerOperationsPreview[];
   summary?: string;
@@ -201,28 +202,30 @@ function ManagerOperationsPanel({
       id={`manager-operations-panel-${section.id}`}
       role="region"
     >
-      <header className="manager-operations-cockpit__panel-header">
-        <span>
-          <strong>{section.label}</strong>
-          <small>
-            {data.summary ??
-              (data.count === null
-                ? '확인 중'
-                : `${data.count}${data.countLabel}`)}
-          </small>
-        </span>
+      {!data.hideHeader && (
+        <header className="manager-operations-cockpit__panel-header">
+          <span>
+            <strong>{section.label}</strong>
+            <small>
+              {data.summary ??
+                (data.count === null
+                  ? '확인 중'
+                  : `${data.count}${data.countLabel}`)}
+            </small>
+          </span>
 
-        {data.actions && data.actions.length > 0 && (
-          <div className="manager-operations-cockpit__panel-actions">
-            {data.actions.map((action) => (
-              <ManagerOperationsActionButton
-                action={action}
-                key={`${section.id}-${action.label}`}
-              />
-            ))}
-          </div>
-        )}
-      </header>
+          {data.actions && data.actions.length > 0 && (
+            <div className="manager-operations-cockpit__panel-actions">
+              {data.actions.map((action) => (
+                <ManagerOperationsActionButton
+                  action={action}
+                  key={`${section.id}-${action.label}`}
+                />
+              ))}
+            </div>
+          )}
+        </header>
+      )}
 
       <div
         aria-busy={data.loading}

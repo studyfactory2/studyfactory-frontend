@@ -19,6 +19,8 @@ import '../../../features/attendances/workspace/styles/attendance-workspace.css'
 import './styles/admin-attendance.css';
 
 const STUDY_START_SECONDS = 9 * 60 * 60;
+// Actual 3교시 start; the operational attendance slot advances during lunch.
+const ADMIN_LUNCH_BADGE_CUTOFF_SECONDS = 13 * 60 * 60 + 20 * 60;
 
 export function AdminAttendanceScreen() {
   const { selectedBranch, selectedBranchId } = useAdminBranchScope();
@@ -68,7 +70,7 @@ function AdminAttendanceContent({
     scopeKey: `${ownerKey}:${branchId}`,
     target: leaveDialog.target,
   });
-  const clock = useSeoulClock();
+  const clock = useSeoulClock(ADMIN_LUNCH_BADGE_CUTOFF_SECONDS);
   const operations = useManagerOperations({
     branchId,
     dateKey: clock.dateKey,
@@ -95,6 +97,10 @@ function AdminAttendanceContent({
   return (
     <div className="admin-attendance">
       <ManagerOperationsOverview
+        hideSideDishPanelHeader
+        excludeLunchFromBadge={
+          clock.secondsOfDay >= ADMIN_LUNCH_BADGE_CUTOFF_SECONDS
+        }
         onManageRequests={() => setOperationsView('member-requests')}
         onManageTasks={() => setOperationsView('tasks')}
         operations={operations}

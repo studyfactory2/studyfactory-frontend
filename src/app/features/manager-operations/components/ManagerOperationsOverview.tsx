@@ -13,11 +13,15 @@ import {
 import { ManagerSideDishOrders } from './ManagerSideDishOrders';
 
 export function ManagerOperationsOverview({
+  excludeLunchFromBadge = false,
+  hideSideDishPanelHeader = false,
   initialSection = null,
   onManageRequests,
   onManageTasks,
   operations,
 }: {
+  excludeLunchFromBadge?: boolean;
+  hideSideDishPanelHeader?: boolean;
   initialSection?: ManagerOperationsSectionId | null;
   onManageRequests?: () => void;
   onManageTasks?: () => void;
@@ -124,16 +128,19 @@ export function ManagerOperationsOverview({
       />
     ),
     count: operations.meals.ready
-      ? operations.meals.lunch.orders.length +
+      ? (excludeLunchFromBadge ? 0 : operations.meals.lunch.orders.length) +
         operations.meals.dinner.orders.length
       : null,
     countLabel: '건',
     emptyMessage: '오늘 접수된 회원 반찬 신청이 없어요.',
     errorMessage: operations.meals.errorMessage,
+    hideHeader: hideSideDishPanelHeader,
     loading: operations.meals.loading,
     previews: [],
     summary: operations.meals.ready
-      ? `점심 ${operations.meals.lunch.memberCount}명 · 저녁 ${operations.meals.dinner.memberCount}명`
+      ? excludeLunchFromBadge
+        ? `저녁 ${operations.meals.dinner.memberCount}명 · 점심 집계 제외`
+        : `점심 ${operations.meals.lunch.memberCount}명 · 저녁 ${operations.meals.dinner.memberCount}명`
       : undefined,
   };
 
