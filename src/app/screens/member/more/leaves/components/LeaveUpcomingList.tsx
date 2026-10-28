@@ -10,9 +10,11 @@ export type LeaveUpcomingRow = {
 };
 
 export function LeaveUpcomingList({
+  disabled = false,
   onSelectDay,
   rows,
 }: {
+  disabled?: boolean;
   onSelectDay: (dateKey: string) => void;
   rows: readonly LeaveUpcomingRow[];
 }) {
@@ -22,6 +24,7 @@ export function LeaveUpcomingList({
         <li key={`${cell.dateKey}-${entry.sourceLabel}-${index}`}>
           <button
             className="member-leaves__upcoming-row"
+            disabled={disabled}
             onClick={() => onSelectDay(cell.dateKey)}
             type="button"
           >

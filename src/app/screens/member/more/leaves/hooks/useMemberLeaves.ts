@@ -126,8 +126,11 @@ export function useMemberLeaves(memberId: number, ownerKey: SessionOwnerKey) {
     cells,
     isCurrentMonth,
     onCloseDay: () => setSelectedDateKey(null),
-    onCreateLeave: (dateKey: string, leaveType: LeaveType) =>
-      createMutation.mutate({ dateKey, leaveType }),
+    onCreateLeave: (
+      dateKey: string,
+      leaveType: LeaveType,
+      onSuccess?: () => void,
+    ) => createMutation.mutate({ dateKey, leaveType }, { onSuccess }),
     onDeleteLeave: (leaveId: number) => deleteMutation.mutate(leaveId),
     pendingDeleteId: deleteMutation.isPending ? deleteMutation.variables : null,
     onGoToday: () => setVisibleMonth({ month: today.month, year: today.year }),

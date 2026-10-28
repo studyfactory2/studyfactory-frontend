@@ -1,5 +1,4 @@
-import { useId, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useId, useRef, useState } from 'react';
 import { memberRoutes } from '../../../../core/router/routes';
 import { useSession, type SessionOwnerKey } from '../../../../core/session';
 import {
@@ -7,17 +6,15 @@ import {
   formatKoreanMonth,
 } from '../../../../shared/lib/seoul-date';
 import {
-  Button,
   ScreenHeader,
   SectionEmpty,
   SectionError,
   SectionLoading,
 } from '../../../../shared/ui';
 import { LeaveCalendar } from './components/LeaveCalendar';
-import { LeaveDayModal } from './components/LeaveDayModal';
+import { LeaveDayForm } from './components/LeaveDayForm';
 import { LeaveUpcomingList } from './components/LeaveUpcomingList';
 import { useMemberLeaves } from './hooks/useMemberLeaves';
-import { canRequestLeave } from './model/leave.month';
 import './styles/MemberLeavesScreen.css';
 
 export function MemberLeavesScreen() {
@@ -43,38 +40,31 @@ function MemberLeaves({
   const { plan, visibleMonth } = leaves;
   const [requestDateKey, setRequestDateKey] = useState<string | null>(null);
   const requestDateId = useId();
-  const requestHintId = useId();
+  const requestFormRef = useRef<HTMLElement>(null);
   const monthLabel = formatKoreanMonth(visibleMonth.year, visibleMonth.month);
   const requestCell =
-    leaves.selectedCell ??
     leaves.cells.find(
       (cell) => cell.inMonth && cell.dateKey === requestDateKey,
     ) ??
     leaves.cells.find((cell) => cell.inMonth && cell.isToday) ??
     leaves.cells.find((cell) => cell.inMonth);
-  const canOpenRequest =
-    !plan.loading &&
-    plan.errorMessage === null &&
-    !leaves.saving &&
-    requestCell !== undefined &&
-    canRequestLeave(requestCell);
+  const isPlanReady = !plan.loading && plan.errorMessage === null;
   const requestHint = plan.loading
     ? '휴무 일정을 불러온 뒤 신청할 수 있어요.'
     : plan.errorMessage !== null
       ? '휴무 일정을 다시 불러온 뒤 신청해 주세요.'
-      : requestCell?.isPast
-        ? '지난 날짜에는 휴무를 신청할 수 없어요.'
-        : requestCell && !canRequestLeave(requestCell)
-          ? '선택한 날짜에는 휴무를 신청할 수 없어요.'
-          : '다른 날짜는 달력에서 선택해 주세요.';
+      : '달력에서 날짜를 선택해 주세요.';
 
   const selectDay = (dateKey: string) => {
-    setRequestDateKey(dateKey);
-    leaves.onSelectDay(dateKey);
+    if (!leaves.saving) {
+      setRequestDateKey(dateKey);
+    }
   };
   const navigateMonth = (navigate: () => void) => {
-    setRequestDateKey(null);
-    navigate();
+    if (!leaves.saving) {
+      setRequestDateKey(null);
+      navigate();
+    }
   };
 
   return (
@@ -83,7 +73,7 @@ function MemberLeaves({
         backLabel="홈"
         backTo={memberRoutes.home}
         eyebrow="MEMBER · LEAVE"
-        subtitle="날짜를 눌러 휴무를 신청하고 취소해요 · 서울 기준"
+        subtitle="날짜를 선택하고 달력 아래에서 휴무를 신청해요 · 서울 기준"
         title="휴무"
       />
 
@@ -98,6 +88,7 @@ function MemberLeaves({
           ) : (
             <LeaveCalendar
               cells={leaves.cells}
+              disabled={leaves.saving}
               isCurrentMonth={leaves.isCurrentMonth}
               monthLabel={monthLabel}
               onGoToday={() => navigateMonth(leaves.onGoToday)}
@@ -108,7 +99,11 @@ function MemberLeaves({
             />
           )}
 
-          <div className="member-leaves__request">
+          <section
+            aria-labelledby={requestDateId}
+            className="member-leaves__request"
+            ref={requestFormRef}
+          >
             <div
               aria-atomic="true"
               aria-live="polite"
@@ -122,23 +117,19 @@ function MemberLeaves({
                   : '날짜를 선택해 주세요'}
               </strong>
             </div>
-            <Button
-              aria-describedby={`${requestDateId} ${requestHintId}`}
-              className="member-leaves__request-button"
-              disabled={!canOpenRequest}
-              onClick={() => {
-                if (canOpenRequest && requestCell) {
-                  selectDay(requestCell.dateKey);
-                }
-              }}
-            >
-              <Plus aria-hidden="true" size={18} />
-              휴무 신청
-            </Button>
-            <p className="member-leaves__request-hint" id={requestHintId}>
-              {requestHint}
-            </p>
-          </div>
+            {isPlanReady && requestCell ? (
+              <LeaveDayForm
+                cell={requestCell}
+                key={requestCell.dateKey}
+                onCreate={leaves.onCreateLeave}
+                onDelete={leaves.onDeleteLeave}
+                pendingDeleteId={leaves.pendingDeleteId}
+                saving={leaves.saving}
+              />
+            ) : (
+              <p className="member-leaves__request-hint">{requestHint}</p>
+            )}
+          </section>
         </div>
 
         <section
@@ -156,22 +147,23 @@ function MemberLeaves({
             <SectionError message={plan.errorMessage} onRetry={plan.onRetry} />
           ) : leaves.upcoming.length === 0 ? (
             <SectionEmpty title="예정된 휴무가 없어요">
-              <p>달력 아래 휴무 신청 버튼으로 신청할 수 있어요.</p>
+              <p>날짜를 선택하고 달력 아래에서 휴무를 신청할 수 있어요.</p>
             </SectionEmpty>
           ) : (
-            <LeaveUpcomingList onSelectDay={selectDay} rows={leaves.upcoming} />
+            <LeaveUpcomingList
+              disabled={leaves.saving}
+              onSelectDay={(dateKey) => {
+                selectDay(dateKey);
+                requestFormRef.current?.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'start',
+                });
+              }}
+              rows={leaves.upcoming}
+            />
           )}
         </section>
       </div>
-
-      <LeaveDayModal
-        cell={leaves.selectedCell}
-        onClose={leaves.onCloseDay}
-        onCreate={leaves.onCreateLeave}
-        onDelete={leaves.onDeleteLeave}
-        pendingDeleteId={leaves.pendingDeleteId}
-        saving={leaves.saving}
-      />
     </section>
   );
 }

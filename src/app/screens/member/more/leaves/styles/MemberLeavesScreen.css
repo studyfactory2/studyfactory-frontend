@@ -47,6 +47,12 @@
   gap: var(--space-3);
   padding-top: var(--space-4);
   border-top: 1px solid var(--brand-line);
+  scroll-margin-top: 100px;
+}
+
+.member-leaves__inline-form {
+  display: grid;
+  gap: 14px;
 }
 
 .member-leaves__request-date {
@@ -71,12 +77,6 @@
 .member-leaves__request-button {
   width: 100%;
   min-height: 48px;
-}
-
-.member-leaves__request-button .btn__label {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
 }
 
 .member-leaves__request-hint {

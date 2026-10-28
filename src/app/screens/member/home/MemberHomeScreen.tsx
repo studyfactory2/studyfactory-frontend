@@ -116,6 +116,7 @@ function MemberHomeDashboard({
         onDayChange={(day) => setSelectedPlanDate(addDays(planWeek, day))}
         onWeekChange={(week) => setSelectedPlanDate(addDays(week, planDay))}
         ownerKey={queryOwnerKey}
+        showMealPlans={false}
         title="교시별 계획"
         weekStartDate={planWeek}
       />

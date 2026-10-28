@@ -9,6 +9,7 @@ import '../styles/LeaveCalendar.css';
 
 export type LeaveCalendarProps = {
   cells: readonly LeaveDayCell[];
+  disabled?: boolean;
   isCurrentMonth: boolean;
   monthLabel: string;
   onGoToday: () => void;
@@ -20,6 +21,7 @@ export type LeaveCalendarProps = {
 
 export function LeaveCalendar({
   cells,
+  disabled = false,
   isCurrentMonth,
   monthLabel,
   onGoToday,
@@ -34,6 +36,7 @@ export function LeaveCalendar({
         <button
           aria-label="이전 달"
           className="member-leaves__calendar-step"
+          disabled={disabled}
           onClick={onPreviousMonth}
           type="button"
         >
@@ -47,6 +50,7 @@ export function LeaveCalendar({
         <button
           aria-label="다음 달"
           className="member-leaves__calendar-step"
+          disabled={disabled}
           onClick={onNextMonth}
           type="button"
         >
@@ -55,7 +59,7 @@ export function LeaveCalendar({
 
         <button
           className="member-leaves__calendar-today"
-          disabled={isCurrentMonth}
+          disabled={disabled || isCurrentMonth}
           onClick={onGoToday}
           type="button"
         >
@@ -74,6 +78,7 @@ export function LeaveCalendar({
           <li key={cell.dateKey}>
             <LeaveCalendarDay
               cell={cell}
+              disabled={disabled}
               onSelect={onSelectDay}
               selected={cell.dateKey === selectedDateKey}
             />
@@ -86,10 +91,12 @@ export function LeaveCalendar({
 
 function LeaveCalendarDay({
   cell,
+  disabled,
   onSelect,
   selected,
 }: {
   cell: LeaveDayCell;
+  disabled: boolean;
   onSelect: (dateKey: string) => void;
   selected: boolean;
 }) {
@@ -109,7 +116,7 @@ function LeaveCalendarDay({
       ]
         .filter(Boolean)
         .join(' ')}
-      disabled={!selectable}
+      disabled={disabled || !selectable}
       onClick={() => onSelect(cell.dateKey)}
       type="button"
     >

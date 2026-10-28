@@ -16,6 +16,7 @@ import {
   addDays,
   getDayOfMonth,
   getSeoulToday,
+  getWeekdayLabel,
   getWeekStartKey,
 } from '../../shared/lib/seoul-date';
 import type { PlanGroup, SharedPlanItem } from './shared-plans-api';
@@ -35,6 +36,7 @@ export type SharedPlanEditorProps = {
   onWeekChange?: (week: string) => void;
   onDateChange?: (week: string, day: number) => void;
   readOnly?: boolean;
+  showMealPlans?: boolean;
   targetBranchId?: number;
   operatorMemberId?: number;
   title?: string;
@@ -415,6 +417,7 @@ export function SharedPlanEditor({
   onWeekChange,
   onDateChange,
   readOnly = false,
+  showMealPlans = true,
   targetBranchId,
   operatorMemberId,
   title = '교시별 계획',
@@ -451,22 +454,26 @@ export function SharedPlanEditor({
           item.periodIndex !== 101),
     ),
   );
+  // Hidden meal-plan drafts belong in recovery, so their editors remain reachable.
   const visibleKeys = new Set(
     data
       ? [
           'goal',
           ...dayItems.map(itemKey),
           ...extras.map(itemKey),
-          ...allItems
-            .filter(
-              (item) =>
-                item.dayIndex === dayIndex &&
-                (item.periodIndex === 100 || item.periodIndex === 101),
-            )
-            .map(itemKey),
+          ...(showMealPlans
+            ? allItems
+                .filter(
+                  (item) =>
+                    item.dayIndex === dayIndex &&
+                    (item.periodIndex === 100 || item.periodIndex === 101),
+                )
+                .map(itemKey)
+            : []),
           ...GROUPS.map((group) => `new:${group.group}:${dayIndex}`),
-          `new:break100:${dayIndex}`,
-          `new:break101:${dayIndex}`,
+          ...(showMealPlans
+            ? [`new:break100:${dayIndex}`, `new:break101:${dayIndex}`]
+            : []),
         ]
       : [],
   );
@@ -505,8 +512,10 @@ export function SharedPlanEditor({
             <h2 id={headingId}>{title}</h2>
             <p>
               {Number(weekStartDate.slice(5, 7))}월{' '}
-              {getDayOfMonth(weekStartDate)}일 – {Number(rangeEnd.slice(5, 7))}
-              월 {getDayOfMonth(rangeEnd)}일
+              {getDayOfMonth(weekStartDate)}일({getWeekdayLabel(weekStartDate)})
+              {' – '}
+              {Number(rangeEnd.slice(5, 7))}월 {getDayOfMonth(rangeEnd)}일(
+              {getWeekdayLabel(rangeEnd)})
             </p>
           </div>
         </div>
@@ -651,15 +660,11 @@ export function SharedPlanEditor({
                 draft={goalDraft}
                 label="이번 주 목표"
               />
-            ) : (
+            ) : data.goal.trim() || readOnly ? (
               <p>
-                {data.goal.trim()
-                  ? data.goal
-                  : readOnly
-                    ? '등록된 주간 목표가 없어요.'
-                    : '이번 주 목표를 가볍게 적어보세요.'}
+                {data.goal.trim() ? data.goal : '등록된 주간 목표가 없어요.'}
               </p>
-            )}
+            ) : null}
           </div>
 
           <div className="shared-plan__day-summary">
@@ -694,13 +699,9 @@ export function SharedPlanEditor({
                       />
                     ))}
                   </ul>
-                ) : (
-                  <p className="shared-plan__empty">
-                    {readOnly
-                      ? '등록된 계획이 없어요.'
-                      : '이 시간에 할 일을 적어보세요.'}
-                  </p>
-                )}
+                ) : readOnly ? (
+                  <p className="shared-plan__empty">등록된 계획이 없어요.</p>
+                ) : null}
                 {!readOnly && (
                   <AddPlan
                     action={{ type: 'add', dayIndex, group, content: '' }}
@@ -713,57 +714,61 @@ export function SharedPlanEditor({
             ))}
           </div>
 
-          <div className="shared-plan__breaks">
-            {([100, 101] as const).map((periodIndex) => {
-              const items = sortItems(
-                data.ungroupedItems.filter(
-                  (item) =>
-                    item.dayIndex === dayIndex &&
-                    item.periodIndex === periodIndex,
-                ),
-              );
-              const label = periodIndex === 100 ? '점심 계획' : '저녁 계획';
-              return (
-                <article className="shared-plan__break" key={periodIndex}>
-                  <header>
-                    <Coffee aria-hidden="true" size={17} />
-                    <h3>{label}</h3>
-                    <span>
-                      {items.filter((item) => item.done).length} /{' '}
-                      {items.length}
-                    </span>
-                  </header>
-                  {items.length > 0 ? (
-                    <ul className="shared-plan__items">
-                      {items.map((item) => (
-                        <PlanRow
-                          controller={controller}
-                          item={item}
-                          key={itemKey(item)}
-                          readOnly={readOnly}
-                        />
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="shared-plan__empty">등록된 계획이 없어요.</p>
-                  )}
-                  {!readOnly && (
-                    <AddPlan
-                      action={{
-                        type: 'break',
-                        dayIndex,
-                        periodIndex,
-                        content: '',
-                      }}
-                      controller={controller}
-                      draftKey={`new:break${periodIndex}:${dayIndex}`}
-                      label={label}
-                    />
-                  )}
-                </article>
-              );
-            })}
-          </div>
+          {showMealPlans && (
+            <div className="shared-plan__breaks">
+              {([100, 101] as const).map((periodIndex) => {
+                const items = sortItems(
+                  data.ungroupedItems.filter(
+                    (item) =>
+                      item.dayIndex === dayIndex &&
+                      item.periodIndex === periodIndex,
+                  ),
+                );
+                const label = periodIndex === 100 ? '점심 계획' : '저녁 계획';
+                return (
+                  <article className="shared-plan__break" key={periodIndex}>
+                    <header>
+                      <Coffee aria-hidden="true" size={17} />
+                      <h3>{label}</h3>
+                      <span>
+                        {items.filter((item) => item.done).length} /{' '}
+                        {items.length}
+                      </span>
+                    </header>
+                    {items.length > 0 ? (
+                      <ul className="shared-plan__items">
+                        {items.map((item) => (
+                          <PlanRow
+                            controller={controller}
+                            item={item}
+                            key={itemKey(item)}
+                            readOnly={readOnly}
+                          />
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="shared-plan__empty">
+                        등록된 계획이 없어요.
+                      </p>
+                    )}
+                    {!readOnly && (
+                      <AddPlan
+                        action={{
+                          type: 'break',
+                          dayIndex,
+                          periodIndex,
+                          content: '',
+                        }}
+                        controller={controller}
+                        draftKey={`new:break${periodIndex}:${dayIndex}`}
+                        label={label}
+                      />
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
 
           {extras.length > 0 && (
             <section className="shared-plan__extras">
@@ -805,6 +810,8 @@ export function SharedPlanEditor({
                 : undefined;
             const draftDay =
               'dayIndex' in action ? action.dayIndex : item?.dayIndex;
+            const mealPeriod =
+              action.type === 'break' ? action.periodIndex : item?.periodIndex;
             return (
               <div className="shared-plan__pending-item" key={draft.key}>
                 <div className="shared-plan__pending-heading">
@@ -812,6 +819,11 @@ export function SharedPlanEditor({
                     {draftDay !== undefined && isValidDay(draftDay)
                       ? `${DAY_LABELS[draftDay]}요일 · `
                       : ''}
+                    {mealPeriod === 100
+                      ? '점심 · '
+                      : mealPeriod === 101
+                        ? '저녁 · '
+                        : ''}
                     {describeAction(action)}
                   </strong>
                   {draftDay !== undefined &&

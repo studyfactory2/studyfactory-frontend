@@ -75,6 +75,7 @@ function MemberPlansWorkspace({
         onDayChange={(day) => navigatePlanDate(weekStartDate, day, true)}
         onWeekChange={(week) => navigatePlanDate(week, dayIndex)}
         ownerKey={queryOwnerKey}
+        showMealPlans={false}
         title="교시별 계획"
         weekStartDate={weekStartDate}
       />

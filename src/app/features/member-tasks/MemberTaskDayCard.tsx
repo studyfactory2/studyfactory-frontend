@@ -348,7 +348,9 @@ function TaskDraftForm({
             {composer ? '새 할 일 또는 메모' : '할 일 수정'}
           </label>
           <textarea
-            aria-describedby={`${inputId}-hint`}
+            aria-describedby={
+              !composer || draft ? `${inputId}-hint` : undefined
+            }
             autoFocus={!composer && draft?.status === 'editing'}
             id={inputId}
             maxLength={2000}
@@ -425,7 +427,7 @@ function TaskDraftForm({
       )}
 
       <div className="home-tasks__actions">
-        {draft ? (
+        {draft && (
           <button
             className="home-tasks__text-button"
             disabled={controller.busy}
@@ -438,10 +440,6 @@ function TaskDraftForm({
                 ? '돌아가기'
                 : '작성 취소'}
           </button>
-        ) : (
-          <p className="home-tasks__hint" id={`${inputId}-hint`}>
-            가볍게 적고, 하나씩 완료해요.
-          </p>
         )}
         {draft?.status === 'conflict' ? (
           <button
