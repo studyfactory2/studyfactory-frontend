@@ -41,6 +41,8 @@ export type SharedPlanEditorProps = {
   operatorMemberId?: number;
   title?: string;
   headerAction?: ReactNode;
+  compactNavigation?: boolean;
+  footer?: ReactNode;
 };
 
 type PlanController = ReturnType<typeof useSharedPlanWeek>;
@@ -423,6 +425,8 @@ export function SharedPlanEditor({
   operatorMemberId,
   title = '교시별 계획',
   headerAction,
+  compactNavigation = false,
+  footer,
 }: SharedPlanEditorProps) {
   const headingId = useId();
   const controller = useSharedPlanWeek({
@@ -488,6 +492,7 @@ export function SharedPlanEditor({
   const today = getSeoulToday().dateKey;
   const rangeEnd = addDays(weekStartDate, 6);
   const currentDate = addDays(weekStartDate, dayIndex);
+  const weekRange = `${Number(weekStartDate.slice(5, 7))}월 ${getDayOfMonth(weekStartDate)}일(${getWeekdayLabel(weekStartDate)}) – ${Number(rangeEnd.slice(5, 7))}월 ${getDayOfMonth(rangeEnd)}일(${getWeekdayLabel(rangeEnd)})`;
 
   function goToday() {
     const week = getWeekStartKey(today);
@@ -504,7 +509,10 @@ export function SharedPlanEditor({
   }
 
   return (
-    <section aria-labelledby={headingId} className="shared-plan">
+    <section
+      aria-labelledby={headingId}
+      className={`shared-plan${compactNavigation ? ' shared-plan--compact-navigation' : ''}`}
+    >
       <header
         className={`shared-plan__heading${headerAction ? ' shared-plan__heading--with-action' : ''}`}
       >
@@ -514,13 +522,7 @@ export function SharedPlanEditor({
           </span>
           <div className="shared-plan__heading-copy">
             <h2 id={headingId}>{title}</h2>
-            <p>
-              {Number(weekStartDate.slice(5, 7))}월{' '}
-              {getDayOfMonth(weekStartDate)}일({getWeekdayLabel(weekStartDate)})
-              {' – '}
-              {Number(rangeEnd.slice(5, 7))}월 {getDayOfMonth(rangeEnd)}일(
-              {getWeekdayLabel(rangeEnd)})
-            </p>
+            {!compactNavigation && <p>{weekRange}</p>}
           </div>
         </div>
         <div className="shared-plan__heading-tools">
@@ -528,19 +530,29 @@ export function SharedPlanEditor({
           {readOnly && (
             <span className="shared-plan__read-only">읽기 전용</span>
           )}
-          <button
-            aria-label="계획 새로고침"
-            className="shared-plan__icon-button"
-            disabled={controller.isFetching || controller.busy}
-            onClick={() => void controller.refetch()}
-            type="button"
-          >
-            <RefreshCw
-              aria-hidden="true"
-              className={controller.isFetching ? 'shared-plan__spin' : ''}
-              size={17}
-            />
-          </button>
+          {compactNavigation ? (
+            <button
+              className="shared-plan__today"
+              onClick={goToday}
+              type="button"
+            >
+              오늘
+            </button>
+          ) : (
+            <button
+              aria-label="계획 새로고침"
+              className="shared-plan__icon-button"
+              disabled={controller.isFetching || controller.busy}
+              onClick={() => void controller.refetch()}
+              type="button"
+            >
+              <RefreshCw
+                aria-hidden="true"
+                className={controller.isFetching ? 'shared-plan__spin' : ''}
+                size={17}
+              />
+            </button>
+          )}
         </div>
       </header>
 
@@ -554,13 +566,17 @@ export function SharedPlanEditor({
           >
             <ChevronLeft aria-hidden="true" size={18} />
           </button>
-          <button
-            className="shared-plan__today"
-            onClick={goToday}
-            type="button"
-          >
-            오늘
-          </button>
+          {compactNavigation ? (
+            <span className="shared-plan__week-range">{weekRange}</span>
+          ) : (
+            <button
+              className="shared-plan__today"
+              onClick={goToday}
+              type="button"
+            >
+              오늘
+            </button>
+          )}
           <button
             aria-label="다음 주"
             className="shared-plan__icon-button"
@@ -861,6 +877,7 @@ export function SharedPlanEditor({
             : `작성 중인 내용 ${Object.keys(controller.drafts).length}건 · 저장 버튼으로 반영해주세요.`}
         </p>
       )}
+      {footer && <div className="shared-plan__footer">{footer}</div>}
     </section>
   );
 }

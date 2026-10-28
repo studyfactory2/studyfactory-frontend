@@ -6,8 +6,15 @@ import {
   Plus,
   RefreshCw,
   Trash2,
+  X,
 } from 'lucide-react';
-import { useId, useState, type ReactNode } from 'react';
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import type { SessionOwnerKey } from '../../core/session';
 import type { MemberTaskAction, MemberTaskItem } from './member-tasks-api';
 import type { MemberTaskDraft } from './member-task-drafts';
@@ -25,6 +32,7 @@ type Props = {
   detailsLink?: ReactNode;
   title?: string;
   showRecovery?: boolean;
+  compact?: boolean;
 };
 
 export function MemberTaskDayCard({
@@ -36,6 +44,7 @@ export function MemberTaskDayCard({
   detailsLink,
   title,
   showRecovery = true,
+  compact = false,
 }: Props) {
   const titleId = useId();
   const controller = useMemberTasks({ memberId, ownerKey, date });
@@ -57,7 +66,10 @@ export function MemberTaskDayCard({
   const completed = items.filter((item) => item.completed).length;
 
   return (
-    <section aria-labelledby={titleId} className="home-tasks">
+    <section
+      aria-labelledby={titleId}
+      className={`home-tasks${compact ? ' home-tasks--compact' : ''}`}
+    >
       <header className="home-tasks__header">
         <span aria-hidden="true" className="home-tasks__icon">
           <NotebookPen size={20} />
@@ -77,19 +89,21 @@ export function MemberTaskDayCard({
             <span> / {items.length} 완료</span>
           </span>
         )}
-        <button
-          aria-label="할 일 새로고침"
-          className="home-tasks__icon-button"
-          disabled={controller.busy || controller.isFetching}
-          onClick={() => void controller.refetch()}
-          type="button"
-        >
-          <RefreshCw
-            aria-hidden="true"
-            className={controller.isFetching ? 'home-tasks__spin' : undefined}
-            size={17}
-          />
-        </button>
+        {!compact && (
+          <button
+            aria-label="할 일 새로고침"
+            className="home-tasks__icon-button"
+            disabled={controller.busy || controller.isFetching}
+            onClick={() => void controller.refetch()}
+            type="button"
+          >
+            <RefreshCw
+              aria-hidden="true"
+              className={controller.isFetching ? 'home-tasks__spin' : undefined}
+              size={17}
+            />
+          </button>
+        )}
       </header>
 
       {showRecovery && recoveredDates.length > 1 && (
@@ -144,6 +158,7 @@ export function MemberTaskDayCard({
 
       <TaskDraftForm
         composer
+        compact={compact}
         controller={controller}
         draft={drafts.add}
         selectedDate={date === today ? undefined : date}
@@ -162,7 +177,12 @@ export function MemberTaskDayCard({
       {items.length > 0 && (
         <ul className="home-tasks__list">
           {items.map((item) => (
-            <TaskRow controller={controller} item={item} key={item.id} />
+            <TaskRow
+              compact={compact}
+              controller={controller}
+              item={item}
+              key={item.id}
+            />
           ))}
         </ul>
       )}
@@ -171,6 +191,7 @@ export function MemberTaskDayCard({
           <h3>확인이 필요한 작성 내용</h3>
           {orphanedDrafts.map((draft) => (
             <TaskDraftForm
+              compact={compact}
               controller={controller}
               draft={draft}
               key={draft.key}
@@ -183,15 +204,27 @@ export function MemberTaskDayCard({
 }
 
 function TaskRow({
+  compact,
   controller,
   item,
 }: {
+  compact: boolean;
   controller: Controller;
   item: MemberTaskItem;
 }) {
   const key = `item:${item.id}`;
   const draft = controller.drafts[key];
   const disabled = controller.busy || Boolean(draft);
+  const deleting =
+    compact &&
+    controller.busy &&
+    draft?.status === 'uncertain' &&
+    draft.action.type === 'delete';
+  const inlineEditing =
+    compact &&
+    draft?.status === 'editing' &&
+    draft.action.type === 'update' &&
+    draft.action.content !== undefined;
 
   function complete() {
     if (
@@ -205,55 +238,75 @@ function TaskRow({
     }
   }
 
+  function remove() {
+    // Persist the same protected draft before sending, just like completion.
+    // Restored or uncertain deletions still require explicit recovery actions.
+    if (
+      controller.startDraft(key, { type: 'delete', id: item.id }) &&
+      compact
+    ) {
+      void controller.submitDraft(key);
+    }
+  }
+
   return (
     <li className={`home-tasks__item${item.completed ? ' is-complete' : ''}`}>
-      <div className="home-tasks__row">
-        <button
-          aria-label={`${item.content} ${item.completed ? '완료 해제' : '완료'}`}
-          aria-pressed={item.completed}
-          className="home-tasks__check"
-          disabled={disabled || !controller.storageReady}
-          onClick={complete}
-          type="button"
-        >
-          <span>
-            {item.completed && (
-              <Check aria-hidden="true" size={14} strokeWidth={3} />
-            )}
-          </span>
-        </button>
-        <p className="home-tasks__content">{item.content}</p>
-        <div className="home-tasks__row-tools">
+      {!inlineEditing && (
+        <div className="home-tasks__row">
           <button
-            aria-label={`${item.content} 수정`}
-            className="home-tasks__icon-button"
-            disabled={disabled}
-            onClick={() =>
-              controller.startDraft(key, {
-                type: 'update',
-                id: item.id,
-                content: item.content,
-              })
-            }
-            type="button"
-          >
-            <PencilLine aria-hidden="true" size={16} />
-          </button>
-          <button
-            aria-label={`${item.content} 삭제`}
-            className="home-tasks__icon-button"
+            aria-label={`${item.content} ${item.completed ? '완료 해제' : '완료'}`}
+            aria-pressed={item.completed}
+            className="home-tasks__check"
             disabled={disabled || !controller.storageReady}
-            onClick={() =>
-              controller.startDraft(key, { type: 'delete', id: item.id })
-            }
+            onClick={complete}
             type="button"
           >
-            <Trash2 aria-hidden="true" size={16} />
+            <span>
+              {item.completed && (
+                <Check aria-hidden="true" size={14} strokeWidth={3} />
+              )}
+            </span>
           </button>
+          <p className="home-tasks__content">{item.content}</p>
+          <div className="home-tasks__row-tools">
+            <button
+              aria-label={`${item.content} 수정`}
+              className="home-tasks__icon-button"
+              disabled={disabled}
+              onClick={() =>
+                controller.startDraft(key, {
+                  type: 'update',
+                  id: item.id,
+                  content: item.content,
+                })
+              }
+              type="button"
+            >
+              <PencilLine aria-hidden="true" size={16} />
+            </button>
+            <button
+              aria-label={`${item.content} 삭제`}
+              className="home-tasks__icon-button"
+              disabled={disabled || !controller.storageReady}
+              onClick={remove}
+              type="button"
+            >
+              {deleting ? (
+                <LoaderCircle
+                  aria-hidden="true"
+                  className="home-tasks__spin"
+                  size={16}
+                />
+              ) : (
+                <Trash2 aria-hidden="true" size={16} />
+              )}
+            </button>
+          </div>
         </div>
-      </div>
-      {draft && (
+      )}
+      {draft && !deleting && (
         <TaskDraftForm
+          compact={compact}
           controller={controller}
           currentItem={item}
           draft={draft}
@@ -268,15 +321,18 @@ function TaskDraftForm({
   draft,
   currentItem,
   composer = false,
+  compact = false,
   selectedDate,
 }: {
   controller: Controller;
   draft?: MemberTaskDraft;
   currentItem?: MemberTaskItem;
   composer?: boolean;
+  compact?: boolean;
   selectedDate?: string;
 }) {
   const inputId = useId();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const action = draft?.action;
   const textAction =
@@ -288,6 +344,8 @@ function TaskDraftForm({
       (draft.action.type === 'add' && draft.requestLocked)),
   );
   const isDelete = action?.type === 'delete';
+  const compactComposer = compact && composer && !locked;
+  const showHint = !compact || content.length >= 1800 || locked;
   const canSave = Boolean(
     draft &&
     controller.data &&
@@ -297,6 +355,33 @@ function TaskDraftForm({
     (!textAction ||
       (content.trim().length > 0 && content.trim().length <= 2000)),
   );
+
+  useLayoutEffect(() => {
+    const input = inputRef.current;
+    if (!compact || !textAction || !input) return;
+    let width = input.clientWidth;
+    let resizeFrame: number | undefined;
+    const resize = () => {
+      input.style.height = 'auto';
+      input.style.height = `${Math.max(44, input.scrollHeight)}px`;
+    };
+    resize();
+    const observer = new ResizeObserver(() => {
+      if (input.clientWidth === width) return;
+      width = input.clientWidth;
+      if (resizeFrame !== undefined) cancelAnimationFrame(resizeFrame);
+      // Height writes during observer delivery can trigger a resize loop.
+      resizeFrame = requestAnimationFrame(() => {
+        resizeFrame = undefined;
+        resize();
+      });
+    });
+    observer.observe(input);
+    return () => {
+      observer.disconnect();
+      if (resizeFrame !== undefined) cancelAnimationFrame(resizeFrame);
+    };
+  }, [compact, content, textAction]);
 
   function changeContent(value: string) {
     if (draft && action && 'content' in action) {
@@ -328,7 +413,7 @@ function TaskDraftForm({
 
   return (
     <form
-      className={`home-tasks__draft${composer ? ' home-tasks__composer' : ''}${locked ? ' home-tasks__draft--attention' : ''}`}
+      className={`home-tasks__draft${composer ? ' home-tasks__composer' : ''}${compactComposer ? ' home-tasks__composer--compact' : ''}${compactComposer && confirmDiscard ? ' home-tasks__composer--confirm-discard' : ''}${locked ? ' home-tasks__draft--attention' : ''}`}
       onSubmit={(event) => {
         event.preventDefault();
         if (canSave && draft) {
@@ -341,7 +426,9 @@ function TaskDraftForm({
         <>
           <label
             className={
-              composer ? 'home-tasks__sr-only' : 'home-tasks__field-label'
+              composer || compact
+                ? 'home-tasks__sr-only'
+                : 'home-tasks__field-label'
             }
             htmlFor={inputId}
           >
@@ -354,6 +441,7 @@ function TaskDraftForm({
             autoFocus={!composer && draft?.status === 'editing'}
             id={inputId}
             maxLength={2000}
+            ref={inputRef}
             onChange={(event) => {
               setConfirmDiscard(false);
               changeContent(event.target.value);
@@ -361,14 +449,19 @@ function TaskDraftForm({
             placeholder={
               selectedDate
                 ? `${formatKoreanDate(selectedDate)} 할 일이나 메모`
-                : '오늘 할 일이나 메모를 적어보세요'
+                : compact
+                  ? '할 일이나 메모 추가'
+                  : '오늘 할 일이나 메모를 적어보세요'
             }
             readOnly={controller.busy || locked}
-            rows={2}
+            rows={compact ? 1 : 2}
             value={content}
           />
           {(!composer || draft) && (
-            <p className="home-tasks__hint" id={`${inputId}-hint`}>
+            <p
+              className={showHint ? 'home-tasks__hint' : 'home-tasks__sr-only'}
+              id={`${inputId}-hint`}
+            >
               {content.length >= 1800
                 ? `${content.length.toLocaleString()} / 2,000자`
                 : draft?.requestLocked
@@ -380,21 +473,26 @@ function TaskDraftForm({
       ) : (
         <p className="home-tasks__field-label">
           {isDelete
-            ? '이 할 일을 삭제할까요?'
+            ? compact
+              ? '할 일 삭제'
+              : '이 할 일을 삭제할까요?'
             : action?.type === 'update' && action.completed
               ? '완료 표시'
               : '완료 해제'}
         </p>
       )}
 
-      {!composer && currentItem && (isDelete || textAction || locked) && (
-        <div className="home-tasks__saved-preview">
-          <span>
-            현재 저장된 내용 · {currentItem.completed ? '완료' : '미완료'}
-          </span>
-          <p>{currentItem.content}</p>
-        </div>
-      )}
+      {!compact &&
+        !composer &&
+        currentItem &&
+        (isDelete || textAction || locked) && (
+          <div className="home-tasks__saved-preview">
+            <span>
+              현재 저장된 내용 · {currentItem.completed ? '완료' : '미완료'}
+            </span>
+            <p>{currentItem.content}</p>
+          </div>
+        )}
       {!composer && !currentItem && (
         <p className="home-tasks__notice">
           이 할 일이 현재 저장 목록에 없어요. 보관된 변경을 확인해 주세요.
@@ -429,16 +527,25 @@ function TaskDraftForm({
       <div className="home-tasks__actions">
         {draft && (
           <button
-            className="home-tasks__text-button"
+            aria-label={
+              compactComposer && !confirmDiscard ? '작성 취소' : undefined
+            }
+            className={`home-tasks__text-button${compactComposer && !confirmDiscard ? ' home-tasks__cancel-icon' : ''}`}
             disabled={controller.busy}
             onClick={discard}
             type="button"
           >
-            {confirmDiscard
-              ? '초안 버리기 확인'
-              : isDelete
-                ? '돌아가기'
-                : '작성 취소'}
+            {compactComposer && !confirmDiscard ? (
+              <X aria-hidden="true" size={16} />
+            ) : confirmDiscard ? (
+              '초안 버리기 확인'
+            ) : isDelete ? (
+              '돌아가기'
+            ) : compact ? (
+              '취소'
+            ) : (
+              '작성 취소'
+            )}
           </button>
         )}
         {draft?.status === 'conflict' ? (
@@ -472,9 +579,13 @@ function TaskDraftForm({
             {controller.busy && draft?.status === 'uncertain'
               ? '저장 중'
               : draft?.status === 'uncertain'
-                ? '저장 결과 확인'
+                ? compact && isDelete
+                  ? '삭제 결과 확인'
+                  : '저장 결과 확인'
                 : isDelete
-                  ? '삭제 확인'
+                  ? compact
+                    ? '삭제'
+                    : '삭제 확인'
                   : composer
                     ? '추가'
                     : '저장'}

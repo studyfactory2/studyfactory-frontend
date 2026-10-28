@@ -14,6 +14,7 @@ export function HomeDailyTasks(props: Props) {
   return (
     <MemberTaskDayCard
       {...props}
+      compact
       date={date}
       detailsLink={
         <Link

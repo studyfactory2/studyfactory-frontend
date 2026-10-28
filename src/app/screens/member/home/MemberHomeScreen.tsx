@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { memberRoutes } from '../../../core/router/routes';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
-import { LegacyPlanDraftNotice } from '../../../features/plans/PlanDraftRecovery';
+import {
+  LegacyPlanDraftNotice,
+  MemberMonthlyGoal,
+} from '../../../features/plans/PlanDraftRecovery';
 import { SharedPlanEditor } from '../../../features/plans/SharedPlanEditor';
 import { addDays, getWeekStartKey } from '../../../shared/lib/seoul-date';
 import { HomeBreakStudy } from './components/HomeBreakStudy';
@@ -113,15 +113,14 @@ function MemberHomeDashboard({
       />
       <LegacyPlanDraftNotice memberId={memberId} />
       <SharedPlanEditor
+        compactNavigation
         dayIndex={planDay}
-        headerAction={
-          <Link
-            aria-label="계획 전체 보기"
-            className="member-home__plan-link"
-            to={memberRoutes.plans}
-          >
-            전체 보기 <ChevronRight aria-hidden="true" size={14} />
-          </Link>
+        footer={
+          <MemberMonthlyGoal
+            memberId={memberId}
+            monthKey={planDate.slice(0, 7)}
+            ownerKey={queryOwnerKey}
+          />
         }
         memberId={memberId}
         onDateChange={(week, day) => setSelectedPlanDate(addDays(week, day))}

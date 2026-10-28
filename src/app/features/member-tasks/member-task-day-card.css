@@ -165,6 +165,73 @@
   padding: 2px;
   line-height: 24px;
 }
+
+.home-tasks--compact textarea {
+  min-width: 0;
+  min-height: 44px;
+  overflow: hidden;
+  resize: none;
+  line-height: 24px;
+}
+
+.home-tasks__composer--compact {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 6px 8px;
+  padding: 7px 8px 7px 12px;
+}
+
+.home-tasks__composer--compact textarea {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 10px 0;
+}
+
+.home-tasks__composer--compact textarea::placeholder {
+  font-size: var(--text-xs);
+}
+
+.home-tasks__composer--compact .home-tasks__actions {
+  grid-column: 2;
+  grid-row: 1;
+  flex-wrap: nowrap;
+  gap: 2px;
+}
+
+.home-tasks__composer--compact .home-tasks__save {
+  min-width: 64px;
+  padding-inline: 10px;
+}
+
+.home-tasks__composer--compact :is(.home-tasks__hint, .home-tasks__notice) {
+  grid-column: 1 / -1;
+}
+
+.home-tasks__composer--compact .home-tasks__cancel-icon {
+  flex: 0 0 44px;
+  width: 44px;
+  padding: 0;
+}
+
+.home-tasks__composer--confirm-discard .home-tasks__actions {
+  grid-column: 1 / -1;
+  grid-row: auto;
+  flex-wrap: wrap;
+}
+
+.home-tasks--compact .home-tasks__list {
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.home-tasks--compact .home-tasks__row {
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+}
+
+.home-tasks--compact .home-tasks__row-tools {
+  grid-column: auto;
+  margin-top: 0;
+}
 .home-tasks__hint {
   color: var(--brand-muted);
   font-size: var(--text-xs);

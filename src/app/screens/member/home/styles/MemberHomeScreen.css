@@ -89,62 +89,22 @@
   white-space: nowrap;
 }
 
-.member-home__plan-link {
-  display: none;
+.member-home .shared-plan__footer > .member-monthly-goal {
+  padding: var(--space-4);
+  border-radius: var(--radius-control);
+  background: rgb(var(--brand-gold-rgb) / 7%);
+  box-shadow: none;
 }
 
-@media (max-width: 768px) {
-  .member-home__plan-link {
-    display: inline-flex;
-    min-height: 44px;
-    align-items: center;
-    gap: 2px;
-    padding-inline: 4px;
-    border-radius: var(--radius-control);
-    color: var(--brand-forest);
-    font-size: var(--text-xs);
-    font-weight: var(--weight-semibold);
-    text-decoration: none;
-    white-space: nowrap;
-  }
+.member-home .member-monthly-goal__heading > button {
+  flex-shrink: 0;
+}
 
-  .member-home__plan-link:hover {
-    background: rgb(var(--brand-forest-rgb) / 6%);
-    text-decoration: none;
-  }
-
-  .member-home .shared-plan__heading--with-action {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 4px 8px;
-  }
-
-  .member-home .shared-plan__heading--with-action .shared-plan__heading-main,
-  .member-home .shared-plan__heading--with-action .shared-plan__heading-copy {
-    display: contents;
-  }
-
-  .member-home .shared-plan__heading--with-action .shared-plan__heading-icon {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .member-home .shared-plan__heading--with-action h2 {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .member-home .shared-plan__heading--with-action .shared-plan__heading-tools {
-    grid-column: 3;
-    grid-row: 1;
-    gap: 2px;
-  }
-
-  .member-home .shared-plan__heading--with-action .shared-plan__heading-main p {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    margin-top: 0;
-  }
+.member-home .member-monthly-goal__heading .btn__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
 }
 
 @media (min-width: 1024px) {

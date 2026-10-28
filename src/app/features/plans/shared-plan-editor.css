@@ -123,6 +123,32 @@
   font-weight: var(--weight-bold);
 }
 
+.shared-plan--compact-navigation .shared-plan__heading .shared-plan__today {
+  flex: 0 0 auto;
+  padding-inline: var(--space-3);
+}
+
+.shared-plan--compact-navigation .shared-plan__week-navigation {
+  gap: 0;
+  padding-inline: 0;
+}
+
+.shared-plan__week-range {
+  flex: 1;
+  min-width: 0;
+  color: var(--brand-forest);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-normal);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.shared-plan__footer {
+  margin-top: var(--space-4);
+}
+
 .shared-plan__days {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
