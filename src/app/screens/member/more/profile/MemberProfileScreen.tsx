@@ -5,6 +5,7 @@ import { useSession, type SessionOwnerKey } from '../../../../core/session';
 import { ScreenHeader, Spinner } from '../../../../shared/ui';
 import { useMemberMore } from '../hooks/useMemberMore';
 import './styles/MemberProfileScreen.css';
+import '../styles/member-detail-desktop.css';
 
 const ROLE_LABELS: Record<string, string> = {
   ADMIN: '관리자',

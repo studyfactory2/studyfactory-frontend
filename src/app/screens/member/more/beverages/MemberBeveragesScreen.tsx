@@ -45,7 +45,6 @@ function MemberBeverages({
         backLabel="홈"
         backTo={memberRoutes.home}
         eyebrow="MEMBER · BEVERAGE"
-        subtitle="등록한 음료를 스텝이 매일 아침 준비해요."
         title="음료"
       />
 

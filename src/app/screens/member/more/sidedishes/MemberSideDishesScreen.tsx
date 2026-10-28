@@ -14,6 +14,7 @@ import { SideDishDateBar } from './components/SideDishDateBar';
 import { SideDishMealSection } from './components/SideDishMealSection';
 import { useMemberSideDishes } from './hooks/useMemberSideDishes';
 import './styles/MemberSideDishesScreen.css';
+import '../styles/member-detail-desktop.css';
 
 export function MemberSideDishesScreen() {
   const { memberId, ownerKey } = useSession();

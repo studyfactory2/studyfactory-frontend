@@ -1,0 +1,240 @@
+/* Desktop presentation only; keep the existing phone layout and DOM order. */
+@media (min-width: 769px) {
+  .workspace-shell__content:has(
+    > :is(.member-profile, .member-leaves, .member-sidedishes)
+  ) {
+    padding-top: 32px;
+  }
+
+  .workspace-shell__content
+    :is(.member-profile, .member-leaves, .member-sidedishes) {
+    width: 100%;
+    max-width: 68rem;
+    margin-inline: auto;
+    gap: 22px;
+    container: member-detail / inline-size;
+  }
+
+  .workspace-shell__content
+    :is(.member-profile, .member-leaves, .member-sidedishes)
+    > .ui-screen-header
+    .ui-screen-header__heading {
+    display: grid;
+    align-items: start;
+    column-gap: 20px;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .workspace-shell__content
+    :is(.member-profile, .member-leaves, .member-sidedishes)
+    > .ui-screen-header
+    .ui-screen-header__back {
+    min-height: 40px;
+    align-self: center;
+    margin: 0;
+    padding: 0 12px;
+    border: 1px solid var(--brand-line);
+    background: var(--card);
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+
+  .workspace-shell__content
+    :is(.member-profile, .member-leaves, .member-sidedishes)
+    > .ui-screen-header
+    :is(
+      .ui-screen-header__eyebrow,
+      .ui-screen-header__title,
+      .ui-screen-header__subtitle
+    ) {
+    grid-column: 1;
+  }
+
+  .workspace-shell__content
+    :is(.member-profile, .member-leaves, .member-sidedishes)
+    > .ui-screen-header
+    .ui-screen-header__eyebrow {
+    margin-top: 0;
+  }
+
+  .workspace-shell__content
+    :is(.member-profile, .member-leaves, .member-sidedishes)
+    > .ui-screen-header
+    .ui-screen-header__title {
+    font-size: 1.6rem;
+  }
+
+  .workspace-shell__content .member-profile {
+    max-width: 56rem;
+  }
+
+  .member-profile .member-profile__card {
+    padding: 28px;
+    gap: 24px;
+  }
+
+  .member-profile .member-profile__rows {
+    gap: 8px 32px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .member-profile .member-profile__rows > div {
+    align-content: start;
+    gap: 8px;
+    padding: 16px 0;
+    border-top: 0;
+    border-bottom: 1px solid rgb(var(--brand-ink-rgb) / 7%);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .member-profile .member-profile__rows > div:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .member-profile .member-profile__rows dd {
+    font-size: var(--text-md);
+  }
+
+  .member-profile .member-profile__note {
+    padding: 14px 16px;
+    border: 0;
+    border-radius: 12px;
+    background: rgb(var(--brand-forest-rgb) / 4%);
+  }
+
+  .member-leaves .member-leaves__split,
+  .member-sidedishes .member-sidedishes__split {
+    gap: 20px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .member-leaves .member-leaves__card,
+  .member-sidedishes .member-sidedishes__card {
+    padding: 22px;
+  }
+
+  .member-leaves .member-leaves__calendar {
+    gap: 10px;
+  }
+
+  .member-leaves .member-leaves__calendar-month {
+    font-size: var(--text-md);
+  }
+
+  .member-leaves .member-leaves__day {
+    height: 100%;
+    min-height: 52px;
+    gap: 2px;
+    padding-block: 4px;
+    border-radius: 10px;
+  }
+
+  .member-leaves .member-leaves__day-number {
+    height: 24px;
+    min-width: 24px;
+  }
+
+  .member-leaves .member-leaves__request {
+    padding: 16px;
+    border: 0;
+    border-radius: 14px;
+    background: rgb(var(--brand-forest-rgb) / 4%);
+  }
+
+  .member-sidedishes .member-sidedishes__timezone,
+  .member-sidedishes > .member-sidedishes__restaurant > p {
+    display: none;
+  }
+
+  .member-sidedishes > .member-sidedishes__restaurant {
+    padding: 12px 20px;
+    border-color: rgb(var(--brand-forest-rgb) / 10%);
+    border-radius: 16px;
+    background: rgb(var(--brand-forest-rgb) / 4%);
+  }
+
+  .member-sidedishes .member-sidedishes__meals {
+    align-items: start;
+    gap: 14px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .member-sidedishes .member-sidedishes__month {
+    min-width: 0;
+    overflow: hidden;
+    gap: 0;
+    border-radius: var(--radius-card);
+    background: var(--card);
+    box-shadow: var(--elev-1);
+  }
+
+  .member-sidedishes .member-sidedishes__month .instrument {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .member-sidedishes .member-sidedishes__month .instrument__head {
+    display: grid;
+    gap: 7px;
+  }
+
+  .member-sidedishes .member-sidedishes__month .instrument__readout {
+    align-items: flex-end;
+  }
+
+  .member-sidedishes .member-sidedishes__month .instrument__value {
+    font-size: 2rem;
+  }
+
+  .member-sidedishes .member-sidedishes__month-card {
+    padding: 20px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .member-sidedishes .member-sidedishes__month-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .member-sidedishes .member-sidedishes__month-chips button {
+    width: 100%;
+    padding-inline: 8px;
+    border-radius: 10px;
+  }
+
+  /* Use available page width, including the desktop sidebar, for columns. */
+  @container member-detail (min-width: 42rem) {
+    .member-sidedishes .member-sidedishes__meals {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @container member-detail (min-width: 56rem) {
+    .member-leaves .member-leaves__upcoming-row {
+      align-items: start;
+      gap: 4px 10px;
+      grid-template-columns: minmax(0, 1fr) 16px;
+    }
+
+    .member-leaves .member-leaves__upcoming-body {
+      justify-content: flex-start;
+      grid-column: 1;
+    }
+
+    .member-leaves .member-leaves__upcoming-row svg {
+      grid-row: 1 / span 2;
+      grid-column: 2;
+      align-self: center;
+    }
+
+    .member-leaves .member-leaves__split,
+    .member-sidedishes .member-sidedishes__split {
+      grid-template-columns: minmax(0, 1fr) 19rem;
+    }
+  }
+}

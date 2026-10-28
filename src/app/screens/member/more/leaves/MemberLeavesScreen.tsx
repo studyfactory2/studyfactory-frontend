@@ -16,6 +16,7 @@ import { LeaveDayForm } from './components/LeaveDayForm';
 import { LeaveUpcomingList } from './components/LeaveUpcomingList';
 import { useMemberLeaves } from './hooks/useMemberLeaves';
 import './styles/MemberLeavesScreen.css';
+import '../styles/member-detail-desktop.css';
 
 export function MemberLeavesScreen() {
   const { memberId, ownerKey } = useSession();
@@ -73,7 +74,6 @@ function MemberLeaves({
         backLabel="홈"
         backTo={memberRoutes.home}
         eyebrow="MEMBER · LEAVE"
-        subtitle="날짜를 선택하고 달력 아래에서 휴무를 신청해요 · 서울 기준"
         title="휴무"
       />
 
