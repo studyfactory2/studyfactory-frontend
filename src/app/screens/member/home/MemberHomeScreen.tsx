@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { memberRoutes } from '../../../core/router/routes';
 import { useSession, type SessionOwnerKey } from '../../../core/session';
 import { LegacyPlanDraftNotice } from '../../../features/plans/PlanDraftRecovery';
 import { SharedPlanEditor } from '../../../features/plans/SharedPlanEditor';
@@ -111,6 +114,15 @@ function MemberHomeDashboard({
       <LegacyPlanDraftNotice memberId={memberId} />
       <SharedPlanEditor
         dayIndex={planDay}
+        headerAction={
+          <Link
+            aria-label="계획 전체 보기"
+            className="member-home__plan-link"
+            to={memberRoutes.plans}
+          >
+            전체 보기 <ChevronRight aria-hidden="true" size={14} />
+          </Link>
+        }
         memberId={memberId}
         onDateChange={(week, day) => setSelectedPlanDate(addDays(week, day))}
         onDayChange={(day) => setSelectedPlanDate(addDays(planWeek, day))}

@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { memberRoutes } from '../../core/router/routes';
 import { AppShell } from '../../shared/layout/AppShell/AppShell';
 import { memberNavigation } from './member-navigation';
+import { useMemberBackNavigation } from './useMemberBackNavigation';
 
 // Shortcut URLs stay stable even though their former More dashboard is gone.
 const memberPageTitles: Record<string, string> = {
@@ -15,10 +16,16 @@ const memberPageTitles: Record<string, string> = {
 
 export function MemberWorkspaceScreen() {
   const { pathname } = useLocation();
+  const goBack = useMemberBackNavigation();
+  const currentPath = pathname.replace(/\/+$/, '');
   return (
     <AppShell
+      mobileHomeNavigation={{
+        homePath: memberRoutes.home,
+        onBack: currentPath === memberRoutes.home ? undefined : goBack,
+      }}
       navigation={memberNavigation}
-      pageTitle={memberPageTitles[pathname.replace(/\/+$/, '')]}
+      pageTitle={memberPageTitles[currentPath]}
       workspaceLabel="회원"
     >
       <Outlet />

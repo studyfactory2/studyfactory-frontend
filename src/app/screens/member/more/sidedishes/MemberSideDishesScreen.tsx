@@ -47,7 +47,12 @@ function MemberSideDishes({
         backLabel="홈"
         backTo={memberRoutes.home}
         eyebrow="MEMBER · SIDE DISH"
-        subtitle="점심은 10:45, 저녁은 16:30까지 신청할 수 있어요 · 서울 기준"
+        subtitle={
+          <>
+            점심은 10:45, 저녁은 16:30까지 신청할 수 있어요
+            <span className="member-sidedishes__timezone"> · 서울 기준</span>
+          </>
+        }
         title="반찬"
       />
 

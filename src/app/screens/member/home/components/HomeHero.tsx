@@ -1,4 +1,6 @@
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { memberRoutes } from '../../../../core/router/routes';
 import { Dial } from '../../../../shared/ui';
 import { formatTimeOfDay } from '../model/home.dates';
 import {
@@ -50,7 +52,10 @@ export function HomeHero({
       <header className="member-home__hero-head">
         <h2 className="member-home__hero-title" id="member-home-hero-title">
           <span className="member-home__sr-only">{memberName}님의 </span>
-          오늘 인정 학습 시간
+          <span className="member-home__hero-title-desktop">
+            오늘 인정 학습 시간
+          </span>
+          <span className="member-home__hero-title-mobile">오늘 학습시간</span>
         </h2>
         {!studyTimeLoading && studyTimeError === null && reportTime && (
           <span className="member-home__hero-as-of">{reportTime} 기준</span>
@@ -76,7 +81,10 @@ export function HomeHero({
               <dd>{formatDurationKorean(recognizedBreakSeconds ?? 0)}</dd>
             </div>
           </dl>
-
+        </>
+      )}
+      <div className="member-home__hero-navigation">
+        {!studyTimeLoading && studyTimeError === null && (
           <details className="member-home__hero-details">
             <summary>
               학습 기록 자세히 <ChevronDown aria-hidden="true" size={14} />
@@ -100,8 +108,15 @@ export function HomeHero({
               <HomeDayTimeline blocks={dayBlocks} />
             </div>
           </details>
-        </>
-      )}
+        )}
+        <Link
+          aria-label="주간·월간 학습 기록 보기"
+          className="member-home__hero-report-link"
+          to={memberRoutes.study}
+        >
+          주간·월간 기록 <ChevronRight aria-hidden="true" size={14} />
+        </Link>
+      </div>
     </section>
   );
 }

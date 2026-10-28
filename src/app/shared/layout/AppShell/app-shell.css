@@ -216,6 +216,11 @@
   display: none;
 }
 
+.workspace-shell__mobile-back,
+.workspace-shell__mobile-home-link {
+  display: none;
+}
+
 .workspace-shell__topbar p {
   color: var(--brand-muted);
   font-size: var(--text-xs);
@@ -532,6 +537,63 @@
     padding: 28px 18px calc(104px + env(safe-area-inset-bottom));
   }
 
+  .workspace-shell--mobile-home .workspace-shell__content {
+    padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  }
+
+  .workspace-shell--mobile-home
+    :is(.member-leaves, .member-beverages, .member-suggestions, .member-profile)
+    > .ui-screen-header
+    .ui-screen-header__back {
+    display: none;
+  }
+
+  .workspace-shell--mobile-home
+    :is(.member-leaves, .member-beverages, .member-suggestions, .member-profile)
+    > .ui-screen-header
+    .ui-screen-header__back
+    + .ui-screen-header__eyebrow {
+    margin-top: 0;
+  }
+
+  .workspace-shell--mobile-home .workspace-shell__topbar {
+    gap: 8px;
+  }
+
+  .workspace-shell--mobile-home .workspace-shell__topbar-title {
+    gap: 6px;
+  }
+
+  .workspace-shell--mobile-home .workspace-shell__topbar-title > div {
+    min-width: 0;
+  }
+
+  .workspace-shell--mobile-home .workspace-shell__topbar-title p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .workspace-shell__mobile-back,
+  .workspace-shell__mobile-home-link {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--brand-forest);
+    cursor: pointer;
+    place-items: center;
+  }
+
+  .workspace-shell__mobile-back:hover,
+  .workspace-shell__mobile-home-link:hover {
+    background: rgb(var(--brand-forest-rgb) / 6%);
+  }
+
   .workspace-shell__bottom-navigation {
     position: fixed;
     right: 0;
@@ -586,6 +648,15 @@
   .workspace-shell__topbar--screen-toolbar {
     padding-right: 12px;
     padding-left: 12px;
+  }
+
+  .workspace-shell--mobile-home .workspace-shell__topbar {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .workspace-shell--mobile-home .workspace-shell__topbar-account {
+    gap: 4px;
   }
 }
 

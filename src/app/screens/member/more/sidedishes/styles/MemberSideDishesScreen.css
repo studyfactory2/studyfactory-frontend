@@ -26,6 +26,22 @@
   gap: 12px;
 }
 
+/* Keep the shared restaurant notice and desktop screen unchanged. */
+@media (max-width: 768px) {
+  .member-sidedishes > .ui-screen-header .ui-screen-header__back,
+  .member-sidedishes__timezone,
+  .member-sidedishes > .member-sidedishes__restaurant > p {
+    display: none;
+  }
+
+  .member-sidedishes
+    > .ui-screen-header
+    .ui-screen-header__back
+    + .ui-screen-header__eyebrow {
+    margin-top: 0;
+  }
+}
+
 @media (min-width: 720px) {
   .member-sidedishes__meals {
     grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { clearSession, useSession } from '../../../core/session';
 import { appRoutes } from '../../../core/router/routes';
@@ -26,6 +26,7 @@ type AppShellProps = {
   displayBranchName?: string;
   headerTools?: ReactNode;
   mobileWorkspaceRole?: ManagerWorkspaceRole;
+  mobileHomeNavigation?: { homePath: string; onBack?: () => void };
   navigation: WorkspaceNavigationItem[];
   pageTitle?: string;
   screenToolbar?: boolean;
@@ -37,6 +38,7 @@ export function AppShell({
   displayBranchName,
   headerTools,
   mobileWorkspaceRole,
+  mobileHomeNavigation,
   navigation,
   pageTitle,
   screenToolbar = false,
@@ -102,6 +104,7 @@ export function AppShell({
       className={cx(
         'workspace-shell',
         mobileWorkspaceRole && 'workspace-shell--manager',
+        mobileHomeNavigation && 'workspace-shell--mobile-home',
         isHub && 'workspace-shell--manager-hub',
       )}
     >
@@ -175,11 +178,36 @@ export function AppShell({
             />
           )}
           <div className="workspace-shell__topbar-title">
-            <img
-              alt=""
-              className="workspace-shell__topbar-mark"
-              src="/study-factory-logo.png"
-            />
+            {mobileHomeNavigation?.onBack && (
+              <button
+                aria-label="뒤로가기"
+                className="workspace-shell__mobile-back"
+                onClick={mobileHomeNavigation.onBack}
+                type="button"
+              >
+                <ArrowLeft aria-hidden="true" size={20} />
+              </button>
+            )}
+            {mobileHomeNavigation ? (
+              <NavLink
+                aria-label="홈으로 이동"
+                className="workspace-shell__mobile-home-link"
+                end
+                to={mobileHomeNavigation.homePath}
+              >
+                <img
+                  alt=""
+                  className="workspace-shell__topbar-mark"
+                  src="/study-factory-logo.png"
+                />
+              </NavLink>
+            ) : (
+              <img
+                alt=""
+                className="workspace-shell__topbar-mark"
+                src="/study-factory-logo.png"
+              />
+            )}
             <div>
               <p>
                 {topbarBranchName} <span>·</span> {workspaceLabel}
@@ -242,7 +270,7 @@ export function AppShell({
         </ScreenToolbarContext.Provider>
       </main>
 
-      {!mobileWorkspaceRole && (
+      {!mobileWorkspaceRole && !mobileHomeNavigation && (
         <nav
           aria-label={`${workspaceLabel} 모바일 메뉴`}
           className="workspace-shell__bottom-navigation"

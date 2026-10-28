@@ -10,7 +10,7 @@ import {
   RefreshCw,
   Trash2,
 } from 'lucide-react';
-import { useId, useState } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import type { SessionOwnerKey } from '../../core/session';
 import {
   addDays,
@@ -40,6 +40,7 @@ export type SharedPlanEditorProps = {
   targetBranchId?: number;
   operatorMemberId?: number;
   title?: string;
+  headerAction?: ReactNode;
 };
 
 type PlanController = ReturnType<typeof useSharedPlanWeek>;
@@ -421,6 +422,7 @@ export function SharedPlanEditor({
   targetBranchId,
   operatorMemberId,
   title = '교시별 계획',
+  headerAction,
 }: SharedPlanEditorProps) {
   const headingId = useId();
   const controller = useSharedPlanWeek({
@@ -503,12 +505,14 @@ export function SharedPlanEditor({
 
   return (
     <section aria-labelledby={headingId} className="shared-plan">
-      <header className="shared-plan__heading">
+      <header
+        className={`shared-plan__heading${headerAction ? ' shared-plan__heading--with-action' : ''}`}
+      >
         <div className="shared-plan__heading-main">
           <span aria-hidden="true" className="shared-plan__heading-icon">
             <ClipboardList size={20} />
           </span>
-          <div>
+          <div className="shared-plan__heading-copy">
             <h2 id={headingId}>{title}</h2>
             <p>
               {Number(weekStartDate.slice(5, 7))}월{' '}
@@ -520,6 +524,7 @@ export function SharedPlanEditor({
           </div>
         </div>
         <div className="shared-plan__heading-tools">
+          {headerAction}
           {readOnly && (
             <span className="shared-plan__read-only">읽기 전용</span>
           )}
