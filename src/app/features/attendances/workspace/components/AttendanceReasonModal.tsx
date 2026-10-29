@@ -66,7 +66,7 @@ type AttendanceReasonModalProps = {
   dateKey: string;
   joinDate: string | null;
   onClose: () => void;
-  onSubmit: (command: AttendanceReasonCommand) => void;
+  onSubmit: (command: AttendanceReasonCommand, onSuccess?: () => void) => void;
   open: boolean;
   pending: boolean;
   restoreFocusRef?: RefObject<HTMLElement | null>;
@@ -181,14 +181,31 @@ function ReasonDialog({
           : !canApply)
     )
       return;
-    onSubmit({
-      memberId: selection.memberId,
-      dates: [...dates],
-      slots: [...slots],
-      reason: reason.trim(),
-      action,
-      ...(action === 'cancel-repeat' ? { fixedLeaveId: selectedRule!.id } : {}),
-    });
+    onSubmit(
+      {
+        memberId: selection.memberId,
+        dates: [...dates],
+        slots: [...slots],
+        reason: reason.trim(),
+        action,
+        ...(action === 'cancel-repeat'
+          ? { fixedLeaveId: selectedRule!.id }
+          : {}),
+      },
+      () => {
+        // Keep this member's dates, month and draft ready for another request.
+        // Only a confirmed success returns from an internal confirmation.
+        setConfirmation(null);
+        setSelectedRuleId(null);
+        if (action !== 'apply') {
+          window.requestAnimationFrame(() =>
+            (selectedDateRef.current ?? calendarModeRef.current)?.focus({
+              preventScroll: true,
+            }),
+          );
+        }
+      },
+    );
   };
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -305,13 +322,24 @@ function ReasonDialog({
                 반복 신청
               </Button>
               <Button
-                className="attendance-reason__cancel-selection"
+                aria-label="선택 날짜·교시 휴무 취소"
+                className="attendance-reason__cancel"
                 disabled={mode !== 'select' || !hasSelection || pending}
                 onClick={() => openConfirmation('cancel')}
                 type="button"
                 variant="ghost"
               >
-                선택 날짜·교시 휴무 취소
+                취소
+              </Button>
+              <Button
+                className="attendance-reason__cancel"
+                disabled={pending}
+                onClick={() => openConfirmation('cancel-repeat')}
+                type="button"
+                variant="ghost"
+              >
+                <Repeat2 aria-hidden="true" size={16} />
+                반복 취소
               </Button>
             </div>
           </div>
@@ -686,7 +714,6 @@ function ReasonDialog({
               setOccurrenceTarget(target);
               openConfirmation('occurrence');
             }}
-            onRequestStopRule={() => openConfirmation('cancel-repeat')}
           />
         </>
       )}

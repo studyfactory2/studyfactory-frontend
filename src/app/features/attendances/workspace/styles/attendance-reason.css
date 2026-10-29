@@ -380,47 +380,9 @@
   border-color: var(--danger);
   background: var(--danger-soft);
 }
-.attendance-reason__advanced {
-  margin-top: 14px;
-  border-top: 1px solid var(--brand-line);
-}
-.attendance-reason__advanced > summary {
-  min-height: 44px;
-  align-content: center;
-  padding: 10px 2px;
-  color: var(--brand-muted);
-  cursor: pointer;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-}
-.attendance-reason__advanced-actions {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  padding-top: 4px;
-  gap: 8px;
-}
-.attendance-reason__advanced-actions > button {
-  display: inline-flex;
-  min-width: 0;
-  min-height: 44px;
-  height: auto;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border: 1px solid var(--brand-line);
-  border-radius: var(--radius-control);
-  background: var(--paper);
-  color: var(--danger-deep);
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--text-xs);
-  gap: 6px;
-  overflow-wrap: anywhere;
-}
 .attendance-reason__refresh:disabled,
 .attendance-reason__history-list button:disabled,
-.attendance-reason__calendar-mode > button:disabled,
-.attendance-reason__advanced-actions > button:disabled {
+.attendance-reason__calendar-mode > button:disabled {
   cursor: default;
   opacity: 0.45;
 }
@@ -470,14 +432,12 @@
   background: var(--paper);
   color: var(--brand-forest);
 }
-.attendance-reason__actions > .attendance-reason__cancel-selection {
-  grid-column: 1 / -1;
+.attendance-reason__actions > .attendance-reason__cancel {
   border: 1px solid var(--brand-line);
   background: var(--paper);
   color: var(--danger-deep);
 }
-.attendance-reason__actions
-  > .attendance-reason__cancel-selection:hover:not(:disabled) {
+.attendance-reason__actions > .attendance-reason__cancel:hover:not(:disabled) {
   border-color: var(--danger);
   background: var(--danger-soft);
 }

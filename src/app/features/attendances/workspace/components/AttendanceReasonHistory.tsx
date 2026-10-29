@@ -1,6 +1,6 @@
 import type { RefObject } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { Button, SectionError, SectionLoading } from '../../../../shared/ui';
+import { SectionError, SectionLoading } from '../../../../shared/ui';
 import { formatKoreanDate } from '../../../../shared/lib/seoul-date';
 import { expandManagerLeaveCalendarPeriods } from '../../../leaves/leave-management-model';
 import type { AttendanceMemberLeaveState } from '../../../manager-leaves/hooks/useAttendanceMemberLeave';
@@ -19,7 +19,6 @@ type AttendanceReasonHistoryProps = {
   pending: boolean;
   headingRef: RefObject<HTMLHeadingElement | null>;
   onRequestOccurrence: (target: OccurrenceTarget) => void;
-  onRequestStopRule: () => void;
 };
 
 export function AttendanceReasonHistory({
@@ -28,7 +27,6 @@ export function AttendanceReasonHistory({
   pending,
   headingRef,
   onRequestOccurrence,
-  onRequestStopRule,
 }: AttendanceReasonHistoryProps) {
   const historyLoading = leaves.request.loading || leaves.calendar.loading;
   const historyError =
@@ -120,19 +118,6 @@ export function AttendanceReasonHistory({
           ))}
         </ul>
       )}
-      <details className="attendance-reason__advanced">
-        <summary>반복 일정 관리</summary>
-        <div className="attendance-reason__advanced-actions">
-          <Button
-            disabled={pending}
-            onClick={onRequestStopRule}
-            type="button"
-            variant="ghost"
-          >
-            반복 일정 중단
-          </Button>
-        </div>
-      </details>
     </section>
   );
 }

@@ -357,7 +357,10 @@ export function AttendanceBoard({
     submitStatus(status, activeSelection);
   };
 
-  const submitReason = (command: AttendanceReasonCommand) => {
+  const submitReason = (
+    command: AttendanceReasonCommand,
+    onSuccess?: () => void,
+  ) => {
     if (
       !interaction ||
       !reasonOpen ||
@@ -369,7 +372,6 @@ export function AttendanceBoard({
     }
 
     const submittedDateKey = dateKey;
-    const submittedSlot = activeSelection.slot;
     const submittedTarget = leaveDialog.target;
     interaction.onApplyReason(command, () => {
       if (
@@ -378,14 +380,7 @@ export function AttendanceBoard({
       ) {
         return;
       }
-      leaveDialog.onClose();
-      window.requestAnimationFrame(() => {
-        const focusTarget =
-          document.getElementById(
-            toAttendanceCellId(command.memberId, submittedSlot),
-          ) ?? document.getElementById(searchId);
-        focusTarget?.focus({ preventScroll: true });
-      });
+      onSuccess?.();
     });
   };
 
