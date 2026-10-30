@@ -5,6 +5,7 @@ import { LEAVE_TYPE_OPTIONS, type LeaveDayCell } from '../model/leave.types';
 import '../styles/LeaveDayModal.css';
 
 type LeaveDayFieldsProps = {
+  allowOverlappingFullDay?: boolean;
   cell: LeaveDayCell;
   onDelete: (leaveId: number) => void;
   onSelectType: (leaveType: LeaveType) => void;
@@ -14,6 +15,7 @@ type LeaveDayFieldsProps = {
 };
 
 export function LeaveDayFields({
+  allowOverlappingFullDay = false,
   cell,
   onDelete,
   onSelectType,
@@ -71,7 +73,7 @@ export function LeaveDayFields({
         </ul>
       )}
 
-      {canRequestLeave(cell) && (
+      {canRequestLeave(cell, undefined, allowOverlappingFullDay) && (
         <div>
           <p className="member-leaves__day-modal-lead">휴무 선택</p>
           <div
@@ -88,7 +90,10 @@ export function LeaveDayFields({
                 ]
                   .filter(Boolean)
                   .join(' ')}
-                disabled={saving || !canRequestLeave(cell, option.value)}
+                disabled={
+                  saving ||
+                  !canRequestLeave(cell, option.value, allowOverlappingFullDay)
+                }
                 key={option.value}
                 onClick={() => onSelectType(option.value)}
                 role="radio"

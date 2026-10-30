@@ -50,12 +50,20 @@ export function buildLeaveMonthCells({
  * Multiple self-service requests may share a date, including morning followed
  * by afternoon leave, alongside office-assigned and recurring leave.
  * This only allows a new request; existing attendance and leave records keep
- * their backend precedence. Full-day leave still requires known,
- * non-overlapping periods. Without a type, check every available option.
+ * their backend precedence. Member self-service also permits overlapping
+ * full-day requests. Other callers retain their existing full-day restriction.
  */
-export function canRequestLeave(cell: LeaveDayCell, leaveType?: LeaveType) {
+export function canRequestLeave(
+  cell: LeaveDayCell,
+  leaveType?: LeaveType,
+  allowOverlappingFullDay = false,
+) {
   if (!cell.inMonth || cell.isPast) {
     return false;
+  }
+
+  if (allowOverlappingFullDay) {
+    return true;
   }
 
   const requestedTypes = leaveType

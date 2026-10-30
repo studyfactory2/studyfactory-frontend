@@ -26,13 +26,21 @@ export function LeaveDayForm({
 }: LeaveDayFormProps) {
   const [leaveType, setLeaveType] = useState<LeaveType | null>(null);
   const allowanceNoteId = useId();
-  const canCreate = canRequestLeave(cell);
+  const canCreate = canRequestLeave(cell, undefined, true);
   const selectedLeaveType =
-    leaveType !== null && canRequestLeave(cell, leaveType) ? leaveType : null;
+    leaveType !== null && canRequestLeave(cell, leaveType, true)
+      ? leaveType
+      : null;
 
   return (
     <div aria-busy={saving} className="member-leaves__inline-form">
+      {cell.entries.length > 0 && (
+        <p className="member-leaves__saved-heading">
+          등록된 휴무 <span>{cell.entries.length}건</span>
+        </p>
+      )}
       <LeaveDayFields
+        allowOverlappingFullDay
         cell={cell}
         onDelete={onDelete}
         onSelectType={setLeaveType}
@@ -46,7 +54,8 @@ export function LeaveDayForm({
             className="member-leaves__day-modal-allowance"
             id={allowanceNoteId}
           >
-            월-일 일주일동안 월차1개+반차1개 또는 반차3개 신청가능해요
+            주간 기준은 월차 1회+반차 1회 또는 반차 3회이며, 초과 신청도
+            가능합니다.
           </p>
           <Button
             aria-describedby={allowanceNoteId}

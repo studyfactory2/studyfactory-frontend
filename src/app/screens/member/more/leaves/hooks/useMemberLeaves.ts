@@ -26,7 +26,13 @@ import {
 
 const PLAN_STALE_TIME_MS = 30_000;
 
-export function useMemberLeaves(memberId: number, ownerKey: SessionOwnerKey) {
+export function useMemberLeaves(
+  memberId: number,
+  ownerKey: SessionOwnerKey,
+  {
+    allowOverlappingFullDay = false,
+  }: { allowOverlappingFullDay?: boolean } = {},
+) {
   const today = useSeoulToday();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -92,7 +98,11 @@ export function useMemberLeaves(memberId: number, ownerKey: SessionOwnerKey) {
       // Recheck the latest loaded plan before submitting, not just the date's
       // initial modal state. Office records never get deleted to make room.
       const cell = cells.find((candidate) => candidate.dateKey === dateKey);
-      if (!planQuery.data || !cell || !canRequestLeave(cell, leaveType)) {
+      if (
+        !planQuery.data ||
+        !cell ||
+        !canRequestLeave(cell, leaveType, allowOverlappingFullDay)
+      ) {
         return Promise.reject(
           new Error(
             '선택한 휴무를 신청할 수 없어요. 기존 기록과 교시를 확인해 주세요.',

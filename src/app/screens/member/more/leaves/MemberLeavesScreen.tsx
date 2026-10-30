@@ -37,7 +37,9 @@ function MemberLeaves({
   memberId: number;
   queryOwnerKey: SessionOwnerKey;
 }) {
-  const leaves = useMemberLeaves(memberId, queryOwnerKey);
+  const leaves = useMemberLeaves(memberId, queryOwnerKey, {
+    allowOverlappingFullDay: true,
+  });
   const { plan, visibleMonth } = leaves;
   const [requestDateKey, setRequestDateKey] = useState<string | null>(null);
   const requestDateId = useId();
