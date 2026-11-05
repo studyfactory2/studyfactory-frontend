@@ -1,9 +1,101 @@
+.manager-side-dish-date {
+  display: grid;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4) 0;
+  gap: 12px;
+}
+
+.manager-side-dish-date__controls {
+  display: grid;
+  padding: 3px;
+  border-radius: 11px;
+  background: var(--card-2);
+  gap: 3px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.4fr);
+}
+
+.manager-side-dish-date__controls > button,
+.manager-side-dish-date__picker {
+  display: grid;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--brand-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  place-items: center;
+}
+
+.manager-side-dish-date__controls > button[aria-pressed='true'],
+.manager-side-dish-date__picker.is-selected {
+  background: var(--brand-forest);
+  color: var(--paper);
+  box-shadow: 0 2px 5px rgb(var(--brand-forest-rgb) / 12%);
+}
+
+.manager-side-dish-date__controls > button:focus-visible,
+.manager-side-dish-date__picker:focus-within {
+  outline: 2px solid var(--brand-forest);
+  outline-offset: 2px;
+}
+
+.manager-side-dish-date__picker {
+  position: relative;
+}
+
+.manager-side-dish-date__picker > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.manager-side-dish-date__picker input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0;
+}
+
+.manager-side-dish-date__selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  margin: 0;
+  color: var(--brand-forest);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  gap: 6px;
+}
+
+.manager-side-dish-date__selected > span {
+  color: var(--brand-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
 .manager-side-dish-orders {
   display: grid;
   min-width: 0;
   align-items: start;
   gap: 14px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@container manager-operations-cockpit (max-width: 34rem) {
+  .manager-side-dish-date {
+    padding: var(--space-3) var(--space-3) 0;
+  }
 }
 
 .manager-side-dish-meal {

@@ -46,9 +46,11 @@ export type ManagerOperationsSectionData = {
   emptyMessage: string;
   errorMessage?: null | string;
   hideHeader?: boolean;
+  label?: string;
   loading?: boolean;
   previews: readonly ManagerOperationsPreview[];
   summary?: string;
+  toolbar?: ReactNode;
 };
 
 export type ManagerOperationsCockpitProps = {
@@ -94,7 +96,7 @@ export function ManagerOperationsCockpit({
       data: memberSideDishOrders,
       icon: Utensils,
       id: 'side-dish-orders',
-      label: '회원 반찬 신청',
+      label: memberSideDishOrders.label ?? '회원 반찬 신청',
     },
   ];
   const selected = sections.find((section) => section.id === activeSection);
@@ -226,6 +228,8 @@ function ManagerOperationsPanel({
           )}
         </header>
       )}
+
+      {data.toolbar}
 
       <div
         aria-busy={data.loading}

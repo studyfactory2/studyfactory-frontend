@@ -60,6 +60,7 @@ function AdminAttendanceContent({
   const [operationsView, setOperationsView] =
     useState<ManagerOperationsView | null>(null);
   const date = useAttendanceDate();
+  const sideDishDate = useAttendanceDate();
   const leaveDialog = useAttendanceLeaveDialog({
     branchId,
     dateKey: date.dateKey,
@@ -74,6 +75,7 @@ function AdminAttendanceContent({
   const operations = useManagerOperations({
     branchId,
     dateKey: clock.dateKey,
+    sideDishDateKey: sideDishDate.dateKey,
     memberId,
     ownerKey,
   });
@@ -99,8 +101,10 @@ function AdminAttendanceContent({
       <ManagerOperationsOverview
         hideSideDishPanelHeader
         excludeLunchFromBadge={
+          sideDishDate.dateKey === clock.dateKey &&
           clock.secondsOfDay >= ADMIN_LUNCH_BADGE_CUTOFF_SECONDS
         }
+        sideDishDate={sideDishDate}
         onManageRequests={() => setOperationsView('member-requests')}
         onManageTasks={() => setOperationsView('tasks')}
         operations={operations}

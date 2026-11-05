@@ -285,10 +285,11 @@ export function AttendanceTable({
           </tr>
         </thead>
         <tbody>
-          {displayRows.map((row) => {
+          {displayRows.map((row, rowIndex) => {
             const layoutClassName = getAttendanceSeatLayoutClassName(
               branchName,
               row.seatNumber,
+              displayRows[rowIndex - 1]?.seatNumber,
             );
             if (row.kind === 'vacant') {
               return (

@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import type { useManagerOperations } from '../hooks/useManagerOperations';
 import {
+  addDays,
+  formatKoreanDate,
+  formatShortDate,
+} from '../../../shared/lib/seoul-date';
+import {
   SUGGESTION_CATEGORY_LABELS,
   formatAttendanceRequestDate,
   getAttendanceTodoMeta,
@@ -11,6 +16,10 @@ import {
   type ManagerOperationsSectionId,
 } from './ManagerOperationsCockpit';
 import { ManagerSideDishOrders } from './ManagerSideDishOrders';
+import {
+  ManagerSideDishDateBar,
+  type SideDishDateSelection,
+} from './ManagerSideDishDateBar';
 
 export function ManagerOperationsOverview({
   excludeLunchFromBadge = false,
@@ -19,6 +28,7 @@ export function ManagerOperationsOverview({
   onManageRequests,
   onManageTasks,
   operations,
+  sideDishDate,
 }: {
   excludeLunchFromBadge?: boolean;
   hideSideDishPanelHeader?: boolean;
@@ -26,9 +36,17 @@ export function ManagerOperationsOverview({
   onManageRequests?: () => void;
   onManageTasks?: () => void;
   operations: ReturnType<typeof useManagerOperations>;
+  sideDishDate?: SideDishDateSelection;
 }) {
   const [activeSection, setActiveSection] =
     useState<ManagerOperationsSectionId | null>(initialSection);
+  const sideDishDayLabel = sideDishDate
+    ? sideDishDate.dateKey === sideDishDate.todayKey
+      ? '오늘'
+      : sideDishDate.dateKey === addDays(sideDishDate.todayKey, 1)
+        ? '내일'
+        : formatShortDate(sideDishDate.dateKey)
+    : '오늘';
 
   const todayTasks: ManagerOperationsSectionData = {
     actions: onManageTasks
@@ -121,6 +139,13 @@ export function ManagerOperationsOverview({
   };
 
   const memberSideDishOrders: ManagerOperationsSectionData = {
+    label:
+      sideDishDayLabel === '오늘'
+        ? '회원 반찬 신청'
+        : `${sideDishDayLabel} 반찬 신청`,
+    toolbar: sideDishDate ? (
+      <ManagerSideDishDateBar date={sideDishDate} />
+    ) : undefined,
     content: (
       <ManagerSideDishOrders
         dinner={operations.meals.dinner}
@@ -132,7 +157,7 @@ export function ManagerOperationsOverview({
         operations.meals.dinner.orders.length
       : null,
     countLabel: '건',
-    emptyMessage: '오늘 접수된 회원 반찬 신청이 없어요.',
+    emptyMessage: `${sideDishDayLabel} 회원 반찬 신청이 없어요.`,
     errorMessage: operations.meals.errorMessage,
     hideHeader: hideSideDishPanelHeader,
     loading: operations.meals.loading,
@@ -140,7 +165,7 @@ export function ManagerOperationsOverview({
     summary: operations.meals.ready
       ? excludeLunchFromBadge
         ? `저녁 ${operations.meals.dinner.memberCount}명 · 점심 집계 제외`
-        : `점심 ${operations.meals.lunch.memberCount}명 · 저녁 ${operations.meals.dinner.memberCount}명`
+        : `${sideDishDate ? `${formatKoreanDate(sideDishDate.dateKey)} · ` : ''}점심 ${operations.meals.lunch.memberCount}명 · 저녁 ${operations.meals.dinner.memberCount}명`
       : undefined,
   };
 

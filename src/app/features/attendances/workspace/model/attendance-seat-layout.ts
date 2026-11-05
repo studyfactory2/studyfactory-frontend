@@ -16,6 +16,7 @@ export function hasMangmiSeatLayout(
 export function getAttendanceSeatLayoutClassName(
   branchName: string | null | undefined,
   seatNumber: number | null,
+  previousVisibleSeatNumber?: number | null,
 ): string {
   if (
     !hasMangmiSeatLayout(branchName) ||
@@ -28,12 +29,23 @@ export function getAttendanceSeatLayoutClassName(
   }
 
   const classes: string[] = [];
+  // A hidden landmark seat must not remove the walking-order divider.
+  // Only carry borders across visible rows; surface colours belong to the seat.
+  const firstSeatInGap =
+    previousVisibleSeatNumber != null &&
+    Number.isSafeInteger(previousVisibleSeatNumber) &&
+    previousVisibleSeatNumber >= 1 &&
+    previousVisibleSeatNumber < seatNumber
+      ? previousVisibleSeatNumber + 1
+      : seatNumber;
+  const crossesDivider = (dividerSeat: number) =>
+    dividerSeat >= firstSeatInGap && dividerSeat <= seatNumber;
 
-  if (seatNumber === 55) {
+  if (crossesDivider(55)) {
     classes.push('is-seat-room-start');
-  } else if (STRONG_DIVIDER_SEATS.has(seatNumber)) {
+  } else if ([...STRONG_DIVIDER_SEATS].some(crossesDivider)) {
     classes.push('is-seat-divider-strong');
-  } else if (SOFT_DIVIDER_SEATS.has(seatNumber)) {
+  } else if ([...SOFT_DIVIDER_SEATS].some(crossesDivider)) {
     classes.push('is-seat-divider-soft');
   }
 

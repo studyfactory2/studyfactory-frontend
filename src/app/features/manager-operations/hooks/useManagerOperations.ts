@@ -15,6 +15,7 @@ type UseManagerOperationsArgs = {
   dateKey: string;
   memberId: number;
   ownerKey: SessionOwnerKey;
+  sideDishDateKey?: string;
 };
 
 export function useManagerOperations({
@@ -22,6 +23,7 @@ export function useManagerOperations({
   dateKey,
   memberId,
   ownerKey,
+  sideDishDateKey = dateKey,
 }: UseManagerOperationsArgs) {
   const todos = useManagerTodos({
     branchId,
@@ -31,8 +33,8 @@ export function useManagerOperations({
   });
   const suggestions = useManagerSuggestions({ branchId, memberId, ownerKey });
   const sideDishQuery = useQuery({
-    queryFn: () => fetchDailySideDishes(dateKey, branchId, memberId),
-    queryKey: sideDishQueryKeys.daily(ownerKey, branchId, dateKey),
+    queryFn: () => fetchDailySideDishes(sideDishDateKey, branchId, memberId),
+    queryKey: sideDishQueryKeys.daily(ownerKey, branchId, sideDishDateKey),
     refetchInterval: OPERATIONS_REFETCH_MS,
     refetchOnWindowFocus: 'always',
     staleTime: OPERATIONS_STALE_TIME_MS,
