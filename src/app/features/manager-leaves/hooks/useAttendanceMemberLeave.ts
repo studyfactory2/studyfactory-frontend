@@ -26,7 +26,7 @@ import {
   type PreRegistrationResponse,
 } from '../../members/members-api';
 import { studyTimeQueryKeys } from '../../study-time/study-time-query-keys';
-import { useToast } from '../../../shared/ui';
+import { useAttendanceToast } from '../../attendances/workspace/hooks/useAttendanceToast';
 
 const ROSTER_STALE_TIME_MS = 5 * 60 * 1_000;
 
@@ -54,7 +54,7 @@ export function useAttendanceMemberLeave({
   targetMemberId,
 }: UseAttendanceMemberLeaveArgs) {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  const { toast } = useAttendanceToast();
   const today = useSeoulToday();
   const mounted = useRef(true);
   const pendingDeleteRef = useRef<string | null>(null);

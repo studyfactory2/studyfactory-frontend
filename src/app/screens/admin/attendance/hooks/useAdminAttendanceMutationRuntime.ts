@@ -28,7 +28,7 @@ import {
   type StudyPresenceManualCheckInInput,
 } from '../../../../features/study-presence/study-presence-api';
 import { getSeoulToday } from '../../../../shared/lib/seoul-date';
-import { useToast } from '../../../../shared/ui';
+import { useAttendanceToast } from '../../../../features/attendances/workspace/hooks/useAttendanceToast';
 
 type UseAdminAttendanceMutationRuntimeArgs = {
   branchId: number;
@@ -94,7 +94,7 @@ export function useAdminAttendanceMutationRuntime({
   writeEnabled,
 }: UseAdminAttendanceMutationRuntimeArgs) {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  const { toast } = useAttendanceToast();
   const currentScopeRef = useRef<CurrentScope>({
     branchId,
     dateKey,

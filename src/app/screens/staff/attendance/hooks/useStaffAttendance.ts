@@ -23,7 +23,7 @@ import { fetchBranchMembers } from '../../../../features/members/members-api';
 import { useSeoulClock } from '../../../../shared/hooks/useSeoulClock';
 import { useSeoulToday } from '../../../../shared/hooks/useSeoulToday';
 import { getSeoulToday } from '../../../../shared/lib/seoul-date';
-import { useToast } from '../../../../shared/ui';
+import { useAttendanceToast } from '../../../../features/attendances/workspace/hooks/useAttendanceToast';
 import {
   buildAttendanceMembers,
   toAttendanceCellKey,
@@ -94,7 +94,7 @@ export function useStaffAttendance({
   ownerKey,
 }: UseStaffAttendanceArgs) {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
+  const { toast } = useAttendanceToast();
   const today = useSeoulToday();
   const clock = useSeoulClock();
   const presenceEditable = isToday && clock.dateKey === dateKey;

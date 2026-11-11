@@ -2,8 +2,13 @@ import { createContext, useContext } from 'react';
 
 export type ToastTone = 'success' | 'error' | 'info';
 
+export type ToastOptions = {
+  durationMs?: number;
+  anchorSelector?: string;
+};
+
 export type ToastContextValue = {
-  toast: (message: string, tone?: ToastTone) => void;
+  toast: (message: string, tone?: ToastTone, options?: ToastOptions) => void;
 };
 
 export const ToastContext = createContext<ToastContextValue | null>(null);

@@ -35,6 +35,7 @@ export function AttendanceCommandDock({
     <div
       aria-label="선택한 출석 칸 빠른 처리"
       className="staff-attendance__action-bar"
+      data-toast-anchor="attendance"
       role="region"
     >
       <div

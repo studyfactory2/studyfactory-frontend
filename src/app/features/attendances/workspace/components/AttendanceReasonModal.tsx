@@ -264,6 +264,7 @@ function ReasonDialog({
         confirmation ? (
           <div
             className="attendance-reason__confirm-actions"
+            data-toast-anchor="attendance"
             key="confirmation-actions"
           >
             <Button
@@ -297,7 +298,11 @@ function ReasonDialog({
             </Button>
           </div>
         ) : (
-          <div className="attendance-reason__footer" key="draft-actions">
+          <div
+            className="attendance-reason__footer"
+            data-toast-anchor="attendance"
+            key="draft-actions"
+          >
             <p className="attendance-reason__footer-summary">
               {mode === 'history'
                 ? '내역 조회 중 · 신청·취소하려면 날짜 선택으로 전환'
