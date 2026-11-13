@@ -23,7 +23,7 @@ import {
   formatKoreanMonth,
   getDayOfMonth,
   getWeekdayName,
-  SEOUL_WEEKDAY_LABELS,
+  SEOUL_MONDAY_FIRST_WEEKDAY_LABELS,
 } from '../../../../shared/lib/seoul-date';
 import { leaveQueryKeys } from '../../../leaves/leave-query-keys';
 import {
@@ -541,7 +541,7 @@ function ReasonDialog({
                   </button>
                 </div>
                 <div aria-hidden="true" className="attendance-reason__weekdays">
-                  {SEOUL_WEEKDAY_LABELS.map((day) => (
+                  {SEOUL_MONDAY_FIRST_WEEKDAY_LABELS.map((day) => (
                     <span key={day}>{day}</span>
                   ))}
                 </div>

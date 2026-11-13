@@ -1,4 +1,5 @@
 import { useId, useState } from 'react';
+import type { MemberRole } from '../../../../../core/session';
 import type { LeaveType } from '../../../../../features/leaves/leaves-api';
 import { formatKoreanDate } from '../../../../../shared/lib/seoul-date';
 import { Button, Modal } from '../../../../../shared/ui';
@@ -13,6 +14,7 @@ export type LeaveDayModalProps = {
   onCreate: (dateKey: string, leaveType: LeaveType) => void;
   onDelete: (leaveId: number) => void;
   pendingDeleteId: number | null;
+  role?: MemberRole;
   saving: boolean;
 };
 
@@ -28,6 +30,7 @@ function LeaveDayContent({
   onCreate,
   onDelete,
   pendingDeleteId,
+  role = 'MEMBER',
   saving,
 }: Omit<LeaveDayModalProps, 'cell'> & { cell: LeaveDayCell }) {
   const [leaveType, setLeaveType] = useState<LeaveType | null>(null);
@@ -47,7 +50,9 @@ function LeaveDayContent({
               className="member-leaves__day-modal-allowance"
               id={allowanceNoteId}
             >
-              월-일 일주일동안 월차1개+반차1개 또는 반차3개 신청가능해요
+              {role === 'STAFF'
+                ? '월–일 기준 월차 2회, 반차 4회 또는 월차 1회+반차 2회이며, 초과 신청도 가능합니다.'
+                : '월–일 기준 월차 1회+반차 1회 또는 반차 3회이며, 초과 신청도 가능합니다.'}
             </p>
           )}
           <div className="member-leaves__day-modal-actions">

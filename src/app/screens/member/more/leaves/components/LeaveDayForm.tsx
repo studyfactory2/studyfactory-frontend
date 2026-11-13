@@ -54,7 +54,7 @@ export function LeaveDayForm({
             className="member-leaves__day-modal-allowance"
             id={allowanceNoteId}
           >
-            주간 기준은 월차 1회+반차 1회 또는 반차 3회이며, 초과 신청도
+            월–일 기준 월차 1회+반차 1회 또는 반차 3회이며, 초과 신청도
             가능합니다.
           </p>
           <Button

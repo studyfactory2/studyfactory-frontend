@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  SEOUL_WEEKDAY_LABELS,
+  SEOUL_MONDAY_FIRST_WEEKDAY_LABELS,
   formatKoreanDate,
   formatKoreanMonth,
 } from '../../../shared/lib/seoul-date';
@@ -58,7 +58,7 @@ export function ManagerLeaveCalendar({
       </header>
 
       <div aria-hidden="true" className="manager-leave-calendar__weekdays">
-        {SEOUL_WEEKDAY_LABELS.map((label) => (
+        {SEOUL_MONDAY_FIRST_WEEKDAY_LABELS.map((label) => (
           <span key={label}>{label}</span>
         ))}
       </div>

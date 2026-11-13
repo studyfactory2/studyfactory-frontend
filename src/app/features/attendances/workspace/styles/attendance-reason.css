@@ -184,7 +184,7 @@
   font-size: var(--text-2xs);
   text-align: center;
 }
-.attendance-reason__weekdays span:first-child {
+.attendance-reason__weekdays span:last-child {
   color: var(--danger-deep);
 }
 .attendance-reason__calendar-mode {

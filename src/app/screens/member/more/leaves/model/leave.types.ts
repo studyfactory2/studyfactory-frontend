@@ -32,7 +32,7 @@ export type LeaveDayCell = {
   inMonth: boolean;
   isPast: boolean;
   isToday: boolean;
-  /** Sunday = 0 … Saturday = 6. */
+  /** Monday = 0 … Sunday = 6. */
   weekdayIndex: number;
 };
 

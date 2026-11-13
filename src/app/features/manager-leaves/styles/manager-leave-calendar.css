@@ -84,7 +84,7 @@
   text-align: center;
 }
 
-.manager-leave-calendar__weekdays span:first-child {
+.manager-leave-calendar__weekdays span:last-child {
   color: var(--danger-deep);
 }
 

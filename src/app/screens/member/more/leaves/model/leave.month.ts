@@ -35,7 +35,7 @@ export function buildLeaveMonthCells({
 }): LeaveDayCell[] {
   const entriesByDate = groupEntriesByDate(plan ?? []);
 
-  return listMonthGridCells(year, month).map((cell, index) => ({
+  return listMonthGridCells(year, month, 'monday').map((cell, index) => ({
     dateKey: cell.dateKey,
     dayOfMonth: getDayOfMonth(cell.dateKey),
     entries: cell.inMonth ? (entriesByDate.get(cell.dateKey) ?? []) : [],

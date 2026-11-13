@@ -131,15 +131,17 @@ export function buildManagerLeaveCalendarCells({
     entriesByDate.set(row.leaveDate, current);
   });
 
-  return listMonthGridCells(year, month).map<ManagerLeaveCalendarCell>(
-    (cell) => ({
-      dateKey: cell.dateKey,
-      dayOfMonth: getDayOfMonth(cell.dateKey),
-      entries: cell.inMonth ? (entriesByDate.get(cell.dateKey) ?? []) : [],
-      inMonth: cell.inMonth,
-      isToday: cell.dateKey === todayKey,
-    }),
-  );
+  return listMonthGridCells(
+    year,
+    month,
+    'monday',
+  ).map<ManagerLeaveCalendarCell>((cell) => ({
+    dateKey: cell.dateKey,
+    dayOfMonth: getDayOfMonth(cell.dateKey),
+    entries: cell.inMonth ? (entriesByDate.get(cell.dateKey) ?? []) : [],
+    inMonth: cell.inMonth,
+    isToday: cell.dateKey === todayKey,
+  }));
 }
 
 /** Details are period-granular; calendar badges still summarize by reason. */

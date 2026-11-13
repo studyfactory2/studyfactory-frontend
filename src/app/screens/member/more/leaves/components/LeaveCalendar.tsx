@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
-  SEOUL_WEEKDAY_LABELS,
+  SEOUL_MONDAY_FIRST_WEEKDAY_LABELS,
   formatKoreanDate,
 } from '../../../../../shared/lib/seoul-date';
 import { isDaySelectable } from '../model/leave.month';
@@ -68,7 +68,7 @@ export function LeaveCalendar({
       </header>
 
       <div aria-hidden="true" className="member-leaves__calendar-weekdays">
-        {SEOUL_WEEKDAY_LABELS.map((label) => (
+        {SEOUL_MONDAY_FIRST_WEEKDAY_LABELS.map((label) => (
           <span key={label}>{label}</span>
         ))}
       </div>

@@ -1,5 +1,5 @@
 import { CalendarDays } from 'lucide-react';
-import type { SessionOwnerKey } from '../../../../core/session';
+import { useSession, type SessionOwnerKey } from '../../../../core/session';
 import { formatKoreanMonth } from '../../../../shared/lib/seoul-date';
 import {
   Card,
@@ -19,6 +19,7 @@ export function StaffLeavePanel({
   memberId: number;
   ownerKey: SessionOwnerKey;
 }) {
+  const { role } = useSession();
   const leaves = useMemberLeaves(memberId, ownerKey);
   const monthLabel = formatKoreanMonth(
     leaves.visibleMonth.year,
@@ -92,6 +93,7 @@ export function StaffLeavePanel({
         onCreate={leaves.onCreateLeave}
         onDelete={leaves.onDeleteLeave}
         pendingDeleteId={leaves.pendingDeleteId}
+        role={role ?? 'MEMBER'}
         saving={leaves.saving}
       />
     </div>

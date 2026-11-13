@@ -51,6 +51,11 @@ export const SEOUL_DAY_MS = MILLISECONDS_PER_DAY;
 
 export const SEOUL_WEEKDAY_LABELS = WEEKDAY_LABELS;
 
+export const SEOUL_MONDAY_FIRST_WEEKDAY_LABELS = [
+  ...WEEKDAY_LABELS.slice(1),
+  WEEKDAY_LABELS[0],
+] as const;
+
 export type WeekdayName = (typeof WEEKDAY_NAMES)[number];
 
 export type SeoulToday = {
@@ -154,7 +159,7 @@ export function compareMonths(left: SeoulMonth, right: SeoulMonth) {
 }
 
 /**
- * Whole Sunday-first weeks covering the given month — five or six rows
+ * Whole weeks covering the given month, Sunday-first unless requested otherwise,
  * depending on where the first falls — with the neighbouring-month padding
  * days flagged so they can be dimmed or hidden. Only the weeks the month
  * actually touches are emitted, so no month ever renders a fully empty row.
@@ -162,10 +167,14 @@ export function compareMonths(left: SeoulMonth, right: SeoulMonth) {
 export function listMonthGridCells(
   year: number,
   month: number,
+  weekStartsOn: 'sunday' | 'monday' = 'sunday',
 ): MonthGridCell[] {
   const firstOfMonth = getMonthStartKey(year, month);
   const lastOfMonth = getMonthEndKey(year, month);
-  const leadingDayCount = toSundayFirstIndex(toTimestamp(firstOfMonth));
+  const leadingDayCount =
+    weekStartsOn === 'monday'
+      ? toMondayFirstIndex(toTimestamp(firstOfMonth))
+      : toSundayFirstIndex(toTimestamp(firstOfMonth));
   const gridStart = addDays(firstOfMonth, -leadingDayCount);
   const cellCount =
     Math.ceil((leadingDayCount + getDayOfMonth(lastOfMonth)) / 7) * 7;
