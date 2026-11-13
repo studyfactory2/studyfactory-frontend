@@ -103,12 +103,14 @@ export function useMemberHome(
   const currentMonthLeaveQuery = useQuery({
     queryFn: () => fetchMyLeavePlan(today.year, today.month, memberId),
     queryKey: leaveQueryKeys.myPlan(ownerKey, today.year, today.month),
+    refetchOnWindowFocus: 'always',
     staleTime: 5 * 60_000,
   });
 
   const nextMonthLeaveQuery = useQuery({
     queryFn: () => fetchMyLeavePlan(nextMonth.year, nextMonth.month, memberId),
     queryKey: leaveQueryKeys.myPlan(ownerKey, nextMonth.year, nextMonth.month),
+    refetchOnWindowFocus: 'always',
     staleTime: 5 * 60_000,
   });
 

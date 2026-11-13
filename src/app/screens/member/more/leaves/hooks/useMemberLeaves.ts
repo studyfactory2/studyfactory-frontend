@@ -50,6 +50,7 @@ export function useMemberLeaves(
       visibleMonth.year,
       visibleMonth.month,
     ),
+    refetchOnWindowFocus: 'always',
     staleTime: PLAN_STALE_TIME_MS,
   });
 

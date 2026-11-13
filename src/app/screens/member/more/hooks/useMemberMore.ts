@@ -96,6 +96,7 @@ export function useMemberMore(memberId: number, ownerKey: SessionOwnerKey) {
   const leavePlanQuery = useQuery({
     queryFn: () => fetchMyLeavePlan(today.year, today.month, memberId),
     queryKey: leaveQueryKeys.myPlan(ownerKey, today.year, today.month),
+    refetchOnWindowFocus: 'always',
     staleTime: SUMMARY_STALE_TIME_MS,
   });
 

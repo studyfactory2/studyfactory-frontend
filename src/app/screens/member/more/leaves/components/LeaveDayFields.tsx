@@ -45,8 +45,10 @@ export function LeaveDayFields({
                 {entry.slotsLabel &&
                   !(
                     entry.origin === 'own' &&
-                    (entry.leaveType === 'MORNING' ||
-                      entry.leaveType === 'AFTERNOON')
+                    ((entry.leaveType === 'MORNING' &&
+                      entry.slots?.join(',') === '1,2,3,4') ||
+                      (entry.leaveType === 'AFTERNOON' &&
+                        entry.slots?.join(',') === '4,5,6,7'))
                   ) && <small>{entry.slotsLabel}</small>}
               </div>
               {entry.origin === 'own' &&
