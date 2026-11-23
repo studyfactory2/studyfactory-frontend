@@ -2,15 +2,25 @@ import { useRef, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiRequestError } from '../../../../core/api/api-client';
 import type { SessionOwnerKey } from '../../../../core/session';
+import { beverageQueryKeys } from '../../../../features/beverages/beverage-query-keys';
+import {
+  fetchMemberBeverages,
+  replaceMemberBeverageItems,
+  type BeverageItemInput,
+} from '../../../../features/beverages/beverages-api';
 import { memberQueryKeys } from '../../../../features/members/member-query-keys';
 import {
   deleteCurrentMember,
   fetchBranchMembers,
   updateCurrentMember,
-  type CurrentMemberInput,
   type MemberResponse,
 } from '../../../../features/members/members-api';
 import { useToast } from '../../../../shared/ui';
+import {
+  beverageItemsSignature,
+  type CurrentMemberEditorSaveResult,
+  type CurrentMemberEditorSubmission,
+} from '../model/current-member-beverages';
 
 export type CurrentMemberEditorMode =
   { kind: 'closed' } | { kind: 'edit'; member: MemberResponse };
@@ -25,6 +35,8 @@ const BRANCH_TRANSFER_MESSAGE =
   '지점 이동은 입실 기록 보호 기능을 서버에 추가한 뒤 제공할게요.';
 const DUPLICATE_NAME_MESSAGE = '이 지점에서 이미 사용 중인 이름이에요.';
 const SELF_DELETE_MESSAGE = '로그인 중인 본인 계정은 삭제할 수 없어요.';
+const STALE_BEVERAGE_MESSAGE =
+  '이 사원의 음료가 다른 곳에서 변경되었어요. 최신 내용을 확인한 뒤 다시 열어 주세요.';
 
 type UseCurrentMemberMutationsArgs = {
   branchId: number;
@@ -58,6 +70,17 @@ function hasSameEditableSnapshot(
 
 class CurrentMemberSafetyError extends Error {}
 
+class CurrentMemberPartialSaveError extends Error {
+  readonly savedBeverages: BeverageItemInput[];
+
+  constructor(savedBeverages: BeverageItemInput[], cause: unknown) {
+    super(
+      `음료는 저장했어요. 사원 정보 저장은 확인하지 못했어요. ${errorMessage(cause)}`,
+    );
+    this.savedBeverages = savedBeverages;
+  }
+}
+
 export function useCurrentMemberMutations({
   branchId,
   currentMembers,
@@ -71,6 +94,7 @@ export function useCurrentMemberMutations({
   });
   const [editorError, setEditorError] = useState<string | null>(null);
   const deletionLocks = useRef(new Set<number>());
+  const savingLock = useRef(false);
   const [deletingIds, setDeletingIds] = useState<ReadonlySet<number>>(
     new Set(),
   );
@@ -84,9 +108,10 @@ export function useCurrentMemberMutations({
   const updateMutation = useMutation({
     mutationFn: async ({
       input,
+      profileChanged,
+      beverages,
       target,
-    }: {
-      input: CurrentMemberInput;
+    }: CurrentMemberEditorSubmission & {
       target: MemberResponse;
     }) => {
       const latestRoster = await fetchBranchMembers(target.branchId, memberId);
@@ -106,6 +131,7 @@ export function useCurrentMemberMutations({
         input.name.trim() !== target.name.trim();
 
       if (
+        profileChanged &&
         loginIdentityChanged &&
         latestRoster.some(
           (candidate) =>
@@ -116,8 +142,54 @@ export function useCurrentMemberMutations({
         throw new CurrentMemberSafetyError(DUPLICATE_NAME_MESSAGE);
       }
 
-      return updateCurrentMember(target.id, input, memberId);
+      let savedBeverages: BeverageItemInput[] | undefined;
+
+      if (beverages !== null) {
+        const latestBeverages = await fetchMemberBeverages(
+          target.branchId,
+          memberId,
+        );
+        const latest = latestBeverages.find(
+          (row) => row.memberId === target.id,
+        );
+        if (!latest) {
+          throw new CurrentMemberSafetyError(STALE_TARGET_MESSAGE);
+        }
+        const latestSignature = beverageItemsSignature(latest.items);
+        const requestedSignature = beverageItemsSignature(beverages.items);
+        if (
+          latestSignature !== beverageItemsSignature(beverages.originalItems) &&
+          latestSignature !== requestedSignature
+        ) {
+          throw new CurrentMemberSafetyError(STALE_BEVERAGE_MESSAGE);
+        }
+        // A lost response may have followed a successful replacement. An exact
+        // match is already saved; don't write it twice when the user retries.
+        if (latestSignature !== requestedSignature) {
+          await replaceMemberBeverageItems(
+            target.id,
+            beverages.items,
+            target.branchId,
+            memberId,
+          );
+        }
+        savedBeverages = beverages.items;
+      }
+
+      try {
+        return profileChanged
+          ? await updateCurrentMember(target.id, input, memberId)
+          : null;
+      } catch (error) {
+        // These endpoints are independent. Never imply an all-or-nothing save
+        // or discard the remaining profile draft after the first write worked.
+        if (savedBeverages !== undefined) {
+          throw new CurrentMemberPartialSaveError(savedBeverages, error);
+        }
+        throw error;
+      }
     },
+    retry: false,
   });
 
   const isCurrentNow = (target: MemberResponse) =>
@@ -147,7 +219,7 @@ export function useCurrentMemberMutations({
   };
 
   const closeEditor = () => {
-    if (updateMutation.isPending) {
+    if (savingLock.current || updateMutation.isPending) {
       return;
     }
 
@@ -155,22 +227,29 @@ export function useCurrentMemberMutations({
     setMode({ kind: 'closed' });
   };
 
-  const submitEditor = async (input: CurrentMemberInput) => {
-    if (mode.kind !== 'edit' || updateMutation.isPending) {
-      return;
+  const submitEditor = async (
+    submission: CurrentMemberEditorSubmission,
+  ): Promise<CurrentMemberEditorSaveResult> => {
+    if (
+      mode.kind !== 'edit' ||
+      savingLock.current ||
+      updateMutation.isPending
+    ) {
+      return {};
     }
 
+    const { input } = submission;
     const target = mode.member;
     setEditorError(null);
 
     if (!isCurrentNow(target)) {
       setEditorError(STALE_TARGET_MESSAGE);
-      return;
+      return {};
     }
 
     if (input.branchId !== target.branchId) {
       setEditorError(BRANCH_TRANSFER_MESSAGE);
-      return;
+      return {};
     }
 
     if (
@@ -178,23 +257,31 @@ export function useCurrentMemberMutations({
       (input.branchId !== target.branchId || input.role !== target.role)
     ) {
       setEditorError(SELF_SCOPE_MESSAGE);
-      return;
+      return {};
     }
 
     if (target.role === 'ADMIN' && input.role !== 'ADMIN') {
       setEditorError(ADMIN_ROLE_MESSAGE);
-      return;
+      return {};
     }
 
-    let updated: MemberResponse;
+    savingLock.current = true;
+    let updated: MemberResponse | null;
 
     try {
       updated = await updateMutation.mutateAsync({
-        input,
+        ...submission,
         target,
       });
     } catch (error) {
       setEditorError(errorMessage(error));
+
+      if (error instanceof CurrentMemberPartialSaveError) {
+        void queryClient.invalidateQueries({
+          queryKey: beverageQueryKeys.all(ownerKey),
+        });
+        return { savedBeverages: error.savedBeverages };
+      }
 
       if (
         error instanceof CurrentMemberSafetyError ||
@@ -206,7 +293,18 @@ export function useCurrentMemberMutations({
         void refreshPrivateWorkspace();
       }
 
-      return;
+      return {};
+    } finally {
+      savingLock.current = false;
+    }
+
+    if (updated === null) {
+      toast(`${target.name} 님의 음료를 수정했어요.`, 'success');
+      setMode({ kind: 'closed' });
+      await queryClient.invalidateQueries({
+        queryKey: beverageQueryKeys.all(ownerKey),
+      });
+      return {};
     }
 
     queryClient.setQueryData<MemberResponse[]>(
@@ -239,6 +337,7 @@ export function useCurrentMemberMutations({
     );
     setMode({ kind: 'closed' });
     await refreshPrivateWorkspace();
+    return {};
   };
 
   const deleteMember = async (target: MemberResponse) => {
@@ -307,7 +406,7 @@ export function useCurrentMemberMutations({
       errorMessage: editorError,
       mode,
       onClose: closeEditor,
-      onSubmit: (input: CurrentMemberInput) => void submitEditor(input),
+      onSubmit: submitEditor,
       saving: updateMutation.isPending,
     },
     onDelete: (target: MemberResponse) => void deleteMember(target),

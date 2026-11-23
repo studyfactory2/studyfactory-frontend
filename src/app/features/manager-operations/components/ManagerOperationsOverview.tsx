@@ -28,6 +28,7 @@ export function ManagerOperationsOverview({
   onManageRequests,
   onManageTasks,
   operations,
+  showSideDishDateControls = true,
   sideDishDate,
 }: {
   excludeLunchFromBadge?: boolean;
@@ -36,6 +37,7 @@ export function ManagerOperationsOverview({
   onManageRequests?: () => void;
   onManageTasks?: () => void;
   operations: ReturnType<typeof useManagerOperations>;
+  showSideDishDateControls?: boolean;
   sideDishDate?: SideDishDateSelection;
 }) {
   const [activeSection, setActiveSection] =
@@ -144,7 +146,18 @@ export function ManagerOperationsOverview({
         ? '회원 반찬 신청'
         : `${sideDishDayLabel} 반찬 신청`,
     toolbar: sideDishDate ? (
-      <ManagerSideDishDateBar date={sideDishDate} />
+      showSideDishDateControls ? (
+        <ManagerSideDishDateBar date={sideDishDate} />
+      ) : (
+        <div className="manager-side-dish-date">
+          <p aria-live="polite" className="manager-side-dish-date__selected">
+            <time dateTime={sideDishDate.dateKey}>
+              {formatKoreanDate(sideDishDate.dateKey)}
+            </time>
+            <span>반찬 신청</span>
+          </p>
+        </div>
+      )
     ) : undefined,
     content: (
       <ManagerSideDishOrders

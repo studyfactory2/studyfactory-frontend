@@ -8,12 +8,10 @@ import {
 import { UserRoundCog } from 'lucide-react';
 import type { SessionOwnerKey } from '../../../../core/session';
 import type { BranchResponse } from '../../../../features/branches/branches-api';
-import type {
-  CurrentMemberInput,
-  MemberResponse,
-} from '../../../../features/members/members-api';
+import type { MemberResponse } from '../../../../features/members/members-api';
 import { Button, Modal } from '../../../../shared/ui';
 import type { CurrentMemberEditorMode } from '../hooks/useCurrentMemberMutations';
+import { useCurrentMemberBeverages } from '../hooks/useCurrentMemberBeverages';
 import { useSeatOptions } from '../hooks/useSeatOptions';
 import {
   hasSeat,
@@ -29,7 +27,12 @@ import {
   type CurrentMemberDraft,
 } from '../model/current-member-form';
 import { CurrentMemberBasicFields } from './CurrentMemberBasicFields';
+import { CurrentMemberBeverageFields } from './CurrentMemberBeverageFields';
 import { CurrentMemberLearningFields } from './CurrentMemberLearningFields';
+import type {
+  CurrentMemberEditorSaveResult,
+  CurrentMemberEditorSubmission,
+} from '../model/current-member-beverages';
 
 type CurrentMemberEditorModalProps = {
   branches: BranchResponse[];
@@ -38,7 +41,9 @@ type CurrentMemberEditorModalProps = {
   memberId: number;
   mode: CurrentMemberEditorMode;
   onClose: () => void;
-  onSubmit: (input: CurrentMemberInput) => void;
+  onSubmit: (
+    submission: CurrentMemberEditorSubmission,
+  ) => Promise<CurrentMemberEditorSaveResult>;
   ownerKey: SessionOwnerKey;
   saving: boolean;
 };
@@ -105,6 +110,12 @@ function CurrentMemberEditorForm({
   const [initialDraft] = useState(() => draftFromCurrentMember(member));
   const [draft, setDraft] = useState(initialDraft);
   const [submitted, setSubmitted] = useState(false);
+  const beverages = useCurrentMemberBeverages({
+    branchId: member.branchId,
+    memberId,
+    ownerKey,
+    targetMemberId: member.id,
+  });
   const selfEditing = member.id === memberId;
   const branchLocked = !CURRENT_MEMBER_BRANCH_TRANSFER_ENABLED;
   const roleLocked = selfEditing || member.role === 'ADMIN';
@@ -128,9 +139,10 @@ function CurrentMemberEditorForm({
     member,
   );
   const invalid = hasCurrentMemberDraftErrors(errors);
-  const dirty =
+  const profileChanged =
     currentMemberDraftSignature(draft) !==
     currentMemberDraftSignature(initialDraft);
+  const dirty = profileChanged || beverages.dirty;
   const currentSeatMissing =
     currentSeat !== null &&
     seats.choices.some(
@@ -157,15 +169,27 @@ function CurrentMemberEditorForm({
     }));
   };
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitted(true);
 
-    if (saving || invalid || !dirty) {
+    if (
+      saving ||
+      (profileChanged && invalid) ||
+      !dirty ||
+      (beverages.dirty && (!beverages.ready || beverages.invalid))
+    ) {
       return;
     }
 
-    onSubmit(toCurrentMemberInput(draft));
+    const result = await onSubmit({
+      input: toCurrentMemberInput(draft),
+      profileChanged,
+      beverages: beverages.change,
+    });
+    if (result.savedBeverages !== undefined) {
+      beverages.acceptSaved(result.savedBeverages);
+    }
   };
 
   return (
@@ -201,7 +225,7 @@ function CurrentMemberEditorForm({
           roleLocked={roleLocked}
           saving={saving}
           selfEditing={selfEditing}
-          showErrors={submitted}
+          showErrors={submitted && profileChanged}
         />
       </FormSection>
 
@@ -215,8 +239,16 @@ function CurrentMemberEditorForm({
           onPatch={patch}
           saving={saving}
           seats={seats}
-          showErrors={submitted}
+          showErrors={submitted && profileChanged}
           unresolvedCertification={unresolvedCertification}
+        />
+      </FormSection>
+
+      <FormSection disabled={saving} index={3} title="음료">
+        <CurrentMemberBeverageFields
+          beverages={beverages}
+          saving={saving}
+          showErrors={submitted}
         />
       </FormSection>
 
@@ -224,7 +256,7 @@ function CurrentMemberEditorForm({
         <p className="current-member-form__message" role="alert">
           {errorMessage}
         </p>
-      ) : submitted && invalid ? (
+      ) : submitted && profileChanged && invalid ? (
         <p className="current-member-form__message" role="alert">
           아직 저장할 수 없어요. 표시된 항목을 확인해 주세요.
         </p>
